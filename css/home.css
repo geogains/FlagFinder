@@ -228,76 +228,59 @@ body {
 }
 
 /* -----------------------------------
-   🌍 Mobile Optimization (Under 768px)
+   🌍 Mobile Layout Tweaks
 ----------------------------------- */
 @media (max-width: 768px) {
-  body {
-    padding: 0;
-    overflow-x: hidden;
-  }
 
-  .home-wrapper {
-    padding: 1rem;
-    gap: 1rem;
-  }
-
-  /* 🏷️ Adjust main header size */
-  .home-header h1 {
-    font-size: 1.8rem;
-    letter-spacing: 0.5px;
-    margin-top: 0.5rem;
-  }
-
-  /* 💬 Subtext readability */
-  .home-header p {
-    font-size: 1rem;
-    line-height: 1.4;
-    text-align: center;
-    padding: 0 0.8rem;
-  }
-
-  /* 🧩 Category cards layout */
-  .category-card {
-    width: 100%;
-    max-width: 330px;
+  /* Center the Daily Challenge card */
+  .daily-challenge-card,
+  .category-card.main {
     margin: 0 auto;
-    padding: 1.2rem;
-    border-radius: 1.3rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  }
-
-  .category-card h3 {
-    font-size: 1.25rem;
-  }
-
-  .category-card p {
-    font-size: 0.95rem;
-  }
-
-  /* 🎮 "Play Now" button sizing */
-  .category-card button,
-  .btn-play {
-    font-size: 1rem;
-    padding: 0.8rem 1.2rem;
-    border-radius: 1rem;
-  }
-
-  /* 🔢 Category grid spacing */
-  .categories-section {
-    gap: 1rem;
     display: flex;
     flex-direction: column;
     align-items: center;
+    text-align: center;
   }
 
-  /* 📱 Prevent horizontal scrolling on flags and cards */
-  img, .flag, .flag-box {
-    max-width: 100%;
+  /* Adjust the text sizing slightly */
+  .daily-challenge-card h3,
+  .daily-challenge-card h2 {
+    text-align: center;
+  }
+
+  /* Create two-column grid for categories */
+  .categories-section {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.9rem;
+    justify-items: center;
+  }
+
+  /* Make category cards smaller to fit 2 per row */
+  .categories-section .category-card {
+    width: 90%;
+    max-width: 160px;
+    padding: 1rem;
+    border-radius: 1.2rem;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+  }
+
+  .categories-section .category-card h3 {
+    font-size: 1rem;
+  }
+
+  .categories-section .category-card p {
+    font-size: 0.85rem;
+  }
+
+  .categories-section img {
+    width: 100%;
     height: auto;
+    border-radius: 1rem;
   }
 
-  /* ✨ Gentle breathing room at bottom */
-  footer {
-    margin-bottom: 3rem;
+  /* Keep enough padding at bottom */
+  .home-wrapper {
+    padding-bottom: 2.5rem;
   }
 }
