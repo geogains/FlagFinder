@@ -227,3 +227,77 @@ body {
   color: #f97316;
 }
 
+/* -----------------------------------
+   🌍 Mobile Optimization (Under 768px)
+----------------------------------- */
+@media (max-width: 768px) {
+  body {
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  .home-wrapper {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  /* 🏷️ Adjust main header size */
+  .home-header h1 {
+    font-size: 1.8rem;
+    letter-spacing: 0.5px;
+    margin-top: 0.5rem;
+  }
+
+  /* 💬 Subtext readability */
+  .home-header p {
+    font-size: 1rem;
+    line-height: 1.4;
+    text-align: center;
+    padding: 0 0.8rem;
+  }
+
+  /* 🧩 Category cards layout */
+  .category-card {
+    width: 100%;
+    max-width: 330px;
+    margin: 0 auto;
+    padding: 1.2rem;
+    border-radius: 1.3rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+
+  .category-card h3 {
+    font-size: 1.25rem;
+  }
+
+  .category-card p {
+    font-size: 0.95rem;
+  }
+
+  /* 🎮 "Play Now" button sizing */
+  .category-card button,
+  .btn-play {
+    font-size: 1rem;
+    padding: 0.8rem 1.2rem;
+    border-radius: 1rem;
+  }
+
+  /* 🔢 Category grid spacing */
+  .categories-section {
+    gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* 📱 Prevent horizontal scrolling on flags and cards */
+  img, .flag, .flag-box {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* ✨ Gentle breathing room at bottom */
+  footer {
+    margin-bottom: 3rem;
+  }
+}
