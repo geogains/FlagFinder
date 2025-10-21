@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeoHunter - Rank by Category</title>
+
+  <!-- Fonts & CSS -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="./css/home.css" />
+<link rel="stylesheet" href="./css/game-modes.css" />
+</head>
+<body>
+
+<!-- 🔹 Hamburger Menu -->
+<div class="hamburger-menu">
+  <div class="menu-icon" id="menuToggle">☰</div>
+  <div class="menu-overlay" id="menuOverlay">
+    <div class="menu-panel">
+      <h2>Menu</h2>
+      <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
+      <button class="menu-btn" onclick="window.location.href='index.html#categories'">🎮 Change Category</button>
+      <button class="menu-btn">🏆 Leaderboard</button>
+      <button class="menu-btn">💡 How to Play</button>
+      <button class="menu-btn menu-close" id="closeMenu">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- 🔹 Game Wrapper -->
+<div class="blind-ranking-wrapper">
+  <div class="top-card">
+    <h2 class="top-card-title">Loading category...</h2>
+    <div class="country-pool-panel"></div>
+  </div>
+
+  <div class="ranking-card">
+    <div class="current-flag">
+      <div class="flag-box"><span>&lt;Country Flag&gt;</span></div>
+    </div>
+    <div class="flag-country-name">COUNTRY</div>
+
+    <div class="ranking-list">
+      <div class="ranking-row"><div class="rank-number">1</div><div class="rank-slot empty-slot"></div></div>
+      <div class="ranking-row"><div class="rank-number">2</div><div class="rank-slot empty-slot"></div></div>
+      <div class="ranking-row"><div class="rank-number">3</div><div class="rank-slot empty-slot"></div></div>
+      <div class="ranking-row"><div class="rank-number">4</div><div class="rank-slot empty-slot"></div></div>
+      <div class="ranking-row"><div class="rank-number">5</div><div class="rank-slot empty-slot"></div></div>
+      <div class="ranking-row"><div class="rank-number">6</div><div class="rank-slot empty-slot"></div></div>
+      <div class="ranking-row"><div class="rank-number">7</div><div class="rank-slot empty-slot"></div></div>
+      <div class="ranking-row"><div class="rank-number">8</div><div class="rank-slot empty-slot"></div></div>
+      <div class="ranking-row"><div class="rank-number">9</div><div class="rank-slot empty-slot"></div></div>
+      <div class="ranking-row"><div class="rank-number">10</div><div class="rank-slot empty-slot"></div></div>
+    </div>
+  </div>
+
+  <div class="result-panel" style="display:none;">
+    <div class="result-score">Score: <span class="result-score-value">0</span></div>
+    <div class="result-breakdown"></div>
+    <div class="result-buttons">
+      <button class="btn action-play-again">Play Again</button>
+      <button class="btn action-play-random">Play Random</button>
+      <button class="btn action-share">Share Results</button>
+    </div>
+  </div>
+</div>
+
+<!-- 🔹 Scripts -->
+<script type="module">
+  import { populationData } from './js/categories/population.js';
+  import { gdpData } from './js/categories/gdp.js';
+  import { happinessData } from './js/categories/happiness.js';
+  import { forestData } from './js/categories/forest.js';
+  import { coastlineData } from './js/categories/coastline.js';
+  import { cuisineData } from './js/categories/cuisine.js';
+  import { olympicData } from './js/categories/olympic.js';
+  import { worldcupData } from './js/categories/worldcup.js';
+  import { landmassData } from './js/categories/landmass.js';
+  import { crimerateData } from './js/categories/crimerate.js';
+  import { altitudeData } from './js/categories/altitude.js';
+  import { passportData } from './js/categories/passport.js';
+
+
+  // ✅ Read ?mode= from URL
+  const params = new URLSearchParams(window.location.search);
+  const mode = params.get('mode') || 'population';
+
+  // ✅ Define all datasets
+  const datasets = {
+    population: { title: 'RANK THESE COUNTRIES BY POPULATION 🌍', data: populationData },
+    gdp: { title: 'RANK THESE COUNTRIES BY GDP 💰', data: gdpData },
+    happiness: { title: 'RANK THESE COUNTRIES BY HAPPINESS 😊', data: happinessData },
+    forest: { title: 'RANK THESE COUNTRIES BY FOREST COVER 🌲', data: forestData },
+    coastline: { title: 'RANK THESE COUNTRIES BY COASTLINE LENGTH 🌊', data: coastlineData },
+    cuisine: { title: 'RANK THESE COUNTRIES BY CUISINE 🍽️', data: cuisineData },
+    olympic: { title: 'RANK THESE COUNTRIES BY OLYMPIC MEDALS 🥇', data: olympicData },
+    worldcup: { title: 'RANK THESE COUNTRIES BY WORLD CUP TROPHIES ⚽', data: worldcupData },
+    landmass: { title: 'RANK THESE COUNTRIES BY LARGEST LAND MASS 🗻', data: landmassData },
+    crimerate: { title: 'RANK THESE COUNTRIES BY HIGHEST CRIME RATE 🚨', data: crimerateData },
+    altitude: { title: 'RANK THESE COUNTRIES BY HIGHEST ELEVATION 🏔️', data: altitudeData },
+    passport: { title: 'RANK THESE COUNTRIES BY BEST PASSPORT 🛂', data: passportData },
+  };
+
+  const selected = datasets[mode] || datasets.population;
+
+  // ✅ Assign before importing the game logic
+  window.countries = selected.data;
+  document.querySelector('.top-card-title').textContent = selected.title;
+
+  console.log('Loaded mode:', mode);
+  console.log('Countries received:', window.countries.length);
+
+  // ✅ Dynamic import AFTER assigning data
+  const { startBlindRankingGame, setupRankButtons } = await import('./js/blind-ranking.js');
+
+  startBlindRankingGame();
+  setupRankButtons();
+
+  window.scrollTo(0, 0);
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const menuToggle = document.getElementById("menuToggle");
+    const menuOverlay = document.getElementById("menuOverlay");
+    const closeMenu = document.getElementById("closeMenu");
+
+    if (!menuToggle || !menuOverlay) return;
+
+    // 🟣 Open the menu
+    menuToggle.addEventListener("click", () => {
+      menuOverlay.classList.add("active");
+    });
+
+    // 🔵 Close with the close button
+    if (closeMenu) {
+      closeMenu.addEventListener("click", () => {
+        menuOverlay.classList.remove("active");
+      });
+    }
+
+    // ⚪ Close when clicking outside the menu panel
+    menuOverlay.addEventListener("click", (e) => {
+      if (e.target === menuOverlay) {
+        menuOverlay.classList.remove("active");
+      }
+    });
+  });
+</script>
+
+
+</body>
+</html>

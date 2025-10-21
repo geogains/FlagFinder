@@ -1,0 +1,381 @@
+/* -------------------------------
+   Base Layout
+---------------------------------- */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(180deg, #98f6d0 0%, #59c3c3 50%, #38a3a5 100%);
+  color: #1e1e1e;
+}
+
+/* Wrapper */
+.blind-ranking-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+/* -------------------------------
+   Unified Top Card (Title + Flags)
+---------------------------------- */
+.top-card {
+  position: relative;
+  text-align: center;
+  padding: 0.8rem 1.4rem 1.8rem;
+  width: 90%;
+  max-width: 480px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.top-card-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #075e54;
+  margin-bottom: 1rem;
+  letter-spacing: 0.4px;
+}
+
+.country-pool-panel {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.8rem;
+  justify-items: center;
+}
+
+.country-flag-item {
+  width: 55px;
+  height: 35px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.2s;
+}
+.country-flag-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 8px;
+}
+.country-flag-item:hover {
+  transform: scale(1.05);
+}
+.country-flag-item.active {
+  outline: 3px solid #ff7f50;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px #ffece8;
+}
+.country-flag-item.used {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* -------------------------------
+   Game Card
+---------------------------------- */
+.ranking-card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  padding: 1.6rem 1.2rem;
+  width: 90%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.3rem;
+}
+
+.current-flag {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.flag-box {
+  width: 130px;
+  height: 85px;
+  background-color: #e0f7f1;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00796b;
+  font-weight: 600;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.flag-country-name {
+  margin-top: -0.5rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-align: center;
+  color: #1c1c1c;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* -------------------------------
+   Ranking Rows
+---------------------------------- */
+.ranking-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.ranking-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.rank-number {
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, #ff9770, #ff6f61);
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  width: 45px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.rank-number:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+.rank-number.used-rank {
+  background: linear-gradient(135deg, #fbd5d5, #fca5a5);
+  cursor: default;
+  transform: none !important;
+  box-shadow: none !important;
+  opacity: 0.7;
+}
+
+.rank-slot {
+  flex: 1;
+  height: 42px;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #1f1f1f;
+  box-sizing: border-box;
+}
+.rank-slot img {
+  height: 24px;
+  width: auto;
+  border-radius: 4px;
+}
+.rank-slot.stomp {
+  animation: stompIn 0.35s ease;
+}
+
+@keyframes stompIn {
+  0% { transform: scale(0.85); opacity: 0; }
+  80% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+/* -------------------------------
+   End Game Styles
+---------------------------------- */
+.correct-slot {
+  background-color: #10b981 !important;
+  color: white !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 12px;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.result-panel {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  padding: 1.5rem;
+  width: 90%;
+  max-width: 480px;
+  display: none;
+  flex-direction: column;
+  gap: 1rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.result-panel table thead tr {
+  background: linear-gradient(135deg, #06d6a0, #00b894) !important;
+  color: white;
+}
+
+.result-panel.visible {
+  display: flex;
+  opacity: 1;
+}
+.result-score {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #16a34a;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.btn {
+  background: linear-gradient(90deg, #f97316, #f43f5e);
+  border: none;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.8rem 1.2rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+
+.btn-shuffle-selection {
+  background: linear-gradient(135deg, #06d6a0, #00b894);
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.8rem 1.4rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  margin-top: 0.8rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.btn-shuffle-selection:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+
+.country-flag-item.flag-shuffling {
+  animation: shufflePulse 0.15s ease-in-out infinite alternate;
+  transform-origin: center;
+  opacity: 0.9;
+}
+@keyframes shufflePulse {
+  from { transform: scale(1); opacity: 0.85; }
+  to { transform: scale(1.08); opacity: 1; }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* -------------------------------
+   Hamburger Menu Styles
+---------------------------------- */
+.hamburger-menu {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+}
+
+.menu-icon {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+  padding: 0.6rem 0.8rem;
+  cursor: pointer;
+  font-size: 1.4rem;
+  color: #075e54;
+  transition: transform 0.2s ease;
+}
+.menu-icon:hover {
+  transform: scale(1.1);
+}
+
+.menu-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+  z-index: 999;
+}
+.menu-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+.menu-panel {
+  background: white;
+  width: 260px;
+  height: 100%;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.25);
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+  transform: translateX(100%);
+  transition: transform 0.35s ease;
+}
+.menu-overlay.active .menu-panel {
+  transform: translateX(0);
+}
+.menu-panel h2 {
+  color: #00695c;
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.menu-btn {
+  background: linear-gradient(90deg, #f97316, #f43f5e);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 0.7rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.menu-btn:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(90deg, #fb923c, #fb7185);
+}
+
+.menu-close {
+  background: #e5e5e5;
+  color: #075e54;
+}
+
+

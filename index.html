@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeoRanks — Global Ranking Challenge 🌍</title>
+
+  <!-- Fonts and Styles -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/game-modes.css" />
+  <link rel="stylesheet" href="css/home.css" />
+</head>
+<body>
+
+  <div class="home-wrapper">
+
+    <!-- Header -->
+      <header class="home-header">
+      <div class="logo-wrapper">
+        <img src="assets/logo.svg" alt="GeoRanks Logo" class="logo" />
+      </div>
+      <p class="tagline">Test your world knowledge — one ranking at a time</p>
+    </header>
+
+    <!-- Daily Challenge -->
+<section class="daily-challenge-card gradient-card">
+  <h2>📅 Daily Challenge</h2>
+  <h3>Rank by Population 👥</h3>
+  <p>Same 10 countries for all players globally</p>
+  <a href="game.html?mode=population" class="btn-primary glow">Play Now</a>
+</section>
+
+    <!-- Categories -->
+    <section class="categories-section">
+      <h2>Other Categories 👇</h2>
+      <div class="categories-grid">
+
+<a href="game.html?mode=population" 
+   class="category-card" 
+   style="background-image:url('images/categories/population.jpg');">
+  <div class="category-info">
+    <span class="emoji">👥</span>
+    <h3>Population</h3>
+    <p>Rank countries by total population</p>
+  </div>
+</a>
+
+<a href="game.html?mode=gdp" 
+   class="category-card" 
+   style="background-image:url('images/categories/gdp.jpg');">
+  <div class="category-info">
+    <span class="emoji">💵</span>
+    <h3>GDP</h3>
+    <p>Rank countries by GDP per capita</p>
+  </div>
+</a>
+
+<a href="game.html?mode=happiness" 
+   class="category-card" 
+   style="background-image:url('images/categories/happiness.jpg');">
+  <div class="category-info">
+    <span class="emoji">☺️</span>
+    <h3>Happiness Index</h3>
+    <p>Rank countries by quality of life</p>
+  </div>
+</a>
+
+<a href="game.html?mode=forest" 
+   class="category-card" 
+   style="background-image:url('images/categories/forest.jpg');">
+  <div class="category-info">
+    <span class="emoji">🌲</span>
+    <h3>Forest Cover</h3>
+    <p>Rank countries by forested land area</p>
+  </div>
+</a>
+
+<a href="game.html?mode=coastline" 
+   class="category-card" 
+   style="background-image:url('images/categories/coastline.jpg');">
+  <div class="category-info">
+    <span class="emoji">🌊</span>
+    <h3>Longest Coastline</h3>
+    <p>Rank countries by total coastline (km)</p>
+  </div>
+</a>
+
+<a href="game.html?mode=cuisine" 
+   class="category-card" 
+   style="background-image:url('images/categories/cuisine.jpg');">
+  <div class="category-info">
+    <span class="emoji">🍽️</span>
+    <h3>Cuisine</h3>
+    <p>Rank countries by food culture influence</p>
+  </div>
+</a>
+
+<a href="game.html?mode=olympic" 
+   class="category-card" 
+   style="background-image:url('images/categories/olympic.jpg');">
+  <div class="category-info">
+    <span class="emoji">🥇</span>
+    <h3>Olympic Medals</h3>
+    <p>Rank countries by total medals won</p>
+  </div>
+</a>
+
+<a href="game.html?mode=worldcup" 
+   class="category-card" 
+   style="background-image:url('images/categories/worldcup.jpg');">
+  <div class="category-info">
+    <span class="emoji">⚽️</span>
+    <h3>World Cup</h3>
+    <p>Rank countries by total trophies won</p>
+  </div>
+</a>
+
+<a href="game.html?mode=landmass" 
+   class="category-card" 
+   style="background-image:url('images/categories/landmass.jpg');">
+  <div class="category-info">
+    <span class="emoji">🌍</span>
+    <h3>Land Mass</h3>
+    <p>Rank countries by total land mass</p>
+  </div>
+</a>
+
+<a href="game.html?mode=crimerate" 
+   class="category-card" 
+   style="background-image:url('images/categories/crimerate.jpg');">
+  <div class="category-info">
+    <span class="emoji">🚨</span>
+    <h3>Crime Rate</h3>
+    <p>Rank countries by highest crime rate</p>
+  </div>
+</a>
+
+<a href="game.html?mode=altitude" 
+   class="category-card" 
+   style="background-image:url('images/categories/altitude.jpg');">
+  <div class="category-info">
+    <span class="emoji">🏔️</span>
+    <h3>Highest Altitude</h3>
+    <p>Rank countries by highest altitude</p>
+  </div>
+</a>
+
+<a href="game.html?mode=passport" 
+   class="category-card" 
+   style="background-image:url('images/categories/passport.jpg');">
+  <div class="category-info">
+    <span class="emoji">🛂</span>
+    <h3>Passport Strength</h3>
+    <p>Rank countries by best passport</p>
+  </div>
+</a>
+
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="home-footer">
+      <p>© 2025 GeoRanks — Created by Erion</p>
+    </footer>
+
+  </div>
+
+  <script>
+  // === Define all categories ===
+  const categories = [
+    { title: "Population 👥", emoji: "👥", description: "Rank countries by total population", mode: "population" },
+    { title: "GDP 💵", emoji: "💵", description: "Rank countries by GDP per capita", mode: "gdp" },
+    { title: "Happiness Index ☺️", emoji: "☺️", description: "Rank countries by quality of life", mode: "happiness" },
+    { title: "Forest Cover 🌲", emoji: "🌲", description: "Rank countries by forested land area", mode: "forest" },
+    { title: "Longest Coastline 🌊", emoji: "🌊", description: "Rank countries by total coastline (km)", mode: "coastline" },
+    { title: "Cuisine 🍽️", emoji: "🍽️", description: "Rank countries by food culture influence", mode: "cuisine" },
+    { title: "Olympic Medals 🥇", emoji: "🥇", description: "Rank countries by total medals won", mode: "olympic" },
+    { title: "World Cup ⚽️", emoji: "⚽️", description: "Rank countries by total trophies won", mode: "worldcup" },
+    { title: "Land Mass 🌍", emoji: "🌍", description: "Rank countries by total land mass", mode: "landmass" },
+    { title: "Altitude 🏔️", emoji: "🏔️", description: "Rank countries by highest altitude", mode: "altitude" },
+    { title: "Passport 🛂", emoji: "🛂", description: "Rank countries by best passport", mode: "passport" },
+  ];
+
+  // === Get the current UTC day index ===
+  const now = new Date();
+  const startOfEpoch = new Date(Date.UTC(2025, 0, 1)); // January 1st, 2025 (reference point)
+  const daysSinceEpoch = Math.floor((now - startOfEpoch) / (1000 * 60 * 60 * 24));
+  const categoryIndex = daysSinceEpoch % categories.length;
+  const todayCategory = categories[categoryIndex];
+
+  // === Update the Daily Challenge Card ===
+  const dailyCard = document.querySelector(".daily-challenge-card");
+  if (dailyCard) {
+    dailyCard.querySelector("h3").textContent = `Rank by ${todayCategory.title}`;
+    dailyCard.querySelector("p").textContent = "Same 10 countries for all players globally";
+    const playButton = dailyCard.querySelector("a");
+    playButton.href = `game.html?mode=${todayCategory.mode}`;
+  }
+</script>
+
+
+</body>
+</html>
