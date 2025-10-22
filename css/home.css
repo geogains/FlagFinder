@@ -330,11 +330,31 @@ body {
 ----------------------------------- */
 .fade-in {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  transform: translateY(40px);
+  transition: opacity 0.9s ease-out, transform 0.9s ease-out;
+  will-change: opacity, transform;
 }
 
 .fade-in.visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Prevent scroll locking or clipping */
+body, html {
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: auto;
+  min-height: 100%;
+}
+
+.home-wrapper {
+  overflow: visible;
+  height: auto;
+  min-height: 100vh;
+}
+
+/* Slight delays for staggered animations */
+.categories-grid .fade-in:nth-child(n) {
+  transition-delay: calc(0.05s * var(--i, 1));
 }
