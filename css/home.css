@@ -1,12 +1,12 @@
 /* -----------------------------------
-   GeoRanks Homepage (Perfectly Centered Version)
+   GeoHunter Homepage (Perfectly Centered Version)
 ----------------------------------- */
 body {
   margin: 0;
   padding: 0;
   background: linear-gradient(180deg, #98f6d0 0%, #59c3c3 50%, #38a3a5 100%);
   color: #1e1e1e;
-  overflow-x: hidden;
+  overflow-x: hidden; /* prevents horizontal overflow */
   font-family: 'Quicksand', sans-serif;
 }
 
@@ -32,17 +32,13 @@ h1, h2, h3 {
 }
 
 /* -----------------------------------
-   Header (Centered Alignment)
+   Header
 ----------------------------------- */
 .home-header {
   text-align: center;
   color: #075e54;
   margin-top: 1rem;
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
 }
 
 .logo-wrapper {
@@ -56,32 +52,33 @@ h1, h2, h3 {
   width: 85vw;
   max-width: 380px;
   height: auto;
-  margin: 0 auto 0.6rem;
+  margin: 0 auto 0.8rem;
   display: block;
 }
 
 .tagline {
-  font-family: 'Rubik', sans-serif;
   font-weight: 700;
   font-size: 1.5rem;
-  opacity: 0.95;
+  opacity: 0.9;
   margin-top: 0.2rem;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  text-align: center;
-  color: #073b36;
+  text-transform: uppercase; /* for stronger headline look */
+  letter-spacing: 0.5px;
 }
 
 /* -----------------------------------
-   Daily Challenge Card (Rubik + Quicksand Styling)
+   Daily Challenge Card
 ----------------------------------- */
 .daily-challenge-card {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  padding: 2.2rem 1.8rem;
-  width: 100%;
+  width: 90%;
   max-width: 520px;
-  margin: 0 auto;
+  margin: 0 auto 2rem auto;
+  padding: 2.2rem 1.8rem;
   color: #1f2937;
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.65);
@@ -90,7 +87,7 @@ h1, h2, h3 {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   overflow: hidden;
   transition: transform 0.25s ease;
-  font-family: 'Quicksand', sans-serif;
+  box-sizing: border-box;
 }
 
 .daily-challenge-card:hover {
@@ -98,33 +95,29 @@ h1, h2, h3 {
 }
 
 .daily-challenge-card h2 {
-  font-family: 'Rubik', sans-serif;
   font-size: 1.2rem;
-  font-weight: 700;
+  font-weight: 600;
   color: #075e54;
   margin-bottom: 0.4rem;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
 }
 
 .daily-challenge-card h3 {
-  font-family: 'Rubik', sans-serif;
-  font-size: 2.1rem;
-  font-weight: 800;
-  color: #0f172a;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #0e6f64;
   margin: 0.3rem 0 0.6rem;
   text-transform: uppercase;
 }
 
 .daily-challenge-card p {
-  font-family: 'Quicksand', sans-serif;
   color: #1e293b;
-  font-size: 1rem;
-  font-weight: 500;
+  font-size: 0.95rem;
   margin-bottom: 1.4rem;
-  opacity: 0.95;
 }
 
+/* -----------------------------------
+   Play Button
+----------------------------------- */
 .btn-primary {
   background: linear-gradient(135deg, #ff9770, #ff6f61);
   color: #fff;
@@ -137,7 +130,6 @@ h1, h2, h3 {
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
-  font-family: 'Rubik', sans-serif;
 }
 
 .btn-primary:hover {
@@ -162,6 +154,7 @@ h1, h2, h3 {
   text-align: center;
 }
 
+/* Centered 2xN Grid */
 .categories-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -189,9 +182,8 @@ h1, h2, h3 {
 }
 
 .category-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
-  cursor: pointer;
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.2);
 }
 
 .category-info {
@@ -212,11 +204,6 @@ h1, h2, h3 {
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
   border: 1px solid rgba(255, 255, 255, 0.6);
-  transition: background 0.3s ease;
-}
-
-.category-card:hover .category-info {
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.9));
 }
 
 .category-info .emoji {
@@ -237,6 +224,7 @@ h1, h2, h3 {
   color: #334155;
 }
 
+/* Gradient bottom fade */
 .category-card::after {
   content: "";
   position: absolute;
@@ -302,7 +290,7 @@ h1, h2, h3 {
     justify-content: center;
     justify-items: center;
     align-items: center;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr); /* mobile stays 2xN */
   }
 
   .category-card {
@@ -316,11 +304,12 @@ h1, h2, h3 {
 ----------------------------------- */
 @media (min-width: 769px) {
   .categories-section {
-    max-width: 850px;
+    max-width: 850px; /* expands the whole grid area */
   }
 
   .categories-grid {
-    grid-template-columns: repeat(4, 1fr);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 cards per row */
     gap: 1.5rem;
     justify-content: center;
     justify-items: center;
@@ -349,10 +338,11 @@ h1, h2, h3 {
 .fade-in {
   opacity: 0;
   transform: translateY(30px);
-  transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-              transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 0.65s ease-out, transform 0.65s ease-out;
+transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+            transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: opacity, transform;
-  visibility: hidden;
+  visibility: hidden; /* hides element until visible */
 }
 
 .fade-in.visible {
@@ -368,9 +358,10 @@ html, body {
   overflow-y: auto;
   height: auto;
   min-height: 100%;
-  -webkit-overflow-scrolling: touch;
+  -webkit-overflow-scrolling: touch; /* iOS smooth scroll */
 }
 
+/* Prevent container clipping */
 .home-wrapper {
   overflow: visible;
   height: auto;
@@ -382,3 +373,19 @@ body {
   will-change: transform;
   transform: translateZ(0);
 }
+
+.category-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.category-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}
+
+.category-card:hover .category-info {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.9));
+  transition: background 0.3s ease;
+}
+
