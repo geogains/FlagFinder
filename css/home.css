@@ -268,3 +268,54 @@ body {
     padding: 10px;
   }
 }
+
+/* -----------------------------------
+   🛠 Centering + Overflow Fix (Mobile)
+----------------------------------- */
+@media (max-width: 768px) {
+  /* 1) Prevent any horizontal scroll just in case */
+  html, body { overflow-x: hidden; }
+
+  /* 2) Keep all sections on the same centered column width */
+  .home-wrapper,
+  .home-header,
+  .daily-challenge-card,
+  .categories-section {
+    width: 100%;
+    max-width: 420px;          /* one consistent column */
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* 3) Make the logo respect the column (no vw!) */
+  .logo {
+    width: 100%;               /* fill the column, not the viewport */
+    max-width: 360px;          /* looks great on phones */
+    height: auto;
+    display: block;
+    margin: 0 auto 0.8rem;
+  }
+
+  /* 4) Grid spans the column exactly; cards fill their column */
+  .categories-grid {
+    width: 100%;               /* not fit-content */
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    justify-items: stretch;    /* cards stretch evenly */
+    align-items: start;
+    margin: 0 auto 2rem;
+    padding: 0;
+  }
+
+  .categories-grid .category-card {
+    width: 100%;               /* fill the grid cell */
+    max-width: none;           /* avoid mismatched widths */
+    min-height: 190px;
+    border-radius: 22px;
+  }
+
+  .categories-grid .category-info {
+    left: 10px; right: 10px; bottom: 10px;
+    padding: 12px;
+  }
+}
