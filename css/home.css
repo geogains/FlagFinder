@@ -228,59 +228,101 @@ body {
 }
 
 /* -----------------------------------
-   🌍 Mobile Layout Tweaks
+   🌍 Refined Mobile Home Layout
 ----------------------------------- */
 @media (max-width: 768px) {
 
-  /* Center the Daily Challenge card */
-  .daily-challenge-card,
-  .category-card.main {
-    margin: 0 auto;
+  /* Center everything vertically and horizontally */
+  body, .home-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: flex-start;
     text-align: center;
   }
 
-  /* Adjust the text sizing slightly */
-  .daily-challenge-card h3,
-  .daily-challenge-card h2 {
+  /* Fix oversized logo */
+  header img, 
+  .logo, 
+  .home-header h1 img {
+    width: 140px;
+    height: auto;
+    margin: 0 auto;
+    display: block;
+  }
+
+  /* Adjust logo + title spacing */
+  .home-header {
+    text-align: center;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .home-header h1 {
+    font-size: 1.9rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .home-header p {
+    font-size: 1rem;
+    line-height: 1.4;
+    max-width: 90%;
+    margin: 0 auto 1.5rem;
+  }
+
+  /* Center the Daily Challenge card */
+  .daily-challenge-card {
+    margin: 0 auto 1.5rem;
+    max-width: 90%;
+    padding: 1.2rem;
+    border-radius: 1.3rem;
     text-align: center;
   }
 
-  /* Create two-column grid for categories */
+  /* Center “Other Categories” title */
+  .categories-section-title,
+  h2, h3 {
+    text-align: center !important;
+    width: 100%;
+    margin: 1rem 0 0.5rem;
+  }
+
+  /* Display category cards in a 2x2 grid */
   .categories-section {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.9rem;
+    gap: 1rem;
     justify-items: center;
+    align-items: center;
+    width: 100%;
+    max-width: 380px;
   }
 
-  /* Make category cards smaller to fit 2 per row */
-  .categories-section .category-card {
-    width: 90%;
-    max-width: 160px;
+  /* Adjust each category card for perfect grid fit */
+  .category-card {
+    width: 95%;
+    max-width: 170px;
     padding: 1rem;
-    border-radius: 1.2rem;
+    border-radius: 1rem;
     box-shadow: 0 3px 8px rgba(0,0,0,0.05);
   }
 
-  .categories-section .category-card h3 {
+  .category-card h3 {
     font-size: 1rem;
   }
 
-  .categories-section .category-card p {
+  .category-card p {
     font-size: 0.85rem;
   }
 
-  .categories-section img {
+  /* Prevent overflow */
+  img, .category-card img {
     width: 100%;
     height: auto;
     border-radius: 1rem;
   }
 
-  /* Keep enough padding at bottom */
-  .home-wrapper {
-    padding-bottom: 2.5rem;
+  footer {
+    margin-bottom: 2.5rem;
   }
 }
