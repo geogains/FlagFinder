@@ -1,282 +1,215 @@
 /* -----------------------------------
-   GeoHunter Homepage (Unified Design)
+   GeoRanks Homepage (Modern Layout)
 ----------------------------------- */
 body {
   margin: 0;
-  padding: 0;
   font-family: 'Inter', sans-serif;
-  background: linear-gradient(180deg, #98f6d0 0%, #59c3c3 50%, #38a3a5 100%);
   color: #1e1e1e;
+  background: linear-gradient(180deg, #98f6d0 0%, #59c3c3 50%, #38a3a5 100%);
+  overflow-x: hidden;
 }
 
-.home-wrapper {
-  min-height: 100vh;
+/* -----------------------------------
+   NAVBAR
+----------------------------------- */
+.navbar {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
-  padding: 1.5rem;
+  padding: 0.8rem 1.2rem;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
 }
 
-/* -----------------------------------
-   Header
------------------------------------ */
-.home-header {
-  text-align: center;
-  color: #075e54;
-  margin-top: 1rem;
-}
-
-.home-header h1 {
-  font-size: 2.4rem;
-  margin: 0;
-  letter-spacing: 0.8px;
-  font-weight: 800;
-}
-
-.tagline {
-  font-weight: 500;
-  font-size: 1rem;
-  opacity: 0.85;
-  margin-top: 0.3rem;
-}
-
-/* -----------------------------------
-   Daily Challenge Card (Glass Style)
------------------------------------ */
-.daily-challenge-card {
-  position: relative;
-  text-align: center;
-  padding: 2.2rem 1.8rem;
-  width: 90%;
-  max-width: 520px;
-  margin: 0 auto;
-  color: #1f2937;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  overflow: hidden;
-  transition: transform 0.25s ease;
-}
-
-.daily-challenge-card:hover {
-  transform: translateY(-4px);
-}
-
-.daily-challenge-card h2 {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #075e54;
-  margin-bottom: 0.4rem;
-}
-
-.daily-challenge-card h3 {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #0f172a;
-  margin: 0.3rem 0 0.6rem;
-}
-
-.daily-challenge-card p {
-  color: #1e293b;
-  font-size: 0.95rem;
-  margin-bottom: 1.4rem;
-}
-
-/* -----------------------------------
-   Play Button
------------------------------------ */
-.btn-primary {
-  background: linear-gradient(135deg, #ff9770, #ff6f61);
-  color: #fff;
-  padding: 0.85rem 1.9rem;
-  font-size: 1.05rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 14px;
-  text-decoration: none;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
-}
-
-.btn-primary:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
-}
-
-/* -----------------------------------
-   Categories Section
------------------------------------ */
-.categories-section {
-  text-align: center;
-  color: #075e54;
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   width: 100%;
   max-width: 900px;
 }
 
-.categories-section h2 {
-  font-size: 1.4rem;
-  margin-bottom: 1rem;
+.nav-logo {
+  height: 40px;
 }
 
-.categories-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-}
-
-.category-card {
-  position: relative;
-  background-size: cover;
-  background-position: center;
-  border-radius: 22px;
-  overflow: hidden;
-  min-height: 190px;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-}
-
-.category-card:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.2);
-}
-
-.category-info {
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: 12px;
-  height: calc(40% - 12px);
-  min-height: 80px;
-  padding: 14px 16px;
-  display: flex;
+.hamburger {
+  display: none;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  border-radius: 16px;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.85));
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  gap: 4px;
+}
+.hamburger div {
+  width: 25px;
+  height: 3px;
+  background: #075e54;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+.hamburger.active div:nth-child(1) {
+  transform: rotate(45deg) translate(4px, 4px);
+}
+.hamburger.active div:nth-child(2) {
+  opacity: 0;
+}
+.hamburger.active div:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
 }
 
-.category-info .emoji {
-  font-size: 1.4rem;
-  margin-bottom: 6px;
-}
-
-.category-info h3 {
-  margin: 0 0 4px;
-  font-size: 1.05rem;
-  font-weight: 800;
-  color: #0f172a;
-}
-
-.category-info p {
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 2rem;
   margin: 0;
-  font-size: 0.9rem;
-  color: #334155;
+  padding: 0;
 }
-
-/* Gradient bottom fade */
-.category-card::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 40%;
-  background: linear-gradient(to top, rgba(0,0,0,0.10), rgba(0,0,0,0));
-  pointer-events: none;
-}
-
-@media (max-width: 520px) {
-  .category-card { min-height: 170px; }
-  .category-info { height: calc(55% - 12px); }
-}
-
-/* -----------------------------------
-   Footer
------------------------------------ */
-.home-footer {
-  width: 100%;
-  text-align: center;
-  padding: 1.6rem 0;
-  margin-top: 3rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  letter-spacing: 0.3px;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.home-footer p {
-  margin: 0;
-}
-
-.home-footer a {
-  color: #ff6f61;
+.nav-links li a {
+  color: #075e54;
+  font-weight: 600;
   text-decoration: none;
   transition: color 0.2s ease;
 }
+.nav-links li a:hover {
+  color: #ff6f61;
+}
 
-.home-footer a:hover {
-  color: #f97316;
+/* Mobile Nav */
+@media (max-width: 768px) {
+  .hamburger {
+    display: flex;
+  }
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.9);
+    width: 100%;
+    text-align: center;
+    padding: 1rem 0;
+  }
+  .nav-links.active {
+    display: flex;
+  }
 }
 
 /* -----------------------------------
-   📱 Mobile: force 2-column category grid
+   HERO SECTION
 ----------------------------------- */
-@media (max-width: 768px) {
-
-  /* Center the section title */
-  .categories-section h2 {
-    text-align: center;
-    width: 100%;
-    margin: 0 0 0.9rem;
-  }
-
-  /* 🔐 Lock the grid to 2 columns on mobile */
-  .categories-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);   /* <-- exactly 2 columns */
-    gap: 14px;
-    justify-items: center;
-    align-items: start;
-    width: 100%;
-    max-width: 420px;                        /* keeps it centered and tidy */
-    margin: 0 auto 2rem;
-    padding: 0 8px;
-  }
-
-  /* Keep your current card look, but sized to fit 2-up */
-  .categories-grid .category-card {
-    width: 100%;
-    max-width: 180px;                        /* keeps shape consistent */
-    min-height: 190px;                       /* your original height */
-    border-radius: 22px;
-    overflow: hidden;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-  }
-
-  /* Ensure inner overlay scales nicely */
-  .categories-grid .category-info {
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
-    min-height: 78px;
-    padding: 12px 12px;
-  }
-
-  .categories-grid .category-info h3 {
-    font-size: 1rem;
-  }
-
-  .categories-grid .category-info p {
-    font-size: 0.85rem;
-  }
+.hero-section {
+  text-align: center;
+  padding: 2.5rem 1.5rem 1.2rem;
+  color: #075e54;
+}
+.hero-section h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+.hero-section p {
+  font-size: 1.05rem;
+  opacity: 0.85;
+  max-width: 420px;
+  margin: 0 auto;
 }
 
+/* -----------------------------------
+   DAILY CHALLENGE
+----------------------------------- */
+.daily-challenge-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  text-align: center;
+  padding: 1.8rem;
+  margin: 1.2rem auto;
+  width: 90%;
+  max-width: 420px;
+}
+.daily-challenge-card h2 {
+  color: #075e54;
+  margin-bottom: 0.4rem;
+}
+.daily-challenge-card h3 {
+  margin: 0.3rem 0 0.6rem;
+  font-weight: 800;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #ff9770, #ff6f61);
+  color: #fff;
+  padding: 0.8rem 1.6rem;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-block;
+  transition: 0.3s;
+}
+.btn-primary:hover {
+  transform: translateY(-3px);
+}
+
+/* -----------------------------------
+   CATEGORIES
+----------------------------------- */
+.categories-section {
+  text-align: center;
+  padding: 2rem 0;
+}
+.categories-section h2 {
+  color: #075e54;
+  margin-bottom: 1.2rem;
+}
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  width: 90%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.category-card {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  height: 160px;
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  transition: transform 0.25s;
+}
+.category-card:hover {
+  transform: scale(1.04);
+}
+.category-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.8rem 0;
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(4px);
+}
+.category-info h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #075e54;
+}
+.category-info span {
+  display: block;
+  font-size: 1.4rem;
+  margin-bottom: 0.3rem;
+}
+
+/* -----------------------------------
+   FOOTER
+----------------------------------- */
+.home-footer {
+  text-align: center;
+  font-size: 0.9rem;
+  padding: 1.8rem 0;
+  color: #075e54;
+  opacity: 0.9;
+}
