@@ -358,3 +358,40 @@ body, html {
 .categories-grid .fade-in:nth-child(n) {
   transition-delay: calc(0.05s * var(--i, 1));
 }
+
+/* --- Smooth scrolling + reflow fix --- */
+html, body {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: auto;
+  min-height: 100%;
+  -webkit-overflow-scrolling: touch; /* iOS smooth scroll */
+}
+
+/* Prevent container clipping */
+.home-wrapper {
+  height: auto;
+  min-height: 100vh;
+  overflow: visible;
+}
+
+/* Prevent scroll jumps from fade-in transforms */
+.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 1s ease-out, transform 1s ease-out;
+  visibility: hidden; /* hides visually but keeps layout space */
+}
+
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+/* Smooth GPU-accelerated rendering */
+body {
+  will-change: transform;
+  transform: translateZ(0);
+}
