@@ -1,15 +1,21 @@
 /* -----------------------------------
-   Wrapper
+   GeoHunter Homepage (Unified Design)
 ----------------------------------- */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(180deg, #98f6d0 0%, #59c3c3 50%, #38a3a5 100%);
+  color: #1e1e1e;
+}
+
 .home-wrapper {
-  width: 100%;
-  max-width: 480px; /* keeps everything proportionate */
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
-  padding: 1.5rem 1rem;
-  box-sizing: border-box;
+  gap: 2rem;
+  padding: 1.5rem;
 }
 
 /* -----------------------------------
@@ -21,26 +27,18 @@
   margin-top: 1rem;
 }
 
-.logo-wrapper {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-.logo {
-  width: 90%;
-  max-width: 380px;
-  height: auto;
-  margin: 0 auto 0.8rem;
-  display: block;
+.home-header h1 {
+  font-size: 2.4rem;
+  margin: 0;
+  letter-spacing: 0.8px;
+  font-weight: 800;
 }
 
 .tagline {
   font-weight: 500;
   font-size: 1rem;
   opacity: 0.85;
-  margin: 0 auto 1.2rem;
-  text-align: center;
+  margin-top: 0.3rem;
 }
 
 /* -----------------------------------
@@ -49,12 +47,12 @@
 .daily-challenge-card {
   position: relative;
   text-align: center;
-  padding: 1.8rem 1.4rem;
-  width: 100%;
-  max-width: 420px;
-  margin: 0 auto 2rem;
+  padding: 2.2rem 1.8rem;
+  width: 90%;
+  max-width: 520px;
+  margin: 0 auto;
   color: #1f2937;
-  border-radius: 22px;
+  border-radius: 24px;
   background: rgba(255, 255, 255, 0.65);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -75,10 +73,10 @@
 }
 
 .daily-challenge-card h3 {
-  font-size: 1.8rem;
+  font-size: 2rem;
   font-weight: 800;
   color: #0f172a;
-  margin: 0.4rem 0 0.6rem;
+  margin: 0.3rem 0 0.6rem;
 }
 
 .daily-challenge-card p {
@@ -87,10 +85,13 @@
   margin-bottom: 1.4rem;
 }
 
+/* -----------------------------------
+   Play Button
+----------------------------------- */
 .btn-primary {
   background: linear-gradient(135deg, #ff9770, #ff6f61);
   color: #fff;
-  padding: 0.8rem 1.8rem;
+  padding: 0.85rem 1.9rem;
   font-size: 1.05rem;
   font-weight: 600;
   border: none;
@@ -113,36 +114,26 @@
   text-align: center;
   color: #075e54;
   width: 100%;
-  max-width: 480px;
-  margin: 0 auto;
+  max-width: 900px;
 }
 
 .categories-section h2 {
-  font-size: 1.3rem;
-  margin: 0 auto 1.2rem;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
 }
 
-/* Grid of 2x2 centered cards */
 .categories-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  justify-items: center;
-  align-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
-  width: 100%;
-  margin: 0 auto 2rem;
-  box-sizing: border-box;
 }
 
-/* Individual Category Cards */
 .category-card {
   position: relative;
   background-size: cover;
   background-position: center;
   border-radius: 22px;
   overflow: hidden;
-  width: 100%;
-  max-width: 200px;
   min-height: 190px;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
@@ -155,10 +146,12 @@
 
 .category-info {
   position: absolute;
-  left: 10px;
-  right: 10px;
-  bottom: 10px;
-  padding: 14px 10px;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  height: calc(40% - 12px);
+  min-height: 80px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -178,15 +171,32 @@
 
 .category-info h3 {
   margin: 0 0 4px;
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 800;
   color: #0f172a;
 }
 
 .category-info p {
   margin: 0;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #334155;
+}
+
+/* Gradient bottom fade */
+.category-card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 40%;
+  background: linear-gradient(to top, rgba(0,0,0,0.10), rgba(0,0,0,0));
+  pointer-events: none;
+}
+
+@media (max-width: 520px) {
+  .category-card { min-height: 170px; }
+  .category-info { height: calc(55% - 12px); }
 }
 
 /* -----------------------------------
@@ -196,11 +206,11 @@
   width: 100%;
   text-align: center;
   padding: 1.6rem 0;
+  margin-top: 3rem;
   font-size: 0.9rem;
   font-weight: 500;
   letter-spacing: 0.3px;
   border-top: 1px solid rgba(0, 0, 0, 0.05);
-  margin-top: 2rem;
 }
 
 .home-footer p {
@@ -218,94 +228,55 @@
 }
 
 /* -----------------------------------
-   📱 Mobile Adjustments
+   📱 Mobile: force 2-column category grid
 ----------------------------------- */
 @media (max-width: 768px) {
-  .home-wrapper {
-    max-width: 420px;
-    padding: 1rem;
-  }
 
-  .logo {
-    width: 88vw;
-    max-width: 360px;
-  }
-
-  .daily-challenge-card {
-    max-width: 100%;
-    padding: 1.6rem 1.2rem;
-  }
-
-  .categories-section {
-    max-width: 420px;
-  }
-
-  .categories-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.9rem;
-  }
-
-  .category-card {
-    max-width: 180px;
-    min-height: 180px;
-  }
-
-  .category-info {
-    padding: 10px;
-  }
-}
-
-/* -----------------------------------
-   🛠 Centering + Overflow Fix (Mobile)
------------------------------------ */
-@media (max-width: 768px) {
-  /* 1) Prevent any horizontal scroll just in case */
-  html, body { overflow-x: hidden; width: 100%; }
-
-  /* 2) Keep all sections on the same centered column width */
-  .home-wrapper,
-  .home-header,
-  .daily-challenge-card,
-  .categories-section {
+  /* Center the section title */
+  .categories-section h2 {
+    text-align: center;
     width: 100%;
-    max-width: 420px;          /* one consistent column */
-    box-sizing: border-box;
-    padding: 0 1rem; /* Add horizontal padding to ensure content doesn't touch edges */
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0 0 0.9rem;
   }
 
-  /* 3) Make the logo respect the column (no vw!) */
-  .logo {
-    width: 100%;               /* fill the column, not the viewport */
-    padding: 0 1rem; /* Add horizontal padding for the logo */
-    max-width: 360px;          /* looks great on phones */
-    height: auto;
-    display: block;
-    margin: 0 auto 0.8rem;
-  }
-
-  /* 4) Grid spans the column exactly; cards fill their column */
+  /* 🔐 Lock the grid to 2 columns on mobile */
   .categories-grid {
-    width: 100%;               /* not fit-content */
-    padding: 0 1rem; /* Add horizontal padding for the grid */
-    grid-template-columns: repeat(2, 1fr);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);   /* <-- exactly 2 columns */
     gap: 14px;
-    justify-items: stretch;    /* cards stretch evenly */
+    justify-items: center;
     align-items: start;
+    width: 100%;
+    max-width: 420px;                        /* keeps it centered and tidy */
     margin: 0 auto 2rem;
-    padding: 0;
+    padding: 0 8px;
   }
 
+  /* Keep your current card look, but sized to fit 2-up */
   .categories-grid .category-card {
-    width: 100%;               /* fill the grid cell */
-    max-width: none;           /* avoid mismatched widths */
-    min-height: 190px;
+    width: 100%;
+    max-width: 180px;                        /* keeps shape consistent */
+    min-height: 190px;                       /* your original height */
     border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
   }
 
+  /* Ensure inner overlay scales nicely */
   .categories-grid .category-info {
-    left: 10px; right: 10px; bottom: 10px;
-    padding: 12px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    min-height: 78px;
+    padding: 12px 12px;
+  }
+
+  .categories-grid .category-info h3 {
+    font-size: 1rem;
+  }
+
+  .categories-grid .category-info p {
+    font-size: 0.85rem;
   }
 }
+
