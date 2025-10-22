@@ -1,13 +1,17 @@
 /* -----------------------------------
-   GeoHunter Homepage (Perfectly Centered Version)
+   GeoRanks Homepage (Perfectly Centered Version)
 ----------------------------------- */
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Inter', sans-serif;
   background: linear-gradient(180deg, #98f6d0 0%, #59c3c3 50%, #38a3a5 100%);
   color: #1e1e1e;
-  overflow-x: hidden; /* prevents horizontal overflow */
+  overflow-x: hidden;
+  font-family: 'Quicksand', sans-serif;
+}
+
+h1, h2, h3 {
+  font-family: 'Rubik', sans-serif;
 }
 
 /* -----------------------------------
@@ -28,13 +32,17 @@ body {
 }
 
 /* -----------------------------------
-   Header
+   Header (Centered Alignment)
 ----------------------------------- */
 .home-header {
   text-align: center;
   color: #075e54;
   margin-top: 1rem;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .logo-wrapper {
@@ -48,31 +56,32 @@ body {
   width: 85vw;
   max-width: 380px;
   height: auto;
-  margin: 0 auto 0.8rem;
+  margin: 0 auto 0.6rem;
   display: block;
 }
 
 .tagline {
-  font-weight: 500;
-  font-size: 1rem;
-  opacity: 0.85;
-  margin-top: 0.3rem;
+  font-family: 'Rubik', sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  opacity: 0.95;
+  margin-top: 0.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  text-align: center;
+  color: #073b36;
 }
 
 /* -----------------------------------
-   Daily Challenge Card
+   Daily Challenge Card (Rubik + Quicksand Styling)
 ----------------------------------- */
 .daily-challenge-card {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   text-align: center;
-  width: 90%;
-  max-width: 520px;
-  margin: 0 auto 2rem auto;
   padding: 2.2rem 1.8rem;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
   color: #1f2937;
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.65);
@@ -81,7 +90,7 @@ body {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   overflow: hidden;
   transition: transform 0.25s ease;
-  box-sizing: border-box;
+  font-family: 'Quicksand', sans-serif;
 }
 
 .daily-challenge-card:hover {
@@ -89,28 +98,33 @@ body {
 }
 
 .daily-challenge-card h2 {
+  font-family: 'Rubik', sans-serif;
   font-size: 1.2rem;
-  font-weight: 600;
+  font-weight: 700;
   color: #075e54;
   margin-bottom: 0.4rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .daily-challenge-card h3 {
-  font-size: 2rem;
+  font-family: 'Rubik', sans-serif;
+  font-size: 2.1rem;
   font-weight: 800;
   color: #0f172a;
   margin: 0.3rem 0 0.6rem;
+  text-transform: uppercase;
 }
 
 .daily-challenge-card p {
+  font-family: 'Quicksand', sans-serif;
   color: #1e293b;
-  font-size: 0.95rem;
+  font-size: 1rem;
+  font-weight: 500;
   margin-bottom: 1.4rem;
+  opacity: 0.95;
 }
 
-/* -----------------------------------
-   Play Button
------------------------------------ */
 .btn-primary {
   background: linear-gradient(135deg, #ff9770, #ff6f61);
   color: #fff;
@@ -123,6 +137,7 @@ body {
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  font-family: 'Rubik', sans-serif;
 }
 
 .btn-primary:hover {
@@ -147,7 +162,6 @@ body {
   text-align: center;
 }
 
-/* Centered 2xN Grid */
 .categories-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -175,8 +189,9 @@ body {
 }
 
 .category-card:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.2);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
 }
 
 .category-info {
@@ -197,6 +212,11 @@ body {
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
   border: 1px solid rgba(255, 255, 255, 0.6);
+  transition: background 0.3s ease;
+}
+
+.category-card:hover .category-info {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.9));
 }
 
 .category-info .emoji {
@@ -217,7 +237,6 @@ body {
   color: #334155;
 }
 
-/* Gradient bottom fade */
 .category-card::after {
   content: "";
   position: absolute;
@@ -283,7 +302,7 @@ body {
     justify-content: center;
     justify-items: center;
     align-items: center;
-    grid-template-columns: repeat(2, 1fr); /* mobile stays 2xN */
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .category-card {
@@ -297,12 +316,11 @@ body {
 ----------------------------------- */
 @media (min-width: 769px) {
   .categories-section {
-    max-width: 850px; /* expands the whole grid area */
+    max-width: 850px;
   }
 
   .categories-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr); /* 4 cards per row */
+    grid-template-columns: repeat(4, 1fr);
     gap: 1.5rem;
     justify-content: center;
     justify-items: center;
@@ -330,58 +348,11 @@ body {
 ----------------------------------- */
 .fade-in {
   opacity: 0;
-  transform: translateY(40px);
-  transition: opacity 0.9s ease-out, transform 0.9s ease-out;
-  will-change: opacity, transform;
-}
-
-.fade-in.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Prevent scroll locking or clipping */
-body, html {
-  overflow-x: hidden;
-  overflow-y: auto;
-  height: auto;
-  min-height: 100%;
-}
-
-.home-wrapper {
-  overflow: visible;
-  height: auto;
-  min-height: 100vh;
-}
-
-/* Slight delays for staggered animations */
-.categories-grid .fade-in:nth-child(n) {
-  transition-delay: calc(0.05s * var(--i, 1));
-}
-
-/* --- Smooth scrolling + reflow fix --- */
-html, body {
-  scroll-behavior: smooth;
-  overflow-x: hidden;
-  overflow-y: auto;
-  height: auto;
-  min-height: 100%;
-  -webkit-overflow-scrolling: touch; /* iOS smooth scroll */
-}
-
-/* Prevent container clipping */
-.home-wrapper {
-  height: auto;
-  min-height: 100vh;
-  overflow: visible;
-}
-
-/* Prevent scroll jumps from fade-in transforms */
-.fade-in {
-  opacity: 0;
   transform: translateY(30px);
-  transition: opacity 1s ease-out, transform 1s ease-out;
-  visibility: hidden; /* hides visually but keeps layout space */
+  transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+  visibility: hidden;
 }
 
 .fade-in.visible {
@@ -390,8 +361,25 @@ html, body {
   visibility: visible;
 }
 
-/* Smooth GPU-accelerated rendering */
+/* Prevent scroll locking or clipping */
+html, body {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: auto;
+  min-height: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+.home-wrapper {
+  overflow: visible;
+  height: auto;
+  min-height: 100vh;
+}
+
+/* Smooth GPU rendering optimization */
 body {
   will-change: transform;
   transform: translateZ(0);
 }
+
