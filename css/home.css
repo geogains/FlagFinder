@@ -1,5 +1,5 @@
 /* -----------------------------------
-   GeoHunter Homepage (Perfect Alignment)
+   GeoHunter Homepage (Perfectly Centered Version)
 ----------------------------------- */
 body {
   margin: 0;
@@ -7,20 +7,24 @@ body {
   font-family: 'Inter', sans-serif;
   background: linear-gradient(180deg, #98f6d0 0%, #59c3c3 50%, #38a3a5 100%);
   color: #1e1e1e;
-  overflow-x: hidden;
+  overflow-x: hidden; /* prevents horizontal overflow */
 }
 
-/* Core Wrapper – Centers All Content */
+/* -----------------------------------
+   Master Wrapper
+----------------------------------- */
 .home-wrapper {
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
   width: 100%;
+  max-width: 100vw;
+  min-height: 100vh;
   margin: 0 auto;
   padding: 1.5rem;
   box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 /* -----------------------------------
@@ -30,6 +34,7 @@ body {
   text-align: center;
   color: #075e54;
   margin-top: 1rem;
+  width: 100%;
 }
 
 .logo-wrapper {
@@ -55,15 +60,19 @@ body {
 }
 
 /* -----------------------------------
-   Daily Challenge Card (Glass Style)
+   Daily Challenge Card
 ----------------------------------- */
 .daily-challenge-card {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  padding: 2.2rem 1.8rem;
-  width: 100%;
+  width: 90%;
   max-width: 520px;
-  margin: 0 auto;
+  margin: 0 auto 2rem auto;
+  padding: 2.2rem 1.8rem;
   color: #1f2937;
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.65);
@@ -72,6 +81,7 @@ body {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   overflow: hidden;
   transition: transform 0.25s ease;
+  box-sizing: border-box;
 }
 
 .daily-challenge-card:hover {
@@ -124,11 +134,11 @@ body {
    Categories Section
 ----------------------------------- */
 .categories-section {
+  text-align: center;
+  color: #075e54;
   width: 100%;
   max-width: 420px;
   margin: 0 auto;
-  text-align: center;
-  color: #075e54;
 }
 
 .categories-section h2 {
@@ -137,7 +147,7 @@ body {
   text-align: center;
 }
 
-/* Perfectly Centered 2xN Grid */
+/* Centered 2xN Grid */
 .categories-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -248,26 +258,23 @@ body {
 }
 
 /* -----------------------------------
-   📱 Mobile Perfect Center Lock
+   📱 Mobile Responsive Alignment
 ----------------------------------- */
 @media (max-width: 768px) {
-  body {
-    display: flex;
-    justify-content: center;
-  }
-
   .home-wrapper {
     width: 100%;
     max-width: 480px;
     align-items: center;
+    justify-content: flex-start;
   }
 
   .daily-challenge-card {
     width: 90%;
-    margin: 0 auto 2rem;
+    margin: 0 auto 2rem auto;
   }
 
   .categories-section {
+    width: 100%;
     max-width: 420px;
   }
 
@@ -276,5 +283,10 @@ body {
     justify-content: center;
     justify-items: center;
     align-items: center;
+  }
+
+  .category-card {
+    max-width: 180px;
+    min-height: 190px;
   }
 }
