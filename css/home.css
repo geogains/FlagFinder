@@ -7,7 +7,6 @@ body {
   font-family: 'Inter', sans-serif;
   background: linear-gradient(180deg, #98f6d0 0%, #59c3c3 50%, #38a3a5 100%);
   color: #1e1e1e;
-  overflow-x: hidden; /* prevent any sideways scroll */
 }
 
 .home-wrapper {
@@ -20,40 +19,12 @@ body {
 }
 
 /* -----------------------------------
-   Unified Container Alignment
------------------------------------ */
-.container {
-  width: 100%;
-  max-width: 420px;         /* single unified column */
-  margin: 0 auto;
-  text-align: center;
-}
-
-/* -----------------------------------
    Header
 ----------------------------------- */
 .home-header {
   text-align: center;
   color: #075e54;
   margin-top: 1rem;
-  width: 100%;
-  max-width: 420px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.logo-wrapper {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-.logo {
-  width: 90%;
-  max-width: 360px;
-  height: auto;
-  margin: 0 auto 0.8rem;
-  display: block;
 }
 
 .home-header h1 {
@@ -77,8 +48,8 @@ body {
   position: relative;
   text-align: center;
   padding: 2.2rem 1.8rem;
-  width: 100%;
-  max-width: 420px;
+  width: 90%;
+  max-width: 520px;
   margin: 0 auto;
   color: #1f2937;
   border-radius: 24px;
@@ -143,8 +114,7 @@ body {
   text-align: center;
   color: #075e54;
   width: 100%;
-  max-width: 420px; /* unified width with daily card */
-  margin: 0 auto;
+  max-width: 900px;
 }
 
 .categories-section h2 {
@@ -152,23 +122,14 @@ body {
   margin-bottom: 1rem;
 }
 
-/* -----------------------------------
-   Category Grid
------------------------------------ */
 .categories-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
-  justify-items: center;
-  align-items: start;
-  width: 100%;
-  margin: 0 auto 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
 }
 
 .category-card {
   position: relative;
-  width: 100%;
-  max-width: 180px;
   background-size: cover;
   background-position: center;
   border-radius: 22px;
@@ -185,11 +146,12 @@ body {
 
 .category-info {
   position: absolute;
-  left: 10px;
-  right: 10px;
-  bottom: 10px;
-  min-height: 78px;
-  padding: 12px;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  height: calc(40% - 12px);
+  min-height: 80px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -232,6 +194,11 @@ body {
   pointer-events: none;
 }
 
+@media (max-width: 520px) {
+  .category-card { min-height: 170px; }
+  .category-info { height: calc(55% - 12px); }
+}
+
 /* -----------------------------------
    Footer
 ----------------------------------- */
@@ -244,7 +211,6 @@ body {
   font-weight: 500;
   letter-spacing: 0.3px;
   border-top: 1px solid rgba(0, 0, 0, 0.05);
-  color: #075e54;
 }
 
 .home-footer p {
@@ -262,46 +228,55 @@ body {
 }
 
 /* -----------------------------------
-   Responsive Optimization
+   📱 Mobile: force 2-column category grid
 ----------------------------------- */
 @media (max-width: 768px) {
 
-  .home-header {
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .logo {
-    width: 85%;
-    max-width: 340px;
-  }
-
-  .daily-challenge-card {
+  /* Center the section title */
+  .categories-section h2 {
+    text-align: center;
     width: 100%;
-    max-width: 380px;
+    margin: 0 0 0.9rem;
   }
 
-  .categories-section {
-    max-width: 380px;
-  }
-
+  /* 🔐 Lock the grid to 2 columns on mobile */
   .categories-grid {
-    grid-template-columns: repeat(2, 1fr);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);   /* <-- exactly 2 columns */
     gap: 14px;
     justify-items: center;
-  }
-
-  .category-card {
+    align-items: start;
     width: 100%;
-    max-width: 160px;
-    min-height: 180px;
+    max-width: 420px;                        /* keeps it centered and tidy */
+    margin: 0 auto 2rem;
+    padding: 0 8px;
   }
 
-  .category-info h3 {
+  /* Keep your current card look, but sized to fit 2-up */
+  .categories-grid .category-card {
+    width: 100%;
+    max-width: 180px;                        /* keeps shape consistent */
+    min-height: 190px;                       /* your original height */
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  }
+
+  /* Ensure inner overlay scales nicely */
+  .categories-grid .category-info {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    min-height: 78px;
+    padding: 12px 12px;
+  }
+
+  .categories-grid .category-info h3 {
     font-size: 1rem;
   }
 
-  .category-info p {
+  .categories-grid .category-info p {
     font-size: 0.85rem;
   }
 }
+
