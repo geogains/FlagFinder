@@ -184,8 +184,8 @@ body {
   left: 12px;
   right: 12px;
   bottom: 12px;
-  height: calc(40% - 12px);
-  min-height: 80px;
+  height: 35px;
+  min-height: 60px;
   padding: 14px 16px;
   display: flex;
   flex-direction: column;
