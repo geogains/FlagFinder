@@ -9,45 +9,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/game-modes.css" />
   <link rel="stylesheet" href="css/home.css" />
-
-  <style>
-    /* -----------------------------------
-       ✨ Fade-in + Upward Motion Animation
-    ----------------------------------- */
-    .fade-in {
-      opacity: 0;
-      transform: translateY(40px);
-      transition: opacity 0.9s ease-out, transform 0.9s ease-out;
-      will-change: opacity, transform;
-    }
-
-    .fade-in.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* Slight delay on child cards for extra polish */
-    .categories-grid .fade-in:nth-child(1) { transition-delay: 0.05s; }
-    .categories-grid .fade-in:nth-child(2) { transition-delay: 0.1s; }
-    .categories-grid .fade-in:nth-child(3) { transition-delay: 0.15s; }
-    .categories-grid .fade-in:nth-child(4) { transition-delay: 0.2s; }
-    .categories-grid .fade-in:nth-child(5) { transition-delay: 0.25s; }
-    .categories-grid .fade-in:nth-child(6) { transition-delay: 0.3s; }
-    .categories-grid .fade-in:nth-child(7) { transition-delay: 0.35s; }
-    .categories-grid .fade-in:nth-child(8) { transition-delay: 0.4s; }
-    .categories-grid .fade-in:nth-child(9) { transition-delay: 0.45s; }
-    .categories-grid .fade-in:nth-child(10) { transition-delay: 0.5s; }
-    .categories-grid .fade-in:nth-child(11) { transition-delay: 0.55s; }
-    .categories-grid .fade-in:nth-child(12) { transition-delay: 0.6s; }
-  </style>
 </head>
-
 <body>
 
   <div class="home-wrapper">
 
     <!-- Header -->
-    <header class="home-header fade-in">
+    <header class="home-header fade-in visible">
       <div class="logo-wrapper">
         <img src="assets/logo.svg" alt="GeoRanks Logo" class="logo" />
       </div>
@@ -67,84 +35,96 @@
       <h2>Other Categories 👇</h2>
       <div class="categories-grid">
 
-        <a href="game.html?mode=population" class="category-card fade-in" style="background-image:url('images/categories/population.jpg');">
+        <a href="game.html?mode=population" class="category-card fade-in"
+           style="background-image:url('images/categories/population.jpg');">
           <div class="category-info">
             <span class="emoji">👥</span>
             <h3>Population</h3>
           </div>
         </a>
 
-        <a href="game.html?mode=gdp" class="category-card fade-in" style="background-image:url('images/categories/gdp.jpg');">
+        <a href="game.html?mode=gdp" class="category-card fade-in"
+           style="background-image:url('images/categories/gdp.jpg');">
           <div class="category-info">
             <span class="emoji">💵</span>
             <h3>GDP</h3>
           </div>
         </a>
 
-        <a href="game.html?mode=happiness" class="category-card fade-in" style="background-image:url('images/categories/happiness.jpg');">
+        <a href="game.html?mode=happiness" class="category-card fade-in"
+           style="background-image:url('images/categories/happiness.jpg');">
           <div class="category-info">
             <span class="emoji">☺️</span>
             <h3>Happiness</h3>
           </div>
         </a>
 
-        <a href="game.html?mode=forest" class="category-card fade-in" style="background-image:url('images/categories/forest.jpg');">
+        <a href="game.html?mode=forest" class="category-card fade-in"
+           style="background-image:url('images/categories/forest.jpg');">
           <div class="category-info">
             <span class="emoji">🌲</span>
             <h3>Forest Cover</h3>
           </div>
         </a>
 
-        <a href="game.html?mode=coastline" class="category-card fade-in" style="background-image:url('images/categories/coastline.jpg');">
+        <a href="game.html?mode=coastline" class="category-card fade-in"
+           style="background-image:url('images/categories/coastline.jpg');">
           <div class="category-info">
             <span class="emoji">🌊</span>
             <h3>Longest Coastline</h3>
           </div>
         </a>
 
-        <a href="game.html?mode=cuisine" class="category-card fade-in" style="background-image:url('images/categories/cuisine.jpg');">
+        <a href="game.html?mode=cuisine" class="category-card fade-in"
+           style="background-image:url('images/categories/cuisine.jpg');">
           <div class="category-info">
             <span class="emoji">🍽️</span>
             <h3>Cuisine</h3>
           </div>
         </a>
 
-        <a href="game.html?mode=olympic" class="category-card fade-in" style="background-image:url('images/categories/olympic.jpg');">
+        <a href="game.html?mode=olympic" class="category-card fade-in"
+           style="background-image:url('images/categories/olympic.jpg');">
           <div class="category-info">
             <span class="emoji">🥇</span>
             <h3>Olympic Medals</h3>
           </div>
         </a>
 
-        <a href="game.html?mode=worldcup" class="category-card fade-in" style="background-image:url('images/categories/worldcup.jpg');">
+        <a href="game.html?mode=worldcup" class="category-card fade-in"
+           style="background-image:url('images/categories/worldcup.jpg');">
           <div class="category-info">
             <span class="emoji">⚽️</span>
             <h3>World Cup Trophies</h3>
           </div>
         </a>
 
-        <a href="game.html?mode=landmass" class="category-card fade-in" style="background-image:url('images/categories/landmass.jpg');">
+        <a href="game.html?mode=landmass" class="category-card fade-in"
+           style="background-image:url('images/categories/landmass.jpg');">
           <div class="category-info">
             <span class="emoji">🌍</span>
             <h3>Land Mass</h3>
           </div>
         </a>
 
-        <a href="game.html?mode=crimerate" class="category-card fade-in" style="background-image:url('images/categories/crimerate.jpg');">
+        <a href="game.html?mode=crimerate" class="category-card fade-in"
+           style="background-image:url('images/categories/crimerate.jpg');">
           <div class="category-info">
             <span class="emoji">🚨</span>
             <h3>Crime Rate</h3>
           </div>
         </a>
 
-        <a href="game.html?mode=altitude" class="category-card fade-in" style="background-image:url('images/categories/altitude.jpg');">
+        <a href="game.html?mode=altitude" class="category-card fade-in"
+           style="background-image:url('images/categories/altitude.jpg');">
           <div class="category-info">
             <span class="emoji">🏔️</span>
             <h3>Highest Altitude</h3>
           </div>
         </a>
 
-        <a href="game.html?mode=passport" class="category-card fade-in" style="background-image:url('images/categories/passport.jpg');">
+        <a href="game.html?mode=passport" class="category-card fade-in"
+           style="background-image:url('images/categories/passport.jpg');">
           <div class="category-info">
             <span class="emoji">🛂</span>
             <h3>Passport Strength</h3>
@@ -161,10 +141,10 @@
 
   </div>
 
-  <!-- =====================================
-       DAILY CHALLENGE DYNAMIC UPDATE
-  ====================================== -->
+  <!-- ===== JS Scripts ===== -->
+
   <script>
+  // === Define all categories ===
   const categories = [
     { title: "Population 👥", emoji: "👥", mode: "population" },
     { title: "GDP 💵", emoji: "💵", mode: "gdp" },
@@ -179,6 +159,7 @@
     { title: "Passport 🛂", emoji: "🛂", mode: "passport" },
   ];
 
+  // === Daily Challenge ===
   const now = new Date();
   const startOfEpoch = new Date(Date.UTC(2025, 0, 1));
   const daysSinceEpoch = Math.floor((now - startOfEpoch) / (1000 * 60 * 60 * 24));
@@ -188,29 +169,40 @@
   const dailyCard = document.querySelector(".daily-challenge-card");
   if (dailyCard) {
     dailyCard.querySelector("h3").textContent = `Rank by ${todayCategory.title}`;
+    dailyCard.querySelector("p").textContent = "Same 10 countries for all players globally";
     const playButton = dailyCard.querySelector("a");
     playButton.href = `game.html?mode=${todayCategory.mode}`;
   }
-  </script>
 
-  <!-- =====================================
-       FADE-IN + STAGGER ANIMATION
-  ====================================== -->
-  <script>
-  const fadeEls = document.querySelectorAll('.fade-in');
+  // === Smooth Fade-in on Scroll ===
+  document.addEventListener("DOMContentLoaded", () => {
+    const fadeEls = document.querySelectorAll('.fade-in');
+    fadeEls.forEach((el, i) => el.style.setProperty('--i', i + 1));
 
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry, index) => {
-      if (entry.isIntersecting) {
-        setTimeout(() => {
-          entry.target.classList.add('visible');
-        }, index * 120); // stagger speed (ms)
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.1 });
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            entry.target.classList.add('visible');
+          }, 100);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.05 });
 
-  fadeEls.forEach(el => observer.observe(el));
+    // Delay activation slightly to allow layout to stabilize
+    setTimeout(() => {
+      fadeEls.forEach(el => observer.observe(el));
+    }, 300);
+  });
+
+  // === Instantly show top section ===
+  window.addEventListener("load", () => {
+    const instantEls = document.querySelectorAll(
+      ".daily-challenge-card, .categories-grid .category-card:nth-child(-n+4)"
+    );
+    instantEls.forEach(el => el.classList.add("visible"));
+  });
   </script>
 
 </body>
