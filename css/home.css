@@ -1,18 +1,4 @@
 /* -----------------------------------
-   GeoHunter Homepage (Unified Design)
------------------------------------ */
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Inter', sans-serif;
-  background: linear-gradient(180deg, #98f6d0 0%, #59c3c3 50%, #38a3a5 100%);
-  color: #1e1e1e;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* -----------------------------------
    Wrapper
 ----------------------------------- */
 .home-wrapper {
@@ -274,7 +260,7 @@ body {
 ----------------------------------- */
 @media (max-width: 768px) {
   /* 1) Prevent any horizontal scroll just in case */
-  html, body { overflow-x: hidden; }
+  html, body { overflow-x: hidden; width: 100%; }
 
   /* 2) Keep all sections on the same centered column width */
   .home-wrapper,
@@ -283,6 +269,8 @@ body {
   .categories-section {
     width: 100%;
     max-width: 420px;          /* one consistent column */
+    box-sizing: border-box;
+    padding: 0 1rem; /* Add horizontal padding to ensure content doesn't touch edges */
     margin-left: auto;
     margin-right: auto;
   }
@@ -290,6 +278,7 @@ body {
   /* 3) Make the logo respect the column (no vw!) */
   .logo {
     width: 100%;               /* fill the column, not the viewport */
+    padding: 0 1rem; /* Add horizontal padding for the logo */
     max-width: 360px;          /* looks great on phones */
     height: auto;
     display: block;
@@ -299,6 +288,7 @@ body {
   /* 4) Grid spans the column exactly; cards fill their column */
   .categories-grid {
     width: 100%;               /* not fit-content */
+    padding: 0 1rem; /* Add horizontal padding for the grid */
     grid-template-columns: repeat(2, 1fr);
     gap: 14px;
     justify-items: stretch;    /* cards stretch evenly */
