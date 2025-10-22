@@ -283,10 +283,44 @@ body {
     justify-content: center;
     justify-items: center;
     align-items: center;
+    grid-template-columns: repeat(2, 1fr); /* mobile stays 2xN */
   }
 
   .category-card {
     max-width: 180px;
     min-height: 190px;
+  }
+}
+
+/* -----------------------------------
+   💻 Desktop & Tablet View: 4 Columns
+----------------------------------- */
+@media (min-width: 769px) {
+  .categories-section {
+    max-width: 850px; /* expands the whole grid area */
+  }
+
+  .categories-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 cards per row */
+    gap: 1.5rem;
+    justify-content: center;
+    justify-items: center;
+    align-items: start;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .category-card {
+    max-width: 210px;
+    min-height: 200px;
+  }
+
+  .category-info h3 {
+    font-size: 1.1rem;
+  }
+
+  .category-info p {
+    font-size: 0.9rem;
   }
 }
