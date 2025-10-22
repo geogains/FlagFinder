@@ -228,132 +228,54 @@ body {
 }
 
 /* -----------------------------------
-   📱 Optimized Mobile Layout (Horizontal Scroll)
+   📱 Mobile: force 2-column category grid
 ----------------------------------- */
 @media (max-width: 768px) {
 
-  body, .home-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  /* Center the section title */
+  .categories-section h2 {
     text-align: center;
-    overflow-x: hidden;
-  }
-
-  /* Logo */
-  .home-header h1 img,
-  .logo {
-    width: 180px;
-    max-width: 60%;
-    height: auto;
-    display: block;
-    margin: 0 auto 0.5rem;
-  }
-
-  .home-header h1 {
-    font-size: 2rem;
-    margin: 0.5rem 0;
-  }
-
-  .home-header p {
-    font-size: 1rem;
-    max-width: 85%;
-    margin: 0 auto 1.5rem;
-    line-height: 1.4;
-  }
-
-  /* Daily Challenge */
-  .daily-challenge-card {
-    margin: 0 auto 1.8rem;
-    max-width: 90%;
-    text-align: center;
-    border-radius: 1.3rem;
-    padding: 1.4rem;
-  }
-
-  /* Section title */
-  .categories-section-title,
-  h2 {
-    text-align: center !important;
     width: 100%;
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin: 0.5rem 0 1rem;
+    margin: 0 0 0.9rem;
   }
 
-  /* 🔹 Scrollable Category Rows */
-  .categories-section {
-    display: flex;
-    flex-direction: column;
-    gap: 1.6rem;
+  /* 🔐 Lock the grid to 2 columns on mobile */
+  .categories-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);   /* <-- exactly 2 columns */
+    gap: 14px;
+    justify-items: center;
+    align-items: start;
     width: 100%;
-    max-width: 100%;
+    max-width: 420px;                        /* keeps it centered and tidy */
+    margin: 0 auto 2rem;
+    padding: 0 8px;
+  }
+
+  /* Keep your current card look, but sized to fit 2-up */
+  .categories-grid .category-card {
+    width: 100%;
+    max-width: 180px;                        /* keeps shape consistent */
+    min-height: 190px;                       /* your original height */
+    border-radius: 22px;
     overflow: hidden;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
   }
 
-  /* Each row container (scrollable horizontally) */
-  .category-row {
-    display: flex;
-    overflow-x: auto;
-    gap: 1rem;
-    padding: 0 1rem;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
+  /* Ensure inner overlay scales nicely */
+  .categories-grid .category-info {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    min-height: 78px;
+    padding: 12px 12px;
   }
 
-  /* Hide scrollbar for clean look */
-  .category-row::-webkit-scrollbar {
-    display: none;
+  .categories-grid .category-info h3 {
+    font-size: 1rem;
   }
 
-  /* Category cards inside rows */
-  .category-card {
-    flex: 0 0 auto;
-    width: 150px;
-    height: 180px;
-    border-radius: 1.1rem;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    background: #fff;
-    text-align: center;
-    scroll-snap-align: start;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .category-card:hover {
-    transform: scale(1.03);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-  }
-
-  .category-card img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 1.1rem;
-  }
-
-  .category-info {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(255,255,255,0.8);
-    backdrop-filter: blur(6px);
-    padding: 0.6rem;
-    border-radius: 0 0 1.1rem 1.1rem;
-  }
-
-  .category-info h3 {
-    font-size: 0.9rem;
-    margin: 0;
-  }
-
-  .category-info p {
-    font-size: 0.75rem;
-    margin: 0.2rem 0 0;
-  }
-
-  footer {
-    margin-top: 2rem;
-    margin-bottom: 3rem;
+  .categories-grid .category-info p {
+    font-size: 0.85rem;
   }
 }
