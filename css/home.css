@@ -62,10 +62,9 @@ h1, h2, h3, .tagline {
 
 .tagline {
   font-weight: 700;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   opacity: 0.9;
   margin-top: 0.2rem;
-  text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
