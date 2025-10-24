@@ -7,11 +7,14 @@ body {
   background: linear-gradient(180deg, #98f6d0 0%, #59c3c3 50%, #38a3a5 100%);
   color: #1e1e1e;
   overflow-x: hidden; /* prevents horizontal overflow */
-  font-family: 'Quicksand', sans-serif;
+font-family: 'Poppins', sans-serif;
+font-weight: 400;
 }
 
-h1, h2, h3 {
-  font-family: 'Rubik', sans-serif;
+h1, h2, h3, .tagline {
+  font‑family: 'Rubik', 'Poppins', sans‑serif;
+  font‑weight: 700;
+  letter‑spacing: 0;
 }
 
 /* -----------------------------------
@@ -96,15 +99,15 @@ h1, h2, h3 {
 
 .daily-challenge-card h2 {
   font-size: 1.2rem;
-  font-weight: 600;
+  font-weight: 800;
   color: #075e54;
   margin-bottom: 0.4rem;
 }
 
 .daily-challenge-card h3 {
   font-size: 2rem;
-  font-weight: 600;
-  color: #0e6f64;
+  font-weight: 1000;
+  color: #252525;
   margin: 0.3rem 0 0.6rem;
   text-transform: uppercase;
 }
