@@ -6,15 +6,17 @@ body {
   padding: 0;
   background: linear-gradient(180deg, #98f6d0 0%, #59c3c3 50%, #38a3a5 100%);
   color: #1e1e1e;
-  overflow-x: hidden; /* prevents horizontal overflow */
-font-family: 'Poppins', sans-serif;
-font-weight: 400;
+  overflow-x: hidden;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 h1, h2, h3, .tagline {
-  font‑family: 'Rubik', 'Poppins', sans‑serif;
-  font‑weight: 700;
-  letter‑spacing: 0;
+  font-family: 'Rubik', 'Poppins', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0;
 }
 
 /* -----------------------------------
@@ -31,7 +33,6 @@ h1, h2, h3, .tagline {
   margin: 0 auto;
   padding: 1.5rem;
   box-sizing: border-box;
-  overflow-x: hidden;
 }
 
 /* -----------------------------------
@@ -64,7 +65,7 @@ h1, h2, h3, .tagline {
   font-size: 1.5rem;
   opacity: 0.9;
   margin-top: 0.2rem;
-  text-transform: uppercase; /* for stronger headline look */
+  text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
@@ -89,16 +90,18 @@ h1, h2, h3, .tagline {
   -webkit-backdrop-filter: blur(10px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   overflow: hidden;
-  transition: transform 0.25s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
   box-sizing: border-box;
 }
 
 .daily-challenge-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+  filter: brightness(1.05);
 }
 
 .daily-challenge-card h2 {
-  font-size: 1.2rem;
+  font-size: 1.8rem;
   font-weight: 800;
   color: #075e54;
   margin-bottom: 0.4rem;
@@ -116,6 +119,78 @@ h1, h2, h3, .tagline {
   color: #1e293b;
   font-size: 0.95rem;
   margin-bottom: 1.4rem;
+}
+
+/* Frosted Glass Panel inside Daily Challenge */
+/* Frosted glass panel for daily challenge */
+.daily-info {
+  position: relative; /* not absolute anymore */
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.85));
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
+  padding: 1.6rem 1.2rem;
+  text-align: center;
+  width: 85%;
+  max-width: 380px;
+  margin: 0 auto;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Headings inside daily-info */
+.daily-info h2 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #075e54;
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+}
+
+.daily-info h3 {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #0f172a;
+  margin: 0.3rem 0 1rem;
+  text-transform: uppercase;
+}
+
+
+.daily-info .btn-primary {
+  z-index: 2;
+}
+
+
+/* Dynamic photo background (shared with category style) */
+.daily-challenge-card.has-photo {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  overflow: hidden;
+}
+
+.daily-challenge-card.has-photo::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.3),
+    rgba(255, 255, 255, 0.3)
+  );
+  backdrop-filter: blur(0.5px);
+  -webkit-backdrop-filter: blur(3px);
+  z-index: 0;
+}
+
+.daily-challenge-card.has-photo h2,
+.daily-challenge-card.has-photo h3,
+.daily-challenge-card.has-photo p,
+.daily-challenge-card.has-photo .btn-primary {
+  position: relative;
+  z-index: 1;
 }
 
 /* -----------------------------------
@@ -154,10 +229,8 @@ h1, h2, h3, .tagline {
 .categories-section h2 {
   font-size: 1.4rem;
   margin-bottom: 1rem;
-  text-align: center;
 }
 
-/* Centered 2xN Grid */
 .categories-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -170,7 +243,6 @@ h1, h2, h3, .tagline {
   box-sizing: border-box;
 }
 
-/* Category Card */
 .category-card {
   position: relative;
   background-size: cover;
@@ -185,8 +257,14 @@ h1, h2, h3, .tagline {
 }
 
 .category-card:hover {
-  transform: translateY(-4px) scale(1.02);
+  transform: translateY(-5px) scale(1.02);
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.category-card:hover .category-info {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.9));
+  transition: background 0.3s ease;
 }
 
 .category-info {
@@ -194,9 +272,8 @@ h1, h2, h3, .tagline {
   left: 12px;
   right: 12px;
   bottom: 12px;
-  height: 35px;
-  min-height: 60px;
-  padding: 14px 16px;
+  height: 90px; /* fixed consistent height across all cards */
+  padding: 10px 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -207,6 +284,7 @@ h1, h2, h3, .tagline {
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
   border: 1px solid rgba(255, 255, 255, 0.6);
+  box-sizing: border-box;
 }
 
 .category-info .emoji {
@@ -219,12 +297,6 @@ h1, h2, h3, .tagline {
   font-size: 1.05rem;
   font-weight: 800;
   color: #0f172a;
-}
-
-.category-info p {
-  margin: 0;
-  font-size: 0.9rem;
-  color: #334155;
 }
 
 /* Gradient bottom fade */
@@ -257,68 +329,66 @@ h1, h2, h3, .tagline {
   margin: 0;
 }
 
-.home-footer a {
-  color: #ff6f61;
-  text-decoration: none;
-  transition: color 0.2s ease;
+/* -----------------------------------
+   ✨ Fade-in Animation
+----------------------------------- */
+.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+  visibility: hidden;
 }
 
-.home-footer a:hover {
-  color: #f97316;
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
 }
 
 /* -----------------------------------
-   📱 Mobile Responsive Alignment
+   Responsive Layout
 ----------------------------------- */
+html, body {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: auto;
+  min-height: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 📱 Mobile */
 @media (max-width: 768px) {
   .home-wrapper {
-    width: 100%;
     max-width: 480px;
     align-items: center;
-    justify-content: flex-start;
   }
 
   .daily-challenge-card {
     width: 90%;
-    margin: 0 auto 2rem auto;
+    margin-bottom: 2rem;
   }
 
   .categories-section {
-    width: 100%;
     max-width: 420px;
   }
 
   .categories-grid {
-    width: 100%;
-    justify-content: center;
-    justify-items: center;
-    align-items: center;
-    grid-template-columns: repeat(2, 1fr); /* mobile stays 2xN */
-  }
-
-  .category-card {
-    max-width: 180px;
-    min-height: 190px;
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
-/* -----------------------------------
-   💻 Desktop & Tablet View: 4 Columns
------------------------------------ */
+/* 💻 Desktop & Tablet */
 @media (min-width: 769px) {
   .categories-section {
-    max-width: 850px; /* expands the whole grid area */
+    max-width: 850px;
   }
 
   .categories-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr); /* 4 cards per row */
+    grid-template-columns: repeat(4, 1fr);
     gap: 1.5rem;
-    justify-content: center;
-    justify-items: center;
-    align-items: start;
-    width: 100%;
-    margin: 0 auto;
   }
 
   .category-card {
@@ -329,66 +399,4 @@ h1, h2, h3, .tagline {
   .category-info h3 {
     font-size: 1.1rem;
   }
-
-  .category-info p {
-    font-size: 0.9rem;
-  }
 }
-
-/* -----------------------------------
-   ✨ Fade-in Animation on Scroll
------------------------------------ */
-.fade-in {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.65s ease-out, transform 0.65s ease-out;
-transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-            transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: opacity, transform;
-  visibility: hidden; /* hides element until visible */
-}
-
-.fade-in.visible {
-  opacity: 1;
-  transform: translateY(0);
-  visibility: visible;
-}
-
-/* Prevent scroll locking or clipping */
-html, body {
-  scroll-behavior: smooth;
-  overflow-x: hidden;
-  overflow-y: auto;
-  height: auto;
-  min-height: 100%;
-  -webkit-overflow-scrolling: touch; /* iOS smooth scroll */
-}
-
-/* Prevent container clipping */
-.home-wrapper {
-  overflow: visible;
-  height: auto;
-  min-height: 100vh;
-}
-
-/* Smooth GPU rendering optimization */
-body {
-  will-change: transform;
-  transform: translateZ(0);
-}
-
-.category-card {
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.category-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
-  cursor: pointer;
-}
-
-.category-card:hover .category-info {
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.9));
-  transition: background 0.3s ease;
-}
-

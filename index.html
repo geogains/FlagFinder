@@ -6,12 +6,12 @@
   <title>GeoRanks — Global Ranking Challenge 🌍</title>
 
   <!-- Fonts and Styles -->
-<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/game-modes.css" />
   <link rel="stylesheet" href="css/home.css" />
 </head>
-<body>
 
+<body>
   <div class="home-wrapper">
 
     <!-- Header -->
@@ -23,12 +23,13 @@
     </header>
 
     <!-- Daily Challenge -->
-    <section class="daily-challenge-card gradient-card fade-in">
-      <h2>📅 DAILY CHALLENGE</h2>
-      <h3>RANK COUNTRIES BY LANDMASS 👥</h3>
-      <p>Same 10 countries for all players globally</p>
-      <a href="game.html?mode=population" class="btn-primary glow">Play Now</a>
-    </section>
+<section class="daily-challenge-card fade-in">
+  <div class="daily-info">
+    <h2>📅 DAILY CHALLENGE</h2>
+    <h3>RANK BY LANDMASS 👥</h3>
+    <a href="game.html?mode=population" class="btn-primary glow">Play Now</a>
+  </div>
+</section>
 
     <!-- Categories -->
     <section class="categories-section fade-in">
@@ -142,7 +143,6 @@
   </div>
 
   <!-- ===== JS Scripts ===== -->
-
   <script>
   // === Define all categories ===
   const categories = [
@@ -169,9 +169,29 @@
   const dailyCard = document.querySelector(".daily-challenge-card");
   if (dailyCard) {
     dailyCard.querySelector("h3").textContent = `Rank by ${todayCategory.title}`;
-    dailyCard.querySelector("p").textContent = "Same 10 countries for all players globally";
     const playButton = dailyCard.querySelector("a");
     playButton.href = `game.html?mode=${todayCategory.mode}`;
+
+    // NEW: set a matching background image for the Daily Challenge card
+    const bgMap = {
+      population: "population.jpg",
+      gdp: "gdp.jpg",
+      happiness: "happiness.jpg",
+      forest: "forest.jpg",
+      coastline: "coastline.jpg",
+      cuisine: "cuisine.jpg",
+      olympic: "olympic.jpg",
+      worldcup: "worldcup.jpg",
+      landmass: "landmass.jpg",
+      altitude: "altitude.jpg",
+      passport: "passport.jpg",
+    };
+
+    const img = bgMap[todayCategory.mode];
+    if (img) {
+      dailyCard.style.backgroundImage = `url('images/categories/${img}')`;
+      dailyCard.classList.add("has-photo");
+    }
   }
 
   // === Smooth Fade-in on Scroll ===
@@ -182,18 +202,13 @@
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          setTimeout(() => {
-            entry.target.classList.add('visible');
-          }, 100);
+          setTimeout(() => entry.target.classList.add('visible'), 100);
           observer.unobserve(entry.target);
         }
       });
     }, { threshold: 0.05 });
 
-    // Delay activation slightly to allow layout to stabilize
-    setTimeout(() => {
-      fadeEls.forEach(el => observer.observe(el));
-    }, 300);
+    setTimeout(() => fadeEls.forEach(el => observer.observe(el)), 300);
   });
 
   // === Instantly show top section ===
@@ -204,6 +219,5 @@
     instantEls.forEach(el => el.classList.add("visible"));
   });
   </script>
-
 </body>
 </html>
