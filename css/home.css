@@ -107,14 +107,6 @@ h1, h2, h3, .tagline {
   margin-bottom: 0.4rem;
 }
 
-.daily-challenge-card h3 {
-  font-size: 2rem;
-  font-weight: 1000;
-  color: #252525;
-  margin: 0.3rem 0 0.6rem;
-  text-transform: uppercase;
-}
-
 .daily-challenge-card p {
   color: #1e293b;
   font-size: 0.95rem;
@@ -148,8 +140,8 @@ h1, h2, h3, .tagline {
 }
 
 .daily-info h3 {
-  font-size: 1.8rem;
-  font-weight: 900;
+  font-size: 1.5rem;
+  font-weight: 800;
   color: #0f172a;
   margin: 0.3rem 0 1rem;
   text-transform: uppercase;
@@ -398,5 +390,19 @@ html, body {
 
   .category-info h3 {
     font-size: 1.1rem;
+  }
+}
+
+/* Reduce blur intensity on smaller screens */
+@media (max-width: 768px) {
+  .daily-challenge-card::before {
+    backdrop-filter: blur(3px) !important;
+    -webkit-backdrop-filter: blur(3px) !important;
+  }
+
+  .daily-info {
+    backdrop-filter: blur(3px) !important;
+    -webkit-backdrop-filter: blur(3px) !important;
+    background: rgba(255, 255, 255, 0.65); /* more opaque for readability */
   }
 }
