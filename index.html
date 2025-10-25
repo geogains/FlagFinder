@@ -251,13 +251,7 @@
     setTimeout(() => fadeEls.forEach(el => observer.observe(el)), 300);
   });
 
-  // === Instantly show top section ===
-  window.addEventListener("load", () => {
-    const instantEls = document.querySelectorAll(
-      ".daily-challenge-card, .categories-grid .category-card:nth-child(-n+4)"
-    );
-    instantEls.forEach(el => el.classList.add("visible"));
-  });
+
   </script>
 </body>
 </html>
