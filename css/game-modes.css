@@ -390,7 +390,7 @@ html {
 }
 
 /* Frosted Glass Fixed Header */
-.main-header {
+.home-glass-header {
   position: fixed;
   top: 0;
   left: 0;
@@ -399,34 +399,35 @@ html {
   background: rgba(255, 255, 255, 0.55);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1.2rem;
+  padding: 0 0rem; /* use 0 then control position with margin */
   z-index: 1000;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
 .game-header {
-  position: fixed;
+   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 64px;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 0rem;
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   z-index: 1000;
 }
 
 .logo-header img {
   height: 40px;
   object-fit: contain;
+  margin-left: 0.5rem;
 }
 
 /* Ensure space for header */
@@ -434,21 +435,27 @@ html {
   padding-top: 80px;
 }
 
-.logo-header img {
-  height: 40px;
-  object-fit: contain;
-}
-
 /* Hamburger Button */
 .menu-icon {
-  font-size: 1.5rem;
-  background: white;
-  padding: 0.6rem 1rem;
-  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  padding: 1.8;
+  margin: 0;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  color: #075e54;
-  transition: transform 0.2s;
+}
+
+.menu-icon span {
+  display: block;
+  width: 24px;
+  height: 3px;
+  background-color: #0d315a;
+  border-radius: 2px;
 }
 .menu-icon:hover {
   transform: scale(1.1);
@@ -478,16 +485,17 @@ html {
   background: white;
   width: 260px;
   height: 100%;
-  padding: 2rem 1.4rem;
+  padding: 80px 1.5rem 1.5rem 1.5rem; /* Top padding added */
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  box-shadow: -6px 0 24px rgba(0, 0, 0, 0.25);
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.25);
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
   transform: translateX(100%);
-  transition: transform 0.3s ease;
-  border-top-left-radius: 18px;
-  border-bottom-left-radius: 18px;
+  transition: transform 0.35s ease;
 }
+
 .menu-overlay.active .menu-panel {
   transform: translateX(0);
 }

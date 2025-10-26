@@ -12,20 +12,31 @@
 </head>
 
 <body>
-  <div class="home-wrapper">
+  <!-- 🔹 Glass Header for Home Page -->
+  <header class="home-glass-header">
+    <div class="sign-in-text">Sign In</div>
+    <div class="hamburger-menu">
+      <div class="menu-icon" id="menuToggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </header>
 
+  <div class="home-wrapper">
     <!-- Header -->
     <header class="home-header fade-in visible">
       <div class="logo-wrapper">
         <img
-  src="assets/logo.png"
-  srcset="
-    assets/logo@2x.png 2x,
-    assets/logo@3x.png 3x
-  "
-  alt="GeoRanks Logo"
-  class="logo"
-/>
+          src="assets/logo.png"
+          srcset="
+            assets/logo@2x.png 2x,
+            assets/logo@3x.png 3x
+          "
+          alt="GeoRanks Logo"
+          class="logo"
+        />
       </div>
       <p class="tagline">Test Your World Ranking Knowledge! 🌍</p>
     </header>
@@ -253,5 +264,20 @@
 
 
   </script>
+
+  <script>
+  const toggleBtn = document.getElementById("menuToggle");
+  const overlay = document.getElementById("menuOverlay");
+  const closeBtn = document.getElementById("closeMenu");
+
+  toggleBtn.addEventListener("click", () => {
+    overlay.classList.toggle("active");
+  });
+
+  closeBtn.addEventListener("click", () => {
+    overlay.classList.remove("active");
+  });
+</script>
+
 </body>
 </html>
