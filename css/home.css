@@ -459,3 +459,106 @@ html, body {
     background: rgba(255, 255, 255, 0.65); /* more opaque for readability */
   }
 }
+
+/* Sign‑in Modal Overlay */
+/* Auth Modal Overlay */
+.auth-modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+  z-index: 2000;
+}
+
+/* Modal Window */
+.auth-modal .modal-window {
+  width: 90%;
+  max-width: 400px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  color: #1e1e1e;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Modal Header */
+.auth-modal .modal-window h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0d315a;
+}
+
+/* Input Fields */
+.auth-modal .modal-window input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 8px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+/* Primary Button */
+.auth-modal .modal-window .btn-auth {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ff9770, #ff6f61);
+  color: white;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.15s;
+}
+.auth-modal .modal-window .btn-auth:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+}
+
+/* Toggle view link */
+.auth-modal .modal-window .toggle-view {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #0d315a;
+  cursor: pointer;
+}
+
+/* OAuth Buttons */
+.auth-modal .modal-window .oauth-btn {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.15s;
+}
+.auth-modal .modal-window .oauth-btn.google {
+  background: #fff;
+  border: 1px solid #ddd;
+  color: #0d315a;
+}
+.auth-modal .modal-window .oauth-btn.apple {
+  background: #000;
+  color: #fff;
+}
+.auth-modal .modal-window .oauth-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}

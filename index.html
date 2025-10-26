@@ -11,6 +11,30 @@
   <link rel="stylesheet" href="css/home.css" />
 </head>
 
+<div class="auth-modal" id="authModal">
+  <div class="modal-window">
+    <h2 id="authModalTitle">Sign In</h2>
+
+    <input type="email" id="authEmail" placeholder="Email address" />
+    <input type="password" id="authPassword" placeholder="Password" />
+
+    <button class="btn-auth" id="authSubmit">Continue</button>
+
+    <div class="oauth-section">
+      <button class="oauth-btn google" id="oauthGoogle">
+        <img src="path/to/google‑icon.svg" alt="Google" width="20" /> Sign in with Google
+      </button>
+      <button class="oauth-btn apple" id="oauthApple">
+        <img src="path/to/apple‑icon.svg" alt="Apple" width="20" /> Sign in with Apple
+      </button>
+    </div>
+
+    <div class="toggle-view" id="toggleAuthView">
+      Don’t have an account? <span id="toggleAuthLink">Sign Up</span>
+    </div>
+  </div>
+</div>
+
 <body>
   <!-- 🔹 Glass Header for Home Page -->
   <header class="home-glass-header">
@@ -192,6 +216,104 @@
     </footer>
 
   </div>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+  // 🔹 Replace with your actual project credentials
+  const SUPABASE_URL = 'https://ajwxgdaninuzcpfwawug.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI';
+
+  // Create Supabase client
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const signInText = document.querySelector('.sign-in-text');
+  const authModal = document.getElementById('authModal');
+  const authTitle = document.getElementById('authModalTitle');
+  const emailInput = document.getElementById('authEmail');
+  const passwordInput = document.getElementById('authPassword');
+  const submitBtn = document.getElementById('authSubmit');
+  const toggleAuthView = document.getElementById('toggleAuthView');
+  const toggleAuthLink = document.getElementById('toggleAuthLink');
+  const oauthGoogleBtn = document.getElementById('oauthGoogle');
+  const oauthAppleBtn = document.getElementById('oauthApple');
+
+  let isSignIn = true;
+
+  signInText.addEventListener('click', () => {
+    authModal.style.display = 'flex';
+    isSignIn = true;
+    authTitle.textContent = 'Sign In';
+    submitBtn.textContent = 'Continue';
+    toggleAuthLink.textContent = 'Sign Up';
+    passwordInput.placeholder = 'Password';
+  });
+
+  toggleAuthLink.addEventListener('click', () => {
+    isSignIn = !isSignIn;
+    if (isSignIn) {
+      authTitle.textContent = 'Sign In';
+      submitBtn.textContent = 'Continue';
+      toggleAuthLink.textContent = 'Sign Up';
+      passwordInput.placeholder = 'Password';
+    } else {
+      authTitle.textContent = 'Sign Up';
+      submitBtn.textContent = 'Register';
+      toggleAuthLink.textContent = 'Sign In';
+      passwordInput.placeholder = 'Create a password';
+    }
+  });
+
+  submitBtn.addEventListener('click', async () => {
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+    if (!email || !password) {
+      alert('Please fill in both email and password.');
+      return;
+    }
+
+    if (isSignIn) {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        alert('❌ ' + error.message);
+      } else {
+        authModal.style.display = 'none';
+        signInText.textContent = data.user.email;
+      }
+    } else {
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      if (error) {
+        alert('❌ ' + error.message);
+      } else {
+        alert('✅ Registration email sent! Please check your inbox.');
+        authModal.style.display = 'none';
+      }
+    }
+  });
+
+  oauthGoogleBtn.addEventListener('click', async () => {
+    await supabase.auth.signInWithOAuth({ provider: 'google' });
+  });
+
+  oauthAppleBtn.addEventListener('click', async () => {
+    await supabase.auth.signInWithOAuth({ provider: 'apple' });
+  });
+
+  window.addEventListener('click', (e) => {
+    if (e.target === authModal) {
+      authModal.style.display = 'none';
+    }
+  });
+
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (session && session.user) {
+      signInText.textContent = session.user.email;
+    } else {
+      signInText.textContent = 'Sign In';
+    }
+  });
+</script>
+
 
   <!-- ===== JS Scripts ===== -->
   <script>
