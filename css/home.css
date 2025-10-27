@@ -464,13 +464,15 @@ html, body {
 /* Auth Modal Overlay */
 .auth-modal {
   position: fixed;
-  inset: 0;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   display: none;
-  align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.4);
+  align-items: flex-start; /* 👈 push modal to top */
+  padding-top: 4rem; /* 👈 add space from top */
+  background: rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(6px);
-  z-index: 2000;
+  z-index: 9999;
 }
 
 /* Modal Window */
@@ -561,4 +563,32 @@ html, body {
 .auth-modal .modal-window .oauth-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.close-auth-modal {
+  position: absolute;
+  top: 1rem;
+  right: 1.2rem;
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  color: #333;
+  cursor: pointer;
+  font-weight: bold;
+  z-index: 10000;
+}
+
+@keyframes fadeInTop {
+  0% {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-window {
+  animation: fadeInTop 0.35s ease-out;
 }

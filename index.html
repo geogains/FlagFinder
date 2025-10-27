@@ -11,28 +11,29 @@
   <link rel="stylesheet" href="css/home.css" />
 </head>
 
-<div class="auth-modal" id="authModal">
-  <div class="modal-window">
-    <h2 id="authModalTitle">Sign In</h2>
+<body>
+  <div class="auth-modal" id="authModal">
+    <div class="modal-window">
+      <button class="close-auth-modal" id="closeAuthModal">×</button>
+      <h2 id="authModalTitle">Sign In</h2>
 
-    <input type="email" id="authEmail" placeholder="Email address" />
-    <input type="password" id="authPassword" placeholder="Password" />
+      <input type="email" id="authEmail" placeholder="Email address" />
+      <input type="password" id="authPassword" placeholder="Password" />
 
-    <button class="btn-auth" id="authSubmit">Continue</button>
+      <button class="btn-auth" id="authSubmit">Continue</button>
 
-    <div class="oauth-section">
-      <button class="oauth-btn google" id="oauthGoogle">
-        <img src="assets/google.png" alt="Google" width="20" /> Sign in with Google
-      </button>
-    </div>
+      <div class="oauth-section">
+        <button class="oauth-btn google" id="oauthGoogle">
+          <img src="assets/google.png" alt="Google" width="20" /> Sign in with Google
+        </button>
+      </div>
 
-    <div class="toggle-view" id="toggleAuthView">
-      Don’t have an account? <span id="toggleAuthLink">Sign Up</span>
+      <div class="toggle-view" id="toggleAuthView">
+        Don’t have an account? <span id="toggleAuthLink">Sign Up</span>
+      </div>
     </div>
   </div>
-</div>
 
-<body>
   <!-- 🔹 Glass Header for Home Page -->
   <header class="home-glass-header">
     <div class="sign-in-text">Sign In</div>
@@ -61,6 +62,18 @@
       </div>
       <p class="tagline">Test Your World Ranking Knowledge! 🌍</p>
     </header>
+
+<!-- Overlay & panel for homepage hamburger menu -->
+<div class="menu-overlay" id="menuOverlay">
+  <div class="menu-panel">
+    <h2>Menu</h2>
+    <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
+    <button class="menu-btn" onclick="window.location.href='#categories'">🎮 Change Category</button>
+    <button class="menu-btn">🏆 Leaderboard</button>
+    <button class="menu-btn">💡 How to Play</button>
+    <button class="menu-btn menu-close" id="closeMenu">Close</button>
+  </div>
+</div>
 
     <!-- Daily Challenge -->
 <section class="daily-challenge-card fade-in">
@@ -217,12 +230,10 @@
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-  // 🔹 Replace with your actual project credentials
   const SUPABASE_URL = 'https://ajwxgdaninuzcpfwawug.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI';
 
-  // Create Supabase client
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   const signInText = document.querySelector('.sign-in-text');
   const authModal = document.getElementById('authModal');
@@ -233,7 +244,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const toggleAuthView = document.getElementById('toggleAuthView');
   const toggleAuthLink = document.getElementById('toggleAuthLink');
   const oauthGoogleBtn = document.getElementById('oauthGoogle');
-  const oauthAppleBtn = document.getElementById('oauthApple');
+  const closeAuthModal = document.getElementById('closeAuthModal');
 
   let isSignIn = true;
 
@@ -242,24 +253,28 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     isSignIn = true;
     authTitle.textContent = 'Sign In';
     submitBtn.textContent = 'Continue';
-    toggleAuthLink.textContent = 'Sign Up';
-    passwordInput.placeholder = 'Password';
+    toggleAuthView.innerHTML = 'Don’t have an account? <span id="toggleAuthLink">Sign Up</span>';
+    rebindToggleAuthLink();
   });
 
-  toggleAuthLink.addEventListener('click', () => {
-    isSignIn = !isSignIn;
-    if (isSignIn) {
-      authTitle.textContent = 'Sign In';
-      submitBtn.textContent = 'Continue';
-      toggleAuthLink.textContent = 'Sign Up';
-      passwordInput.placeholder = 'Password';
-    } else {
-      authTitle.textContent = 'Sign Up';
-      submitBtn.textContent = 'Register';
-      toggleAuthLink.textContent = 'Sign In';
-      passwordInput.placeholder = 'Create a password';
-    }
-  });
+  function rebindToggleAuthLink() {
+    const newToggle = document.getElementById('toggleAuthLink');
+    newToggle.addEventListener('click', () => {
+      isSignIn = !isSignIn;
+      if (isSignIn) {
+        authTitle.textContent = 'Sign In';
+        submitBtn.textContent = 'Continue';
+        passwordInput.placeholder = 'Password';
+        toggleAuthView.innerHTML = 'Don’t have an account? <span id="toggleAuthLink">Sign Up</span>';
+      } else {
+        authTitle.textContent = 'Sign Up';
+        submitBtn.textContent = 'Register';
+        passwordInput.placeholder = 'Create a password';
+        toggleAuthView.innerHTML = 'Already have an account? <span id="toggleAuthLink">Sign In</span>';
+      }
+      rebindToggleAuthLink();
+    });
+  }
 
   submitBtn.addEventListener('click', async () => {
     const email = emailInput.value.trim();
@@ -292,9 +307,11 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     await supabase.auth.signInWithOAuth({ provider: 'google' });
   });
 
-  oauthAppleBtn.addEventListener('click', async () => {
-    await supabase.auth.signInWithOAuth({ provider: 'apple' });
-  });
+  if (closeAuthModal) {
+    closeAuthModal.addEventListener('click', () => {
+      authModal.style.display = 'none';
+    });
+  }
 
   window.addEventListener('click', (e) => {
     if (e.target === authModal) {
@@ -309,6 +326,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       signInText.textContent = 'Sign In';
     }
   });
+
 </script>
 
 
@@ -397,6 +415,30 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     overlay.classList.remove("active");
   });
 </script>
+
+const toggleBtn = document.getElementById("menuToggle");
+const overlay = document.getElementById("menuOverlay");
+const closeBtn = document.getElementById("closeMenu");
+
+if (toggleBtn && overlay) {
+  toggleBtn.addEventListener("click", () => {
+    overlay.classList.toggle("active");
+  });
+}
+
+if (closeBtn && overlay) {
+  closeBtn.addEventListener("click", () => {
+    overlay.classList.remove("active");
+  });
+}
+
+// optional: click outside panel closes it
+overlay.addEventListener("click", (e) => {
+  if (e.target === overlay) {
+    overlay.classList.remove("active");
+  }
+});
+
 
 </body>
 </html>
