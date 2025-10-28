@@ -516,3 +516,12 @@ html {
   background: linear-gradient(90deg, #fb923c, #fb7185);
 }
 
+.logo-link img {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  cursor: pointer;
+}
+
+.logo-link:hover img {
+  transform: scale(1.05);
+  opacity: 0.85;
+}
