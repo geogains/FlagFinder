@@ -398,7 +398,7 @@ h1, h2, h3, .tagline {
 html, body {
   scroll-behavior: smooth;
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: scroll; 
   height: auto;
   min-height: 100%;
   -webkit-overflow-scrolling: touch;
