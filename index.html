@@ -382,22 +382,6 @@
     }
   }
 
-  // === Smooth Fade-in on Scroll ===
-  document.addEventListener("DOMContentLoaded", () => {
-    const fadeEls = document.querySelectorAll('.fade-in');
-    fadeEls.forEach((el, i) => el.style.setProperty('--i', i + 1));
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          setTimeout(() => entry.target.classList.add('visible'), 100);
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.05 });
-
-    setTimeout(() => fadeEls.forEach(el => observer.observe(el)), 300);
-  });
 
 
   </script>
@@ -430,7 +414,12 @@ overlay.addEventListener("click", (e) => {
   
 </script>
 
-
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const fadeEls = document.querySelectorAll('.fade-in');
+    fadeEls.forEach((el) => el.classList.add('visible'));
+  });
+</script>
 
 </body>
 </html>
