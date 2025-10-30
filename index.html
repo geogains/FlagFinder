@@ -417,7 +417,12 @@ overlay.addEventListener("click", (e) => {
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const fadeEls = document.querySelectorAll('.fade-in');
-    fadeEls.forEach((el) => el.classList.add('visible'));
+
+    fadeEls.forEach((el, index) => {
+      setTimeout(() => {
+        el.classList.add('visible');
+      }, 150 * index); // Staggered fade-in
+    });
   });
 </script>
 
