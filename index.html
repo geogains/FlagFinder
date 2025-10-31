@@ -68,7 +68,7 @@
   <div class="menu-panel">
     <h2>Menu</h2>
     <button class="menu-btn" onclick="window.location.href='account.html'">👤 Account</button>
-    <button class="menu-btn">🏆 Leaderboard</button>
+    <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
     <button class="menu-btn">💡 How to Play</button>
     <button class="menu-btn menu-close" id="closeMenu">Close</button>
   </div>
@@ -234,15 +234,10 @@
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const signInText = document.getElementById("signInText");
+const signInText = document.getElementById("signInText");
 
-const updateHeaderBehavior = async () => {
-  const signInText = document.getElementById("signInText");
-
-  // First, hide the element until we're sure of the session state
-  if (signInText) signInText.style.pointerEvents = "none";
-
-  const { data: { session } } = await supabase.auth.getSession();
+const handleAuthUI = (session) => {
+  if (!signInText) return;
 
   if (session?.user) {
     signInText.textContent = session.user.email;
@@ -257,12 +252,22 @@ const updateHeaderBehavior = async () => {
       document.getElementById("signInModal")?.classList.remove("hidden");
     };
   }
-
-  // Re-enable interaction once setup is complete
-  if (signInText) signInText.style.pointerEvents = "auto";
 };
 
-updateHeaderBehavior();
+// Initial load
+supabase.auth.getSession().then(({ data: { session } }) => {
+  handleAuthUI(session);
+});
+
+// Listen for login/logout
+supabase.auth.onAuthStateChange((event, session) => {
+  handleAuthUI(session);
+
+  if (event === "SIGNED_OUT") {
+    // Redirect to homepage on logout
+    window.location.href = "index.html";
+  }
+});
 
 
 
@@ -346,14 +351,6 @@ updateHeaderBehavior();
   window.addEventListener('click', (e) => {
     if (e.target === authModal) {
       authModal.style.display = 'none';
-    }
-  });
-
-  supabase.auth.onAuthStateChange((event, session) => {
-    if (session && session.user) {
-      signInText.textContent = session.user.email;
-    } else {
-      signInText.textContent = 'Sign In';
     }
   });
 

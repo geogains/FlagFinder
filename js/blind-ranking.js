@@ -193,7 +193,6 @@ function handleRankClick(event) {
       : 0;
 
   let roundPoints = Math.max(10 - diff, 1);
-  if (withinTieRange) roundPoints *= 2;
 
   totalScore += roundPoints;
 
@@ -288,7 +287,6 @@ function endGame() {
 
     let roundPoints = Math.max(10 - diff, 1);
     const isPerfect = withinTieRange;
-    if (isPerfect) roundPoints *= 2;
 
     if (isPerfect) {
       slot.classList.add("correct-slot");

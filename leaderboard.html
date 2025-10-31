@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GeoRanks — Leaderboard</title>
+  <link rel="stylesheet" href="css/home.css"/>
+  <link rel="stylesheet" href="css/game-modes.css"/>
+  <style>
+    .leaderboard-container {
+      max-width: 720px;
+      margin: 120px auto 40px;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      text-align: center;
+    }
+
+    .leaderboard-title {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .leaderboard-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .leaderboard-table th,
+    .leaderboard-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .leaderboard-table th {
+      text-align: left;
+      font-weight: 600;
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .leaderboard-rank {
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    .gold { color: #facc15; }
+    .silver { color: #e5e7eb; }
+    .bronze { color: #f97316; }
+
+    .back-home {
+      margin-top: 2rem;
+      display: inline-block;
+      padding: 0.8rem 1.6rem;
+      border-radius: 8px;
+      background: #111827;
+      color: white;
+      text-decoration: none;
+      transition: background 0.2s ease;
+    }
+
+    .back-home:hover {
+      background: #000;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ✅ Header with logo and menu -->
+<header class="home-glass-header">
+  <div class="logo-header">
+    <a href="index.html" class="logo-link">
+      <img src="assets/logo.png" alt="GeoRanks Logo" />
+    </a>
+  </div>
+  <div class="hamburger-menu">
+    <div class="menu-icon" id="menuToggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
+</header>
+
+<!-- ✅ Sliding Menu -->
+<div class="menu-overlay" id="menuOverlay">
+  <div class="menu-panel">
+    <h2>Menu</h2>
+    <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
+    <button class="menu-btn" onclick="window.location.href='account.html'">👤 Account</button>
+    <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
+    <button class="menu-btn">💡 How to Play</button>
+    <button class="menu-btn menu-close" id="closeMenu">Close</button>
+  </div>
+</div>
+
+<!-- ✅ Leaderboard Content -->
+<main class="leaderboard-container">
+  <h1 class="leaderboard-title">🏆 Top Players</h1>
+  <table class="leaderboard-table" id="leaderboardTable">
+    <thead>
+      <tr>
+        <th>Rank</th>
+        <th>Username</th>
+        <th>Score</th>
+      </tr>
+    </thead>
+    <tbody id="leaderboardBody">
+      <tr><td colspan="3">Loading...</td></tr>
+    </tbody>
+  </table>
+  <a href="index.html" class="back-home">← Back to Home</a>
+</main>
+
+<!-- ✅ Supabase & Leaderboard Logic -->
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+  const supabase = createClient(
+    'https://ajwxgdaninuzcpfwawug.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
+  );
+
+  const leaderboardBody = document.getElementById('leaderboardBody');
+
+  const loadLeaderboard = async () => {
+    const { data, error } = await supabase
+      .from('scores')
+      .select('username, score')
+      .order('score', { ascending: false })
+      .limit(20);
+
+    if (error) {
+      leaderboardBody.innerHTML = `<tr><td colspan="3">❌ Failed to load leaderboard</td></tr>`;
+      return;
+    }
+
+    leaderboardBody.innerHTML = '';
+
+    data.forEach((user, index) => {
+      const row = document.createElement('tr');
+      const rankClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
+
+      row.innerHTML = `
+        <td class="leaderboard-rank ${rankClass}">#${index + 1}</td>
+        <td>${user.username}</td>
+        <td>${user.score}</td>
+      `;
+
+      leaderboardBody.appendChild(row);
+    });
+  };
+
+  loadLeaderboard();
+</script>
+
+<!-- ✅ Menu Script -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const menuToggle = document.getElementById("menuToggle");
+    const menuOverlay = document.getElementById("menuOverlay");
+    const closeMenu = document.getElementById("closeMenu");
+
+    if (!menuToggle || !menuOverlay) return;
+
+    menuToggle.addEventListener("click", () => {
+      menuOverlay.classList.add("active");
+    });
+
+    if (closeMenu) {
+      closeMenu.addEventListener("click", () => {
+        menuOverlay.classList.remove("active");
+      });
+    }
+
+    menuOverlay.addEventListener("click", (e) => {
+      if (e.target === menuOverlay) {
+        menuOverlay.classList.remove("active");
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
