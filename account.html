@@ -2,13 +2,217 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GeoRanks — Account</title>
   <link rel="stylesheet" href="css/home.css" />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(180deg, #98f6d0 0%, #59c3c3 50%, #38a3a5 100%);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 20px;
+      background: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    main {
+      flex: 1;
+      padding: 40px 20px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .account-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    }
+
+    .account-card h2 {
+      margin-top: 0;
+    }
+
+    .account-info {
+      margin-top: 20px;
+      line-height: 1.6;
+    }
+
+    .form-group {
+      margin-top: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+      margin-top: 6px;
+      box-sizing: border-box;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+
+    .btn-primary {
+      background: linear-gradient(90deg, #fb923c, #fb7185);
+      color: white;
+      padding: 10px 16px;
+      margin-top: 10px;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(90deg, #fb923c, #fb7185);
+    }
+
+    .btn-logout {
+      margin-top: 30px;
+      background: #f44336;
+      color: white;
+      padding: 10px 16px;
+    }
+
+    .btn-logout:hover {
+      background: linear-gradient(90deg, #fb3c3c, #a80909);
+    }
+
+    .success-message {
+      color: #22c55e;
+      margin-top: 10px;
+      font-weight: 600;
+    }
+
+    .error-message {
+      color: #ef4444;
+      margin-top: 10px;
+      font-weight: 600;
+    }
+  </style>
 </head>
 <body>
-  <header class="home-glass-header"><h1>👤 Account Page</h1></header>
-  <main class="content">
-    <p>This is your account dashboard. You can manage your profile here.</p>
+
+  <header>👤 Account Page</header>
+
+  <main>
+    <div class="account-card">
+      <h2>Welcome Back!</h2>
+
+      <div class="account-info">
+        <p><strong>Email:</strong> <span id="userEmail">Loading...</span></p>
+        <p><strong>Member Since:</strong> <span id="userSince">—</span></p>
+      </div>
+
+      <div class="form-group">
+        <h3>✉️ Change Email Address</h3>
+        <input type="email" id="newEmail" placeholder="Enter new email" />
+        <button class="btn-primary" id="changeEmailBtn">Update Email</button>
+        <div id="emailMsg"></div>
+      </div>
+
+      <div class="form-group">
+        <h3>🔐 Reset Password</h3>
+        <button class="btn-primary" id="resetPasswordBtn">Send Reset Email</button>
+        <div id="resetMsg"></div>
+      </div>
+
+      <button class="btn-logout" id="logoutBtn">Log Out</button>
+    </div>
   </main>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const supabase = createClient(
+      'https://ajwxgdaninuzcpfwawug.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
+    );
+
+    const emailSpan = document.getElementById('userEmail');
+    const sinceSpan = document.getElementById('userSince');
+    const newEmailInput = document.getElementById('newEmail');
+    const changeEmailBtn = document.getElementById('changeEmailBtn');
+    const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+    const emailMsg = document.getElementById('emailMsg');
+    const resetMsg = document.getElementById('resetMsg');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    let currentUser = null;
+
+    // 🧠 Load user info
+    const loadUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session?.user) {
+        currentUser = session.user;
+        emailSpan.textContent = currentUser.email;
+        sinceSpan.textContent = new Date(currentUser.created_at).toDateString();
+      } else {
+        emailSpan.textContent = 'Not logged in';
+        sinceSpan.textContent = '—';
+      }
+    };
+
+    loadUser();
+
+    // ✉️ Change email
+    changeEmailBtn.addEventListener('click', async () => {
+      const newEmail = newEmailInput.value.trim();
+      if (!newEmail) {
+        emailMsg.textContent = '⚠️ Please enter a valid email.';
+        emailMsg.className = 'error-message';
+        return;
+      }
+
+      const { data, error } = await supabase.auth.updateUser({ email: newEmail });
+
+      if (error) {
+        emailMsg.textContent = '❌ ' + error.message;
+        emailMsg.className = 'error-message';
+      } else {
+        emailMsg.textContent = '✅ Confirmation link sent to new email.';
+        emailMsg.className = 'success-message';
+      }
+    });
+
+    // 🔐 Reset password
+    resetPasswordBtn.addEventListener('click', async () => {
+      if (!currentUser?.email) {
+        resetMsg.textContent = '⚠️ Please log in first.';
+        resetMsg.className = 'error-message';
+        return;
+      }
+
+      const { data, error } = await supabase.auth.resetPasswordForEmail(currentUser.email);
+
+      if (error) {
+        resetMsg.textContent = '❌ ' + error.message;
+        resetMsg.className = 'error-message';
+      } else {
+        resetMsg.textContent = '📩 Password reset link sent to your email.';
+        resetMsg.className = 'success-message';
+      }
+    });
+
+    // 🚪 Log out
+    logoutBtn.addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      location.reload();
+    });
+  </script>
+
 </body>
 </html>
