@@ -36,7 +36,7 @@
 
   <!-- 🔹 Glass Header for Home Page -->
   <header class="home-glass-header">
-    <div class="sign-in-text">Sign In</div>
+    <div class="sign-in-text" id="signInText">Sign In</div>
     <div class="hamburger-menu">
       <div class="menu-icon" id="menuToggle">
         <span></span>
@@ -234,7 +234,38 @@
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const signInText = document.querySelector('.sign-in-text');
+  const signInText = document.getElementById("signInText");
+
+const updateHeaderBehavior = async () => {
+  const signInText = document.getElementById("signInText");
+
+  // First, hide the element until we're sure of the session state
+  if (signInText) signInText.style.pointerEvents = "none";
+
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if (session?.user) {
+    signInText.textContent = session.user.email;
+    signInText.style.cursor = "pointer";
+    signInText.onclick = () => {
+      window.location.href = "account.html";
+    };
+  } else {
+    signInText.textContent = "Sign In";
+    signInText.style.cursor = "pointer";
+    signInText.onclick = () => {
+      document.getElementById("signInModal")?.classList.remove("hidden");
+    };
+  }
+
+  // Re-enable interaction once setup is complete
+  if (signInText) signInText.style.pointerEvents = "auto";
+};
+
+updateHeaderBehavior();
+
+
+
   const authModal = document.getElementById('authModal');
   const authTitle = document.getElementById('authModalTitle');
   const emailInput = document.getElementById('authEmail');

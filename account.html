@@ -5,214 +5,191 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GeoRanks — Account</title>
   <link rel="stylesheet" href="css/home.css" />
+  <link rel="stylesheet" href="css/game-modes.css" />
+
   <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(180deg, #98f6d0 0%, #59c3c3 50%, #38a3a5 100%);
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-
-    header {
-      padding: 20px;
-      background: #fff;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      font-size: 1.5rem;
-      font-weight: 700;
-    }
-
-    main {
-      flex: 1;
-      padding: 40px 20px;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    .account-card {
-      background: white;
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-    }
-
-    .account-card h2 {
-      margin-top: 0;
-    }
-
-    .account-info {
-      margin-top: 20px;
-      line-height: 1.6;
-    }
-
-    .form-group {
-      margin-top: 20px;
-    }
-
-    input {
+    .account-glass-card {
       width: 100%;
-      padding: 10px 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+      max-width: 480px;
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .account-glass-card h2 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+    }
+
+    .form-section {
+      margin-top: 1.8rem;
+      text-align: left;
+    }
+
+    .form-section input {
+      width: 100%;
+      margin-top: 0.6rem;
+      padding: 0.65rem 1rem;
       font-size: 1rem;
-      margin-top: 6px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
       box-sizing: border-box;
     }
 
-    button {
-      cursor: pointer;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
+    .full-btn {
+      display: block;
+      width: 100%;
+      margin-top: 1rem;
+      padding: 0.8rem 1rem;
     }
 
-    .btn-primary {
-      background: linear-gradient(90deg, #fb923c, #fb7185);
-      color: white;
-      padding: 10px 16px;
-      margin-top: 10px;
-    }
-
-    .btn-primary:hover {
-      background: linear-gradient(90deg, #fb923c, #fb7185);
-    }
-
-    .btn-logout {
-      margin-top: 30px;
-      background: #f44336;
-      color: white;
-      padding: 10px 16px;
-    }
-
-    .btn-logout:hover {
-      background: linear-gradient(90deg, #fb3c3c, #a80909);
-    }
-
-    .success-message {
-      color: #22c55e;
-      margin-top: 10px;
-      font-weight: 600;
-    }
-
-    .error-message {
-      color: #ef4444;
-      margin-top: 10px;
-      font-weight: 600;
+    .logout-btn {
+      background: linear-gradient(90deg, #222222, #171717);
     }
   </style>
 </head>
+
 <body>
 
-  <header>👤 Account Page</header>
-
-  <main>
-    <div class="account-card">
-      <h2>Welcome Back!</h2>
-
-      <div class="account-info">
-        <p><strong>Email:</strong> <span id="userEmail">Loading...</span></p>
-        <p><strong>Member Since:</strong> <span id="userSince">—</span></p>
-      </div>
-
-      <div class="form-group">
-        <h3>✉️ Change Email Address</h3>
-        <input type="email" id="newEmail" placeholder="Enter new email" />
-        <button class="btn-primary" id="changeEmailBtn">Update Email</button>
-        <div id="emailMsg"></div>
-      </div>
-
-      <div class="form-group">
-        <h3>🔐 Reset Password</h3>
-        <button class="btn-primary" id="resetPasswordBtn">Send Reset Email</button>
-        <div id="resetMsg"></div>
-      </div>
-
-      <button class="btn-logout" id="logoutBtn">Log Out</button>
+<!-- ✅ Glass Header with Logo and Hamburger -->
+<header class="home-glass-header">
+  <div class="logo-header">
+    <a href="index.html" class="logo-link">
+      <img src="assets/logo.png" alt="GeoRanks Logo" />
+    </a>
+  </div>
+  <div class="hamburger-menu">
+    <div class="menu-icon" id="menuToggle">
+      <span></span>
+      <span></span>
+      <span></span>
     </div>
-  </main>
+  </div>
+</header>
 
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+<!-- ✅ Sliding Menu Overlay -->
+<div class="menu-overlay" id="menuOverlay">
+  <div class="menu-panel">
+    <h2>Menu</h2>
+    <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
+    <button class="menu-btn" onclick="window.location.href='account.html'">👤 Account</button>
+    <button class="menu-btn">🏆 Leaderboard</button>
+    <button class="menu-btn">💡 How to Play</button>
+    <button class="menu-btn menu-close" id="closeMenu">Close</button>
+  </div>
+</div>
 
-    const supabase = createClient(
-      'https://ajwxgdaninuzcpfwawug.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
-    );
+<!-- ✅ Page Content Wrapper -->
+<main class="blind-ranking-wrapper">
+  <div class="account-glass-card">
+    <h2>Account Settings</h2>
 
-    const emailSpan = document.getElementById('userEmail');
-    const sinceSpan = document.getElementById('userSince');
-    const newEmailInput = document.getElementById('newEmail');
-    const changeEmailBtn = document.getElementById('changeEmailBtn');
-    const resetPasswordBtn = document.getElementById('resetPasswordBtn');
-    const emailMsg = document.getElementById('emailMsg');
-    const resetMsg = document.getElementById('resetMsg');
-    const logoutBtn = document.getElementById('logoutBtn');
+    <div class="account-info">
+      <p><strong>Email:</strong> <span id="userEmail">Loading...</span></p>
+      <p><strong>Member Since:</strong> <span id="userSince">—</span></p>
+    </div>
 
-    let currentUser = null;
+    <div class="form-section">
+      <h3>✉️ Change Email Address</h3>
+      <input type="email" id="newEmail" placeholder="Enter new email" />
+      <button class="btn full-btn" id="changeEmailBtn">Update Email</button>
+      <div id="emailMsg"></div>
+    </div>
 
-    // 🧠 Load user info
-    const loadUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+    <div class="form-section">
+      <h3>🔐 Reset Password</h3>
+      <button class="btn full-btn" id="resetPasswordBtn">Send Reset Email</button>
+      <div id="resetMsg"></div>
+    </div>
 
-      if (session?.user) {
-        currentUser = session.user;
-        emailSpan.textContent = currentUser.email;
-        sinceSpan.textContent = new Date(currentUser.created_at).toDateString();
-      } else {
-        emailSpan.textContent = 'Not logged in';
-        sinceSpan.textContent = '—';
-      }
-    };
+    <button class="btn full-btn logout-btn" id="logoutBtn">Log Out</button>
+  </div>
+</main>
 
-    loadUser();
+<!-- ✅ Supabase Script -->
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-    // ✉️ Change email
-    changeEmailBtn.addEventListener('click', async () => {
-      const newEmail = newEmailInput.value.trim();
-      if (!newEmail) {
-        emailMsg.textContent = '⚠️ Please enter a valid email.';
-        emailMsg.className = 'error-message';
-        return;
-      }
+  const supabase = createClient(
+    'https://ajwxgdaninuzcpfwawug.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
+  );
 
-      const { data, error } = await supabase.auth.updateUser({ email: newEmail });
+  const emailSpan = document.getElementById('userEmail');
+  const sinceSpan = document.getElementById('userSince');
+  const newEmailInput = document.getElementById('newEmail');
+  const changeEmailBtn = document.getElementById('changeEmailBtn');
+  const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+  const emailMsg = document.getElementById('emailMsg');
+  const resetMsg = document.getElementById('resetMsg');
+  const logoutBtn = document.getElementById('logoutBtn');
 
-      if (error) {
-        emailMsg.textContent = '❌ ' + error.message;
-        emailMsg.className = 'error-message';
-      } else {
-        emailMsg.textContent = '✅ Confirmation link sent to new email.';
-        emailMsg.className = 'success-message';
-      }
+  let currentUser = null;
+
+  const loadUser = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      currentUser = session.user;
+      emailSpan.textContent = currentUser.email;
+      sinceSpan.textContent = new Date(currentUser.created_at).toDateString();
+    } else {
+      emailSpan.textContent = 'Not logged in';
+    }
+  };
+
+  loadUser();
+
+  changeEmailBtn.addEventListener('click', async () => {
+    const newEmail = newEmailInput.value.trim();
+    if (!newEmail) return;
+    const { error } = await supabase.auth.updateUser({ email: newEmail });
+    emailMsg.textContent = error ? `❌ ${error.message}` : '✅ Confirmation sent to new email';
+    emailMsg.style.color = error ? 'red' : 'green';
+  });
+
+  resetPasswordBtn.addEventListener('click', async () => {
+    if (!currentUser?.email) return;
+    const { error } = await supabase.auth.resetPasswordForEmail(currentUser.email);
+    resetMsg.textContent = error ? `❌ ${error.message}` : '📩 Reset link sent!';
+    resetMsg.style.color = error ? 'red' : 'green';
+  });
+
+  logoutBtn.addEventListener('click', async () => {
+  await supabase.auth.signOut();
+  window.location.href = 'index.html';
+});
+</script>
+
+<!-- ✅ Sliding Menu Script -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const menuToggle = document.getElementById("menuToggle");
+    const menuOverlay = document.getElementById("menuOverlay");
+    const closeMenu = document.getElementById("closeMenu");
+
+    if (!menuToggle || !menuOverlay) return;
+
+    menuToggle.addEventListener("click", () => {
+      menuOverlay.classList.add("active");
     });
 
-    // 🔐 Reset password
-    resetPasswordBtn.addEventListener('click', async () => {
-      if (!currentUser?.email) {
-        resetMsg.textContent = '⚠️ Please log in first.';
-        resetMsg.className = 'error-message';
-        return;
-      }
+    if (closeMenu) {
+      closeMenu.addEventListener("click", () => {
+        menuOverlay.classList.remove("active");
+      });
+    }
 
-      const { data, error } = await supabase.auth.resetPasswordForEmail(currentUser.email);
-
-      if (error) {
-        resetMsg.textContent = '❌ ' + error.message;
-        resetMsg.className = 'error-message';
-      } else {
-        resetMsg.textContent = '📩 Password reset link sent to your email.';
-        resetMsg.className = 'success-message';
+    menuOverlay.addEventListener("click", (e) => {
+      if (e.target === menuOverlay) {
+        menuOverlay.classList.remove("active");
       }
     });
-
-    // 🚪 Log out
-    logoutBtn.addEventListener('click', async () => {
-      await supabase.auth.signOut();
-      location.reload();
-    });
-  </script>
+  });
+</script>
 
 </body>
 </html>
