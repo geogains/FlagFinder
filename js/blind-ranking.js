@@ -227,7 +227,7 @@ function endGame() {
   res.style.display = "flex";
   setTimeout(() => res.classList.add("visible"), 10);
 
-  const maxScore = selectedCountries.length * 20;
+  const maxScore = selectedCountries.length * 10;
   document.querySelector(
     ".result-score-value"
   ).textContent = `${totalScore}/${maxScore}`;
