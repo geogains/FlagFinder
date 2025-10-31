@@ -320,11 +320,12 @@ function endGame() {
     scrollToTop();
     setTimeout(() => startBlindRankingGame(), 200);
   };
-  playRandom.onclick = playAgain.onclick;
-  shareBtn.onclick = () =>
-    navigator.clipboard.writeText(
-      `I scored ${totalScore}/${maxScore} on GeoHunter!`
-    );
+playRandom.onclick = () => {
+  const allModes = Object.keys(datasets);
+  const otherModes = allModes.filter((m) => m !== currentCategory);
+  const randomMode = otherModes[Math.floor(Math.random() * otherModes.length)];
+  window.location.href = `game.html?mode=${randomMode}`;
+};
 }
 
 export function setupRankButtons() {
