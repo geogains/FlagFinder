@@ -18,38 +18,37 @@
       box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
       text-align: center;
     }
-
     .leaderboard-title {
       font-size: 2rem;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.2rem;
     }
-
+    .category-select {
+      margin-bottom: 1.4rem;
+      font-size: 1rem;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+    }
     .leaderboard-table {
       width: 100%;
       border-collapse: collapse;
     }
-
     .leaderboard-table th,
     .leaderboard-table td {
       padding: 0.75rem 1rem;
       border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     }
-
     .leaderboard-table th {
       text-align: left;
       font-weight: 600;
       background: rgba(0, 0, 0, 0.05);
     }
-
     .leaderboard-rank {
       font-weight: bold;
       font-size: 1.1rem;
     }
-
     .gold { color: #facc15; }
     .silver { color: #e5e7eb; }
     .bronze { color: #f97316; }
-
     .back-home {
       margin-top: 2rem;
       display: inline-block;
@@ -60,7 +59,6 @@
       text-decoration: none;
       transition: background 0.2s ease;
     }
-
     .back-home:hover {
       background: #000;
     }
@@ -68,6 +66,7 @@
 </head>
 <body>
 
+<!-- ✅ Header -->
 <header class="home-glass-header">
   <div class="logo-header">
     <a href="index.html" class="logo-link">
@@ -76,13 +75,12 @@
   </div>
   <div class="hamburger-menu">
     <div class="menu-icon" id="menuToggle">
-      <span></span>
-      <span></span>
-      <span></span>
+      <span></span><span></span><span></span>
     </div>
   </div>
 </header>
 
+<!-- ✅ Sliding Menu -->
 <div class="menu-overlay" id="menuOverlay">
   <div class="menu-panel">
     <h2>Menu</h2>
@@ -95,8 +93,10 @@
   </div>
 </div>
 
+<!-- ✅ Leaderboard Content -->
 <main class="leaderboard-container">
   <h1 class="leaderboard-title">🏆 Top Players</h1>
+  <select id="categorySelect" class="category-select"></select>
   <table class="leaderboard-table" id="leaderboardTable">
     <thead>
       <tr>
@@ -118,13 +118,38 @@
 
   const supabase = createClient(
     'https://ajwxgdaninuzcpfwawug.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI' // replace this before going live
   );
 
+  const categorySelect = document.getElementById('categorySelect');
   const leaderboardBody = document.getElementById('leaderboardBody');
-  const categoryName = new URLSearchParams(window.location.search).get('mode') || 'population';
 
-  const loadLeaderboard = async () => {
+  async function loadCategories() {
+    const { data: categories, error } = await supabase
+      .from('categories')
+      .select('*')
+      .order('name');
+
+    if (error) {
+      alert('Failed to load categories');
+      console.error('Category error:', error);
+      return;
+    }
+
+    categorySelect.innerHTML = categories.map(c => `
+      <option value="${c.name}">${c.name.charAt(0).toUpperCase() + c.name.slice(1)}</option>
+    `).join('');
+
+    const params = new URLSearchParams(window.location.search);
+    const selectedCategory = params.get('mode') || categories[0]?.name;
+    categorySelect.value = selectedCategory;
+
+    loadLeaderboard(selectedCategory);
+  }
+
+  async function loadLeaderboard(categoryName) {
+    leaderboardBody.innerHTML = `<tr><td colspan="3">Loading...</td></tr>`;
+
     // Step 1: Get category ID
     const { data: catData, error: catErr } = await supabase
       .from('categories')
@@ -133,71 +158,68 @@
       .single();
 
     if (catErr || !catData) {
-      leaderboardBody.innerHTML = `<tr><td colspan="3">❌ Invalid category: ${categoryName}</td></tr>`;
+      leaderboardBody.innerHTML = `<tr><td colspan="3">❌ Category not found</td></tr>`;
+      console.error("Category fetch error:", catErr);
       return;
     }
 
-    const categoryId = catData.id;
-
-    // Step 2: Fetch top scores with user emails
-    const { data: scores, error: scoresErr } = await supabase
+    // Step 2: Get scores
+    const { data: scores, error: scoreErr } = await supabase
       .from('category_scores')
-      .select('score, users ( email )')
-      .eq('category_id', categoryId)
+      .select('score, user_id, users:auth.users(email)')
+      .eq('category_id', catData.id)
       .order('score', { ascending: false })
       .limit(20);
 
-    if (scoresErr) {
+    if (scoreErr || !scores) {
       leaderboardBody.innerHTML = `<tr><td colspan="3">❌ Failed to load leaderboard</td></tr>`;
-      console.error(scoresErr);
+      console.error("Score fetch error:", scoreErr);
       return;
     }
 
     leaderboardBody.innerHTML = '';
 
-    if (!scores.length) {
-      leaderboardBody.innerHTML = `<tr><td colspan="3">No scores yet.</td></tr>`;
-      return;
-    }
-
-    scores.forEach((row, index) => {
-      const userEmail = row.users?.email || "Anonymous";
+    scores.forEach((entry, index) => {
+      const user = entry.users || {};
       const rankClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
+      const row = document.createElement('tr');
+      row.innerHTML = `
         <td class="leaderboard-rank ${rankClass}">#${index + 1}</td>
-        <td>${userEmail}</td>
-        <td>${row.score}</td>
+        <td>${user.email || 'Anonymous'}</td>
+        <td>${entry.score}</td>
       `;
-      leaderboardBody.appendChild(tr);
+      leaderboardBody.appendChild(row);
     });
-  };
+  }
 
-  loadLeaderboard();
+  categorySelect.addEventListener('change', () => {
+    const selected = categorySelect.value;
+    const newUrl = new URL(window.location);
+    newUrl.searchParams.set('mode', selected);
+    window.history.replaceState({}, '', newUrl);
+    loadLeaderboard(selected);
+  });
+
+  loadCategories();
 </script>
 
+<!-- ✅ Menu Toggle Script -->
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const menuToggle = document.getElementById("menuToggle");
     const menuOverlay = document.getElementById("menuOverlay");
     const closeMenu = document.getElementById("closeMenu");
 
-    if (!menuToggle || !menuOverlay) return;
-
-    menuToggle.addEventListener("click", () => {
+    menuToggle?.addEventListener("click", () => {
       menuOverlay.classList.add("active");
     });
 
-    if (closeMenu) {
-      closeMenu.addEventListener("click", () => {
-        menuOverlay.classList.remove("active");
-      });
-    }
+    closeMenu?.addEventListener("click", () => {
+      menuOverlay.classList.remove("active");
+    });
 
-    menuOverlay.addEventListener("click", (e) => {
-      if (e.target === menuOverlay) {
-        menuOverlay.classList.remove("active");
-      }
+    menuOverlay?.addEventListener("click", (e) => {
+      if (e.target === menuOverlay) menuOverlay.classList.remove("active");
     });
   });
 </script>
