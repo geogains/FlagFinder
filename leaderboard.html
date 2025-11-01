@@ -68,7 +68,6 @@
 </head>
 <body>
 
-<!-- ✅ Header with logo and menu -->
 <header class="home-glass-header">
   <div class="logo-header">
     <a href="index.html" class="logo-link">
@@ -84,7 +83,6 @@
   </div>
 </header>
 
-<!-- ✅ Sliding Menu -->
 <div class="menu-overlay" id="menuOverlay">
   <div class="menu-panel">
     <h2>Menu</h2>
@@ -97,14 +95,13 @@
   </div>
 </div>
 
-<!-- ✅ Leaderboard Content -->
 <main class="leaderboard-container">
   <h1 class="leaderboard-title">🏆 Top Players</h1>
   <table class="leaderboard-table" id="leaderboardTable">
     <thead>
       <tr>
         <th>Rank</th>
-        <th>Username</th>
+        <th>User</th>
         <th>Score</th>
       </tr>
     </thead>
@@ -115,7 +112,7 @@
   <a href="index.html" class="back-home">← Back to Home</a>
 </main>
 
-<!-- ✅ Supabase & Leaderboard Logic -->
+<!-- ✅ Supabase Leaderboard Logic -->
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -125,39 +122,60 @@
   );
 
   const leaderboardBody = document.getElementById('leaderboardBody');
+  const categoryName = new URLSearchParams(window.location.search).get('mode') || 'population';
 
   const loadLeaderboard = async () => {
-    const { data, error } = await supabase
-      .from('scores')
-      .select('username, score')
+    // Step 1: Get category ID
+    const { data: catData, error: catErr } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('name', categoryName)
+      .single();
+
+    if (catErr || !catData) {
+      leaderboardBody.innerHTML = `<tr><td colspan="3">❌ Invalid category: ${categoryName}</td></tr>`;
+      return;
+    }
+
+    const categoryId = catData.id;
+
+    // Step 2: Fetch top scores with user emails
+    const { data: scores, error: scoresErr } = await supabase
+      .from('category_scores')
+      .select('score, users ( email )')
+      .eq('category_id', categoryId)
       .order('score', { ascending: false })
       .limit(20);
 
-    if (error) {
+    if (scoresErr) {
       leaderboardBody.innerHTML = `<tr><td colspan="3">❌ Failed to load leaderboard</td></tr>`;
+      console.error(scoresErr);
       return;
     }
 
     leaderboardBody.innerHTML = '';
 
-    data.forEach((user, index) => {
-      const row = document.createElement('tr');
+    if (!scores.length) {
+      leaderboardBody.innerHTML = `<tr><td colspan="3">No scores yet.</td></tr>`;
+      return;
+    }
+
+    scores.forEach((row, index) => {
+      const userEmail = row.users?.email || "Anonymous";
       const rankClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
-
-      row.innerHTML = `
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
         <td class="leaderboard-rank ${rankClass}">#${index + 1}</td>
-        <td>${user.username}</td>
-        <td>${user.score}</td>
+        <td>${userEmail}</td>
+        <td>${row.score}</td>
       `;
-
-      leaderboardBody.appendChild(row);
+      leaderboardBody.appendChild(tr);
     });
   };
 
   loadLeaderboard();
 </script>
 
-<!-- ✅ Menu Script -->
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const menuToggle = document.getElementById("menuToggle");

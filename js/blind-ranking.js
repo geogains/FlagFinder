@@ -315,26 +315,44 @@ function endGame() {
     tbody.appendChild(tr);
   });
 
-  // ✅ Save score to Supabase
+// ✅ Save score to Supabase properly using category name lookup
 (async () => {
   const { data: { session }, error: sessionErr } = await supabase.auth.getSession();
   if (session?.user) {
-    const { error: insertError } = await supabase
+    // Step 1: get the current category name (e.g., "population")
+    const currentCategory = new URLSearchParams(window.location.search).get("mode");
+
+    // Step 2: get category_id from DB
+    const { data: catData, error: catErr } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('name', currentCategory)
+      .single();
+
+    if (catErr || !catData) {
+      console.error("❌ Could not find category ID:", catErr);
+      return;
+    }
+
+    // Step 3: Insert the score
+    const { error: insertErr } = await supabase
       .from('category_scores')
       .insert({
         user_id: session.user.id,
-        category_id: currentCategory,
+        category_id: catData.id,
         score: totalScore
       });
-    if (insertError) {
-      console.error("Insert score error:", insertError);
+
+    if (insertErr) {
+      console.error("❌ Error saving score:", insertErr);
     } else {
-      console.log("✅ Score inserted:", totalScore, "for user:", session.user.id);
+      console.log("✅ Score saved:", totalScore, "Category:", currentCategory);
     }
   } else {
     console.warn("⚠️ No active session found.");
   }
 })();
+
 
 
   const playAgain = document.querySelector(".action-play-again");
