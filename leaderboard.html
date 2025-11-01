@@ -164,12 +164,12 @@
     }
 
     // Step 2: Get scores
-    const { data: scores, error: scoreErr } = await supabase
-      .from('category_scores')
-      .select('score, user_id, users:auth.users(email)')
-      .eq('category_id', catData.id)
-      .order('score', { ascending: false })
-      .limit(20);
+const { data, error } = await supabase
+  .from('category_scores')
+  .select('score, user_id, users:public.users(email)')
+  .eq('category_id', selectedCategoryId)
+  .order('score', { ascending: false })
+  .limit(20);
 
     if (scoreErr || !scores) {
       leaderboardBody.innerHTML = `<tr><td colspan="3">❌ Failed to load leaderboard</td></tr>`;
