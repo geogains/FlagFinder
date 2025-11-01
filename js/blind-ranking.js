@@ -326,6 +326,26 @@ playRandom.onclick = () => {
 };
 }
 
+(async () => {
+  const { data: { session }, error: sessionErr } = await supabase.auth.getSession();
+  if (session?.user) {
+    const { error: insertError } = await supabase
+      .from('category_scores')
+      .insert({
+        user_id: session.user.id,
+        category_id: currentCategory,
+        score: totalScore
+      });
+    if (insertError) {
+      console.error("Insert score error:", insertError);
+    } else {
+      console.log("✅ Score inserted:", totalScore, "for user:", session.user.id);
+    }
+  } else {
+    console.warn("⚠️ No active session found.");
+  }
+})();
+
 export function setupRankButtons() {
   console.log("✅ Rank buttons initialized");
   document
