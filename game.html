@@ -7,16 +7,16 @@
 
   <!-- Fonts & CSS -->
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./css/home.css" />
-<link rel="stylesheet" href="./css/game-modes.css" />
+  <link rel="stylesheet" href="./css/home.css" />
+  <link rel="stylesheet" href="./css/game-modes.css" />
 </head>
 <body>
 
 <header class="home-glass-header">
   <div class="logo-header">
     <a href="index.html" class="logo-link">
-  <img src="assets/logo.png" alt="GeoRanks Logo" />
-</a>
+      <img src="assets/logo.png" alt="GeoRanks Logo" />
+    </a>
   </div>
   <div class="hamburger-menu">
     <div class="menu-icon" id="menuToggle">
@@ -27,17 +27,15 @@
   </div>
 </header>
 
-<!-- 🔹 Hamburger Menu -->
-  <div class="menu-overlay" id="menuOverlay">
-    <div class="menu-panel">
-      <h2>Menu</h2>
-      <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
-      <button class="menu-btn" onclick="window.location.href='account.html'">👤 Account</button>
-      <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
-      <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
-      <button class="menu-btn">💡 How to Play</button>
-      <button class="menu-btn menu-close" id="closeMenu">Close</button>
-    </div>
+<div class="menu-overlay" id="menuOverlay">
+  <div class="menu-panel">
+    <h2>Menu</h2>
+    <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
+    <button class="menu-btn" onclick="window.location.href='account.html'">👤 Account</button>
+    <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
+    <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
+    <button class="menu-btn">💡 How to Play</button>
+    <button class="menu-btn menu-close" id="closeMenu">Close</button>
   </div>
 </div>
 
@@ -79,8 +77,9 @@
   </div>
 </div>
 
-<!-- 🔹 Scripts -->
 <script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
   import { populationData } from './js/categories/population.js';
   import { gdpData } from './js/categories/gdp.js';
   import { happinessData } from './js/categories/happiness.js';
@@ -94,12 +93,31 @@
   import { altitudeData } from './js/categories/altitude.js';
   import { passportData } from './js/categories/passport.js';
 
+  const supabase = createClient(
+    'https://ajwxgdaninuzcpfwawug.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
+  );
 
-  // ✅ Read ?mode= from URL
+  window.supabase = supabase; // make it globally accessible for blind-ranking.js
+
+  const CATEGORY_ID_MAP = {
+    population: 3,
+    altitude: 2,
+    gdp: 4,
+    happiness: 5,
+    forest: 6,
+    coastline: 7,
+    cuisine: 8,
+    olympic: 9,
+    worldcup: 10,
+    landmass: 11,
+    crimerate: 12,
+    passport: 13
+  };
+
   const params = new URLSearchParams(window.location.search);
   const mode = params.get('mode') || 'population';
 
-  // ✅ Define all datasets
   const datasets = {
     population: { title: 'RANK THESE COUNTRIES BY POPULATION 🌍', data: populationData },
     gdp: { title: 'RANK THESE COUNTRIES BY GDP 💰', data: gdpData },
@@ -117,17 +135,12 @@
 
   const selected = datasets[mode] || datasets.population;
 
-  // ✅ Assign before importing the game logic
   window.countries = selected.data;
   document.querySelector('.top-card-title').textContent = selected.title;
 
-  console.log('Loaded mode:', mode);
-  console.log('Countries received:', window.countries.length);
-
-  // ✅ Dynamic import AFTER assigning data
   const { startBlindRankingGame, setupRankButtons } = await import('./js/blind-ranking.js');
 
-  startBlindRankingGame();
+  startBlindRankingGame(CATEGORY_ID_MAP[mode] || 0); // pass category ID into game logic
   setupRankButtons();
 
   window.scrollTo(0, 0);
@@ -142,19 +155,16 @@
 
     if (!menuToggle || !menuOverlay) return;
 
-    // 🟣 Open the menu
     menuToggle.addEventListener("click", () => {
       menuOverlay.classList.add("active");
     });
 
-    // 🔵 Close with the close button
     if (closeMenu) {
       closeMenu.addEventListener("click", () => {
         menuOverlay.classList.remove("active");
       });
     }
 
-    // ⚪ Close when clicking outside the menu panel
     menuOverlay.addEventListener("click", (e) => {
       if (e.target === menuOverlay) {
         menuOverlay.classList.remove("active");
@@ -162,7 +172,6 @@
     });
   });
 </script>
-
 
 </body>
 </html>
