@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GeoRanks — My Stats</title>
+  <link rel="stylesheet" href="css/home.css"/>
+  <link rel="stylesheet" href="css/game-modes.css"/>
+  <style>
+    .stats-container {
+      max-width: 800px;
+      margin: 120px auto 40px;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+    .stats-card {
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    .stats-card h2 {
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+    }
+    .category-stats-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .category-stats-table th,
+    .category-stats-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+    .category-stats-table th {
+      text-align: left;
+      font-weight: 600;
+      background: rgba(0, 0, 0, 0.05);
+    }
+    .progress-bar-container {
+      background: #e5e7eb;
+      border-radius: 4px;
+      height: 10px;
+      width: 100%;
+    }
+    .progress-bar-fill {
+      background: #7c3aed;
+      height: 10px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<header class="home-glass-header">
+  <div class="logo-header"><a href="index.html"><img src="assets/logo.png" alt="GeoRanks Logo" /></a></div>
+  <div class="hamburger-menu"><div class="menu-icon" id="menuToggle"><span></span><span></span><span></span></div></div>
+</header>
+
+<div class="menu-overlay" id="menuOverlay">
+  <div class="menu-panel">
+    <h2>Menu</h2>
+    <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
+    <button class="menu-btn" onclick="window.location.href='account.html'">👤 Account</button>
+    <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
+    <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
+    <button class="menu-btn menu-close" id="closeMenu">Close</button>
+  </div>
+</div>
+
+<main class="stats-container">
+  <div class="stats-card">
+    <h2>Your Stats</h2>
+    <p id="userEmail">Loading…</p>
+    <p id="userSince">Member since –</p>
+  </div>
+
+  <table class="category-stats-table" id="categoryStatsTable">
+    <thead>
+      <tr>
+        <th>Category</th>
+        <th>Your Score</th>
+        <th>Your Rank</th>
+        <th>Progress</th>
+      </tr>
+    </thead>
+    <tbody id="categoryStatsBody">
+      <tr><td colspan="4">Loading stats…</td></tr>
+    </tbody>
+  </table>
+</main>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+  const supabase = createClient(
+    'YOUR_SUPABASE_URL',
+    'YOUR_SUPABASE_ANON_KEY'
+  );
+
+  const userEmailEl = document.getElementById('userEmail');
+  const userSinceEl = document.getElementById('userSince');
+  const categoryStatsBody = document.getElementById('categoryStatsBody');
+
+  const loadStats = async () => {
+    const { data: { session }, error: sessionErr } = await supabase.auth.getSession();
+    if (sessionErr || !session?.user) {
+      userEmailEl.textContent = 'Not logged in';
+      return;
+    }
+    const user = session.user;
+    userEmailEl.textContent = user.email;
+    userSinceEl.textContent = `Member since ${new Date(user.created_at).toDateString()}`;
+
+    // fetch this user’s scores
+    const { data: scoresData, error: scoresErr } = await supabase
+      .from('category_scores')
+      .select('category_id, score')
+      .eq('user_id', user.id);
+
+    if (scoresErr) {
+      categoryStatsBody.innerHTML = `<tr><td colspan="4">Failed to load stats.</td></tr>`;
+      return;
+    }
+
+    categoryStatsBody.innerHTML = '';
+
+    // For each category score, compute rank
+    for (const entry of scoresData) {
+      const { category_id, score } = entry;
+      // fetch category meta (name) – you might already have a mapping
+      const categoryName = getCategoryNameById(category_id);
+
+      // compute rank: how many users have a higher score in this category
+      const { count: higherCount, error: rankErr } = await supabase
+        .from('category_scores')
+        .select('id', { count: 'exact', head: true })
+        .gt('score', score)
+        .eq('category_id', category_id);
+
+      const rank = higherCount + 1;
+
+      const maxScoreForCategory = 100; // or fetch dynamically
+      const progressPercent = Math.min(100, Math.floor((score / maxScoreForCategory) * 100));
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${categoryName}</td>
+        <td>${score}</td>
+        <td>#${rank}</td>
+        <td>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" style="width: ${progressPercent}%;"></div>
+          </div>
+        </td>
+      `;
+      categoryStatsBody.appendChild(row);
+    }
+
+    // You might also show categories the user hasn’t played yet (optional)
+  };
+
+  loadStats();
+
+  function getCategoryNameById(id) {
+    // Ideally you have a mapping list
+    const mapping = {
+      1: 'Blind Ranking',
+      2: 'Altitude',
+      // add future categories
+    };
+    return mapping[id] || `Category ${id}`;
+  }
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const menuToggle = document.getElementById("menuToggle");
+    const menuOverlay = document.getElementById("menuOverlay");
+    const closeMenu = document.getElementById("closeMenu");
+    menuToggle.addEventListener("click", () => menuOverlay.classList.add("active"));
+    closeMenu.addEventListener("click", () => menuOverlay.classList.remove("active"));
+    menuOverlay.addEventListener("click", (e) => { if (e.target===menuOverlay) menuOverlay.classList.remove("active"); });
+  });
+</script>
+
+</body>
+</html>

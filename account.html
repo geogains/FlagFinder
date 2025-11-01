@@ -77,7 +77,8 @@
     <h2>Menu</h2>
     <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
     <button class="menu-btn" onclick="window.location.href='account.html'">👤 Account</button>
-    <button class="menu-btn">🏆 Leaderboard</button>
+    <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
+    <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
     <button class="menu-btn">💡 How to Play</button>
     <button class="menu-btn menu-close" id="closeMenu">Close</button>
   </div>
@@ -158,10 +159,29 @@
     resetMsg.style.color = error ? 'red' : 'green';
   });
 
-  logoutBtn.addEventListener('click', async () => {
-  await supabase.auth.signOut();
-  window.location.href = 'index.html';
+ logoutBtn.addEventListener('click', async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if (!session) {
+    // Session already gone, just redirect
+    localStorage.setItem('showLogoutToast', 'true');
+    window.location.href = 'index.html';
+    return;
+  }
+
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    alert("❌ Logout failed: " + error.message);
+  } else {
+    localStorage.setItem('showLogoutToast', 'true');
+    setTimeout(() => {
+      window.location.href = 'index.html';
+    }, 300);
+  }
 });
+
+
 </script>
 
 <!-- ✅ Sliding Menu Script -->
