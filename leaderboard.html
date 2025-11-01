@@ -148,49 +148,60 @@
   }
 
   async function loadLeaderboard(categoryName) {
-    leaderboardBody.innerHTML = `<tr><td colspan="3">Loading...</td></tr>`;
+  leaderboardBody.innerHTML = `<tr><td colspan="3">Loading...</td></tr>`;
 
-    // Step 1: Get category ID
-    const { data: catData, error: catErr } = await supabase
-      .from('categories')
-      .select('id')
-      .eq('name', categoryName)
-      .single();
+  // Step 1: Get category ID from name
+  const { data: catData, error: catErr } = await supabase
+    .from('categories')
+    .select('id')
+    .eq('name', categoryName)
+    .single();
 
-    if (catErr || !catData) {
-      leaderboardBody.innerHTML = `<tr><td colspan="3">❌ Category not found</td></tr>`;
-      console.error("Category fetch error:", catErr);
-      return;
-    }
-
-    // Step 2: Get scores
-const { data, error } = await supabase
-  .from('category_scores')
-  .select('score, user_id, users:public.users(email)')
-  .eq('category_id', selectedCategoryId)
-  .order('score', { ascending: false })
-  .limit(20);
-
-    if (scoreErr || !scores) {
-      leaderboardBody.innerHTML = `<tr><td colspan="3">❌ Failed to load leaderboard</td></tr>`;
-      console.error("Score fetch error:", scoreErr);
-      return;
-    }
-
-    leaderboardBody.innerHTML = '';
-
-    scores.forEach((entry, index) => {
-      const user = entry.users || {};
-      const rankClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td class="leaderboard-rank ${rankClass}">#${index + 1}</td>
-        <td>${user.email || 'Anonymous'}</td>
-        <td>${entry.score}</td>
-      `;
-      leaderboardBody.appendChild(row);
-    });
+  if (catErr || !catData) {
+    leaderboardBody.innerHTML = `<tr><td colspan="3">❌ Category not found</td></tr>`;
+    console.error("Category fetch error:", catErr);
+    return;
   }
+
+  const selectedCategoryId = catData.id;
+
+  // Step 2: Get scores joined with public.users
+  const { data: scores, error: scoreErr } = await supabase
+    .from('category_scores')
+    .select('score, user_id, users:public.users(email)')
+    .eq('category_id', selectedCategoryId)
+    .order('score', { ascending: false })
+    .limit(20);
+
+  if (scoreErr || !scores) {
+    leaderboardBody.innerHTML = `<tr><td colspan="3">❌ Failed to load leaderboard</td></tr>`;
+    console.error("Score fetch error:", scoreErr);
+    return;
+  }
+
+  leaderboardBody.innerHTML = '';
+
+  if (scores.length === 0) {
+    leaderboardBody.innerHTML = `<tr><td colspan="3">No scores yet for this category.</td></tr>`;
+    return;
+  }
+
+  scores.forEach((entry, index) => {
+    const user = entry.users || {};
+    const rankClass =
+      index === 0 ? 'gold' :
+      index === 1 ? 'silver' :
+      index === 2 ? 'bronze' : '';
+
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td class="leaderboard-rank ${rankClass}">#${index + 1}</td>
+      <td>${user.email || 'Anonymous'}</td>
+      <td>${entry.score}</td>
+    `;
+    leaderboardBody.appendChild(row);
+  });
+}
 
   categorySelect.addEventListener('change', () => {
     const selected = categorySelect.value;
