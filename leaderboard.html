@@ -165,10 +165,14 @@
 
   const selectedCategoryId = catData.id;
 
-  // Step 2: Get scores joined with public.users
+  // Step 2: Get scores joined with users (not public.users)
   const { data: scores, error: scoreErr } = await supabase
     .from('category_scores')
-    .select('score, user_id, users:public.users(email)')
+    .select(`
+      score,
+      user_id,
+      users(email)
+    `)
     .eq('category_id', selectedCategoryId)
     .order('score', { ascending: false })
     .limit(20);
