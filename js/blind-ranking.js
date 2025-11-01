@@ -3,6 +3,13 @@
 const urlParams = new URLSearchParams(window.location.search);
 const currentCategory = urlParams.get("mode") || "population";
 
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+const supabase = createClient(
+  'https://ajwxgdaninuzcpfwawug.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI' // Replace this if not using env var
+);
+
 function getCountries() {
   return window.countries && window.countries.length ? window.countries : [];
 }
@@ -308,24 +315,7 @@ function endGame() {
     tbody.appendChild(tr);
   });
 
-  const playAgain = document.querySelector(".action-play-again");
-  const playRandom = document.querySelector(".action-play-random");
-  const shareBtn = document.querySelector(".action-share");
-
-  playAgain.onclick = () => {
-    res.classList.remove("visible");
-    res.style.display = "none";
-    scrollToTop();
-    setTimeout(() => startBlindRankingGame(), 200);
-  };
-playRandom.onclick = () => {
-  const allModes = Object.keys(datasets);
-  const otherModes = allModes.filter((m) => m !== currentCategory);
-  const randomMode = otherModes[Math.floor(Math.random() * otherModes.length)];
-  window.location.href = `game.html?mode=${randomMode}`;
-};
-}
-
+  // ✅ Save score to Supabase
 (async () => {
   const { data: { session }, error: sessionErr } = await supabase.auth.getSession();
   if (session?.user) {
@@ -345,6 +335,25 @@ playRandom.onclick = () => {
     console.warn("⚠️ No active session found.");
   }
 })();
+
+
+  const playAgain = document.querySelector(".action-play-again");
+  const playRandom = document.querySelector(".action-play-random");
+  const shareBtn = document.querySelector(".action-share");
+
+  playAgain.onclick = () => {
+    res.classList.remove("visible");
+    res.style.display = "none";
+    scrollToTop();
+    setTimeout(() => startBlindRankingGame(), 200);
+  };
+playRandom.onclick = () => {
+  const allModes = Object.keys(datasets);
+  const otherModes = allModes.filter((m) => m !== currentCategory);
+  const randomMode = otherModes[Math.floor(Math.random() * otherModes.length)];
+  window.location.href = `game.html?mode=${randomMode}`;
+};
+}
 
 export function setupRankButtons() {
   console.log("✅ Rank buttons initialized");
