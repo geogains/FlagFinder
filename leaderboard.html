@@ -233,17 +233,23 @@ async function loadLeaderboard(categoryName) {
 
   scores.forEach((entry, index) => {
     const user = entry.users || {};
-    const rankClass =
-      index === 0 ? 'gold' :
-      index === 1 ? 'silver' :
-      index === 2 ? 'bronze' : '';
+    let rankDisplay;
+if (index === 0) {
+  rankDisplay = '🥇';
+} else if (index === 1) {
+  rankDisplay = '🥈';
+} else if (index === 2) {
+  rankDisplay = '🥉';
+} else {
+  rankDisplay = `#${index + 1}`;
+}
 
     const row = document.createElement('tr');
-    row.innerHTML = `
-      <td class="leaderboard-rank ${rankClass}">#${index + 1}</td>
-      <td>${user.email || 'Anonymous'}</td>
-      <td>${entry.score}</td>
-    `;
+row.innerHTML = `
+  <td class="leaderboard-rank">${rankDisplay}</td>
+  <td>${user.email || 'Anonymous'}</td>
+  <td>${entry.score}</td>
+`;
     leaderboardBody.appendChild(row);
   });
 }
