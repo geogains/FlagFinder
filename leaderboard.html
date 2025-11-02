@@ -7,61 +7,84 @@
   <link rel="stylesheet" href="css/home.css"/>
   <link rel="stylesheet" href="css/game-modes.css"/>
   <style>
-    .leaderboard-container {
-      max-width: 720px;
-      margin: 120px auto 40px;
-      padding: 2rem;
-      background: rgba(255, 255, 255, 0.75);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-radius: 16px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-      text-align: center;
-    }
-    .leaderboard-title {
-      font-size: 2rem;
-      margin-bottom: 1.2rem;
-    }
-    .category-select {
-      margin-bottom: 1.4rem;
-      font-size: 1rem;
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
-    }
-    .leaderboard-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    .leaderboard-table th,
-    .leaderboard-table td {
-      padding: 0.75rem 1rem;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    }
-    .leaderboard-table th {
-      text-align: left;
-      font-weight: 600;
-      background: rgba(0, 0, 0, 0.05);
-    }
-    .leaderboard-rank {
-      font-weight: bold;
-      font-size: 1.1rem;
-    }
-    .gold { color: #facc15; }
-    .silver { color: #e5e7eb; }
-    .bronze { color: #f97316; }
-    .back-home {
-      margin-top: 2rem;
-      display: inline-block;
-      padding: 0.8rem 1.6rem;
-      border-radius: 8px;
-      background: #111827;
-      color: white;
-      text-decoration: none;
-      transition: background 0.2s ease;
-    }
-    .back-home:hover {
-      background: #000;
-    }
+.leaderboard-container {
+  max-width: 720px;
+  margin: 120px auto 40px;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  text-align: center;
+}
+
+.leaderboard-title {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.category-select {
+  margin-bottom: 1.4rem;
+  font-size: 1rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  border: none;
+  background-color: #f3f4f6;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.category-select:focus {
+  outline: none;
+  background: linear-gradient(90deg, #f97316, #f43f5e);
+  color: white;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.leaderboard-table th {
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.leaderboard-rank {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.gold { color: #facc15; }
+.silver { color: #e5e7eb; }
+.bronze { color: #f97316; }
+
+.back-home {
+  margin-top: 2rem;
+  display: inline-block;
+  padding: 0.8rem 1.6rem;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
+  background: linear-gradient(90deg, #f97316, #f43f5e);
+  transition: background 0.3s ease;
+}
+
+.back-home:hover {
+  opacity: 0.9;
+}
+
   </style>
 </head>
 <body>
