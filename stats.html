@@ -157,10 +157,18 @@
 
   function getCategoryNameById(id) {
     const mapping = {
-      1: 'Blind Ranking',
+      1: 'Population',
       2: 'Altitude',
-      3: 'Population',
-      // Future categories go here
+      3: 'GDP',
+      4: 'happiness',
+      5: 'Forrest',
+      6: 'Coastline',
+      7: 'Cuisine',
+      8: 'Olympic',
+      9: 'Worldcup',
+      10: 'Landmass',
+      11: 'Crimerate',
+      12: 'Passport',
     };
     return mapping[id] || `Category ${id}`;
   }
