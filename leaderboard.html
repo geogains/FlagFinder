@@ -7,88 +7,111 @@
   <link rel="stylesheet" href="css/home.css"/>
   <link rel="stylesheet" href="css/game-modes.css"/>
   <style>
-.leaderboard-container {
-  max-width: 720px;
-  margin: 120px auto 40px;
-  padding: 2rem;
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-radius: 16px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-  text-align: center;
-}
+    .leaderboard-container {
+      max-width: 720px;
+      margin: 120px auto 40px;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      text-align: center;
+    }
 
-.leaderboard-title {
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
-}
+    .leaderboard-title {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+    }
 
-.category-select {
-  margin-bottom: 1.4rem;
-  font-size: 1rem;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  width: 200px; /* ✅ Fixed width */
-  text-align: center;
-  appearance: none; /* Hides native dropdown arrow in some browsers */
-  background: linear-gradient(90deg, #f97316, #f43f5e);
-  color: white;
-  border: none;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-}
+    .custom-dropdown-wrapper {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1.4rem;
+    }
 
-.category-select:focus {
-  outline: none;
-  background: linear-gradient(90deg, #f97316, #f43f5e);
-  color: white;
-}
+    .custom-dropdown {
+      position: relative;
+      width: 220px;
+      cursor: pointer;
+      user-select: none;
+    }
 
-.leaderboard-table {
-  width: 100%;
-  border-collapse: collapse;
-}
+    .dropdown-selected {
+      background: linear-gradient(90deg, #f97316, #f43f5e);
+      color: #fff;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+    }
 
-.leaderboard-table th,
-.leaderboard-table td {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  text-align: center;
-}
+    .dropdown-options {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      margin-top: 0.4rem;
+      display: none;
+      z-index: 100;
+      overflow: hidden;
+    }
 
-.leaderboard-table th {
-  font-weight: 600;
-  background: rgba(0, 0, 0, 0.05);
-}
+    .dropdown-options li {
+      padding: 0.6rem 1rem;
+      text-align: center;
+      transition: background 0.2s;
+      cursor: pointer;
+    }
 
-.leaderboard-rank {
-  font-weight: bold;
-  font-size: 1.1rem;
-}
+    .dropdown-options li:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
 
-.gold { color: #facc15; }
-.silver { color: #e5e7eb; }
-.bronze { color: #f97316; }
+    .leaderboard-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
 
-.back-home {
-  margin-top: 2rem;
-  display: inline-block;
-  padding: 0.8rem 1.6rem;
-  border-radius: 8px;
-  color: white;
-  font-weight: 600;
-  text-decoration: none;
-  background: linear-gradient(90deg, #f97316, #f43f5e);
-  transition: background 0.3s ease;
-}
+    .leaderboard-table th,
+    .leaderboard-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
 
-.back-home:hover {
-  opacity: 0.9;
-}
+    .leaderboard-table th {
+      font-weight: 600;
+      background: rgba(0, 0, 0, 0.05);
+    }
 
+    .leaderboard-rank {
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
 
+    .gold { color: #facc15; }
+    .silver { color: #e5e7eb; }
+    .bronze { color: #f97316; }
 
+    .back-home {
+      margin-top: 2rem;
+      display: inline-block;
+      padding: 0.8rem 1.6rem;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      text-decoration: none;
+      background: linear-gradient(90deg, #f97316, #f43f5e);
+      transition: background 0.3s ease;
+    }
+
+    .back-home:hover {
+      opacity: 0.9;
+    }
   </style>
 </head>
 <body>
@@ -123,9 +146,13 @@
 <!-- ✅ Leaderboard Content -->
 <main class="leaderboard-container">
   <h1 class="leaderboard-title">🏆 Top Players</h1>
-  <div style="text-align: center;">
-  <select id="categorySelect" class="category-select"></select>
-</div>
+  <div class="custom-dropdown-wrapper">
+    <div class="custom-dropdown" id="dropdown">
+      <div class="dropdown-selected" id="dropdownSelected">Select Category</div>
+      <ul class="dropdown-options" id="dropdownOptions"></ul>
+    </div>
+  </div>
+
   <table class="leaderboard-table" id="leaderboardTable">
     <thead>
       <tr>
@@ -147,29 +174,31 @@
 
   const supabase = createClient(
     'https://ajwxgdaninuzcpfwawug.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI' // replace this before going live
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
   );
 
-function formatCategoryName(name) {
-  const mapping = {
-    population: 'Population',
-    altitude: 'Altitude',
-    gdp: 'GDP',
-    happiness: 'Happiness',
-    forestcover: 'Forest Cover',
-    coastline: 'Coastline',
-    cuisine: 'Cuisine',
-    olympic: 'Olympic Medals',
-    worldcup: 'World Cup',
-    landmass: 'Land Mass',
-    crimerate: 'Crime Rate',
-    passportstrength: 'Passport',
-  };
-  return mapping[name.toLowerCase()] || name;
-}
-
-  const categorySelect = document.getElementById('categorySelect');
+  const dropdown = document.getElementById('dropdown');
+  const dropdownSelected = document.getElementById('dropdownSelected');
+  const dropdownOptions = document.getElementById('dropdownOptions');
   const leaderboardBody = document.getElementById('leaderboardBody');
+
+  function formatCategoryName(name) {
+    const mapping = {
+      population: 'Population',
+      altitude: 'Altitude',
+      gdp: 'GDP',
+      happiness: 'Happiness',
+      forestcover: 'Forest Cover',
+      coastline: 'Coastline',
+      cuisine: 'Cuisine',
+      olympic: 'Olympic Medals',
+      worldcup: 'World Cup',
+      landmass: 'Land Mass',
+      crimerate: 'Crime Rate',
+      passportstrength: 'Passport',
+    };
+    return mapping[name.toLowerCase()] || name;
+  }
 
   async function loadCategories() {
     const { data: categories, error } = await supabase
@@ -183,90 +212,84 @@ function formatCategoryName(name) {
       return;
     }
 
-categorySelect.innerHTML = categories.map(c => `
-  <option value="${c.name}">${formatCategoryName(c.name)}</option>
-`).join('');
-
+    dropdownOptions.innerHTML = '';
     const params = new URLSearchParams(window.location.search);
-    const selectedCategory = params.get('mode') || categories[0]?.name;
-    categorySelect.value = selectedCategory;
+    const selectedParam = params.get('mode') || categories[0]?.name;
 
-    loadLeaderboard(selectedCategory);
+    categories.forEach(cat => {
+      const display = formatCategoryName(cat.name);
+      const li = document.createElement('li');
+      li.textContent = display;
+      li.addEventListener('click', () => {
+        dropdownSelected.textContent = display;
+
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.set('mode', cat.name);
+        window.history.replaceState({}, '', newUrl);
+
+        dropdownOptions.style.display = 'none';
+        loadLeaderboard(cat.name);
+      });
+
+      dropdownOptions.appendChild(li);
+
+      if (cat.name === selectedParam) {
+        dropdownSelected.textContent = display;
+        loadLeaderboard(cat.name);
+      }
+    });
   }
 
-async function loadLeaderboard(categoryName) {
-  leaderboardBody.innerHTML = `<tr><td colspan="3">Loading...</td></tr>`;
+  async function loadLeaderboard(categoryName) {
+    leaderboardBody.innerHTML = `<tr><td colspan="3">Loading...</td></tr>`;
 
-  // Step 1: Get category ID from name
-  const { data: catData, error: catErr } = await supabase
-    .from('categories')
-    .select('id')
-    .eq('name', categoryName)
-    .single();
+    const { data: catData, error: catErr } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('name', categoryName)
+      .single();
 
-  if (catErr || !catData) {
-    leaderboardBody.innerHTML = `<tr><td colspan="3">❌ Category not found</td></tr>`;
-    console.error("Category fetch error:", catErr);
-    return;
+    if (catErr || !catData) {
+      leaderboardBody.innerHTML = `<tr><td colspan="3">❌ Category not found</td></tr>`;
+      return;
+    }
+
+    const { data: scores, error: scoreErr } = await supabase
+      .from('category_scores')
+      .select('score, user_id, users(email)')
+      .eq('category_id', catData.id)
+      .order('score', { ascending: false })
+      .limit(20);
+
+    leaderboardBody.innerHTML = '';
+
+    if (scoreErr || !scores?.length) {
+      leaderboardBody.innerHTML = `<tr><td colspan="3">No scores yet for this category.</td></tr>`;
+      return;
+    }
+
+    scores.forEach((entry, index) => {
+      const user = entry.users || {};
+      const rankDisplay = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td class="leaderboard-rank">${rankDisplay}</td>
+        <td>${user.email || 'Anonymous'}</td>
+        <td>${entry.score}</td>
+      `;
+      leaderboardBody.appendChild(row);
+    });
   }
 
-  const selectedCategoryId = catData.id;
-
-  // Step 2: Get scores joined with users (not public.users)
-  const { data: scores, error: scoreErr } = await supabase
-    .from('category_scores')
-    .select(`
-      score,
-      user_id,
-      users(email)
-    `)
-    .eq('category_id', selectedCategoryId)
-    .order('score', { ascending: false })
-    .limit(20);
-
-  if (scoreErr || !scores) {
-    leaderboardBody.innerHTML = `<tr><td colspan="3">❌ Failed to load leaderboard</td></tr>`;
-    console.error("Score fetch error:", scoreErr);
-    return;
-  }
-
-  leaderboardBody.innerHTML = '';
-
-  if (scores.length === 0) {
-    leaderboardBody.innerHTML = `<tr><td colspan="3">No scores yet for this category.</td></tr>`;
-    return;
-  }
-
-  scores.forEach((entry, index) => {
-    const user = entry.users || {};
-    let rankDisplay;
-if (index === 0) {
-  rankDisplay = '🥇';
-} else if (index === 1) {
-  rankDisplay = '🥈';
-} else if (index === 2) {
-  rankDisplay = '🥉';
-} else {
-  rankDisplay = `#${index + 1}`;
-}
-
-    const row = document.createElement('tr');
-row.innerHTML = `
-  <td class="leaderboard-rank">${rankDisplay}</td>
-  <td>${user.email || 'Anonymous'}</td>
-  <td>${entry.score}</td>
-`;
-    leaderboardBody.appendChild(row);
+  dropdownSelected.addEventListener('click', () => {
+    dropdownOptions.style.display = dropdownOptions.style.display === 'block' ? 'none' : 'block';
   });
-}
 
-
-  categorySelect.addEventListener('change', () => {
-    const selected = categorySelect.value;
-    const newUrl = new URL(window.location);
-    newUrl.searchParams.set('mode', selected);
-    window.history.replaceState({}, '', newUrl);
-    loadLeaderboard(selected);
+  document.addEventListener('click', (e) => {
+    if (!dropdown.contains(e.target)) {
+      dropdownOptions.style.display = 'none';
+    }
   });
 
   loadCategories();
