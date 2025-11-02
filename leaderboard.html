@@ -9,6 +9,7 @@
   <style>
     .leaderboard-container {
       max-width: 720px;
+      min-height: calc(100vh - 160px);
       margin: 120px auto 40px;
       padding: 2rem;
       background: rgba(255, 255, 255, 0.75);
@@ -62,6 +63,7 @@
 
     .dropdown-options li {
       padding: 0.6rem 1rem;
+      list-style: none;
       text-align: center;
       transition: background 0.2s;
       cursor: pointer;
@@ -195,7 +197,7 @@
       worldcup: 'World Cup',
       landmass: 'Land Mass',
       crimerate: 'Crime Rate',
-      passportstrength: 'Passport',
+      passport: 'Passport',
     };
     return mapping[name.toLowerCase()] || name;
   }
