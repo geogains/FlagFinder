@@ -316,36 +316,36 @@
   rebindToggleAuthLink();
 
   const handleAuthUI = async (session) => {
-    if (!signInText) return;
+  if (!signInText) return;
 
-    if (session?.user) {
-      const userId = session.user.id;
+  if (session?.user) {
+    const userId = session.user.id;
 
-      const { data, error } = await supabase
-        .from("users")
-        .select("username")
-        .eq("id", userId)
-        .single();
+    const { data, error } = await supabase
+      .from("users")
+      .select("username")
+      .eq("id", userId)
+      .single();
 
-      if (error || !data) {
-        console.error("Failed to fetch username:", error);
-        signInText.textContent = session.user.email; // fallback
-      } else {
-        signInText.textContent = data.username;
-      }
-
-      signInText.style.cursor = "pointer";
-      signInText.onclick = () => {
-        window.location.href = "account.html";
-      };
+    if (error || !data) {
+      console.error("Failed to fetch username:", error);
+      signInText.textContent = session.user.email; // fallback
     } else {
-      signInText.textContent = "Sign In";
-      signInText.style.cursor = "pointer";
-      signInText.onclick = () => {
-        document.getElementById("authModal")?.classList.remove("hidden");
-      };
+      signInText.textContent = data.username;
     }
-  };
+
+    signInText.style.cursor = "pointer";
+    signInText.onclick = () => {
+      window.location.href = "account.html";
+    };
+  } else {
+    signInText.textContent = "Sign In";
+    signInText.style.cursor = "pointer";
+    signInText.onclick = () => {
+      document.getElementById("authModal")?.classList.remove("hidden");
+    };
+  }
+};
 
   // Initial load
   supabase.auth.getSession().then(({ data: { session } }) => {
