@@ -147,7 +147,7 @@
     loadLeaderboard(selectedCategory);
   }
 
-  async function loadLeaderboard(categoryName) {
+async function loadLeaderboard(categoryName) {
   leaderboardBody.innerHTML = `<tr><td colspan="3">Loading...</td></tr>`;
 
   // Step 1: Get category ID from name
@@ -206,6 +206,7 @@
     leaderboardBody.appendChild(row);
   });
 }
+
 
   categorySelect.addEventListener('change', () => {
     const selected = categorySelect.value;
