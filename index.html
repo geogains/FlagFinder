@@ -236,131 +236,157 @@
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const signInText = document.getElementById("signInText");
-  const submitBtn = document.getElementById("authSubmit");
-  const authTitle = document.getElementById("authModalTitle");
-  const emailInput = document.getElementById("authEmail");
-  const passwordInput = document.getElementById("authPassword");
-  const usernameInput = document.getElementById("authUsername");
-  const toggleAuthView = document.getElementById("toggleAuthView");
+const signInText = document.getElementById("signInText");
+
+const handleAuthUI = async (session) => {
+  if (!signInText) return;
+
+  if (session?.user) {
+    const userId = session.user.id;
+
+    // Fetch username from `users` table
+    const { data, error } = await supabase
+      .from('users')
+      .select('username')
+      .eq('id', userId)
+      .single();
+
+    if (error || !data) {
+      console.error('Failed to fetch username:', error);
+      signInText.textContent = session.user.email; // fallback
+    } else {
+      signInText.textContent = data.username;
+    }
+
+    signInText.style.cursor = "pointer";
+    signInText.onclick = () => {
+      window.location.href = "account.html";
+    };
+  } else {
+    signInText.textContent = "Sign In";
+    signInText.style.cursor = "pointer";
+    signInText.onclick = () => {
+      document.getElementById("signInModal")?.classList.remove("hidden");
+    };
+  }
+};
+
+
+// Initial load
+supabase.auth.getSession().then(({ data: { session } }) => {
+  handleAuthUI(session);
+});
+
+// Listen for login/logout
+supabase.auth.onAuthStateChange((event, session) => {
+  handleAuthUI(session);
+
+  if (event === "SIGNED_OUT") {
+    // Redirect to homepage on logout
+    window.location.href = "index.html";
+  }
+});
+
+
+
+  const authModal = document.getElementById('authModal');
+  const authTitle = document.getElementById('authModalTitle');
+  const emailInput = document.getElementById('authEmail');
+  const passwordInput = document.getElementById('authPassword');
+  const submitBtn = document.getElementById('authSubmit');
+  const toggleAuthView = document.getElementById('toggleAuthView');
+  const toggleAuthLink = document.getElementById('toggleAuthLink');
+  const oauthGoogleBtn = document.getElementById('oauthGoogle');
+  const closeAuthModal = document.getElementById('closeAuthModal');
 
   let isSignIn = true;
 
+  signInText.addEventListener('click', () => {
+    authModal.style.display = 'flex';
+    isSignIn = true;
+    authTitle.textContent = 'Sign In';
+    submitBtn.textContent = 'Continue';
+    toggleAuthView.innerHTML = 'Don’t have an account? <span id="toggleAuthLink">Sign Up</span>';
+    rebindToggleAuthLink();
+  });
+
   function rebindToggleAuthLink() {
-    const newToggle = document.getElementById("toggleAuthLink");
+  const newToggle = document.getElementById('toggleAuthLink');
+  const usernameInput = document.getElementById('authUsername');
 
-    newToggle.addEventListener("click", () => {
-      isSignIn = !isSignIn;
+  newToggle?.addEventListener('click', () => {
+    isSignIn = !isSignIn;
 
-      if (isSignIn) {
-        authTitle.textContent = "Sign In";
-        submitBtn.textContent = "Continue";
-        passwordInput.placeholder = "Password";
-        usernameInput.style.display = "none";
-        toggleAuthView.innerHTML = 'Don’t have an account? <span id="toggleAuthLink">Sign Up</span>';
+    authTitle.textContent = isSignIn ? 'Sign In' : 'Sign Up';
+    submitBtn.textContent = isSignIn ? 'Continue' : 'Register';
+    passwordInput.placeholder = isSignIn ? 'Password' : 'Create a password';
+    usernameInput.style.display = isSignIn ? 'none' : 'block';
+    toggleAuthView.innerHTML = isSignIn
+      ? 'Don’t have an account? <span id="toggleAuthLink">Sign Up</span>'
+      : 'Already have an account? <span id="toggleAuthLink">Sign In</span>';
+
+    rebindToggleAuthLink();
+  });
+}
+
+
+  submitBtn.addEventListener('click', async () => {
+  const email = emailInput.value.trim();
+  const password = passwordInput.value.trim();
+  const username = document.getElementById('authUsername').value.trim();
+
+  if (!email || !password || (!isSignIn && !username)) {
+    alert('Please fill in all required fields.');
+    return;
+  }
+
+  if (isSignIn) {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      alert('❌ ' + error.message);
+    } else {
+      authModal.style.display = 'none';
+      signInText.textContent = data.user.email;
+    }
+  } else {
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) {
+      alert('❌ ' + error.message);
+    } else {
+      // Insert username into custom "users" table after registration
+      const userId = data.user?.id;
+      const { error: userErr } = await supabase
+        .from('users')
+        .insert({ id: userId, email, username });
+
+      if (userErr) {
+        alert("❌ " + userErr.message);
       } else {
-        authTitle.textContent = "Sign Up";
-        submitBtn.textContent = "Register";
-        passwordInput.placeholder = "Create a password";
-        usernameInput.style.display = "block";
-        toggleAuthView.innerHTML = 'Already have an account? <span id="toggleAuthLink">Sign In</span>';
+        alert('✅ Registration successful!');
+        authModal.style.display = 'none';
       }
+    }
+  }
+});
 
-      rebindToggleAuthLink();
+
+  oauthGoogleBtn.addEventListener('click', async () => {
+    await supabase.auth.signInWithOAuth({ provider: 'google' });
+  });
+
+  if (closeAuthModal) {
+    closeAuthModal.addEventListener('click', () => {
+      authModal.style.display = 'none';
     });
   }
 
-  async function handleAuth() {
-    const email = emailInput.value.trim();
-    const password = passwordInput.value.trim();
-    const username = usernameInput.value.trim();
-
-    if (!email || !password || (!isSignIn && !username)) {
-      return alert("Please fill in all fields");
-    }
-
-    if (isSignIn) {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) return alert("❌ " + error.message);
-    } else {
-      // Check if username is already taken
-      const { data: existing, error: checkError } = await supabase
-        .from("users")
-        .select("id")
-        .eq("username", username)
-        .maybeSingle();
-
-      if (checkError) return alert("❌ " + checkError.message);
-      if (existing) return alert("❌ Username already taken");
-
-      // Sign up user
-      const { data, error } = await supabase.auth.signUp({ email, password });
-      if (error) return alert("❌ " + error.message);
-
-      const user = data?.user;
-      if (!user) return alert("❌ Sign up failed — no user returned");
-
-      // Insert into public.users with same ID as auth.users
-      const { error: dbError } = await supabase
-        .from("users")
-        .insert([{ id: user.id, email, username }]);
-
-      if (dbError) return alert("❌ Database error saving new user");
-    }
-
-    document.getElementById("signInModal")?.classList.add("hidden");
-    location.reload();
-  }
-
-  submitBtn.addEventListener("click", handleAuth);
-  rebindToggleAuthLink();
-
-  const handleAuthUI = async (session) => {
-    if (!signInText) return;
-
-    if (session?.user) {
-      const userId = session.user.id;
-
-      const { data, error } = await supabase
-        .from("users")
-        .select("username")
-        .eq("id", userId)
-        .single();
-
-      if (error || !data) {
-        console.error("Failed to fetch username:", error);
-        signInText.textContent = session.user.email; // fallback
-      } else {
-        signInText.textContent = data.username;
-      }
-
-      signInText.style.cursor = "pointer";
-      signInText.onclick = () => {
-        window.location.href = "account.html";
-      };
-    } else {
-      signInText.textContent = "Sign In";
-      signInText.style.cursor = "pointer";
-      signInText.onclick = () => {
-        document.getElementById("signInModal")?.classList.remove("hidden");
-      };
-    }
-  };
-
-  // Initial load
-  supabase.auth.getSession().then(({ data: { session } }) => {
-    handleAuthUI(session);
-  });
-
-  // Listen for login/logout
-  supabase.auth.onAuthStateChange((event, session) => {
-    handleAuthUI(session);
-    if (event === "SIGNED_OUT") {
-      window.location.href = "index.html";
+  window.addEventListener('click', (e) => {
+    if (e.target === authModal) {
+      authModal.style.display = 'none';
     }
   });
+
 </script>
-
 
 
   <!-- ===== JS Scripts ===== -->
