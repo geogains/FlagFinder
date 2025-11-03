@@ -260,7 +260,7 @@
 
     const { data: scores, error: scoreErr } = await supabase
       .from('category_scores')
-      .select('score, user_id, users(email)')
+      .select('score, user_id, users(username)')
       .eq('category_id', catData.id)
       .order('score', { ascending: false })
       .limit(20);
@@ -279,7 +279,7 @@
       const row = document.createElement('tr');
       row.innerHTML = `
         <td class="leaderboard-rank">${rankDisplay}</td>
-        <td>${user.email || 'Anonymous'}</td>
+        <td>${user.username || 'Anonymous'}</td>
         <td>${entry.score}</td>
       `;
       leaderboardBody.appendChild(row);
