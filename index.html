@@ -321,15 +321,16 @@
   if (session?.user) {
     const userId = session.user.id;
 
+    // Try to fetch the username
     const { data, error } = await supabase
       .from("users")
       .select("username")
       .eq("id", userId)
       .single();
 
-    if (error || !data) {
+    if (error || !data || !data.username) {
       console.error("Failed to fetch username:", error);
-      signInText.textContent = session.user.email; // fallback
+      signInText.textContent = session.user.email || "Account";
     } else {
       signInText.textContent = data.username;
     }
@@ -338,10 +339,13 @@
     signInText.onclick = () => {
       window.location.href = "account.html";
     };
+
   } else {
+    // Not signed in
     signInText.textContent = "Sign In";
     signInText.style.cursor = "pointer";
     signInText.onclick = () => {
+      console.log("Sign In clicked");
       document.getElementById("authModal")?.classList.remove("hidden");
     };
   }
