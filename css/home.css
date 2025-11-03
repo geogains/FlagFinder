@@ -447,32 +447,38 @@ html, body {
   }
 }
 
-/* Sign‑in Modal Overlay */
-/* Auth Modal Overlay */
+/* -----------------------------
+   Sign-In / Auth Modal Styles
+----------------------------- */
+
 .auth-modal {
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  display: none;
-  justify-content: center;
-  align-items: flex-start; /* 👈 push modal to top */
-  padding-top: 4rem; /* 👈 add space from top */
-  background: rgba(0, 0, 0, 0.35);
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
   z-index: 9999;
 }
 
-/* Modal Window */
+.auth-modal.hidden {
+  display: none;
+}
+
 .auth-modal .modal-window {
-  width: 90%;
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 100%;
   max-width: 400px;
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  padding: 2rem 1.5rem;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-  color: #1e1e1e;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  animation: fadeInTop 0.35s ease-out;
   font-family: 'Poppins', sans-serif;
+  color: #1e1e1e;
 }
 
 /* Modal Header */
@@ -495,7 +501,7 @@ html, body {
   box-sizing: border-box;
 }
 
-/* Primary Button */
+/* Submit Button */
 .auth-modal .modal-window .btn-auth {
   width: 100%;
   padding: 0.9rem 1rem;
@@ -552,6 +558,7 @@ html, body {
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
+/* Close Button */
 .close-auth-modal {
   position: absolute;
   top: 1rem;
@@ -565,6 +572,7 @@ html, body {
   z-index: 10000;
 }
 
+/* Animation */
 @keyframes fadeInTop {
   0% {
     opacity: 0;
@@ -575,45 +583,3 @@ html, body {
     transform: translateY(0);
   }
 }
-
-.modal-window {
-  animation: fadeInTop 0.35s ease-out;
-}
-
-.menu-overlay {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  visibility: hidden;
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 1500;
-  display: flex;
-  justify-content: flex-end;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-.menu-overlay.active {
-  opacity: 1;
-  visibility: visible;
-}
-
-.menu-panel {
-  background: white;
-  width: 280px;
-  height: 100%;
-  padding: 80px 1.5rem 1.5rem;
-  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
-  overflow-y: auto;
-  box-sizing: border-box;
-  transform: translateX(100%);
-  transition: transform 0.3s ease;
-}
-
-.menu-overlay.active .menu-panel {
-  transform: translateX(0%);
-}
-
-
