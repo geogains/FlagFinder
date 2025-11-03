@@ -9,31 +9,37 @@
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/game-modes.css" />
   <link rel="stylesheet" href="css/home.css" />
+
+  <style>
+  .hidden {
+    display: none !important;
+  }
+</style>
 </head>
 
 <body>
-  <div class="auth-modal" id="authModal">
-    <div class="modal-window">
-      <button class="close-auth-modal" id="closeAuthModal">×</button>
-      <h2 id="authModalTitle">Sign In</h2>
+  <div class="auth-modal hidden" id="authModal">
+  <div class="modal-window">
+    <button class="close-auth-modal" id="closeAuthModal">×</button>
+    <h2 id="authModalTitle">Sign In</h2>
 
-      <input type="text" id="authUsername" placeholder="Username" style="display:none;" />
-      <input type="email" id="authEmail" placeholder="Email address" />
-      <input type="password" id="authPassword" placeholder="Password" />
+    <input type="text" id="authUsername" placeholder="Username" style="display:none;" />
+    <input type="email" id="authEmail" placeholder="Email address" />
+    <input type="password" id="authPassword" placeholder="Password" />
 
-      <button class="btn-auth" id="authSubmit">Continue</button>
+    <button class="btn-auth" id="authSubmit">Continue</button>
 
-      <div class="oauth-section">
-        <button class="oauth-btn google" id="oauthGoogle">
-          <img src="assets/google.png" alt="Google" width="20" /> Sign in with Google
-        </button>
-      </div>
+    <div class="oauth-section">
+      <button class="oauth-btn google" id="oauthGoogle">
+        <img src="assets/google.png" alt="Google" width="20" /> Sign in with Google
+      </button>
+    </div>
 
-      <div class="toggle-view" id="toggleAuthView">
-        Don’t have an account? <span id="toggleAuthLink">Sign Up</span>
-      </div>
+    <div class="toggle-view" id="toggleAuthView">
+      Don’t have an account? <span id="toggleAuthLink">Sign Up</span>
     </div>
   </div>
+</div>
 
   <!-- 🔹 Glass Header for Home Page -->
   <header class="home-glass-header">
