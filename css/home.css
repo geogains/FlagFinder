@@ -569,7 +569,7 @@ html, body {
   color: #333;
   cursor: pointer;
   font-weight: bold;
-  z-index: 10000;
+  z-index: 10; /* inside the modal, doesn't need to be super high */
 }
 
 /* Animation */
