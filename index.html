@@ -314,30 +314,30 @@
   rebindToggleAuthLink();
 
   const handleAuthUI = async (session) => {
-  if (!signInText) return;
-
   if (session?.user) {
-    const userId = session.user.id;
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
 
-    // Try to fetch the username
-    const { data, error } = await supabase
-      .from("users")
-      .select("username")
-      .eq("id", userId)
-      .single();
+    if (user) {
+      const { data: profile, error } = await supabase
+        .from('users')
+        .select('username')
+        .eq('id', user.id)
+        .single();
 
-    if (error || !data || !data.username) {
-      console.error("Failed to fetch username:", error);
-      signInText.textContent = session.user.email || "Account";
-    } else {
-      signInText.textContent = data.username;
+      if (error) {
+        console.error('❌ Failed to load user profile:', error.message);
+        signInText.textContent = user.email || "Account";
+      } else {
+        signInText.textContent = profile.username;
+      }
+
+      signInText.style.cursor = "pointer";
+      signInText.onclick = () => {
+        window.location.href = "account.html";
+      };
     }
-
-    signInText.style.cursor = "pointer";
-    signInText.onclick = () => {
-      window.location.href = "account.html";
-    };
-
   } else {
     // Not signed in
     signInText.textContent = "Sign In";
