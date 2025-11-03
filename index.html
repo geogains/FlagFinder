@@ -271,46 +271,44 @@
   }
 
   async function handleAuth() {
-    const email = emailInput.value.trim();
-    const password = passwordInput.value.trim();
-    const username = usernameInput.value.trim();
+  const email = emailInput.value.trim();
+  const password = passwordInput.value.trim();
+  const username = usernameInput.value.trim();
 
-    if (!email || !password || (!isSignIn && !username)) {
-      return alert("Please fill in all fields");
-    }
-
-    if (isSignIn) {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) return alert("❌ " + error.message);
-    } else {
-      // Check if username is already taken
-      const { data: existing, error: checkError } = await supabase
-        .from("users")
-        .select("id")
-        .eq("username", username)
-        .maybeSingle();
-
-      if (checkError) return alert("❌ " + checkError.message);
-      if (existing) return alert("❌ Username already taken");
-
-      // Sign up user
-      const { data, error } = await supabase.auth.signUp({ email, password });
-      if (error) return alert("❌ " + error.message);
-
-      const user = data?.user;
-      if (!user) return alert("❌ Sign up failed — no user returned");
-
-      // Insert into public.users with same ID as auth.users
-      const { error: dbError } = await supabase
-        .from("users")
-        .insert([{ id: user.id, email, username }]);
-
-      if (dbError) return alert("❌ Database error saving new user");
-    }
-
-    document.getElementById("authModal")?.classList.add("hidden");
-    location.reload();
+  if (!email || !password || (!isSignIn && !username)) {
+    return alert("Please fill in all fields");
   }
+
+  if (isSignIn) {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return alert("❌ " + error.message);
+  } else {
+    // Check if username is already taken
+    const { data: existing, error: checkError } = await supabase
+      .from("users")
+      .select("id")
+      .eq("username", username)
+      .maybeSingle();
+
+    if (checkError) return alert("❌ " + checkError.message);
+    if (existing) return alert("❌ Username already taken");
+
+    // Sign up and attach username as user_metadata
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { username }
+      }
+    });
+
+    if (error) return alert("❌ " + error.message);
+
+    alert("✅ Please check your email to confirm your account.");
+  }
+
+  document.getElementById("authModal")?.classList.add("hidden");
+}
 
   submitBtn.addEventListener("click", handleAuth);
   rebindToggleAuthLink();
