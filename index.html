@@ -244,28 +244,32 @@
   let isSignIn = true;
 
   function rebindToggleAuthLink() {
-    const newToggle = document.getElementById("toggleAuthLink");
+  const newToggle = document.getElementById("toggleAuthLink");
+  const forgotLink = document.getElementById("forgotPasswordLink");
 
-    newToggle.addEventListener("click", () => {
-      isSignIn = !isSignIn;
+  newToggle.addEventListener("click", () => {
+    isSignIn = !isSignIn;
 
-      if (isSignIn) {
-        authTitle.textContent = "Sign In";
-        submitBtn.textContent = "Continue";
-        passwordInput.placeholder = "Password";
-        usernameInput.style.display = "none";
-        toggleAuthView.innerHTML = 'Don’t have an account? <span id="toggleAuthLink">Sign Up</span>';
-      } else {
-        authTitle.textContent = "Sign Up";
-        submitBtn.textContent = "Register";
-        passwordInput.placeholder = "Create a password";
-        usernameInput.style.display = "block";
-        toggleAuthView.innerHTML = 'Already have an account? <span id="toggleAuthLink">Sign In</span>';
-      }
+    if (isSignIn) {
+      authTitle.textContent = "Sign In";
+      submitBtn.textContent = "Continue";
+      passwordInput.placeholder = "Password";
+      usernameInput.style.display = "none";
+      forgotLink.style.display = "block"; // 👈 Show on Sign In
+      toggleAuthView.innerHTML = 'Don’t have an account? <span id="toggleAuthLink">Sign Up</span>';
+    } else {
+      authTitle.textContent = "Sign Up";
+      submitBtn.textContent = "Register";
+      passwordInput.placeholder = "Create a password";
+      usernameInput.style.display = "block";
+      forgotLink.style.display = "none"; // 👈 Hide on Sign Up
+      toggleAuthView.innerHTML = 'Already have an account? <span id="toggleAuthLink">Sign In</span>';
+    }
 
-      rebindToggleAuthLink();
-    });
-  }
+    rebindToggleAuthLink();
+  });
+}
+
 
   async function handleAuth() {
   const email = emailInput.value.trim();
