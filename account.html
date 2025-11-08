@@ -160,15 +160,15 @@
       emailSpan.textContent = currentUser.email;
       sinceSpan.textContent = new Date(currentUser.created_at).toLocaleDateString();
 
-      // Fetch username from the 'profiles' table
+      // Fetch username from the 'users' table
       const { data: profile, error } = await supabase
-        .from('profiles') // ⚠️ **UPDATE THIS** with your table name
-        .select('username') // ⚠️ **UPDATE THIS** with your column name
+        .from('users') // Correct table name
+        .select('username') // Correct column name
         .eq('id', currentUser.id)
         .single();
 
       if (profile) {
-        usernameSpan.textContent = profile.username; // ⚠️ **UPDATE THIS** with your column name
+        usernameSpan.textContent = profile.username; // Correct column name
       } else {
         usernameSpan.textContent = 'Not set';
         console.error('Error fetching profile:', error?.message);
@@ -193,8 +193,8 @@
     if (!currentUser) return;
 
     const { error } = await supabase
-      .from('profiles') // ⚠️ **UPDATE THIS** with your table name
-      .update({ username: newUsername }) // ⚠️ **UPDATE THIS** with your column name
+      .from('users') // Correct table name
+      .update({ username: newUsername }) // Correct column name
       .eq('id', currentUser.id);
 
     usernameMsg.textContent = error ? `❌ ${error.message}` : '✅ Username updated successfully!';
@@ -203,6 +203,7 @@
     if (!error) {
         // Refresh the displayed username
         usernameSpan.textContent = newUsername;
+        newUsernameInput.value = ''; // Clear the input field
     }
   });
 
