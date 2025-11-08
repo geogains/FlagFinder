@@ -25,6 +25,10 @@
       margin-bottom: 1rem;
     }
 
+    .account-info p {
+        margin: 0.5rem 0;
+    }
+
     .form-section {
       margin-top: 1.8rem;
       text-align: left;
@@ -49,6 +53,13 @@
 
     .logout-btn {
       background: linear-gradient(90deg, #222222, #171717);
+      margin-top: 2rem; /* Added margin for spacing */
+    }
+
+    .message {
+        margin-top: 0.75rem;
+        font-size: 0.9rem;
+        font-weight: 500;
     }
   </style>
 </head>
@@ -90,21 +101,25 @@
     <h2>Account Settings</h2>
 
     <div class="account-info">
+      <p><strong>Username:</strong> <span id="currentUsername">Loading...</span></p>
       <p><strong>Email:</strong> <span id="userEmail">Loading...</span></p>
       <p><strong>Member Since:</strong> <span id="userSince">—</span></p>
     </div>
 
+    <!-- ✅ Section to Change Username -->
+    <div class="form-section">
+      <h3>👤 Change Username</h3>
+      <input type="text" id="newUsername" placeholder="Enter new username" />
+      <button class="btn full-btn" id="changeUsernameBtn">Update Username</button>
+      <div class="message" id="usernameMsg"></div>
+    </div>
+
+    <!-- ✅ Section to Change Email -->
     <div class="form-section">
       <h3>✉️ Change Email Address</h3>
       <input type="email" id="newEmail" placeholder="Enter new email" />
       <button class="btn full-btn" id="changeEmailBtn">Update Email</button>
-      <div id="emailMsg"></div>
-    </div>
-
-    <div class="form-section">
-      <h3>🔐 Reset Password</h3>
-      <button class="btn full-btn" id="resetPasswordBtn">Send Reset Email</button>
-      <div id="resetMsg"></div>
+      <div class="message" id="emailMsg"></div>
     </div>
 
     <button class="btn full-btn logout-btn" id="logoutBtn">Log Out</button>
@@ -118,32 +133,80 @@
   const supabase = createClient(
     'https://ajwxgdaninuzcpfwawug.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
-  );
+   );
 
+  // --- Element References ---
+  const usernameSpan = document.getElementById('currentUsername');
   const emailSpan = document.getElementById('userEmail');
   const sinceSpan = document.getElementById('userSince');
+  
+  const newUsernameInput = document.getElementById('newUsername');
+  const changeUsernameBtn = document.getElementById('changeUsernameBtn');
+  const usernameMsg = document.getElementById('usernameMsg');
+
   const newEmailInput = document.getElementById('newEmail');
   const changeEmailBtn = document.getElementById('changeEmailBtn');
-  const resetPasswordBtn = document.getElementById('resetPasswordBtn');
   const emailMsg = document.getElementById('emailMsg');
-  const resetMsg = document.getElementById('resetMsg');
+  
   const logoutBtn = document.getElementById('logoutBtn');
 
   let currentUser = null;
 
+  // --- Load User Data ---
   const loadUser = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) {
       currentUser = session.user;
       emailSpan.textContent = currentUser.email;
-      sinceSpan.textContent = new Date(currentUser.created_at).toDateString();
+      sinceSpan.textContent = new Date(currentUser.created_at).toLocaleDateString();
+
+      // Fetch username from the 'profiles' table
+      const { data: profile, error } = await supabase
+        .from('profiles') // ⚠️ **UPDATE THIS** with your table name
+        .select('username') // ⚠️ **UPDATE THIS** with your column name
+        .eq('id', currentUser.id)
+        .single();
+
+      if (profile) {
+        usernameSpan.textContent = profile.username; // ⚠️ **UPDATE THIS** with your column name
+      } else {
+        usernameSpan.textContent = 'Not set';
+        console.error('Error fetching profile:', error?.message);
+      }
+
     } else {
-      emailSpan.textContent = 'Not logged in';
+      // If no user, redirect to login
+      window.location.href = 'index.html';
     }
   };
 
   loadUser();
 
+  // --- Event Listener for Username Change ---
+  changeUsernameBtn.addEventListener('click', async () => {
+    const newUsername = newUsernameInput.value.trim();
+    if (!newUsername) {
+        usernameMsg.textContent = '❌ Username cannot be empty.';
+        usernameMsg.style.color = 'red';
+        return;
+    }
+    if (!currentUser) return;
+
+    const { error } = await supabase
+      .from('profiles') // ⚠️ **UPDATE THIS** with your table name
+      .update({ username: newUsername }) // ⚠️ **UPDATE THIS** with your column name
+      .eq('id', currentUser.id);
+
+    usernameMsg.textContent = error ? `❌ ${error.message}` : '✅ Username updated successfully!';
+    usernameMsg.style.color = error ? 'red' : 'green';
+
+    if (!error) {
+        // Refresh the displayed username
+        usernameSpan.textContent = newUsername;
+    }
+  });
+
+  // --- Event Listener for Email Change ---
   changeEmailBtn.addEventListener('click', async () => {
     const newEmail = newEmailInput.value.trim();
     if (!newEmail) return;
@@ -152,35 +215,16 @@
     emailMsg.style.color = error ? 'red' : 'green';
   });
 
-  resetPasswordBtn.addEventListener('click', async () => {
-    if (!currentUser?.email) return;
-    const { error } = await supabase.auth.resetPasswordForEmail(currentUser.email);
-    resetMsg.textContent = error ? `❌ ${error.message}` : '📩 Reset link sent!';
-    resetMsg.style.color = error ? 'red' : 'green';
-  });
-
- logoutBtn.addEventListener('click', async () => {
-  const { data: { session } } = await supabase.auth.getSession();
-
-  if (!session) {
-    // Session already gone, just redirect
-    localStorage.setItem('showLogoutToast', 'true');
-    window.location.href = 'index.html';
-    return;
-  }
-
-  const { error } = await supabase.auth.signOut();
-
-  if (error) {
-    alert("❌ Logout failed: " + error.message);
-  } else {
-    localStorage.setItem('showLogoutToast', 'true');
-    setTimeout(() => {
+  // --- Event Listener for Logout ---
+  logoutBtn.addEventListener('click', async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      alert("❌ Logout failed: " + error.message);
+    } else {
+      localStorage.setItem('showLogoutToast', 'true');
       window.location.href = 'index.html';
-    }, 300);
-  }
-});
-
+    }
+  });
 
 </script>
 
