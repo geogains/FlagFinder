@@ -16,7 +16,7 @@ export const gdpData = [
   { name: 'Finland', code: 'finland', gdpRank: 15, gdp: 64200 },
   { name: 'Germany', code: 'germany', gdpRank: 16, gdp: 63100 },
   { name: 'Belgium', code: 'belgium', gdpRank: 17, gdp: 61900 },
-  { name: 'Hong Kong SAR', code: 'hong-kong', gdpRank: 18, gdp: 59800 },
+  { name: 'Hong Kong', code: 'hong-kong', gdpRank: 18, gdp: 59800 },
   { name: 'Canada', code: 'canada', gdpRank: 19, gdp: 59100 },
   { name: 'United Kingdom', code: 'united-kingdom', gdpRank: 20, gdp: 58400 },
   { name: 'France', code: 'france', gdpRank: 21, gdp: 55600 },

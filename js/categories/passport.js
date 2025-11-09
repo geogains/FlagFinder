@@ -86,7 +86,7 @@ export const passportData = [
   { name: 'Marshall Islands', code: 'marshall-islands', passportRank: 34, passportstrength: 126, tieGroup: 34 },
   { name: 'Nicaragua', code: 'nicaragua', passportRank: 34, passportstrength: 126, tieGroup: 34 },
   { name: 'Venezuela', code: 'venezuela', passportRank: 34, passportstrength: 126, tieGroup: 34 },
-  { name: 'Russian Federation', code: 'russia', passportRank: 35, passportstrength: 125, tieGroup: 35 },
+  { name: 'Russia', code: 'russia', passportRank: 35, passportstrength: 125, tieGroup: 35 },
   { name: 'Moldova', code: 'moldova', passportRank: 35, passportstrength: 125, tieGroup: 35 },
   { name: 'Bosnia and Herzegovina', code: 'bosnia-and-herzegovina', passportRank: 36, passportstrength: 124, tieGroup: 36 },
   { name: 'Turkey', code: 'turkey', passportRank: 36, passportstrength: 124, tieGroup: 36 },
