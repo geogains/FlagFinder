@@ -1,6 +1,6 @@
-export const nobelPrizeData = [
-  { name: 'United States',     code: 'united‑states',      nobelPrizeRank: 1,  nobelPrizes: 423 },
-  { name: 'United Kingdom',    code: 'united‑kingdom',     nobelPrizeRank: 2,  nobelPrizes: 143 },
+export const nobelprizeData = [
+  { name: 'United States',     code: 'united-states',      nobelPrizeRank: 1,  nobelPrizes: 423 },
+  { name: 'United Kingdom',    code: 'united-kingdom',     nobelPrizeRank: 2,  nobelPrizes: 143 },
   { name: 'Germany',           code: 'germany',            nobelPrizeRank: 3,  nobelPrizes: 115 },
   { name: 'France',            code: 'france',             nobelPrizeRank: 4,  nobelPrizes: 76  },
   { name: 'Sweden',            code: 'sweden',             nobelPrizeRank: 5,  nobelPrizes: 34  },
@@ -19,7 +19,7 @@ export const nobelPrizeData = [
   { name: 'Ukraine',           code: 'ukraine',            nobelPrizeRank: 18, nobelPrizes: 6   },
   { name: 'Finland',           code: 'finland',            nobelPrizeRank: 19, nobelPrizes: 5   },
   { name: 'Romania',           code: 'romania',            nobelPrizeRank: 20, nobelPrizes: 4   },
-  { name: 'South Korea',       code: 'south‑korea',        nobelPrizeRank: 21, nobelPrizes: 3   },
+  { name: 'South Korea',       code: 'south-korea',        nobelPrizeRank: 21, nobelPrizes: 3   },
   { name: 'Luxembourg',        code: 'luxembourg',         nobelPrizeRank: 22, nobelPrizes: 2   },
   { name: 'Bangladesh',        code: 'bangladesh',         nobelPrizeRank: 23, nobelPrizes: 1   }
 ];
