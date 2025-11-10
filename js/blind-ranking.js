@@ -39,6 +39,7 @@ function detectMetricKey(data) {
     "highestPoint",
     "passportstrength",
     "beerConsumption",
+    "nobelPrizes",
   ];
   return possibleKeys.find((k) => keys.includes(k)) || null;
 }

@@ -93,6 +93,7 @@
   import { altitudeData } from './js/categories/altitude.js';
   import { passportData } from './js/categories/passport.js';
   import { beerData } from './js/categories/beer.js';
+  import { nobelprizeData } from './js/categories/nobelprize.js';
 
   const supabase = createClient(
     'https://ajwxgdaninuzcpfwawug.supabase.co',
@@ -114,7 +115,8 @@
     landmass: 11,
     crimerate: 12,
     passport: 13,
-    beer: 14
+    beer: 14,
+    nobelprize: 14,
   };
 
   const params = new URLSearchParams(window.location.search);
@@ -134,6 +136,7 @@
     altitude: { title: 'RANK THESE COUNTRIES BY HIGHEST ELEVATION 🏔️', data: altitudeData },
     passport: { title: 'RANK THESE COUNTRIES BY BEST PASSPORT 🛂', data: passportData },
     beer: { title: 'RANK THESE COUNTRIES BY HIGHEST BEER CONSUMPTION 🍺', data: beerData },
+    nobelprize: { title: 'RANK THESE COUNTRIES BY MOST NOBEL PRIZE WINNERS 🕊️', data: nobelprizeData },
   };
 
   const selected = datasets[mode] || datasets.population;
