@@ -40,6 +40,7 @@ function detectMetricKey(data) {
     "passportstrength",
     "beerConsumption",
     "nobelPrizes",
+    "temperature",
   ];
   return possibleKeys.find((k) => keys.includes(k)) || null;
 }
