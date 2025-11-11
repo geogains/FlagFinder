@@ -95,6 +95,7 @@
   import { beerData } from './js/categories/beer.js';
   import { nobelprizeData } from './js/categories/nobelprize.js';
   import { temperatureData } from './js/categories/temperature.js';
+  import { precipitationData } from './js/categories/rainfall.js';
 
   const supabase = createClient(
     'https://ajwxgdaninuzcpfwawug.supabase.co',
@@ -119,6 +120,7 @@
     beer: 14,
     nobelprize: 15,
     temperature: 16,
+    precipitation: 17,
   };
 
   const params = new URLSearchParams(window.location.search);
@@ -140,6 +142,7 @@
     beer: { title: 'RANK THESE COUNTRIES BY HIGHEST BEER CONSUMPTION 🍺', data: beerData },
     nobelprize: { title: 'RANK THESE COUNTRIES BY MOST NOBEL PRIZE WINNERS 🕊️', data: nobelprizeData },
     temperature: { title: 'RANK THESE COUNTRIES BY HIGHEST AVERAGE TEMPERATURE ☀️', data: temperatureData },
+    precipitation: { title: 'RANK THESE COUNTRIES BY HIGHEST YEARLY RAINFALL 🌧️', data: precipitationData },
   };
 
   const selected = datasets[mode] || datasets.population;
