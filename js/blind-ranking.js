@@ -240,13 +240,25 @@ function formatMetric(num) {
   
   // Special handling for forest: always show in millions with 1 decimal
   if (metricKey === "forestArea") {
-    return `${(num / 1_000_000).toFixed(1)}M Hectares`;
+  const millions = (num / 1_000_000).toFixed(1);
+  // Remove .0 if decimal is zero
+  const formatted = millions.endsWith('.0') ? millions.slice(0, -2) : millions;
+  return `${formatted}M Hectares`;
   }
 
     // Special handling for landmass: show in millions with 1 decimal + Km² suffix
   if (metricKey === "landmass") {
-    return `${(num / 1_000_000).toFixed(1)}M Km²`;
+  if (num >= 1_000_000) {
+    // 1 million and above: show as M
+    const millions = (num / 1_000_000).toFixed(1);
+    const formatted = millions.endsWith('.0') ? millions.slice(0, -2) : millions;
+    return `${formatted}M Km²`;
+  } else {
+    // Under 1 million: show as K
+    const thousands = (num / 1_000).toFixed(0);
+    return `${thousands}K Km²`;
   }
+}
 
   // Special handling for Olympic medals: show full number with commas
 if (metricKey === "medals") {
