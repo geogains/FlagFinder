@@ -230,8 +230,8 @@ function formatMetric(num) {
   if (metricKey === "beerConsumption") return `${num} Litres`;
   
   // Special handling for altitude: always show full number with commas
-  if (metricKey === "highestPoint" && country.highestPointName) {
-  return `${formatMetric(country.highestPoint)} (${country.highestPointName})`;
+  if (metricKey === "highestPoint") {
+    return `${num.toLocaleString()} m`;
   }
   
   if (metricKey === "precipitation") {
@@ -356,10 +356,21 @@ function endGame() {
 
     const tr = document.createElement("tr");
     tr.style.background = isPerfect ? "rgba(34,197,94,0.12)" : "#f8f7fc";
+   // Format the metric value with peak name if altitude
+    const metricDisplay = metricKey === "highestPoint" && c.highestPointName
+      ? `${formatMetric(c[metricKey])} (${c.highestPointName})`
+      : metricKey ? formatMetric(c[metricKey]) : "";
+    
     tr.innerHTML = `
       <td style="padding:6px;">
-        <div style="width:48px;height:32px;border-radius:6px;overflow:hidden;box-shadow:0 2px 4px rgba(0,0,0,0.2);margin:auto;">
-          <img src="flags/${c.code}.png" alt="${c.name}" style="width:100%;height:100%;object-fit:cover;" />
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:48px;height:32px;border-radius:6px;overflow:hidden;box-shadow:0 2px 4px rgba(0,0,0,0.2);">
+            <img src="flags/${c.code}.png" alt="${c.name}" style="width:100%;height:100%;object-fit:cover;" />
+          </div>
+          <div style="text-align:left;">
+            <div style="font-weight:600;">${c.name}</div>
+            <div style="font-size:12px;color:#666;">${metricDisplay}</div>
+          </div>
         </div>
       </td>
       <td style="font-weight:600;">${range.min === range.max ? range.min : `${range.min}–${range.max}`}</td>
