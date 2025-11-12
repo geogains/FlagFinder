@@ -232,7 +232,7 @@ function formatMetric(num) {
   
   // Special handling for altitude: always show full number with commas
   if (metricKey === "highestPoint") {
-    return num.toLocaleString();
+  return `${num.toLocaleString()} m`;
   }
   
   // For other categories, use K/M/B abbreviations
