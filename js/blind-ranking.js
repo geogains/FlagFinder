@@ -229,7 +229,13 @@ function formatMetric(num) {
   if (metricKey === "temperature") return `${num}°C`;
   if (metricKey === "precipitation") return `${num} mm`;
   if (metricKey === "beerConsumption") return `${num} Litres`;
-  if (metricKey === "beerConsumption") return `${num} Litres`;
+  
+  // Special handling for altitude: always show full number with commas
+  if (metricKey === "highestPoint") {
+    return num.toLocaleString();
+  }
+  
+  // For other categories, use K/M/B abbreviations
   if (num >= 1_000_000_000) return (num / 1_000_000_000).toFixed(2) + "B";
   if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
   if (num >= 1_000) return (num / 1_000).toFixed(0) + "K";
