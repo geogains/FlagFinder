@@ -4,7 +4,7 @@ export const forestData = [
   { name: 'Canada', code: 'canada', forestRank: 3, forestArea: 346975800 },
   { name: 'United States', code: 'united-states', forestRank: 4, forestArea: 310645000 },
   { name: 'China', code: 'china', forestRank: 5, forestArea: 211405700 },
-  { name: 'Democratic Republic of the Congo', code: 'democratic-republic-of-the-congo', forestRank: 6, forestArea: 151955200 },
+  { name: 'DR Congo', code: 'democratic-republic-of-the-congo', forestRank: 6, forestArea: 151955200 },
   { name: 'Australia', code: 'australia', forestRank: 7, forestArea: 125367000 },
   { name: 'Indonesia', code: 'indonesia', forestRank: 8, forestArea: 89641200 },
   { name: 'Peru', code: 'peru', forestRank: 9, forestArea: 73637800 },

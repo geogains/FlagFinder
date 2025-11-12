@@ -13,7 +13,7 @@ export const populationData = [
   { name: 'Japan', code: 'japan', populationRank: 12, population: 123103479 },
   { name: 'Egypt', code: 'egypt', populationRank: 13, population: 118365995 },
   { name: 'Philippines', code: 'philippines', populationRank: 14, population: 116786962 },
-  { name: 'Democratic Republic of the Congo', code: 'democratic-republic-of-the-congo', populationRank: 15, population: 112832473 },
+  { name: 'DR Congo', code: 'democratic-republic-of-the-congo', populationRank: 15, population: 112832473 },
   { name: 'Vietnam', code: 'vietnam', populationRank: 16, population: 101598527 },
   { name: 'Iran', code: 'iran', populationRank: 17, population: 92417681 },
   { name: 'Turkey', code: 'turkey', populationRank: 18, population: 87685426 },

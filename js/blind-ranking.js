@@ -242,6 +242,26 @@ function formatMetric(num) {
   if (metricKey === "forestArea") {
     return `${(num / 1_000_000).toFixed(1)}M Hectares`;
   }
+
+    // Special handling for landmass: show in millions with 1 decimal + Km² suffix
+  if (metricKey === "landmass") {
+    return `${(num / 1_000_000).toFixed(1)}M Km²`;
+  }
+
+  // Special handling for Olympic medals: show full number with commas
+if (metricKey === "medals") {
+  return num.toLocaleString();
+}
+
+  // Special handling for coastline: show full number with commas + km suffix
+  if (metricKey === "coastline") {
+    return `${num.toLocaleString()} km`;
+  }
+
+  // Special handling for GDP: show full number with $ and commas
+if (metricKey === "gdp") {
+  return `$${num.toLocaleString()}`;
+}
   
   // For other categories, use K/M/B abbreviations
   if (num >= 1_000_000_000) return (num / 1_000_000_000).toFixed(2) + "B";
