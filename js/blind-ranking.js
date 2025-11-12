@@ -227,12 +227,15 @@ function handleRankClick(event) {
 
 function formatMetric(num) {
   if (metricKey === "temperature") return `${num}°C`;
-  if (metricKey === "precipitation") return `${num} mm`;
   if (metricKey === "beerConsumption") return `${num} Litres`;
+  if (metricKey === "forestArea") return `${num} Hectares`;
   
   // Special handling for altitude: always show full number with commas
   if (metricKey === "highestPoint") {
   return `${num.toLocaleString()} m`;
+  }
+  if (metricKey === "precipitation") {
+  return `${num.toLocaleString()} mm`;
   }
   
   // For other categories, use K/M/B abbreviations
