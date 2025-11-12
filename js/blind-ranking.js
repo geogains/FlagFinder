@@ -356,26 +356,25 @@ function endGame() {
 
     const tr = document.createElement("tr");
     tr.style.background = isPerfect ? "rgba(34,197,94,0.12)" : "#f8f7fc";
-   // Format the metric value with peak name if altitude
-    const metricDisplay = metricKey === "highestPoint" && c.highestPointName
+   const metricDisplay = metricKey === "highestPoint" && c.highestPointName
       ? `${formatMetric(c[metricKey])} (${c.highestPointName})`
       : metricKey ? formatMetric(c[metricKey]) : "";
     
     tr.innerHTML = `
       <td style="padding:6px;">
         <div style="display:flex;align-items:center;gap:8px;">
-          <div style="width:48px;height:32px;border-radius:6px;overflow:hidden;box-shadow:0 2px 4px rgba(0,0,0,0.2);">
+          <div style="width:48px;height:32px;flex-shrink:0;border-radius:6px;overflow:hidden;box-shadow:0 2px 4px rgba(0,0,0,0.2);">
             <img src="flags/${c.code}.png" alt="${c.name}" style="width:100%;height:100%;object-fit:cover;" />
           </div>
-          <div style="text-align:left;">
-            <div style="font-weight:600;">${c.name}</div>
-            <div style="font-size:12px;color:#666;">${metricDisplay}</div>
+          <div style="text-align:left;min-width:0;flex:1;">
+            <div style="font-weight:600;font-size:14px;">${c.name}</div>
+            <div style="font-size:11px;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${metricDisplay}</div>
           </div>
         </div>
       </td>
-      <td style="font-weight:600;">${range.min === range.max ? range.min : `${range.min}–${range.max}`}</td>
-      <td>${userTier}</td>
-      <td style="color:${isPerfect ? "#22c55e" : "#7c3aed"};font-weight:700;">${roundPoints}</td>
+      <td style="font-weight:600;font-size:14px;">${range.min === range.max ? range.min : `${range.min}–${range.max}`}</td>
+      <td style="font-size:14px;">${userTier}</td>
+      <td style="color:${isPerfect ? "#22c55e" : "#7c3aed"};font-weight:700;font-size:16px;">${roundPoints}</td>
     `;
     tbody.appendChild(tr);
   });
