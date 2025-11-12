@@ -228,14 +228,19 @@ function handleRankClick(event) {
 function formatMetric(num) {
   if (metricKey === "temperature") return `${num}°C`;
   if (metricKey === "beerConsumption") return `${num} Litres`;
-  if (metricKey === "forestArea") return `${num} Hectares`;
   
   // Special handling for altitude: always show full number with commas
   if (metricKey === "highestPoint") {
-  return `${num.toLocaleString()} m`;
+    return `${num.toLocaleString()} m`;
   }
+  
   if (metricKey === "precipitation") {
-  return `${num.toLocaleString()} mm`;
+    return `${num.toLocaleString()} mm`;
+  }
+  
+  // Special handling for forest: always show in millions with 1 decimal
+  if (metricKey === "forestArea") {
+    return `${(num / 1_000_000).toFixed(1)}M Hectares`;
   }
   
   // For other categories, use K/M/B abbreviations
