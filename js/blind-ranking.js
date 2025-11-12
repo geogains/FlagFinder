@@ -309,15 +309,15 @@ function endGame() {
     `;
   });
 
-  const breakdownDiv = document.querySelector(".result-breakdown");
+   const breakdownDiv = document.querySelector(".result-breakdown");
   breakdownDiv.innerHTML = `
-    <table class="result-table" style="width:100%;border-collapse:separate;border-spacing:0 6px;text-align:center;">
+    <table class="result-table" style="width:100%;border-collapse:separate;border-spacing:0 6px;text-align:center;table-layout:fixed;">
       <thead>
-        <tr style="background:#7c3aed;color:white;font-weight:600;">
-          <th style="padding:10px;border-radius:8px 0 0 8px;">Country</th>
-          <th style="padding:10px;">Best</th>
-          <th style="padding:10px;">Your Guess</th>
-          <th style="padding:10px;border-radius:0 8px 8px 0;">Points</th>
+        <tr style="background:#7c3aed;color:white;font-weight:600;font-size:13px;">
+          <th style="padding:8px;border-radius:8px 0 0 8px;width:45%;">Country</th>
+          <th style="padding:8px;width:18%;">Best</th>
+          <th style="padding:8px;width:18%;">Your</th>
+          <th style="padding:8px;border-radius:0 8px 8px 0;width:19%;">Pts</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -362,19 +362,19 @@ function endGame() {
     
     tr.innerHTML = `
       <td style="padding:6px;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div style="width:48px;height:32px;flex-shrink:0;border-radius:6px;overflow:hidden;box-shadow:0 2px 4px rgba(0,0,0,0.2);">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="width:40px;height:28px;flex-shrink:0;border-radius:6px;overflow:hidden;box-shadow:0 2px 4px rgba(0,0,0,0.2);">
             <img src="flags/${c.code}.png" alt="${c.name}" style="width:100%;height:100%;object-fit:cover;" />
           </div>
-          <div style="text-align:left;min-width:0;flex:1;">
-            <div style="font-weight:600;font-size:14px;">${c.name}</div>
-            <div style="font-size:11px;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${metricDisplay}</div>
+          <div style="text-align:left;min-width:0;flex:1;overflow:hidden;">
+            <div style="font-weight:600;font-size:13px;line-height:1.2;">${c.name}</div>
+            <div style="font-size:10px;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;">${metricDisplay}</div>
           </div>
         </div>
       </td>
-      <td style="font-weight:600;font-size:14px;">${range.min === range.max ? range.min : `${range.min}–${range.max}`}</td>
-      <td style="font-size:14px;">${userTier}</td>
-      <td style="color:${isPerfect ? "#22c55e" : "#7c3aed"};font-weight:700;font-size:16px;">${roundPoints}</td>
+      <td style="font-weight:600;font-size:13px;padding:4px;">${range.min === range.max ? range.min : `${range.min}–${range.max}`}</td>
+      <td style="font-size:13px;padding:4px;">${userTier}</td>
+      <td style="color:${isPerfect ? "#22c55e" : "#7c3aed"};font-weight:700;font-size:15px;padding:4px;">${roundPoints}</td>
     `;
     tbody.appendChild(tr);
   });
