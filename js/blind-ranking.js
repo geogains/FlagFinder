@@ -230,8 +230,8 @@ function formatMetric(num) {
   if (metricKey === "beerConsumption") return `${num} Litres`;
   
   // Special handling for altitude: always show full number with commas
-  if (metricKey === "highestPoint") {
-    return `${num.toLocaleString()} m`;
+  if (metricKey === "highestPoint" && country.highestPointName) {
+  return `${formatMetric(country.highestPoint)} (${country.highestPointName})`;
   }
   
   if (metricKey === "precipitation") {
