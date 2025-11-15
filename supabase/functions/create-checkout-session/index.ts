@@ -29,15 +29,14 @@ Deno.serve(async (req) => {
     }
 
     // Allow your live website
-    const origin = req.headers.get("origin") ?? "https://www.geo-ranks.com";
+  const origin = req.headers.get("origin") ?? "https://www.geo-ranks.com";
 
-    // Create checkout session with Stripe
-    const session = await stripe.checkout.sessions.create({
-      mode: "subscription",
-      line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/cancelled`,
-    });
+const session = await stripe.checkout.sessions.create({
+  mode: "subscription",
+  line_items: [{ price: priceId, quantity: 1 }],
+  success_url: `${origin}/success.html?session_id={CHECKOUT_SESSION_ID}`,
+  cancel_url:  `${origin}/cancelled.html`,
+});
 
     return new Response(
       JSON.stringify({ id: session.id }),

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeoRanks — Premium Activated</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/home.css" />
+  <link rel="stylesheet" href="css/game-modes.css" />
+
+  <style>
+    .center-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .status-card {
+      max-width: 460px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-radius: 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+      padding: 2.25rem 2.4rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .status-card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle at top, rgba(0, 162, 255, 0.2), transparent 55%),
+                  radial-gradient(circle at bottom, rgba(0, 220, 130, 0.18), transparent 55%);
+      opacity: 0.9;
+      z-index: -1;
+    }
+
+    .status-emoji {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .status-card h1 {
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .status-card p {
+      margin: 0.25rem 0;
+      color: #334;
+      font-size: 0.98rem;
+      line-height: 1.5;
+    }
+
+    .highlight {
+      font-weight: 600;
+    }
+
+    .benefits-list {
+      margin: 1.25rem 0 1.75rem;
+      text-align: left;
+      font-size: 0.96rem;
+      color: #223;
+    }
+
+    .benefits-list li {
+      margin-bottom: 0.4rem;
+    }
+
+    .status-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+      border: none;
+      border-radius: 999px;
+      padding: 0.85rem 1.3rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: linear-gradient(90deg, #0072ff, #00c6ff);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.03);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      color: #123;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.85);
+    }
+  </style>
+</head>
+
+<body>
+  <header class="home-glass-header">
+    <div class="logo-header">
+      <a href="index.html" class="logo-link">
+        <img src="assets/logo.png" alt="GeoRanks Logo" />
+      </a>
+    </div>
+    <div class="hamburger-menu">
+      <div class="menu-icon" id="menuToggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </header>
+
+  <div class="menu-overlay" id="menuOverlay">
+    <div class="menu-panel">
+      <h2>Menu</h2>
+      <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
+      <button class="menu-btn" onclick="window.location.href='account.html'">👤 Account</button>
+      <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
+      <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
+      <button class="menu-btn">💡 How to Play</button>
+      <button class="menu-btn menu-close" id="closeMenu">Close</button>
+    </div>
+  </div>
+
+  <main class="center-wrapper">
+    <div class="status-card">
+      <div class="status-emoji">👑</div>
+      <h1>Premium Unlocked!</h1>
+      <p class="highlight">Thank you — your GeoRanks Premium subscription is now active.</p>
+      <p>You now have access to all categories, unlimited plays, and exclusive stats.</p>
+
+      <ul class="benefits-list">
+        <li>✅ All ranking categories unlocked</li>
+        <li>✅ Unlimited daily plays</li>
+        <li>✅ Premium stats to track your progress</li>
+      </ul>
+
+      <div class="status-actions">
+        <button class="btn-primary" onclick="window.location.href='game.html?mode=population'">
+          Jump into a Game
+        </button>
+        <button class="btn-secondary" onclick="window.location.href='index.html'">
+          Explore Other Categories
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const menuToggle = document.getElementById("menuToggle");
+      const menuOverlay = document.getElementById("menuOverlay");
+      const closeMenu = document.getElementById("closeMenu");
+
+      if (!menuToggle || !menuOverlay) return;
+
+      menuToggle.addEventListener("click", () => {
+        menuOverlay.classList.add("active");
+      });
+
+      if (closeMenu) {
+        closeMenu.addEventListener("click", () => {
+          menuOverlay.classList.remove("active");
+        });
+      }
+
+      menuOverlay.addEventListener("click", (e) => {
+        if (e.target === menuOverlay) {
+          menuOverlay.classList.remove("active");
+        }
+      });
+    });
+  </script>
+</body>
+</html>

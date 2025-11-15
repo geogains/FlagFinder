@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeoRanks — Payment Cancelled</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/home.css" />
+  <link rel="stylesheet" href="css/game-modes.css" />
+
+  <style>
+    .center-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .status-card {
+      max-width: 440px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-radius: 18px;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.16);
+      padding: 2rem 2.25rem;
+      text-align: center;
+    }
+
+    .status-emoji {
+      font-size: 2.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .status-card h1 {
+      font-size: 1.55rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .status-card p {
+      margin: 0.25rem 0 1.5rem;
+      color: #445;
+      font-size: 0.98rem;
+      line-height: 1.5;
+    }
+
+    .status-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+      border: none;
+      border-radius: 999px;
+      padding: 0.8rem 1.2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .btn-secondary {
+      background: rgba(0, 0, 0, 0.04);
+      color: #123;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(0, 0, 0, 0.07);
+    }
+
+    .btn-primary {
+      background: linear-gradient(90deg, #0072ff, #00c6ff);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.03);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Same glass header as other pages -->
+  <header class="home-glass-header">
+    <div class="logo-header">
+      <a href="index.html" class="logo-link">
+        <img src="assets/logo.png" alt="GeoRanks Logo" />
+      </a>
+    </div>
+    <div class="hamburger-menu">
+      <div class="menu-icon" id="menuToggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sliding menu -->
+  <div class="menu-overlay" id="menuOverlay">
+    <div class="menu-panel">
+      <h2>Menu</h2>
+      <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
+      <button class="menu-btn" onclick="window.location.href='account.html'">👤 Account</button>
+      <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
+      <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
+      <button class="menu-btn">💡 How to Play</button>
+      <button class="menu-btn menu-close" id="closeMenu">Close</button>
+    </div>
+  </div>
+
+  <main class="center-wrapper">
+    <div class="status-card">
+      <div class="status-emoji">⚠️</div>
+      <h1>Payment Cancelled</h1>
+      <p>
+        No worries — your card has not been charged.<br />
+        You can retry your upgrade at any time from your account page.
+      </p>
+      <div class="status-actions">
+        <button class="btn-primary" onclick="window.location.href='account.html'">
+          Back to Account
+        </button>
+        <button class="btn-secondary" onclick="window.location.href='index.html'">
+          Return to Home
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // same hamburger logic as other pages
+    document.addEventListener("DOMContentLoaded", () => {
+      const menuToggle = document.getElementById("menuToggle");
+      const menuOverlay = document.getElementById("menuOverlay");
+      const closeMenu = document.getElementById("closeMenu");
+
+      if (!menuToggle || !menuOverlay) return;
+
+      menuToggle.addEventListener("click", () => {
+        menuOverlay.classList.add("active");
+      });
+
+      if (closeMenu) {
+        closeMenu.addEventListener("click", () => {
+          menuOverlay.classList.remove("active");
+        });
+      }
+
+      menuOverlay.addEventListener("click", (e) => {
+        if (e.target === menuOverlay) {
+          menuOverlay.classList.remove("active");
+        }
+      });
+    });
+  </script>
+</body>
+</html>
