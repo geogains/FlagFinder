@@ -64,6 +64,7 @@
   </style>
 </head>
 
+
 <body>
 
 <!-- ✅ Glass Header with Logo and Hamburger -->
@@ -121,6 +122,9 @@
       <button class="btn full-btn" id="changeEmailBtn">Update Email</button>
       <div class="message" id="emailMsg"></div>
     </div>
+
+  <button class="btn full-btn premium-btn" id="open-premium-modal">Unlock All Categories 🔓</button>
+
 
     <button class="btn full-btn logout-btn" id="logoutBtn">Log Out</button>
   </div>
@@ -255,6 +259,41 @@
     });
   });
 </script>
+
+<div id="premium-modal" class="premium-modal">
+  <div class="premium-modal-content">
+    <span id="close-premium-modal" class="premium-close">&times;</span>
+
+    <h2 class="premium-title">Upgrade to GeoRanks Premium</h2>
+    <p class="premium-subtitle">Unlock all categories, unlimited plays & exclusive stats</p>
+
+    <div class="premium-options">
+
+      <!-- MONTHLY PLAN -->
+      <div class="premium-card" id="premium-monthly">
+        <h3>Monthly</h3>
+        <p class="price">£2.99 / month</p>
+        <p class="benefit">Cancel anytime</p>
+        <button class="premium-select-btn" data-plan="monthly">Choose Monthly</button>
+      </div>
+
+      <!-- YEARLY PLAN -->
+      <div class="premium-card" id="premium-yearly">
+        <h3>Yearly</h3>
+        <p class="price">£24.99 / year</p>
+        <p class="benefit save">Save 30%</p>
+        <button class="premium-select-btn" data-plan="yearly">Choose Yearly</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Load Stripe FIRST -->
+<script src="https://js.stripe.com/v3/"></script>
+
+<!-- Load Your Premium Logic AFTER Stripe -->
+<script src="js/premium.js"></script>
 
 </body>
 </html>
