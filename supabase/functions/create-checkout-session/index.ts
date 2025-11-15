@@ -5,33 +5,33 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2023-10-16",
 });
 
-// CORS for browser access
+// --- CORS HEADERS ---
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "*",
-  "Access-Control-Allow-Methods": "OPTIONS, POST",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
 Deno.serve(async (req) => {
-  // Handle browser preflight
+  // --- Handle CORS preflight (OPTIONS) ---
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response("ok", { headers: corsHeaders });
   }
 
   try {
     const { priceId } = await req.json();
 
     if (!priceId) {
-      return new Response(JSON.stringify({ error: "Missing priceId" }), {
-        status: 400,
-        headers: corsHeaders,
-      });
+      return new Response(
+        JSON.stringify({ error: "Missing priceId" }),
+        { status: 400, headers: corsHeaders }
+      );
     }
 
-    // Get origin of request (localhost or production)
-    const origin =
-      req.headers.get("origin") ?? "https://www.geo-ranks.com";
+    // Allow your live website
+    const origin = req.headers.get("origin") ?? "https://www.geo-ranks.com";
 
+    // Create checkout session with Stripe
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
@@ -39,16 +39,16 @@ Deno.serve(async (req) => {
       cancel_url: `${origin}/cancelled`,
     });
 
-    return new Response(JSON.stringify({ id: session.id }), {
-      status: 200,
-      headers: corsHeaders,
-    });
-  } catch (err) {
-    console.error("Checkout error:", err);
+    return new Response(
+      JSON.stringify({ id: session.id }),
+      { status: 200, headers: corsHeaders }
+    );
 
-    return new Response(JSON.stringify({ error: err.message }), {
-      status: 500,
-      headers: corsHeaders,
-    });
+  } catch (error) {
+    console.error("Error:", error);
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { status: 500, headers: corsHeaders }
+    );
   }
 });
