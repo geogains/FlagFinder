@@ -1,4 +1,5 @@
 // Stripe setup
+console.log("Supabase client in premium.js =", window.supabaseClient);
 const stripe = Stripe(
   "pk_test_51STJo6BAeA4hRlOuGyvQ69OhlvaVYkJ8wEZxXOIpBISMf6as1JyEKC2piPaYSCUFiygQuKMdAqhQuQ6YqvVV3XpH0039kE4avf"
 );
