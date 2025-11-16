@@ -5,49 +5,79 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2023-10-16",
 });
 
-// --- CORS HEADERS ---
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
-
 Deno.serve(async (req) => {
-  // --- Handle CORS preflight (OPTIONS) ---
+  // --- CORS support (IMPORTANT) ---
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return new Response("ok", {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+      },
+    });
   }
 
   try {
-    const { priceId } = await req.json();
+    const { plan, userId } = await req.json();
 
-    if (!priceId) {
+    if (!plan || !userId) {
       return new Response(
-        JSON.stringify({ error: "Missing priceId" }),
-        { status: 400, headers: corsHeaders }
+        JSON.stringify({ error: "Missing plan or userId" }),
+        {
+          status: 400,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+          },
+        }
       );
     }
 
-    // Allow your live website
-  const origin = req.headers.get("origin") ?? "https://www.geo-ranks.com";
+    const prices: Record<string, string> = {
+      monthly: "price_1SdFgxBAeA4hRlOu9dcnPBRb",
+      yearly: "price_1SdFh9BAeA4hRlOuGDR6VFuD",
+    };
 
-const session = await stripe.checkout.sessions.create({
-  mode: "subscription",
-  line_items: [{ price: priceId, quantity: 1 }],
-  success_url: `${origin}/success.html?session_id={CHECKOUT_SESSION_ID}`,
-  cancel_url:  `${origin}/cancelled.html`,
-});
+    const priceId = prices[plan];
+
+    if (!priceId) {
+      return new Response(
+        JSON.stringify({ error: "Invalid plan" }),
+        {
+          status: 400,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+          },
+        }
+      );
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      payment_method_types: ["card"],
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: "https://www.geo-ranks.com/success.html?session_id={CHECKOUT_SESSION_ID}",
+      cancel_url: "https://www.geo-ranks.com/cancelled.html",
+      metadata: { userId },
+    });
 
     return new Response(
-      JSON.stringify({ id: session.id }),
-      { status: 200, headers: corsHeaders }
+      JSON.stringify({ sessionId: session.id }),
+      {
+        headers: { "Access-Control-Allow-Origin": "*" },
+      }
     );
 
   } catch (error) {
-    console.error("Error:", error);
+    console.error("CHECKOUT ERROR:", error);
+
     return new Response(
       JSON.stringify({ error: error.message }),
-      { status: 500, headers: corsHeaders }
+      {
+        status: 500,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+        },
+      }
     );
   }
 });
