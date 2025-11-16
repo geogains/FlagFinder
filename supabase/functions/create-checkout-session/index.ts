@@ -13,18 +13,25 @@ Deno.serve(async (req) => {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
       },
     });
   }
 
-  if (req.method !== "POST") {
-    return new Response("Method not allowed", { status: 405 });
-  }
-
   try {
-    const { priceId, userId } = await req.json();
+    // Check for POST method
+    if (req.method !== "POST") {
+      return new Response("Method not allowed", { 
+        status: 405, 
+        headers: { "Access-Control-Allow-Origin": "*" } 
+      });
+    }
 
+    // Get the request body
+    const body = await req.json();
+    const { priceId, userId } = body;
+
+    // Validate parameters
     if (!priceId || !userId) {
       return new Response(
         JSON.stringify({ error: "Missing priceId or userId" }),
@@ -50,12 +57,13 @@ Deno.serve(async (req) => {
       ],
       success_url: "https://www.geo-ranks.com/success.html?session_id={CHECKOUT_SESSION_ID}",
       cancel_url: "https://www.geo-ranks.com/cancelled.html",
-      client_reference_id: userId, // Store userId for webhook processing
+      client_reference_id: userId,
       metadata: {
         userId: userId,
       },
     });
 
+    // Return the session ID
     return new Response(JSON.stringify({ id: session.id }), {
       status: 200,
       headers: { 
@@ -63,8 +71,25 @@ Deno.serve(async (req) => {
         "Access-Control-Allow-Origin": "*",
       },
     });
+
   } catch (err) {
     console.error("Error creating checkout session:", err.message);
+    
+    // Handle JSON parsing errors
+    if (err instanceof SyntaxError) {
+        return new Response(
+            JSON.stringify({ error: "Invalid JSON input" }),
+            { 
+                status: 400, 
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                } 
+            }
+        );
+    }
+
+    // Handle other errors
     return new Response(
       JSON.stringify({ error: err.message }),
       { 
