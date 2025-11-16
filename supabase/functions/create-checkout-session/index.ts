@@ -6,77 +6,73 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
 });
 
 Deno.serve(async (req) => {
-  // --- CORS support (IMPORTANT) ---
+  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response("ok", {
+    return new Response(null, {
+      status: 204,
       headers: {
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "*",
         "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
       },
     });
   }
 
+  if (req.method !== "POST") {
+    return new Response("Method not allowed", { status: 405 });
+  }
+
   try {
-    const { plan, userId } = await req.json();
+    const { priceId, userId } = await req.json();
 
-    if (!plan || !userId) {
+    if (!priceId || !userId) {
       return new Response(
-        JSON.stringify({ error: "Missing plan or userId" }),
-        {
-          status: 400,
-          headers: {
+        JSON.stringify({ error: "Missing priceId or userId" }),
+        { 
+          status: 400, 
+          headers: { 
+            "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
-          },
+          } 
         }
       );
     }
 
-    const prices: Record<string, string> = {
-      monthly: "price_1SdFgxBAeA4hRlOu9dcnPBRb",
-      yearly: "price_1SdFh9BAeA4hRlOuGDR6VFuD",
-    };
-
-    const priceId = prices[plan];
-
-    if (!priceId) {
-      return new Response(
-        JSON.stringify({ error: "Invalid plan" }),
-        {
-          status: 400,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-          },
-        }
-      );
-    }
-
+    // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       payment_method_types: ["card"],
-      line_items: [{ price: priceId, quantity: 1 }],
+      line_items: [
+        {
+          price: priceId,
+          quantity: 1,
+        },
+      ],
       success_url: "https://www.geo-ranks.com/success.html?session_id={CHECKOUT_SESSION_ID}",
       cancel_url: "https://www.geo-ranks.com/cancelled.html",
-      metadata: { userId },
+      client_reference_id: userId, // Store userId for webhook processing
+      metadata: {
+        userId: userId,
+      },
     });
 
+    return new Response(JSON.stringify({ id: session.id }), {
+      status: 200,
+      headers: { 
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+  } catch (err) {
+    console.error("Error creating checkout session:", err.message);
     return new Response(
-      JSON.stringify({ sessionId: session.id }),
-      {
-        headers: { "Access-Control-Allow-Origin": "*" },
-      }
-    );
-
-  } catch (error) {
-    console.error("CHECKOUT ERROR:", error);
-
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        status: 500,
-        headers: {
+      JSON.stringify({ error: err.message }),
+      { 
+        status: 500, 
+        headers: { 
+          "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*",
-        },
+        } 
       }
     );
   }
