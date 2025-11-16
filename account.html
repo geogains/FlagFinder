@@ -262,6 +262,7 @@
   });
 </script>
 
+<!-- ✅ PREMIUM MODAL -->
 <div id="premium-modal" class="premium-modal">
   <div class="premium-modal-content">
     <span id="close-premium-modal" class="premium-close">&times;</span>
@@ -270,8 +271,7 @@
     <p class="premium-subtitle">Unlock all categories, unlimited plays & exclusive stats</p>
 
     <div class="premium-options">
-
-      <!-- MONTHLY PLAN -->
+      <!-- MONTHLY -->
       <div class="premium-card" id="premium-monthly">
         <h3>Monthly</h3>
         <p class="price">£2.99 / month</p>
@@ -279,22 +279,25 @@
         <button class="premium-select-btn" data-plan="monthly">Choose Monthly</button>
       </div>
 
-      <!-- YEARLY PLAN -->
+      <!-- YEARLY -->
       <div class="premium-card" id="premium-yearly">
         <h3>Yearly</h3>
         <p class="price">£24.99 / year</p>
         <p class="benefit save">Save 30%</p>
         <button class="premium-select-btn" data-plan="yearly">Choose Yearly</button>
       </div>
-
     </div>
   </div>
 </div>
 
+<script>
+  window.supabaseClient = window.supabaseClient || null;
+</script>
+
 <!-- Load Stripe FIRST -->
 <script src="https://js.stripe.com/v3/"></script>
 
-<!-- Load Your Premium Logic AFTER Stripe -->
+<!-- Load Premium Logic AFTER Stripe and AFTER window.supabaseClient exists -->
 <script src="js/premium.js"></script>
 
 </body>
