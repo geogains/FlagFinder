@@ -31,7 +31,7 @@ async function redirectToCheckout(priceId) {
     },
     body: JSON.stringify({
       priceId: priceId,
-      customer_email: session.user.email,
+      userId: session.user.id,
     }),
   });
 
