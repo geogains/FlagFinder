@@ -735,6 +735,12 @@ html, body {
   color: #ffc107 !important;
 }
 
+/* Dim category emojis inside locked cards */
+.category-card.locked .emoji {
+  filter: grayscale(100%) brightness(65%) !important;
+  opacity: 0.7 !important;
+}
+
 /* ===== PREMIUM MODAL OVERLAY ===== */
 .premium-modal {
   position: fixed;
