@@ -20,7 +20,11 @@ async function redirectToCheckout(priceId) {
     return;
   }
 
-  const response = await fetch("/create-checkout-session", {
+  // FIX: Use the full Supabase function URL. Supabase functions are typically hosted at:
+  // [SUPABASE_URL]/functions/v1/[FUNCTION_NAME]
+  // We need to construct the full URL using the initialized client's URL.
+  const functionUrl = `${supabase.supabaseUrl}/functions/v1/create-checkout-session`;
+  const response = await fetch(functionUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -31,6 +35,13 @@ async function redirectToCheckout(priceId) {
     }),
   });
 
+  if (!response.ok) {
+    // FIX: Handle non-JSON error response from server (e.g., "The page c..." error)
+    const errorText = await response.text();
+    console.error("Supabase Function Error:", errorText);
+    alert("Checkout error: Could not connect to payment service.");
+    return;
+  }
   const sessionData = await response.json();
 
   const stripe = Stripe("pk_test_51STJo6BAeA4hRlOuGyvQ69OhlvaVYkJ8wEZxXOIpBISMf6as1JyEKC2piPaYSCUFiygQuKMdAqhQuQ6YqvVV3XpH0039kE4avf"); // Replace with your real Stripe publishable key
