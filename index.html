@@ -49,7 +49,8 @@
 
 <script>
 document.getElementById("closePremiumBtn").onclick = () => {
-  document.getElementById("premiumModal").classList.add("hidden");
+  const modal = document.getElementById("premiumModal");
+  if (modal) modal.classList.add("hidden");
 };
 
 document.getElementById("goPremiumBtn").onclick = () => {
@@ -503,24 +504,29 @@ document.getElementById("goPremiumBtn").onclick = () => {
       lock.textContent = "🔒";
       card.appendChild(lock);
 
-      // On click: login check -> upgrade modal with scroll
+      // On click: login check → open upgrade modal
       card.addEventListener("click", async (e) => {
         e.preventDefault();
 
         const { data: { session } } = await supabase.auth.getSession();
 
         if (!session) {
-          window.location.href = "index.html";
+          // NOT signed in → still show upgrade modal (updated behavior)
+          const modal = document.getElementById("premiumModal");
+          if (modal) {
+            modal.classList.remove("hidden");
+            modal.scrollIntoView({ behavior: "smooth", block: "center" });
+          } else {
+            window.location.href = "premium.html";
+          }
           return;
         }
 
+        // Signed in but NOT premium
         const modal = document.getElementById("premiumModal");
         if (modal) {
           modal.classList.remove("hidden");
-          modal.scrollIntoView({
-            behavior: "smooth",
-            block: "center"
-          });
+          modal.scrollIntoView({ behavior: "smooth", block: "center" });
         } else {
           window.location.href = "premium.html";
         }
@@ -531,14 +537,16 @@ document.getElementById("goPremiumBtn").onclick = () => {
 
 <!-- PREMIUM MODAL BUTTONS -->
 <script>
-document.getElementById("closePremiumBtn").onclick = () => {
-  document.getElementById("premiumModal").style.display = "none";
-};
+  document.getElementById("closePremiumBtn").onclick = () => {
+    const modal = document.getElementById("premiumModal");
+    if (modal) modal.classList.add("hidden");
+  };
 
-document.getElementById("goPremiumBtn").onclick = () => {
-  window.location.href = "premium.html";
-};
+  document.getElementById("goPremiumBtn").onclick = () => {
+    window.location.href = "premium.html";
+  };
 </script>
+
 
 <!-- Hamburger Menu Logic -->
 <script>
