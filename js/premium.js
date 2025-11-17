@@ -10,7 +10,10 @@ const PRICE_MONTHLY = "price_1STKLbBAeA4hRlOutt7HfrMX";
 const PRICE_YEARLY  = "price_1STKnmBAeA4hRlOueE5oXkDP";
 
 // 👇 Supabase client (set on window in account.html)
-const supabase = window.supabaseClient;
+const supabase = window.supabaseClient || createClient(
+  "https://ajwxgdaninuzcpfwawug.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI"
+);
 
 async function redirectToCheckout(priceId) {
   if (!supabase) {
@@ -90,3 +93,14 @@ planButtons.forEach((btn) => {
     if (plan === "yearly")  redirectToCheckout(PRICE_YEARLY);
   });
 });
+
+// Used by premium.html buttons
+function startCheckout(planType) {
+  if (planType === "monthly") {
+    redirectToCheckout(PRICE_MONTHLY);
+  } else if (planType === "yearly") {
+    redirectToCheckout(PRICE_YEARLY);
+  } else {
+    alert("Invalid plan type selected.");
+  }
+}

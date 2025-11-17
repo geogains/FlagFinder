@@ -1,76 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GeoRanks Premium</title>
-<link rel="stylesheet" href="css/home.css">
-<style>
-.premium-wrapper {
-  max-width: 600px;
-  margin: 40px auto;
-  background: white;
-  padding: 30px;
-  border-radius: 20px;
-  text-align: center;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GeoRanks Premium</title>
+  <link rel="stylesheet" href="css/home.css" />
+  <style>
+    body {
+      background: linear-gradient(to bottom right, #ffeaa7, #fab1a0);
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+    }
 
-.premium-wrapper h1 {
-  font-size: 2rem;
-  margin-bottom: 10px;
-}
+    .premium-wrapper {
+      max-width: 720px;
+      margin: 60px auto;
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+    }
 
-.premium-wrapper p {
-  font-size: 1.1rem;
-  color: #444;
-  line-height: 1.5;
-}
+    .premium-wrapper h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      color: #2d3436;
+    }
 
-.benefits {
-  text-align: left;
-  margin: 25px 0;
-}
+    .premium-wrapper p {
+      font-size: 1.2rem;
+      color: #444;
+    }
 
-.benefits li {
-  margin: 12px 0;
-  font-size: 1.05rem;
-}
+    .benefits {
+      text-align: left;
+      margin: 30px auto;
+      max-width: 500px;
+      padding: 0;
+      list-style: none;
+    }
 
-.upgrade-btn {
-  width: 100%;
-  max-width: 300px;
-  margin: 25px auto;
-  padding: 15px;
-  border: none;
-  border-radius: 12px;
-  background: #ffba24;
-  color: black;
-  font-size: 1.2rem;
-  font-weight: bold;
-  cursor: pointer;
-}
-</style>
+    .benefits li {
+      margin: 14px 0;
+      font-size: 1.1rem;
+      padding-left: 24px;
+      position: relative;
+    }
+
+    .benefits li::before {
+      content: "✅";
+      position: absolute;
+      left: 0;
+    }
+
+    .upgrade-options {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .upgrade-btn {
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      background: #ffeaa7;
+      transition: background 0.3s;
+    }
+
+    .upgrade-btn:hover {
+      background: #fab1a0;
+    }
+
+    @media (min-width: 600px) {
+      .upgrade-options {
+        flex-direction: row;
+        justify-content: center;
+      }
+
+      .upgrade-btn {
+        min-width: 200px;
+      }
+    }
+  </style>
 </head>
-
 <body>
 
-<div class="premium-wrapper">
-  <h1>Unlock GeoRanks Premium 🔒</h1>
-  <p>Access all ranking categories, unlimited gameplay & full stats.</p>
+  <div class="premium-wrapper">
+    <h1>Unlock GeoRanks Premium 🔓</h1>
+    <p>Upgrade to access every feature and category GeoRanks offers:</p>
 
-  <ul class="benefits">
-    <li>🔥 Unlock ALL categories</li>
-    <li>📊 Full My Stats Dashboard</li>
-    <li>🎮 Unlimited Games</li>
-    <li>✨ Support GeoRanks development</li>
-  </ul>
+    <ul class="benefits">
+      <li>Unlock all game categories</li>
+      <li>Unlimited daily plays</li>
+      <li>Access full My Stats dashboard</li>
+      <li>Support GeoRanks development</li>
+    </ul>
 
-  <button class="upgrade-btn" onclick="startCheckout()">Become Premium</button>
-</div>
+    <div class="upgrade-options">
+      <button class="upgrade-btn" onclick="startCheckout('monthly')">Upgrade Monthly</button>
+      <button class="upgrade-btn" onclick="startCheckout('yearly')">Upgrade Yearly</button>
+    </div>
+  </div>
 
-<script src="https://js.stripe.com/v3/"></script>
-<script src="js/premium.js"></script>
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="js/premium.js"></script>
 
 </body>
 </html>
