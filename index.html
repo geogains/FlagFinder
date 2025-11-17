@@ -36,16 +36,27 @@
   </div>
 </div>
 
-<!-- 🔒 PREMIUM UPGRADE MODAL (NEW) -->
+<!-- 🔒 PREMIUM UPGRADE MODAL -->
 <div id="premiumModal" class="premium-modal hidden">
   <div class="premium-window">
-    <h2>Premium Feature 🔒</h2>
+    <h2>Premium Feature <span class="lock">🔒</span></h2>
     <p>These categories are only available with <strong>GeoRanks Premium</strong>.</p>
 
     <button id="goPremiumBtn" class="premium-btn upgrade">Upgrade to Premium</button>
     <button id="closePremiumBtn" class="premium-btn cancel">Return Home</button>
   </div>
 </div>
+
+<script>
+document.getElementById("closePremiumBtn").onclick = () => {
+  document.getElementById("premiumModal").classList.add("hidden");
+};
+
+document.getElementById("goPremiumBtn").onclick = () => {
+  window.location.href = "premium.html";
+};
+</script>
+
 
 <!-- ========== HEADER ========== -->
 <header class="home-glass-header">
@@ -492,7 +503,7 @@
       lock.textContent = "🔒";
       card.appendChild(lock);
 
-      // On click: login check -> upgrade modal
+      // On click: login check -> upgrade modal with scroll
       card.addEventListener("click", async (e) => {
         e.preventDefault();
 
@@ -503,11 +514,19 @@
           return;
         }
 
-        document.getElementById("premiumModal").style.display = "flex";
+        const modal = document.getElementById("premiumModal");
+        if (modal) {
+          modal.classList.remove("hidden");
+          modal.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+          });
+        } else {
+          window.location.href = "premium.html";
+        }
       });
     });
   }
-
 </script>
 
 <!-- PREMIUM MODAL BUTTONS -->
