@@ -146,7 +146,8 @@ document.getElementById("goPremiumBtn").onclick = () => {
         </div>
       </a>
 
-      <a href="game.html?mode=coastline" class="category-card"
+      <!-- PREMIUM CATEGORIES -->
+   <a href="game.html?mode=coastline" class="category-card" data-premium="true"
          style="background-image:url('images/categories/coastline.jpg');">
         <div class="category-info">
           <span class="emoji">🌊</span>
@@ -154,7 +155,7 @@ document.getElementById("goPremiumBtn").onclick = () => {
         </div>
       </a>
 
-      <a href="game.html?mode=olympic" class="category-card"
+      <a href="game.html?mode=olympic" class="category-card" data-premium="true"
          style="background-image:url('images/categories/olympic.jpg');">
         <div class="category-info">
           <span class="emoji">🥇</span>
@@ -162,7 +163,7 @@ document.getElementById("goPremiumBtn").onclick = () => {
         </div>
       </a>
 
-      <!-- PREMIUM CATEGORIES -->
+
       <a href="game.html?mode=cuisine" class="category-card" data-premium="true"
          style="background-image:url('images/categories/cuisine.jpg');">
         <div class="category-info">
@@ -320,7 +321,9 @@ document.getElementById("goPremiumBtn").onclick = () => {
         password,
       });
       if (error) return alert("❌ " + error.message);
-    } else {
+      window.location.reload();
+    } 
+      else {
       const { data: existing, error: checkError } = await supabase
         .from("users")
         .select("id")
