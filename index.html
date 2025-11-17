@@ -87,6 +87,7 @@
       <h2>Other Categories 👇</h2>
       <div class="categories-grid">
 
+        <!-- ✅ FREE CATEGORIES -->
         <a href="game.html?mode=population" class="category-card"
            style="background-image:url('images/categories/population.jpg');">
           <div class="category-info">
@@ -135,7 +136,8 @@
           </div>
         </a>
 
-        <a href="game.html?mode=cuisine" class="category-card"
+        <!-- 🔒 PREMIUM CATEGORIES (data-premium="true") -->
+        <a href="game.html?mode=cuisine" class="category-card" data-premium="true"
            style="background-image:url('images/categories/cuisine.jpg');">
           <div class="category-info">
             <span class="emoji">🍽️</span>
@@ -143,7 +145,7 @@
           </div>
         </a>
 
-        <a href="game.html?mode=worldcup" class="category-card"
+        <a href="game.html?mode=worldcup" class="category-card" data-premium="true"
            style="background-image:url('images/categories/worldcup.jpg');">
           <div class="category-info">
             <span class="emoji">⚽️</span>
@@ -151,7 +153,7 @@
           </div>
         </a>
 
-        <a href="game.html?mode=landmass" class="category-card"
+        <a href="game.html?mode=landmass" class="category-card" data-premium="true"
            style="background-image:url('images/categories/landmass.jpg');">
           <div class="category-info">
             <span class="emoji">🌍</span>
@@ -159,7 +161,7 @@
           </div>
         </a>
 
-        <a href="game.html?mode=crimerate" class="category-card"
+        <a href="game.html?mode=crimerate" class="category-card" data-premium="true"
            style="background-image:url('images/categories/crimerate.jpg');">
           <div class="category-info">
             <span class="emoji">🚨</span>
@@ -167,7 +169,7 @@
           </div>
         </a>
 
-        <a href="game.html?mode=happiness" class="category-card"
+        <a href="game.html?mode=happiness" class="category-card" data-premium="true"
            style="background-image:url('images/categories/happiness.jpg');">
           <div class="category-info">
             <span class="emoji">☺️</span>
@@ -175,7 +177,7 @@
           </div>
         </a>
 
-        <a href="game.html?mode=passport" class="category-card"
+        <a href="game.html?mode=passport" class="category-card" data-premium="true"
            style="background-image:url('images/categories/passport.jpg');">
           <div class="category-info">
             <span class="emoji">🛂</span>
@@ -183,7 +185,7 @@
           </div>
         </a>
         
-            <a href="game.html?mode=beer" class="category-card"
+        <a href="game.html?mode=beer" class="category-card" data-premium="true"
            style="background-image:url('images/categories/beer.jpg');">
           <div class="category-info">
             <span class="emoji">🍺</span>
@@ -191,7 +193,7 @@
           </div>
         </a>
     
-            <a href="game.html?mode=nobelprize" class="category-card"
+        <a href="game.html?mode=nobelprize" class="category-card" data-premium="true"
            style="background-image:url('images/categories/nobelprize.jpg');">
           <div class="category-info">
             <span class="emoji">🕊️</span>
@@ -199,7 +201,7 @@
           </div>
         </a>
 
-              <a href="game.html?mode=temperature" class="category-card"
+        <a href="game.html?mode=temperature" class="category-card" data-premium="true"
            style="background-image:url('images/categories/hightemp.jpg');">
           <div class="category-info">
             <span class="emoji">☀️</span>
@@ -207,7 +209,7 @@
           </div>
         </a>
 
-              <a href="game.html?mode=precipitation" class="category-card"
+        <a href="game.html?mode=precipitation" class="category-card" data-premium="true"
            style="background-image:url('images/categories/rainfall.jpg');">
           <div class="category-info">
             <span class="emoji">🌧️</span>
@@ -232,6 +234,9 @@
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI';
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // ⭐ Expose globally
+  window.supabaseClient = supabase;
 
   const signInText = document.getElementById("signInText");
   const submitBtn = document.getElementById("authSubmit");
@@ -459,6 +464,56 @@ document.getElementById("forgotPasswordLink")?.addEventListener("click", async (
 
   </script>
 
+
+<script type="module">
+  // @ts-ignore – ignore editor warning about global supabase
+  const supabase = window.supabaseClient;
+
+  if (!supabase) {
+    console.error("Supabase client missing on index page");
+  } else {
+    const { data: { session } } = await supabase.auth.getSession();
+
+    let isPremium = false;
+
+    if (session) {
+      const { data: profile } = await supabase
+        .from("users")
+        .select("is_premium")
+        .eq("id", session.user.id)
+        .single();
+
+      isPremium = profile?.is_premium === true;
+    }
+
+    const premiumCards = document.querySelectorAll("[data-premium='true']");
+
+    if (!isPremium) {
+      premiumCards.forEach(card => {
+        card.classList.add("locked");
+
+        // ✅ Add the coloured lock icon on top of the card
+        let lock = document.createElement("div");
+        lock.className = "lock-icon";
+        lock.textContent = "🔒";
+        card.appendChild(lock);
+
+        // Clicking opens premium modal (or fallback)
+        card.addEventListener("click", (e) => {
+          e.preventDefault();
+          const modal = document.getElementById("premium-modal");
+          if (modal) {
+            modal.style.display = "flex";
+          } else {
+            window.location.href = "account.html";
+          }
+        });
+      });
+    }
+  }
+</script>
+
+
   <script>
 const toggleBtn = document.getElementById("menuToggle");
 const overlay = document.getElementById("menuOverlay");
@@ -484,6 +539,10 @@ overlay.addEventListener("click", (e) => {
 });
   
 </script>
+
+<!-- Stripe + premium logic-->
+<script src="https://js.stripe.com/v3/"></script>
+<script src="js/premium.js"></script>
 
 </body>
 </html>
