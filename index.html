@@ -90,7 +90,8 @@ document.getElementById("goPremiumBtn").onclick = () => {
   <div class="menu-overlay" id="menuOverlay">
     <div class="menu-panel">
       <h2>Menu</h2>
-      <button class="menu-btn" onclick="window.location.href='account.html'">👤 Account</button>
+      <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
+      <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'">🔓 Unlock All Categories</button>
       <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
       <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
       <button class="menu-btn">💡 How to Play</button>
@@ -564,6 +565,36 @@ overlay.addEventListener("click", (e) => {
   if (e.target === overlay) overlay.classList.remove("active");
 });
 </script>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+  const supabase = createClient(
+    'https://ajwxgdaninuzcpfwawug.supabase.co',
+    'YOUR_SUPABASE_ANON_KEY'
+  );
+
+  const { data: { session } } = await supabase.auth.getSession();
+
+  // Hide Account if user not logged in
+  if (!session || !session.user) {
+    document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+  }
+
+  // Hide Unlock All Categories if user is premium
+  if (session && session.user) {
+    const { data: profile } = await supabase
+      .from('users')
+      .select('is_premium')
+      .eq('id', session.user.id)
+      .single();
+
+    if (profile?.is_premium) {
+      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+    }
+  }
+</script>
+
 
 </body>
 </html>

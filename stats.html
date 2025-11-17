@@ -8,10 +8,10 @@
   <link rel="stylesheet" href="css/game-modes.css"/>
   <style>
     html, body {
-    min-height: 100vh;
-    margin: 0;
-    padding: 0;
-    background: linear-gradient(to bottom right, #a7f3d0, #38bdf8);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to bottom right, #a7f3d0, #38bdf8);
     }
     .stats-container {
       min-height: 80vh;
@@ -57,6 +57,49 @@
       height: 10px;
       border-radius: 4px;
     }
+
+    /* Modal styles */
+    .premium-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(8px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    .premium-modal.hidden {
+      display: none;
+    }
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      text-align: center;
+      max-width: 400px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    .modal-buttons {
+      margin-top: 1.5rem;
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+    .modal-buttons button {
+      padding: 0.75rem 1.25rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #goPremiumBtn {
+      background-color: #10b981;
+      color: white;
+    }
+    #closePremiumBtn {
+      background-color: #e5e7eb;
+    }
   </style>
 </head>
 <body>
@@ -70,14 +113,14 @@
   <div class="menu-panel">
     <h2>Menu</h2>
     <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
-    <button class="menu-btn" onclick="window.location.href='account.html'">👤 Account</button>
+    <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
     <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
     <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
     <button class="menu-btn menu-close" id="closeMenu">Close</button>
   </div>
 </div>
 
-<main class="stats-container">
+<main class="stats-container" id="statsContainer" style="display: none;">
   <div class="stats-card">
     <h2>Your Stats</h2>
     <p id="userEmail">Loading…</p>
@@ -99,7 +142,17 @@
   </table>
 </main>
 
-
+<!-- Premium Upgrade Modal -->
+<div id="premiumModal" class="premium-modal hidden">
+  <div class="modal-content">
+    <h2>Premium Feature 🔒</h2>
+    <p>This feature is for premium members only. Upgrade to access your stats and more.</p>
+    <div class="modal-buttons">
+      <button id="goPremiumBtn">Upgrade to Premium</button>
+      <button id="closePremiumBtn">Return to Home</button>
+    </div>
+  </div>
+</div>
 
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
@@ -109,45 +162,42 @@
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
   );
 
-// 🔒 PREMIUM PROTECTION — Only logged-in Premium users can view this page
-const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await supabase.auth.getSession();
 
-if (!session) {
-  // Not logged in → send to homepage
-  window.location.href = "index.html";
-}
+  const modal = document.getElementById("premiumModal");
+  const statsContainer = document.getElementById("statsContainer");
 
-const { data: profile } = await supabase
-  .from("users")
-  .select("is_premium")
-  .eq("id", session.user.id)
-  .single();
+  if (!session || !session.user) {
+    modal.classList.remove("hidden");
+  } else {
+    const { data: profile } = await supabase
+      .from("users")
+      .select("is_premium")
+      .eq("id", session.user.id)
+      .single();
 
-if (!profile?.is_premium) {
-  alert("This feature is Premium only.");
-  window.location.href = "account.html";
-}
-
-  const userEmailEl = document.getElementById('userEmail');
-  const userSinceEl = document.getElementById('userSince');
-  const categoryStatsBody = document.getElementById('categoryStatsBody');
-
-  const loadStats = async () => {
-    const { data: { session }, error: sessionErr } = await supabase.auth.getSession();
-    if (sessionErr || !session?.user) {
-      userEmailEl.textContent = 'Not logged in';
-      return;
+    if (!profile?.is_premium) {
+      modal.classList.remove("hidden");
+    } else {
+      statsContainer.style.display = "block";
+      loadStats();
     }
-    const user = session.user;
-    userEmailEl.textContent = user.email;
-    userSinceEl.textContent = `Member since ${new Date(user.created_at).toDateString()}`;
+  }
 
-    const { data: scoresData, error: scoresErr } = await supabase
+  async function loadStats() {
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session.user;
+
+    document.getElementById('userEmail').textContent = user.email;
+    document.getElementById('userSince').textContent = `Member since ${new Date(user.created_at).toDateString()}`;
+
+    const categoryStatsBody = document.getElementById('categoryStatsBody');
+    const { data: scoresData } = await supabase
       .from('category_scores')
       .select('category_id, score')
       .eq('user_id', user.id);
 
-    if (scoresErr || !scoresData.length) {
+    if (!scoresData || scoresData.length === 0) {
       categoryStatsBody.innerHTML = `<tr><td colspan="4">No stats found yet.</td></tr>`;
       return;
     }
@@ -165,8 +215,7 @@ if (!profile?.is_premium) {
         .eq('category_id', category_id);
 
       const rank = (higherCount || 0) + 1;
-      const maxScoreForCategory = 100;
-      const progressPercent = Math.floor((score / maxScoreForCategory) * 100);
+      const progressPercent = Math.floor((score / 100) * 100);
 
       const row = document.createElement('tr');
       row.innerHTML = `
@@ -181,7 +230,7 @@ if (!profile?.is_premium) {
       `;
       categoryStatsBody.appendChild(row);
     }
-  };
+  }
 
   function getCategoryNameById(id) {
     const mapping = {
@@ -201,7 +250,14 @@ if (!profile?.is_premium) {
     return mapping[id] || `Category ${id}`;
   }
 
-  loadStats();
+  document.getElementById("closePremiumBtn").onclick = () => {
+    document.getElementById("premiumModal").classList.add("hidden");
+    window.location.href = "index.html";
+  };
+
+  document.getElementById("goPremiumBtn").onclick = () => {
+    window.location.href = "premium.html";
+  };
 </script>
 
 <script>
