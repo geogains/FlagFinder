@@ -47,3 +47,5 @@ function startCheckout(planType) {
     alert("Invalid plan type selected.");
   }
 }
+
+window.startCheckout = startCheckout;
