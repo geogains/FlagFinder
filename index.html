@@ -248,6 +248,11 @@ document.getElementById("goPremiumBtn").onclick = () => {
     </div>
   </section>
 
+  <div class="footer-buttons">
+  <button id="unlockCategoriesBtn" class="upgrade-access-btn">🔓 Unlock All Categories</button>
+  <button id="viewCategoriesBtn">👁️ View All Categories</button>
+</div>
+
   <footer class="home-footer">
     <p>© 2025 GeoRanks</p>
   </footer>
@@ -512,10 +517,10 @@ document.getElementById("goPremiumBtn").onclick = () => {
       card.addEventListener("click", async (e) => {
         e.preventDefault();
 
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session: innerSession } } = await supabase.auth.getSession();
 
-        if (!session) {
-          // NOT signed in → still show upgrade modal (updated behavior)
+        if (!innerSession) {
+          // NOT signed in → still show upgrade modal
           const modal = document.getElementById("premiumModal");
           if (modal) {
             modal.classList.remove("hidden");
@@ -537,7 +542,21 @@ document.getElementById("goPremiumBtn").onclick = () => {
       });
     });
   }
+
+  // Handle footer buttons
+  const viewBtn = document.getElementById("viewCategoriesBtn");
+  const unlockBtn = document.getElementById("unlockCategoriesBtn");
+
+  viewBtn.onclick = () => window.location.href = "categories.html";
+  unlockBtn.onclick = () => window.location.href = "premium.html";
+
+  // Hide unlock button for premium users
+  if (isPremium) {
+    unlockBtn?.remove();
+    document.querySelector(".footer-buttons").style.justifyContent = "center";
+  }
 </script>
+
 
 <!-- PREMIUM MODAL BUTTONS -->
 <script>
