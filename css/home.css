@@ -701,7 +701,7 @@ html, body {
 
 /* OPEN BUTTON */
 .premium-btn {
-  background: linear-gradient(135deg, #ffd580, #ff9f1c);
+  background: linear-gradient(135deg, #ff9770, #ff6f61);
   border: none;
   border-radius: 12px;
   padding: 12px 18px;
@@ -824,8 +824,8 @@ html, body {
 
 /* Orange gradient button (GeoRanks theme) */
 .premium-btn.upgrade {
-  background: linear-gradient(180deg, #ffcc74, #ff9f1c);
-  color: black;
+  background: linear-gradient(135deg, #ff9770, #ff6f61);
+  color: rgb(255, 255, 255);
 }
 
 /* Gray secondary button */

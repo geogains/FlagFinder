@@ -4,17 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>GeoRanks Premium</title>
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  
+  <!-- Fonts and Styles -->
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/game-modes.css" />
   <link rel="stylesheet" href="css/home.css" />
+  
   <style>
     body {
-      background: linear-gradient(to bottom right, #ffeaa7, #fab1a0);
-      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #a7f3d0, #38bdf8);
+      font-family: 'Poppins', sans-serif;
       margin: 0;
     }
 
     .premium-wrapper {
       max-width: 720px;
-      margin: 60px auto;
+      margin: 120px auto 60px;
       background: white;
       padding: 40px;
       border-radius: 20px;
@@ -68,7 +74,8 @@
       font-size: 1.1rem;
       font-weight: bold;
       cursor: pointer;
-      background: #ffeaa7;
+      background: linear-gradient(135deg, #ff9770, #ff6f61);
+      color: white;
       transition: background 0.3s;
     }
 
@@ -90,25 +97,243 @@
 </head>
 <body>
 
-  <div class="premium-wrapper">
-    <h1>Unlock GeoRanks Premium 🔓</h1>
-    <p>Upgrade to access every feature and category GeoRanks offers:</p>
+<!-- ========== AUTH MODAL ========== -->
+<div class="auth-modal hidden" id="authModal">
+  <div class="modal-window">
+    <button class="close-auth-modal" id="closeAuthModal">×</button>
+    <h2 id="authModalTitle">Sign In</h2>
 
-    <ul class="benefits">
-      <li>Unlock all game categories</li>
-      <li>Unlimited daily plays</li>
-      <li>Access full My Stats dashboard</li>
-      <li>Support GeoRanks development</li>
-    </ul>
+    <input type="text" id="authUsername" placeholder="Username" style="display:none;" />
+    <input type="email" id="authEmail" placeholder="Email address" />
+    <input type="password" id="authPassword" placeholder="Password" />
 
-    <div class="upgrade-options">
-      <button class="upgrade-btn" onclick="startCheckout('monthly')">Upgrade Monthly</button>
-      <button class="upgrade-btn" onclick="startCheckout('yearly')">Upgrade Yearly</button>
+    <div id="forgotPasswordLink" style="margin-top: 0.75rem; text-align: center;">
+      <a href="#" style="font-size: 0.9rem; text-decoration: underline; color: #0d315a;">Forgot Password?</a>
+    </div>
+
+    <button class="btn-auth" id="authSubmit">Continue</button>
+
+    <div class="toggle-view" id="toggleAuthView">
+      Don't have an account? <span id="toggleAuthLink">Sign Up</span>
     </div>
   </div>
+</div>
 
-  <script src="https://js.stripe.com/v3/"></script>
-  <script type="module" src="js/premium.js"></script>
+<!-- ========== HEADER (Leaderboard Style) ========== -->
+<header class="home-glass-header">
+  <div class="logo-header">
+    <a href="index.html" class="logo-link">
+      <img src="assets/logo.png" alt="GeoRanks Logo" />
+    </a>
+  </div>
+  <div class="hamburger-menu">
+    <div class="menu-icon" id="menuToggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
+</header>
+
+<!-- Hamburger Overlay Menu -->
+<div class="menu-overlay" id="menuOverlay">
+  <div class="menu-panel">
+    <h2>Menu</h2>
+    <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
+    <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'">🔓 Unlock All Categories</button>
+    <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
+    <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
+    <button class="menu-btn">💡 How to Play</button>
+    <button class="menu-btn menu-close" id="closeMenu">Close</button>
+  </div>
+</div>
+
+<div class="premium-wrapper">
+  <h1>Unlock GeoRanks Premium 🔓</h1>
+  <p>Upgrade to access every feature and category GeoRanks offers:</p>
+
+  <ul class="benefits">
+    <li>Unlock all game categories</li>
+    <li>Unlimited daily plays</li>
+    <li>Access full My Stats dashboard</li>
+    <li>Support GeoRanks development</li>
+  </ul>
+
+  <div class="upgrade-options">
+    <button class="upgrade-btn" onclick="startCheckout('monthly')">Upgrade Monthly</button>
+    <button class="upgrade-btn" onclick="startCheckout('yearly')">Upgrade Yearly</button>
+  </div>
+</div>
+
+<!-- ============================= -->
+<!-- ========== SCRIPTS ========== -->
+<!-- ============================= -->
+
+<script type="module">
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+  const SUPABASE_URL = "https://ajwxgdaninuzcpfwawug.supabase.co";
+  const SUPABASE_ANON_KEY =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI";
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  window.supabaseClient = supabase;
+
+  const submitBtn = document.getElementById("authSubmit");
+  const authTitle = document.getElementById("authModalTitle");
+  const emailInput = document.getElementById("authEmail");
+  const passwordInput = document.getElementById("authPassword");
+  const usernameInput = document.getElementById("authUsername");
+  const toggleAuthView = document.getElementById("toggleAuthView");
+
+  let isSignIn = true;
+
+  function rebindToggleAuthLink() {
+    const newToggle = document.getElementById("toggleAuthLink");
+    const forgotLink = document.getElementById("forgotPasswordLink");
+
+    newToggle.addEventListener("click", () => {
+      isSignIn = !isSignIn;
+
+      if (isSignIn) {
+        authTitle.textContent = "Sign In";
+        submitBtn.textContent = "Continue";
+        passwordInput.placeholder = "Password";
+        usernameInput.style.display = "none";
+        forgotLink.style.display = "block";
+        toggleAuthView.innerHTML =
+          "Don't have an account? <span id='toggleAuthLink'>Sign Up</span>";
+      } else {
+        authTitle.textContent = "Sign Up";
+        submitBtn.textContent = "Register";
+        passwordInput.placeholder = "Create a password";
+        usernameInput.style.display = "block";
+        forgotLink.style.display = "none";
+        toggleAuthView.innerHTML =
+          "Already have an account? <span id='toggleAuthLink'>Sign In</span>";
+      }
+
+      rebindToggleAuthLink();
+    });
+  }
+
+  async function handleAuth() {
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+    const username = usernameInput.value.trim();
+
+    if (!email || !password || (!isSignIn && !username)) {
+      return alert("Please fill in all fields");
+    }
+
+    if (isSignIn) {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) return alert("❌ " + error.message);
+      window.location.reload();
+    } 
+      else {
+      const { data: existing, error: checkError } = await supabase
+        .from("users")
+        .select("id")
+        .eq("username", username)
+        .maybeSingle();
+
+      if (checkError) return alert("❌ " + checkError.message);
+      if (existing) return alert("❌ Username already taken");
+
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { username } },
+      });
+
+      if (error) return alert("❌ " + error.message);
+
+      alert("✅ Please check your email to confirm your account.");
+    }
+
+    document.getElementById("authModal")?.classList.add("hidden");
+  }
+
+  submitBtn.addEventListener("click", handleAuth);
+  rebindToggleAuthLink();
+
+  const closeModalBtn = document.getElementById("closeAuthModal");
+  closeModalBtn?.addEventListener("click", () =>
+    document.getElementById("authModal")?.classList.add("hidden")
+  );
+
+  document
+    .getElementById("forgotPasswordLink")
+    ?.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const email = emailInput.value.trim();
+
+      if (!email) {
+        return alert("Please enter your email to reset your password.");
+      }
+
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: "https://www.geo-ranks.com/reset-password.html",
+      });
+
+      if (error) {
+        alert("❌ " + error.message);
+      } else {
+        alert("✅ Password reset email sent! Please check your inbox.");
+        document.getElementById("authModal")?.classList.add("hidden");
+      }
+    });
+</script>
+
+<!-- Hamburger Menu Logic -->
+<script>
+const toggleBtn = document.getElementById("menuToggle");
+const overlay = document.getElementById("menuOverlay");
+const closeBtn = document.getElementById("closeMenu");
+
+toggleBtn?.addEventListener("click", () => overlay.classList.add("active"));
+closeBtn?.addEventListener("click", () => overlay.classList.remove("active"));
+
+overlay.addEventListener("click", (e) => {
+  if (e.target === overlay) overlay.classList.remove("active");
+});
+</script>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+  const supabase = createClient(
+    'https://ajwxgdaninuzcpfwawug.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
+  );
+
+  const { data: { session } } = await supabase.auth.getSession();
+
+  // Hide Account if user not logged in
+  if (!session || !session.user) {
+    document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+  }
+
+  // Hide Unlock All Categories if user is premium
+  if (session && session.user) {
+    const { data: profile } = await supabase
+      .from('users')
+      .select('is_premium')
+      .eq('id', session.user.id)
+      .single();
+
+    if (profile?.is_premium) {
+      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+    }
+  }
+</script>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script type="module" src="js/premium.js"></script>
 
 </body>
 </html>
