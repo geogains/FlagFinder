@@ -49,7 +49,17 @@ async function redirectToCheckout(priceId) {
 }
 
 // ✅ Used by premium.html buttons
-function startCheckout(planType) {
+async function startCheckout(planType) {
+  // Check if user is logged in FIRST
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if (!session || !session.user) {
+    // Show the account required modal
+    document.getElementById("accountRequiredModal")?.classList.remove("hidden");
+    return;
+  }
+
+  // User is logged in, proceed to Stripe
   if (planType === "monthly") {
     redirectToCheckout(PRICE_MONTHLY);
   } else if (planType === "yearly") {
@@ -59,4 +69,4 @@ function startCheckout(planType) {
   }
 }
 
-window.startCheckout = startCheckout;
+window.startStripeCheckout = startCheckout;

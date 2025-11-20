@@ -166,20 +166,6 @@
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
 }
 
-#accountRequiredModal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  backdrop-filter: blur(6px);
-  background-color: rgba(0, 0, 0, 0.25);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
   </style>
 </head>
 <body>
@@ -449,27 +435,33 @@ overlay.addEventListener("click", (e) => {
 </div>
 
 <script>
-  // Handle checkout button click
+  // Safely trigger checkout only when called
   async function startCheckout(plan) {
-    const { data: { session } } = await window.supabaseClient.auth.getSession();
+    // Ensure client is available
+    const supabase = window.supabaseClient;
+    if (!supabase) {
+      console.error("Supabase client not found");
+      return;
+    }
+
+    const { data: { session } } = await supabase.auth.getSession();
 
     if (!session || !session.user) {
       document.getElementById("accountRequiredModal")?.classList.remove("hidden");
       return;
     }
 
-    // User is signed in → proceed with checkout
+    // Proceed to Stripe
     if (window.startStripeCheckout) {
       window.startStripeCheckout(plan);
     }
   }
 
-  // Close the modal on ✕ click
+  // Modal handlers
   document.getElementById("closeAccountRequired")?.addEventListener("click", () => {
     document.getElementById("accountRequiredModal")?.classList.add("hidden");
   });
 
-  // Redirect to login and trigger auth modal
   document.getElementById("goToLoginPage")?.addEventListener("click", () => {
     window.location.href = "index.html?showAuth=true";
   });
