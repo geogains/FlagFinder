@@ -388,7 +388,7 @@ h1, h2, h3, .tagline {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  background-color: #1f2937;
+  background: linear-gradient(135deg, #ff9770, #ff6f61);
   color: white;
   transition: background-color 0.2s ease-in-out;
 }
