@@ -166,6 +166,20 @@
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
 }
 
+#accountRequiredModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  backdrop-filter: blur(6px);
+  background-color: rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
   </style>
 </head>
 <body>
@@ -435,31 +449,32 @@ overlay.addEventListener("click", (e) => {
 </div>
 
 <script>
-  // Show account required modal if not signed in
+  // Handle checkout button click
   async function startCheckout(plan) {
     const { data: { session } } = await window.supabaseClient.auth.getSession();
 
     if (!session || !session.user) {
-      document.getElementById('accountRequiredModal')?.classList.remove('hidden');
+      document.getElementById("accountRequiredModal")?.classList.remove("hidden");
       return;
     }
 
-    // Otherwise continue to checkout (handled by premium.js)
+    // User is signed in → proceed with checkout
     if (window.startStripeCheckout) {
       window.startStripeCheckout(plan);
     }
   }
 
-  // Close modal
-  document.getElementById("closeAccountRequired").onclick = () => {
-    document.getElementById("accountRequiredModal").classList.add("hidden");
-  };
+  // Close the modal on ✕ click
+  document.getElementById("closeAccountRequired")?.addEventListener("click", () => {
+    document.getElementById("accountRequiredModal")?.classList.add("hidden");
+  });
 
-  // Go to login page and trigger auth modal
-  document.getElementById("goToLoginPage").onclick = () => {
-    window.location.href = "index.html?auth=open";
-  };
+  // Redirect to login and trigger auth modal
+  document.getElementById("goToLoginPage")?.addEventListener("click", () => {
+    window.location.href = "index.html?showAuth=true";
+  });
 </script>
+
 
 <script src="https://js.stripe.com/v3/"></script>
 <script type="module" src="js/premium.js"></script>
