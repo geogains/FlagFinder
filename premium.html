@@ -424,6 +424,43 @@ overlay.addEventListener("click", (e) => {
   }
 </script>
 
+<!-- ========== ACCOUNT REQUIRED MODAL ========== -->
+<div class="auth-modal hidden" id="accountRequiredModal">
+  <div class="modal-window">
+    <button class="close-auth-modal" id="closeAccountRequired">×</button>
+    <h2>Create an Account</h2>
+    <p>You must sign in or create an account before upgrading to Premium.</p>
+    <button class="btn-auth" id="goToLoginPage">Continue</button>
+  </div>
+</div>
+
+<script>
+  // Show account required modal if not signed in
+  async function startCheckout(plan) {
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
+
+    if (!session || !session.user) {
+      document.getElementById('accountRequiredModal')?.classList.remove('hidden');
+      return;
+    }
+
+    // Otherwise continue to checkout (handled by premium.js)
+    if (window.startStripeCheckout) {
+      window.startStripeCheckout(plan);
+    }
+  }
+
+  // Close modal
+  document.getElementById("closeAccountRequired").onclick = () => {
+    document.getElementById("accountRequiredModal").classList.add("hidden");
+  };
+
+  // Go to login page and trigger auth modal
+  document.getElementById("goToLoginPage").onclick = () => {
+    window.location.href = "index.html?auth=open";
+  };
+</script>
+
 <script src="https://js.stripe.com/v3/"></script>
 <script type="module" src="js/premium.js"></script>
 
