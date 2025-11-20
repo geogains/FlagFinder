@@ -152,12 +152,6 @@ h1, h2, h3, .tagline {
   box-sizing: border-box;
 }
 
-.daily-challenge-card:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
-  filter: brightness(1.05);
-}
-
 .daily-challenge-card h2 {
   font-size: 1.8rem;
   font-weight: 800;

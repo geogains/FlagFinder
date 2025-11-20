@@ -112,7 +112,7 @@ document.getElementById("goPremiumBtn").onclick = () => {
   <section class="categories-section">
     <h2>Top Categories 👇</h2>
 
-    <div class="categories-grid">
+    <div class="categories-grid" id="categoriesGrid" style="pointer-events: none; opacity: 0.6;">
 
       <!-- FREE CATEGORIES -->
       <a href="game.html?mode=population" class="category-card"
@@ -489,6 +489,13 @@ document.getElementById("goPremiumBtn").onclick = () => {
   if (isPremium) {
     unlockBtn?.remove();
     document.querySelector(".footer-buttons").style.justifyContent = "center";
+  }
+  
+  // Enable category grid after premium check is complete
+  const categoriesGrid = document.getElementById('categoriesGrid');
+  if (categoriesGrid) {
+    categoriesGrid.style.pointerEvents = 'auto';
+    categoriesGrid.style.opacity = '1';
   }
 </script>
 

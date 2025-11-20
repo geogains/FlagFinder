@@ -82,7 +82,7 @@
   <section class="categories-section">
     <h2>Explore All Categories 👇</h2>
 
-    <div class="categories-grid">
+    <div class="categories-grid" id="categoriesGrid" style="pointer-events: none; opacity: 0.6;">
 
       <!-- FREE CATEGORIES -->
       <a href="game.html?mode=population" class="category-card"
@@ -405,6 +405,13 @@
         }
       });
     });
+  }
+  
+  // Enable category grid after premium check is complete
+  const categoriesGrid = document.getElementById('categoriesGrid');
+  if (categoriesGrid) {
+    categoriesGrid.style.pointerEvents = 'auto';
+    categoriesGrid.style.opacity = '1';
   }
 </script>
 

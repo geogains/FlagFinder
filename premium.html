@@ -39,6 +39,19 @@
       color: #444;
     }
 
+    .premium-flexbox {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .premium-flexbox img {
+      max-width: 220px;
+      border-radius: 12px;
+    }
+
     .benefits {
       text-align: left;
       margin: 30px auto;
@@ -93,6 +106,66 @@
         min-width: 200px;
       }
     }
+
+    .pricing-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 40px;
+}
+
+.pricing-card {
+  background: #f9f9f9;
+  border-radius: 12px;
+  padding: 24px;
+  width: 260px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  text-align: left;
+  transition: transform 0.3s ease;
+}
+
+.pricing-card h2 {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.pricing-card .price {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #2d3436;
+  margin-bottom: 16px;
+}
+
+.pricing-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+}
+
+.pricing-card ul li {
+  margin: 10px 0;
+  font-size: 0.95rem;
+}
+
+.pricing-card button {
+  width: 100%;
+  padding: 12px;
+  background: #ff6f61;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pricing-card button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+
   </style>
 </head>
 <body>
@@ -149,21 +222,40 @@
 </div>
 
 <div class="premium-wrapper">
-  <h1>Unlock GeoRanks Premium 🔓</h1>
-  <p>Upgrade to access every feature and category GeoRanks offers:</p>
+  <div class="premium-flexbox">
+    <img src="assets/georanks-premium.png" alt="GeoRanks Premium">
 
-  <ul class="benefits">
-    <li>Unlock all game categories</li>
-    <li>Unlimited daily plays</li>
-    <li>Access full My Stats dashboard</li>
-    <li>Support GeoRanks development</li>
-  </ul>
+    <div>
+      <h1>Unlock GeoRanks Premium 🔓</h1>
+      <p>Upgrade to access every feature and category GeoRanks offers:</p>
 
-  <div class="upgrade-options">
-    <button class="upgrade-btn" onclick="startCheckout('monthly')">Upgrade Monthly</button>
-    <button class="upgrade-btn" onclick="startCheckout('yearly')">Upgrade Yearly</button>
+      <div class="pricing-cards">
+  <div class="pricing-card">
+    <h2>Monthly</h2>
+    <p class="price">$4.99 / month</p>
+    <ul>
+      <li>🔓 Unlock all game categories</li>
+      <li>📊 Access full My Stats dashboard</li>
+      <li>⏱️ Unlimited daily plays</li>
+      <li>💖 Support GeoRanks development</li>
+    </ul>
+    <button onclick="startCheckout('monthly')">Get Monthly Access</button>
+  </div>
+
+  <div class="pricing-card">
+    <h2>Yearly</h2>
+    <p class="price">$49.99 / year</p>
+    <ul>
+      <li>🔓 Unlock all game categories</li>
+      <li>📊 Access full My Stats dashboard</li>
+      <li>⏱️ Unlimited daily plays</li>
+      <li>💖 Support GeoRanks development</li>
+      <li>💸 2 months free</li>
+    </ul>
+    <button onclick="startCheckout('yearly')">Get Yearly Access</button>
   </div>
 </div>
+
 
 <!-- ============================= -->
 <!-- ========== SCRIPTS ========== -->

@@ -9,8 +9,50 @@
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./css/home.css" />
   <link rel="stylesheet" href="./css/game-modes.css" />
+  
+  <style>
+    /* Loading overlay to prevent access during auth check */
+    #authLoadingOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(to bottom right, #a7f3d0, #38bdf8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      color: #0d315a;
+    }
+    
+    #authLoadingOverlay h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #0d315a;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
+
+<!-- Auth Loading Overlay -->
+<div id="authLoadingOverlay">
+  <h2>Verifying access...</h2>
+  <div class="spinner"></div>
+</div>
 
 <header class="home-glass-header">
   <div class="logo-header">
@@ -104,6 +146,63 @@
 
   window.supabase = supabase; // make it globally accessible for blind-ranking.js
 
+  // ========================================
+  // 🔒 PREMIUM VALIDATION GUARD
+  // ========================================
+  
+  // Define which game modes require premium
+  const PREMIUM_MODES = [
+    'coastline',
+    'cuisine',
+    'olympic',
+    'worldcup',
+    'landmass',
+    'crimerate',
+    'happiness',
+    'passport',
+    'beer',
+    'nobelprize',
+    'temperature',
+    'precipitation'
+  ];
+
+  const params = new URLSearchParams(window.location.search);
+  const mode = params.get('mode') || 'population';
+
+  // Check if this mode requires premium
+  const requiresPremium = PREMIUM_MODES.includes(mode);
+
+  if (requiresPremium) {
+    // Get user session and premium status
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    let isPremium = false;
+    
+    if (session && session.user) {
+      const { data: profile } = await supabase
+        .from('users')
+        .select('is_premium')
+        .eq('id', session.user.id)
+        .single();
+      
+      isPremium = profile?.is_premium === true;
+    }
+    
+    // If user is not premium, redirect to premium page
+    if (!isPremium) {
+      window.location.href = 'premium.html';
+      // Stop execution here
+      throw new Error('Premium required');
+    }
+  }
+  
+  // Remove loading overlay after validation
+  document.getElementById('authLoadingOverlay').style.display = 'none';
+
+  // ========================================
+  // 🎮 GAME INITIALIZATION (only if validated)
+  // ========================================
+
   const CATEGORY_ID_MAP = {
     population: 3,
     altitude: 2,
@@ -122,9 +221,6 @@
     temperature: 16,
     precipitation: 17,
   };
-
-  const params = new URLSearchParams(window.location.search);
-  const mode = params.get('mode') || 'population';
 
   const datasets = {
     population: { title: 'RANK THESE COUNTRIES BY POPULATION 🌍', data: populationData },
