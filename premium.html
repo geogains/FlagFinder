@@ -166,6 +166,111 @@
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
 }
 
+.auth-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.auth-modal.hidden {
+  display: none;
+}
+
+.modal-window {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  position: relative;
+}
+
+.modal-window h2 {
+  margin-top: 0;
+  color: #2d3436;
+  font-size: 1.5rem;
+}
+
+.modal-window p {
+  margin-bottom: 20px;
+  color: #444;
+}
+
+.close-auth-modal {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #aaa;
+}
+
+.btn-auth {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  background: linear-gradient(135deg, #ff9770, #ff6f61);
+  color: white;
+  transition: opacity 0.3s;
+}
+
+.btn-auth:hover {
+  opacity: 0.9;
+}
+
+.toggle-view {
+  margin-top: 15px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+#toggleAuthLink {
+  color: #0d315a;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.modal-window input[type="email"],
+.modal-window input[type="password"],
+.modal-window input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+.modal-window input:focus {
+  border-color: #ff6f61;
+  outline: none;
+}
+
+.modal-window a {
+  color: #0d315a;
+}
+
+.modal-window a:hover {
+  text-decoration: none;
+}
+
+
   </style>
 </head>
 <body>
