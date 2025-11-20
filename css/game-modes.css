@@ -363,25 +363,31 @@ html {
   transform: translateX(0);
 }
 .menu-panel h2 {
-  color: #00695c;
+  color: #0d315a;
   font-size: 1.4rem;
   margin-bottom: 0.5rem;
 }
 
 .menu-btn {
-  background: linear-gradient(90deg, #f97316, #f43f5e);
+  display: block;
+  width: 100%;
+  padding: 14px 0;
+  font-size: 1.05rem;
+  font-weight: bold;
+  background: linear-gradient(135deg, #ff9770, #ff6f61);
   color: white;
   border: none;
   border-radius: 10px;
-  padding: 0.7rem 1rem;
-  font-size: 1rem;
-  font-weight: 600;
+  margin: 10px 0;
   cursor: pointer;
-  transition: background 0.2s, transform 0.2s;
+  text-align: center;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
 }
+
 .menu-btn:hover {
-  transform: translateY(-2px);
-  background: linear-gradient(90deg, #fb923c, #fb7185);
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
 .menu-close {
@@ -501,7 +507,7 @@ html {
 }
 
 .menu-btn {
-  background: linear-gradient(90deg, #f97316, #f43f5e);
+background: linear-gradient(135deg, #ff9770, #ff6f61);
   color: white;
   border: none;
   border-radius: 12px;
@@ -512,8 +518,8 @@ html {
   transition: background 0.2s, transform 0.2s;
 }
 .menu-btn:hover {
-  transform: translateY(-2px);
-  background: linear-gradient(90deg, #fb923c, #fb7185);
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
 .logo-link img {
