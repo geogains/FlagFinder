@@ -12,266 +12,306 @@
   <link rel="stylesheet" href="css/home.css" />
   
   <style>
-    body {
-      background: linear-gradient(to bottom right, #a7f3d0, #38bdf8);
-      font-family: 'Poppins', sans-serif;
-      margin: 0;
-    }
+  body {
+    background: linear-gradient(to bottom right, #a7f3d0, #38bdf8);
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+  }
 
+  /* Fade-in on load */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .premium-wrapper {
+    max-width: 720px;
+    margin: 120px auto 60px;
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+    animation: fadeInUp 0.8s ease both;
+  }
+
+  .premium-wrapper h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: #2d3436;
+  }
+
+  .premium-wrapper p {
+    font-size: 1.2rem;
+    color: #444;
+  }
+
+  /* Updated hero layout */
+  .premium-flexbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    text-align: left;
+  }
+
+  .premium-flexbox img {
+    max-width: 220px;
+    border-radius: 12px;
+    flex-shrink: 0;
+  }
+
+  .premium-flexbox h1 {
+    margin-top: 0;
+  }
+
+  /* MOBILE — narrow card + better spacing + hero side‑by‑side */
+  @media (max-width: 600px) {
     .premium-wrapper {
-      max-width: 720px;
-      margin: 120px auto 60px;
-      background: white;
-      padding: 40px;
-      border-radius: 20px;
-      text-align: center;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
-    }
-
-    .premium-wrapper h1 {
-      font-size: 2.5rem;
-      margin-bottom: 20px;
-      color: #2d3436;
-    }
-
-    .premium-wrapper p {
-      font-size: 1.2rem;
-      color: #444;
-    }
-
-    .premium-flexbox {
-      display: flex;
-      align-items: center;
-      gap: 32px;
-      flex-wrap: wrap;
-      justify-content: center;
+      margin: 60px 16px;
+      padding: 28px;
     }
 
     .premium-flexbox img {
-      max-width: 220px;
-      border-radius: 12px;
+      max-width: 120px;
     }
 
-    .benefits {
+    .premium-wrapper h1 {
+      font-size: 1.9rem;
       text-align: left;
-      margin: 30px auto;
-      max-width: 500px;
-      padding: 0;
-      list-style: none;
     }
+  }
 
-    .benefits li {
-      margin: 14px 0;
-      font-size: 1.1rem;
-      padding-left: 24px;
-      position: relative;
-    }
+  .benefits {
+    text-align: left;
+    margin: 30px auto;
+    max-width: 500px;
+    padding: 0;
+    list-style: none;
+  }
 
-    .benefits li::before {
-      content: "✅";
-      position: absolute;
-      left: 0;
-    }
+  .benefits li {
+    margin: 14px 0;
+    font-size: 1.1rem;
+    padding-left: 24px;
+    position: relative;
+  }
 
+  .benefits li::before {
+    content: "✅";
+    position: absolute;
+    left: 0;
+  }
+
+  /* Old upgrade buttons (kept but unused unless needed later) */
+  .upgrade-options {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .upgrade-btn {
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    background: linear-gradient(135deg, #ff9770, #ff6f61);
+    color: white;
+    transition: background 0.3s;
+  }
+
+  .upgrade-btn:hover {
+    background: #fab1a0;
+  }
+
+  @media (min-width: 600px) {
     .upgrade-options {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      margin-top: 20px;
+      flex-direction: row;
+      justify-content: center;
     }
 
     .upgrade-btn {
-      padding: 15px;
-      border: none;
-      border-radius: 10px;
-      font-size: 1.1rem;
-      font-weight: bold;
-      cursor: pointer;
-      background: linear-gradient(135deg, #ff9770, #ff6f61);
-      color: white;
-      transition: background 0.3s;
+      min-width: 200px;
     }
+  }
 
-    .upgrade-btn:hover {
-      background: #fab1a0;
-    }
+  /* Pricing cards */
+  .pricing-cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 40px;
+  }
 
-    @media (min-width: 600px) {
-      .upgrade-options {
-        flex-direction: row;
-        justify-content: center;
-      }
+  .pricing-card {
+    background: #f9f9f9;
+    border-radius: 12px;
+    padding: 24px;
+    width: 260px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    text-align: left;
+    transition: transform 0.3s ease;
+  }
 
-      .upgrade-btn {
-        min-width: 200px;
-      }
-    }
+  .pricing-card h2 {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+  }
 
-    .pricing-cards {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 20px;
-  margin-top: 40px;
-}
+  .pricing-card .price {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #2d3436;
+    margin-bottom: 16px;
+  }
 
-.pricing-card {
-  background: #f9f9f9;
-  border-radius: 12px;
-  padding: 24px;
-  width: 260px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  text-align: left;
-  transition: transform 0.3s ease;
-}
+  .pricing-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 16px;
+  }
 
-.pricing-card h2 {
-  font-size: 1.5rem;
-  margin-bottom: 8px;
-}
+  .pricing-card ul li {
+    margin: 10px 0;
+    font-size: 0.95rem;
+  }
 
-.pricing-card .price {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #2d3436;
-  margin-bottom: 16px;
-}
+  .pricing-card button {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #ff9770, #ff6f61);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
 
-.pricing-card ul {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 16px;
-}
+  .pricing-card button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+  }
 
-.pricing-card ul li {
-  margin: 10px 0;
-  font-size: 0.95rem;
-}
+  /* Modal overlay */
+  .auth-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+  }
 
-.pricing-card button {
-  width: 100%;
-  padding: 12px;
-  background: linear-gradient(135deg, #ff9770, #ff6f61);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
+  .auth-modal.hidden {
+    display: none;
+  }
 
-.pricing-card button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
-}
+  .modal-window {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+  }
 
-.auth-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  backdrop-filter: blur(5px);
-}
+  .modal-window h2 {
+    margin-top: 0;
+    color: #2d3436;
+    font-size: 1.5rem;
+  }
 
-.auth-modal.hidden {
-  display: none;
-}
+  .modal-window p {
+    margin-bottom: 20px;
+    color: #444;
+  }
 
-.modal-window {
-  background: white;
-  padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  max-width: 400px;
-  width: 90%;
-  text-align: center;
-  position: relative;
-}
+  .close-auth-modal {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #aaa;
+  }
 
-.modal-window h2 {
-  margin-top: 0;
-  color: #2d3436;
-  font-size: 1.5rem;
-}
+  .btn-auth {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    background: linear-gradient(135deg, #ff9770, #ff6f61);
+    color: white;
+    transition: opacity 0.3s;
+  }
 
-.modal-window p {
-  margin-bottom: 20px;
-  color: #444;
-}
+  .btn-auth:hover {
+    opacity: 0.9;
+  }
 
-.close-auth-modal {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #aaa;
-}
+  .toggle-view {
+    margin-top: 15px;
+    font-size: 0.9rem;
+    color: #666;
+  }
 
-.btn-auth {
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  background: linear-gradient(135deg, #ff9770, #ff6f61);
-  color: white;
-  transition: opacity 0.3s;
-}
+  #toggleAuthLink {
+    color: #0d315a;
+    cursor: pointer;
+    font-weight: bold;
+  }
 
-.btn-auth:hover {
-  opacity: 0.9;
-}
+  .modal-window input[type="email"],
+  .modal-window input[type="password"],
+  .modal-window input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+  }
 
-.toggle-view {
-  margin-top: 15px;
-  font-size: 0.9rem;
-  color: #666;
-}
+  .modal-window input:focus {
+    border-color: #ff6f61;
+    outline: none;
+  }
 
-#toggleAuthLink {
-  color: #0d315a;
-  cursor: pointer;
-  font-weight: bold;
-}
+  .modal-window a {
+    color: #0d315a;
+  }
 
-.modal-window input[type="email"],
-.modal-window input[type="password"],
-.modal-window input[type="text"] {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  box-sizing: border-box;
-}
+  .modal-window a:hover {
+    text-decoration: none;
+  }
+</style>
 
-.modal-window input:focus {
-  border-color: #ff6f61;
-  outline: none;
-}
-
-.modal-window a {
-  color: #0d315a;
-}
-
-.modal-window a:hover {
-  text-decoration: none;
-}
-
-
-  </style>
+  
 </head>
 <body>
 
