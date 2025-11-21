@@ -18,12 +18,21 @@
     margin: 0;
   }
 
-  /* Fade-in on load */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.8s ease forwards;
+  }
+
+  .pricing-card:nth-child(1) {
+    animation-delay: 0.4s;
+  }
+
+  .pricing-card:nth-child(2) {
+    animation-delay: 0.6s;
+  }
+
   @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
     to {
       opacity: 1;
       transform: translateY(0);
@@ -32,61 +41,38 @@
 
   .premium-wrapper {
     max-width: 720px;
-    margin: 120px auto 60px;
+    margin: 100px auto 60px;
     background: white;
     padding: 40px;
     border-radius: 20px;
     text-align: center;
     box-shadow: 0 8px 30px rgba(0,0,0,0.1);
-    animation: fadeInUp 0.8s ease both;
   }
 
-  .premium-wrapper h1 {
-    font-size: 2.5rem;
-    margin-bottom: 20px;
+  .premium-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .premium-header img {
+    max-width: 180px;
+    width: 100%;
+    height: auto;
+  }
+
+  .premium-header h1 {
+    font-size: 2.1rem;
+    margin: 0;
     color: #2d3436;
   }
 
   .premium-wrapper p {
     font-size: 1.2rem;
     color: #444;
-  }
-
-  /* Updated hero layout */
-  .premium-flexbox {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-    flex-wrap: wrap;
-    text-align: left;
-  }
-
-  .premium-flexbox img {
-    max-width: 220px;
-    border-radius: 12px;
-    flex-shrink: 0;
-  }
-
-  .premium-flexbox h1 {
-    margin-top: 0;
-  }
-
-  /* MOBILE — narrow card + better spacing + hero side‑by‑side */
-  @media (max-width: 600px) {
-    .premium-wrapper {
-      margin: 60px 16px;
-      padding: 28px;
-    }
-
-    .premium-flexbox img {
-      max-width: 120px;
-    }
-
-    .premium-wrapper h1 {
-      font-size: 1.9rem;
-      text-align: left;
-    }
+    margin-top: 16px;
+    text-align: center;
   }
 
   .benefits {
@@ -110,7 +96,6 @@
     left: 0;
   }
 
-  /* Old upgrade buttons (kept but unused unless needed later) */
   .upgrade-options {
     display: flex;
     flex-direction: column;
@@ -143,9 +128,29 @@
     .upgrade-btn {
       min-width: 200px;
     }
+
+    .premium-header {
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .premium-header img {
+      max-width: 100px;
+      margin-right: 20px;
+    }
+
+    .premium-header h1 {
+      font-size: 2.5rem;
+      margin: 0;
+      text-align: left;
+    }
+
+    .premium-wrapper p {
+      text-align: center;
+    }
   }
 
-  /* Pricing cards */
   .pricing-cards {
     display: flex;
     flex-wrap: wrap;
@@ -162,6 +167,8 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     text-align: left;
     transition: transform 0.3s ease;
+    opacity: 0;
+    animation: fadeInUp 0.8s ease forwards;
   }
 
   .pricing-card h2 {
@@ -205,7 +212,6 @@
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
   }
 
-  /* Modal overlay */
   .auth-modal {
     position: fixed;
     top: 0;
@@ -311,6 +317,8 @@
   }
 </style>
 
+
+
   
 </head>
 <body>
@@ -366,13 +374,12 @@
   </div>
 </div>
 
-<div class="premium-wrapper">
-  <div class="premium-flexbox">
-    <img src="assets/georanks-premium.png" alt="GeoRanks Premium">
-
-    <div>
-      <h1>Unlock GeoRanks Premium 🔓</h1>
-      <p>Subscribe to get unlimted access to all Categories and Features:</p>
+<div class="premium-wrapper fade-in">
+  <div class="premium-header">
+    <img src="assets/georanks-premium.png" alt="Premium Badge" />
+    <h1>Unlock GeoRanks Premium 🔓</h1>
+  </div>
+  <p>Subscribe to get unlimited access to all Categories and Features:</p>
 
       <div class="pricing-cards">
   <div class="pricing-card">
