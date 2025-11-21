@@ -13,17 +13,19 @@
       padding: 0;
       background: linear-gradient(to bottom right, #a7f3d0, #38bdf8);
     }
-    .stats-container {
-      min-height: 80vh;
-      max-width: 800px;
-      margin: 120px auto 40px;
-      padding: 2rem;
-      background: rgba(255, 255, 255, 0.75);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-radius: 16px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-    }
+   .stats-container {
+  min-height: 80vh;
+  max-width: 800px;
+  margin: 120px auto 40px;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  box-sizing: border-box; /* Prevent overflow */
+  overflow-x: auto;        /* Scroll horizontally if needed */
+}
     .stats-card {
       margin-bottom: 2rem;
       text-align: center;
