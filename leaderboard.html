@@ -117,6 +117,28 @@
     .back-home:hover {
       opacity: 0.9;
     }
+
+    @keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  opacity: 0;
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+@media (max-width: 600px) {
+  .leaderboard-container {
+    margin: 100px 20px 40px;
+  }
+}
   </style>
 </head>
 <body>
@@ -149,7 +171,7 @@
 </div>
 
 <!-- ✅ Leaderboard Content -->
-<main class="leaderboard-container">
+<main class="leaderboard-container fade-in">
   <h1 class="leaderboard-title">🏆 Top Players</h1>
   <div class="custom-dropdown-wrapper">
     <div class="custom-dropdown" id="dropdown">

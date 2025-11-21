@@ -7,61 +7,80 @@
   <link rel="stylesheet" href="css/home.css" />
   <link rel="stylesheet" href="css/game-modes.css" />
 
-  <style>
-    .account-glass-card {
-      width: 100%;
-      max-width: 480px;
-      background: rgba(255, 255, 255, 0.75);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-radius: 16px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-      padding: 2rem;
-      text-align: center;
+  <<style>
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(40px);
     }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
-    .account-glass-card h2 {
-      margin-top: 0;
-      margin-bottom: 1rem;
-    }
+  .fade-in {
+    animation: fadeInUp 0.8s ease-out both;
+  }
 
-    .account-info p {
-        margin: 0.5rem 0;
-    }
+  .account-glass-card {
+    width: 90%;
+    max-width: 480px;
+    margin: 100px auto 60px;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    padding: 2rem;
+    text-align: center;
+    opacity: 0;
+    animation: fadeInUp 0.8s ease-out forwards;
+  }
 
-    .form-section {
-      margin-top: 1.8rem;
-      text-align: left;
-    }
+  .account-glass-card h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
 
-    .form-section input {
-      width: 100%;
-      margin-top: 0.6rem;
-      padding: 0.65rem 1rem;
-      font-size: 1rem;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-    }
+  .account-info p {
+    margin: 0.5rem 0;
+  }
 
-    .full-btn {
-      display: block;
-      width: 100%;
-      margin-top: 1rem;
-      padding: 0.8rem 1rem;
-    }
+  .form-section {
+    margin-top: 1.8rem;
+    text-align: left;
+  }
 
-    .logout-btn {
-      background: linear-gradient(90deg, #222222, #171717);
-      margin-top: 2rem; /* Added margin for spacing */
-    }
+  .form-section input {
+    width: 100%;
+    margin-top: 0.6rem;
+    padding: 0.65rem 1rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+  }
 
-    .message {
-        margin-top: 0.75rem;
-        font-size: 0.9rem;
-        font-weight: 500;
-    }
-  </style>
+  .full-btn {
+    display: block;
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.8rem 1rem;
+  }
+
+  .logout-btn {
+    background: linear-gradient(90deg, #222222, #171717);
+    margin-top: 2rem;
+  }
+
+  .message {
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+</style>
+
 </head>
 
 
@@ -98,7 +117,7 @@
 
 <!-- ✅ Page Content Wrapper -->
 <main class="blind-ranking-wrapper">
-  <div class="account-glass-card">
+  <div class="account-glass-card fade-in">
     <h2>Account Settings</h2>
 
     <div class="account-info">

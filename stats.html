@@ -100,6 +100,28 @@
     #closePremiumBtn {
       background-color: #e5e7eb;
     }
+
+    @keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  opacity: 0;
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+@media (max-width: 600px) {
+  .stats-container {
+    margin: 100px 20px 40px;
+  }
+}
   </style>
 </head>
 <body>
@@ -120,7 +142,7 @@
   </div>
 </div>
 
-<main class="stats-container" id="statsContainer" style="display: none;">
+<main class="stats-container fade-in" id="statsContainer" style="display: none;">
   <div class="stats-card">
     <h2>Your Stats</h2>
     <p id="userEmail">Loading…</p>
