@@ -378,7 +378,7 @@ html {
   color: white;
   border: none;
   border-radius: 10px;
-  margin: 10px 0;
+  margin: 1px 0;
   cursor: pointer;
   text-align: center;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -392,7 +392,7 @@ html {
 
 .menu-close {
   background: #e5e5e5;
-  color: #075e54;
+  color: #0d315a;
 }
 
 /* Frosted Glass Fixed Header */
