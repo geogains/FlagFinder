@@ -7,6 +7,10 @@
   <link rel="stylesheet" href="css/home.css"/>
   <link rel="stylesheet" href="css/game-modes.css"/>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+body {
+  font-family: 'Poppins', sans-serif;
+}
   html, body {
     min-height: 100vh;
     margin: 0;
@@ -114,6 +118,7 @@
     <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
     <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
      <button class="menu-btn">💡 How to Play</button>
+     <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'">🔓 Unlock All Categories</button>
     <button class="menu-btn menu-close" id="closeMenu">Close</button>
   </div>
 </div>
@@ -129,8 +134,8 @@
     <thead>
       <tr>
         <th>Category</th>
-        <th>Your Score</th>
         <th>Your Rank</th>
+        <th>Your Score</th>
         <th>Progress</th>
       </tr>
     </thead>
@@ -142,13 +147,11 @@
 
 <!-- Premium Upgrade Modal -->
 <div id="premiumModal" class="premium-modal hidden">
-  <div class="modal-content">
-    <h2>Premium Feature 🔒</h2>
-    <p>This feature is for premium members only. Upgrade to access your stats and more.</p>
-    <div class="modal-buttons">
-      <button id="goPremiumBtn">Upgrade to Premium</button>
-      <button id="closePremiumBtn">Return to Home</button>
-    </div>
+  <div class="premium-window">
+    <h2>Premium Feature <span class="lock">🔒</span></h2>
+    <p>This feature is only available with <strong>GeoRanks Premium</strong> Upgrade to unlock stats and mmore.</p>
+    <button id="goPremiumBtn" class="premium-btn upgrade">Upgrade to Premium</button>
+    <button id="closePremiumBtn" class="premium-btn cancel">Return Home</button>
   </div>
 </div>
 
@@ -218,8 +221,8 @@
       const row = document.createElement('tr');
       row.innerHTML = `
         <td>${categoryName}</td>
-        <td>${score}</td>
         <td>#${rank}</td>
+        <td>${score}</td>
         <td>
           <div class="progress-bar-container">
             <div class="progress-bar-fill" style="width: ${progressPercent}%"></div>
