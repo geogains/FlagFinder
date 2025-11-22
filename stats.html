@@ -26,6 +26,35 @@
   box-sizing: border-box; /* Prevent overflow */
   overflow-x: auto;        /* Scroll horizontally if needed */
 }
+
+.stats-wrapper,
+.account-wrapper {
+  max-width: 720px;
+  margin: 100px auto 60px;
+  padding: 30px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+  animation: fadeInUp 0.8s ease-out;
+  overflow: hidden;
+}
+
+.stat-bar {
+  width: 100%;
+  background: #eee;
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 8px 0;
+}
+
+.stat-bar-fill {
+  height: 14px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #ff9770, #ff6f61);
+  transition: width 0.4s ease-in-out;
+  max-width: 100%;
+}
+
     .stats-card {
       margin-bottom: 2rem;
       text-align: center;
