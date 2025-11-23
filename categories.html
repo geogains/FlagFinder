@@ -70,10 +70,11 @@
     <div class="menu-panel">
       <h2>Menu</h2>
       <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
-      <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'">🔓 Unlock All Categories</button>
+      <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
       <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
       <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
       <button class="menu-btn">💡 How to Play</button>
+      <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'">🔓 Unlock All Categories</button>
       <button class="menu-btn menu-close" id="closeMenu">Close</button>
     </div>
   </div>
@@ -441,6 +442,20 @@ closeBtn?.addEventListener("click", () => overlay.classList.remove("active"));
 overlay.addEventListener("click", (e) => {
   if (e.target === overlay) overlay.classList.remove("active");
 });
+</script>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+  const supabase = createClient('https://ajwxgdaninuzcpfwawug.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI');
+
+  const { data: { session } } = await supabase.auth.getSession();
+  const accountBtn = document.querySelector(".menu-btn-account");
+
+  if (!session || !session.user) {
+    accountBtn.style.display = "none";
+  } else {
+    accountBtn.style.display = "block";
+  }
 </script>
 
 <script type="module">

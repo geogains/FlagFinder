@@ -218,109 +218,88 @@
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
   }
 
+  @keyframes popIn {
+    from { transform: scale(0.92); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+
   .auth-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    backdrop-filter: blur(5px);
-  }
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+}
 
-  .auth-modal.hidden {
-    display: none;
-  }
+.auth-modal.hidden {
+  display: none;
+}
 
-  .modal-window {
-    background: white;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    max-width: 400px;
-    width: 90%;
-    text-align: center;
-    position: relative;
-  }
+.modal-window {
+  background: #ffffff; /* solid white */
+  color: #000000; /* black text */
+  font-family: 'Poppins', sans-serif;
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  width: 90%;
+  max-width: 420px;
+  text-align: center;
+  animation: fadeIn 0.25s ease;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
 
-  .modal-window h2 {
-    margin-top: 0;
-    color: #2d3436;
-    font-size: 1.5rem;
-  }
+.modal-window h2 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #000;
+}
 
-  .modal-window p {
-    margin-bottom: 20px;
-    color: #444;
-  }
+.modal-window p {
+  font-size: 1rem;
+  margin-bottom: 20px;
+  color: #333;
+}
 
-  .close-auth-modal {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #aaa;
-  }
+.close-auth-modal {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #333;
+  cursor: pointer;
+}
 
-  .btn-auth {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    background: linear-gradient(135deg, #ff9770, #ff6f61);
-    color: white;
-    transition: opacity 0.3s;
-  }
+.btn-auth {
+  background: linear-gradient(135deg, #ff9770, #ff6f61);
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  width: 100%;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
 
-  .btn-auth:hover {
-    opacity: 0.9;
-  }
+.btn-auth:hover {
+  opacity: 0.9;
+}
 
-  .toggle-view {
-    margin-top: 15px;
-    font-size: 0.9rem;
-    color: #666;
-  }
-
-  #toggleAuthLink {
-    color: #0d315a;
-    cursor: pointer;
-    font-weight: bold;
-  }
-
-  .modal-window input[type="email"],
-  .modal-window input[type="password"],
-  .modal-window input[type="text"] {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    box-sizing: border-box;
-  }
-
-  .modal-window input:focus {
-    border-color: #ff6f61;
-    outline: none;
-  }
-
-  .modal-window a {
-    color: #0d315a;
-  }
-
-  .modal-window a:hover {
-    text-decoration: none;
-  }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 </style>
 
 
@@ -329,25 +308,13 @@
 </head>
 <body>
 
-<!-- ========== AUTH MODAL ========== -->
-<div class="auth-modal hidden" id="authModal">
+<!-- ========== ACCOUNT REQUIRED MODAL ========== -->
+<div class="auth-modal hidden" id="accountRequiredModal">
   <div class="modal-window">
-    <button class="close-auth-modal" id="closeAuthModal">×</button>
-    <h2 id="authModalTitle">Sign In</h2>
-
-    <input type="text" id="authUsername" placeholder="Username" style="display:none;" />
-    <input type="email" id="authEmail" placeholder="Email address" />
-    <input type="password" id="authPassword" placeholder="Password" />
-
-    <div id="forgotPasswordLink" style="margin-top: 0.75rem; text-align: center;">
-      <a href="#" style="font-size: 0.9rem; text-decoration: underline; color: #0d315a;">Forgot Password?</a>
-    </div>
-
-    <button class="btn-auth" id="authSubmit">Continue</button>
-
-    <div class="toggle-view" id="toggleAuthView">
-      Don't have an account? <span id="toggleAuthLink">Sign Up</span>
-    </div>
+    <button class="close-auth-modal" id="closeAccountRequired">×</button>
+    <h2>Create an Account</h2>
+    <p>You must sign in or create an account before upgrading to Premium.</p>
+    <button class="btn-auth" id="goToLoginPage">Continue</button>
   </div>
 </div>
 
@@ -371,8 +338,9 @@
 <div class="menu-overlay" id="menuOverlay">
   <div class="menu-panel">
     <h2>Menu</h2>
+    <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
     <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
-    <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'">🔓 Unlock All Categories</button>
+    <button class="menu-btn" onclick="window.location.href='categories.html'">🎮 Categoties</button>
     <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
     <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
     <button class="menu-btn">💡 How to Play</button>
@@ -582,16 +550,6 @@ overlay.addEventListener("click", (e) => {
     }
   }
 </script>
-
-<!-- ========== ACCOUNT REQUIRED MODAL ========== -->
-<div class="auth-modal hidden" id="accountRequiredModal">
-  <div class="modal-window">
-    <button class="close-auth-modal" id="closeAccountRequired">×</button>
-    <h2>Create an Account</h2>
-    <p>You must sign in or create an account before upgrading to Premium.</p>
-    <button class="btn-auth" id="goToLoginPage">Continue</button>
-  </div>
-</div>
 
 <script>
   // Safely trigger checkout only when called
