@@ -116,12 +116,17 @@ export function startBlindRankingGame() {
   res.style.display = "none";
   scrollToTop();
 
-  document.querySelectorAll(".rank-slot").forEach((slot) => {
+  // ✅ Clean up previous slots and row styling
+  document.querySelectorAll(".ranking-row").forEach((row) => {
+    const slot = row.querySelector(".rank-slot");
     slot.innerHTML = "";
     slot.classList.add("empty-slot");
     slot.classList.remove("stomp", "correct-slot");
+
+    row.style.background = ""; // remove green highlight
   });
 
+  // ✅ Reset rank buttons
   document.querySelectorAll(".rank-number").forEach((btn) => {
     btn.classList.remove("used-rank");
     btn.style.cursor = "pointer";
