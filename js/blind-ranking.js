@@ -116,38 +116,30 @@ export function startBlindRankingGame() {
   res.style.display = "none";
   scrollToTop();
 
-  const gameBoard = document.querySelector(".ranking-board");
-  gameBoard.classList.remove("fade-in");
-  gameBoard.classList.add("fade-out");
+  // ✅ Clean up previous slots and row styling
+  document.querySelectorAll(".ranking-row").forEach((row) => {
+    const slot = row.querySelector(".rank-slot");
+    slot.innerHTML = "";
+    slot.classList.add("empty-slot");
+    slot.classList.remove("stomp", "correct-slot");
 
-  setTimeout(() => {
-    // ✅ Clean up previous slots and row styling
-    document.querySelectorAll(".ranking-row").forEach((row) => {
-      const slot = row.querySelector(".rank-slot");
-      slot.innerHTML = "";
-      slot.classList.add("empty-slot");
-      slot.classList.remove("stomp", "correct-slot");
-      row.style.background = ""; // remove green highlight
-    });
+    row.style.background = ""; // remove green highlight
+  });
 
-    // ✅ Reset rank buttons
-    document.querySelectorAll(".rank-number").forEach((btn) => {
-      btn.classList.remove("used-rank");
-      btn.style.cursor = "pointer";
-    });
+  // ✅ Reset rank buttons
+  document.querySelectorAll(".rank-number").forEach((btn) => {
+    btn.classList.remove("used-rank");
+    btn.style.cursor = "pointer";
+  });
 
-    renderCountryPool();
+  renderCountryPool();
 
-    selectedCountry = selectedCountries[0];
-    const firstFlagItem = document.querySelector(
-      `.country-flag-item[data-code="${selectedCountry.code}"]`
-    );
-    if (firstFlagItem) firstFlagItem.classList.add("active");
-    updateFlagPreview(selectedCountry);
-
-    gameBoard.classList.remove("fade-out");
-    gameBoard.classList.add("fade-in");
-  }, 400);
+  selectedCountry = selectedCountries[0];
+  const firstFlagItem = document.querySelector(
+    `.country-flag-item[data-code="${selectedCountry.code}"]`
+  );
+  if (firstFlagItem) firstFlagItem.classList.add("active");
+  updateFlagPreview(selectedCountry);
 }
 
 function renderCountryPool() {
@@ -181,7 +173,6 @@ function updateFlagPreview(country) {
   flagBox.innerHTML = `<img src="flags/${country.code}.png" alt="${country.name}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;" />`;
   countryNameElem.textContent = country.name.toUpperCase();
 }
-
 
 // 🏅 Handle rank clicks (tie-range aware)
 function handleRankClick(event) {
