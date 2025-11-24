@@ -47,6 +47,17 @@
   </div>
 </div>
 
+<script>
+document.getElementById("closePremiumBtn").onclick = () => {
+  const modal = document.getElementById("premiumModal");
+  if (modal) modal.classList.add("hidden");
+};
+
+document.getElementById("goPremiumBtn").onclick = () => {
+  window.location.href = "premium.html";
+};
+</script>
+
 
 <!-- ========== HEADER ========== -->
 <header class="home-glass-header">
@@ -101,8 +112,8 @@
   <!-- CATEGORIES -->
   <section class="categories-section">
     <h2 class="fade-in">Top Categories 👇</h2>
-
-    <div class="categories-grid" id="categoriesGrid" style="pointer-events: none;">
+   
+    <div class="categories-grid" id="categoriesGrid" style="pointer-events: none;"> 
 
       <!-- FREE CATEGORIES -->
       <a href="game.html?mode=population" class="category-card"
@@ -198,7 +209,6 @@
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   window.supabaseClient = supabase;
 
-  // --- AUTH MODAL LOGIC ---
   const signInText = document.getElementById("signInText");
   const submitBtn = document.getElementById("authSubmit");
   const authTitle = document.getElementById("authModalTitle");
@@ -206,34 +216,35 @@
   const passwordInput = document.getElementById("authPassword");
   const usernameInput = document.getElementById("authUsername");
   const toggleAuthView = document.getElementById("toggleAuthView");
-  const closeModalBtn = document.getElementById("closeAuthModal");
-  const forgotPasswordLink = document.getElementById("forgotPasswordLink");
-  const authModal = document.getElementById("authModal");
 
   let isSignIn = true;
 
-  function updateAuthModalUI() {
-    if (isSignIn) {
-      authTitle.textContent = "Sign In";
-      submitBtn.textContent = "Continue";
-      passwordInput.placeholder = "Password";
-      usernameInput.style.display = "none";
-      forgotPasswordLink.style.display = "block";
-      toggleAuthView.innerHTML =
-        'Don’t have an account? <span id="toggleAuthLink">Sign Up</span>';
-    } else {
-      authTitle.textContent = "Sign Up";
-      submitBtn.textContent = "Register";
-      passwordInput.placeholder = "Create a password";
-      usernameInput.style.display = "block";
-      forgotPasswordLink.style.display = "none";
-      toggleAuthView.innerHTML =
-        'Already have an account? <span id="toggleAuthLink">Sign In</span>';
-    }
-    // Rebind the click listener after changing innerHTML
-    document.getElementById("toggleAuthLink")?.addEventListener("click", () => {
+  function rebindToggleAuthLink() {
+    const newToggle = document.getElementById("toggleAuthLink");
+    const forgotLink = document.getElementById("forgotPasswordLink");
+
+    newToggle.addEventListener("click", () => {
       isSignIn = !isSignIn;
-      updateAuthModalUI();
+
+      if (isSignIn) {
+        authTitle.textContent = "Sign In";
+        submitBtn.textContent = "Continue";
+        passwordInput.placeholder = "Password";
+        usernameInput.style.display = "none";
+        forgotLink.style.display = "block";
+        toggleAuthView.innerHTML =
+          'Don’t have an account? <span id="toggleAuthLink">Sign Up</span>';
+      } else {
+        authTitle.textContent = "Sign Up";
+        submitBtn.textContent = "Register";
+        passwordInput.placeholder = "Create a password";
+        usernameInput.style.display = "block";
+        forgotLink.style.display = "none";
+        toggleAuthView.innerHTML =
+          'Already have an account? <span id="toggleAuthLink">Sign In</span>';
+      }
+
+      rebindToggleAuthLink();
     });
   }
 
@@ -253,7 +264,8 @@
       });
       if (error) return alert("❌ " + error.message);
       window.location.reload();
-    } else {
+    } 
+      else {
       const { data: existing, error: checkError } = await supabase
         .from("users")
         .select("id")
@@ -274,206 +286,278 @@
       alert("✅ Please check your email to confirm your account.");
     }
 
-    authModal?.classList.add("hidden");
+    document.getElementById("authModal")?.classList.add("hidden");
   }
 
-  if (submitBtn) {
-    submitBtn.addEventListener("click", handleAuth);
-    updateAuthModalUI(); // Initial setup
-  }
+  submitBtn.addEventListener("click", handleAuth);
+  rebindToggleAuthLink();
 
-  closeModalBtn?.addEventListener("click", () => authModal?.classList.add("hidden"));
-
-  forgotPasswordLink?.addEventListener("click", async (e) => {
-    e.preventDefault();
-    const email = emailInput.value.trim();
-
-    if (!email) {
-      return alert("Please enter your email to reset your password.");
-    }
-
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: "https://www.geo-ranks.com/reset-password.html",
-    });
-
-    if (error) {
-      alert("❌ " + error.message);
-    } else {
-      alert("✅ Password reset email sent! Please check your inbox.");
-      authModal?.classList.add("hidden");
-    }
-  });
-
-  // --- AUTH UI & MENU LOGIC ---
   const handleAuthUI = async (session) => {
-    const accountBtns = document.querySelectorAll('.menu-btn-account');
-    const upgradeBtns = document.querySelectorAll('.upgrade-access-btn');
-
-    let isPremium = false;
-    let username = "Account";
-
     if (session?.user) {
-      const { data: profile } = await supabase
-        .from("users")
-        .select("username, is_premium")
-        .eq("id", session.user.id)
-        .single();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-      if (profile) {
-        isPremium = profile.is_premium === true;
-        username = profile.username || session.user.email || "Account";
-      }
+      if (user) {
+        const { data: profile, error } = await supabase
+          .from("users")
+          .select("username")
+          .eq("id", user.id)
+          .single();
 
-      // Set Sign In Text
-      if (signInText) {
-        signInText.textContent = username;
+        if (error) {
+          console.error("❌ Failed to load user profile:", error.message);
+          signInText.textContent = user.email || "Account";
+        } else {
+          signInText.textContent = profile.username;
+        }
+
         signInText.style.cursor = "pointer";
         signInText.onclick = () => (window.location.href = "account.html");
       }
-
-      // Show Account button in menu
-      accountBtns.forEach(btn => btn.style.display = "block");
-
-      // Hide Upgrade buttons for premium users
-      if (isPremium) {
-        upgradeBtns.forEach(btn => btn.remove());
-        // Special case for index.html footer
-        const footerButtons = document.querySelector(".footer-buttons");
-        if (footerButtons) {
-          footerButtons.style.justifyContent = "center";
-        }
-      }
     } else {
-      // User is NOT signed in
-      if (signInText) {
-        signInText.textContent = "Sign In";
-        signInText.style.cursor = "pointer";
-        signInText.onclick = () => authModal?.classList.remove("hidden");
-      }
-      // Hide Account button in menu
-      accountBtns.forEach(btn => btn.remove());
+      signInText.textContent = "Sign In";
+      signInText.style.cursor = "pointer";
+      signInText.onclick = () =>
+        document.getElementById("authModal")?.classList.remove("hidden");
     }
-    return isPremium;
   };
 
-  // --- HAMBURGER MENU LOGIC ---
-  const toggleBtn = document.getElementById("menuToggle");
-  const overlay = document.getElementById("menuOverlay");
-  const closeMenuBtn = document.getElementById("closeMenu");
-
-  toggleBtn?.addEventListener("click", () => overlay.classList.add("active"));
-  closeMenuBtn?.addEventListener("click", () => overlay.classList.remove("active"));
-
-  overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) overlay.classList.remove("active");
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    handleAuthUI(session);
   });
 
-  // --- DAILY CHALLENGE LOGIC ---
-  function setupDailyChallenge() {
-    const categories = [
-      { title: "Population 👥", emoji: "👥", mode: "population" },
-      { title: "GDP 💵", emoji: "💵", mode: "gdp" },
-      { title: "Happiness ☺️", emoji: "☺️", mode: "happiness" },
-      { title: "Forest Cover 🌲", emoji: "🌲", mode: "forest" },
-      { title: "Longest Coastline 🌊", emoji: "🌊", mode: "coastline" },
-      { title: "Cuisine 🍽️", emoji: "🍽️", mode: "cuisine" },
-      { title: "Olympic Medals 🥇", emoji: "🥇", mode: "olympic" },
-      { title: "World Cup ⚽️", emoji: "⚽️", mode: "worldcup" },
-      { title: "Land Mass 🌍", emoji: "🌍", mode: "landmass" },
-      { title: "Altitude 🏔️", emoji: "🏔️", mode: "altitude" },
-      { title: "Passport 🛂", emoji: "🛂", mode: "passport" },
-      { title: "Beer Consumption 🍺", emoji: "🍺", mode: "beer" },
-      { title: "Nobel Prize 🕊️", emoji: "🕊️", mode: "nobelprize" },
-      { title: "Rainfall 🌧️", emoji: "🌧️", mode: "precipitation" },
-    ];
+  supabase.auth.onAuthStateChange((event, session) => {
+    handleAuthUI(session);
+    if (event === "SIGNED_OUT") {
+      window.location.href = "index.html";
+    }
+  });
 
-    const now = new Date();
-    const startOfEpoch = new Date(Date.UTC(2025, 0, 1));
-    const daysSinceEpoch = Math.floor((now - startOfEpoch) / 86400000);
-    const categoryIndex = daysSinceEpoch % categories.length;
-    const todayCategory = categories[categoryIndex];
+  const closeModalBtn = document.getElementById("closeAuthModal");
+  closeModalBtn?.addEventListener("click", () =>
+    document.getElementById("authModal")?.classList.add("hidden")
+  );
 
-    const dailyCard = document.querySelector(".daily-challenge-card");
-    if (dailyCard) {
-      dailyCard.querySelector("h3").textContent = `Rank by ${todayCategory.title}`;
-      const playButton = dailyCard.querySelector("a");
-      playButton.href = `game.html?mode=${todayCategory.mode}`;
+  document
+    .getElementById("forgotPasswordLink")
+    ?.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const email = emailInput.value.trim();
 
-      const bgMap = {
-        population: "population.jpg", gdp: "gdp.jpg", happiness: "happiness.jpg", forest: "forest.jpg", coastline: "coastline.jpg",
-        cuisine: "cuisine.jpg", olympic: "olympic.jpg", worldcup: "worldcup.jpg", landmass: "landmass.jpg", altitude: "altitude.jpg",
-        passport: "passport.jpg", beer: "beer.jpg", nobelprize: "nobelprize.jpg", precipitation: "rainfall.jpg",
-      };
-
-      const img = bgMap[todayCategory.mode];
-      if (img) {
-        dailyCard.style.backgroundImage = `url('images/categories/${img}')`;
-        dailyCard.classList.add("has-photo");
+      if (!email) {
+        return alert("Please enter your email to reset your password.");
       }
-    }
-  }
 
-  // --- LOCKED CATEGORY LOGIC ---
-  async function setupLockedCategories(isPremium) {
-    const premiumCards = document.querySelectorAll("[data-premium='true']");
-
-    if (!isPremium) {
-      premiumCards.forEach(card => {
-        card.classList.add("locked");
-
-        // Add golden lock
-        let lock = document.createElement("div");
-        lock.className = "lock-icon";
-        lock.textContent = "🔒";
-        card.appendChild(lock);
-
-        // On click: open upgrade modal
-        card.addEventListener("click", (e) => {
-          e.preventDefault();
-          document.getElementById("premiumModal")?.classList.remove("hidden");
-        });
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: "https://www.geo-ranks.com/reset-password.html",
       });
-    }
 
-    // Handle footer buttons
-    document.getElementById("viewCategoriesBtn")?.addEventListener('click', () => window.location.href = "categories.html");
-    document.getElementById("unlockCategoriesBtn")?.addEventListener('click', () => window.location.href = "premium.html");
-
-    // Enable category grid after premium check is complete
-    const categoriesGrid = document.getElementById('categoriesGrid');
-    if (categoriesGrid) {
-      categoriesGrid.style.pointerEvents = 'auto';
-      categoriesGrid.style.opacity = '1';
-    }
-  }
-
-  // --- PREMIUM MODAL BUTTONS ---
-  document.getElementById("closePremiumBtn")?.addEventListener('click', () => {
-    document.getElementById("premiumModal")?.classList.add("hidden");
-  });
-
-  document.getElementById("goPremiumBtn")?.addEventListener('click', () => {
-    window.location.href = "premium.html";
-  });
-
-  // --- INITIALIZATION ---
-  document.addEventListener("DOMContentLoaded", async () => {
-    setupDailyChallenge();
-
-    // Handle initial session check and state change listener
-    const { data: { session } } = await supabase.auth.getSession();
-    const isPremium = await handleAuthUI(session);
-    setupLockedCategories(isPremium);
-
-    supabase.auth.onAuthStateChange(async (event, session) => {
-      const isPremium = await handleAuthUI(session);
-      setupLockedCategories(isPremium);
-      if (event === "SIGNED_OUT" && window.location.pathname.includes("account.html")) {
-        window.location.href = "index.html";
+      if (error) {
+        alert("❌ " + error.message);
+      } else {
+        alert("✅ Password reset email sent! Please check your inbox.");
+        document.getElementById("authModal")?.classList.add("hidden");
       }
     });
-  });
 </script>
+
+<!-- DAILY CHALLENGE SCRIPT -->
+<script>
+  const categories = [
+    { title: "Population 👥", emoji: "👥", mode: "population" },
+    { title: "GDP 💵", emoji: "💵", mode: "gdp" },
+    { title: "Happiness ☺️", emoji: "☺️", mode: "happiness" },
+    { title: "Forest Cover 🌲", emoji: "🌲", mode: "forest" },
+    { title: "Longest Coastline 🌊", emoji: "🌊", mode: "coastline" },
+    { title: "Cuisine 🍽️", emoji: "🍽️", mode: "cuisine" },
+    { title: "Olympic Medals 🥇", emoji: "🥇", mode: "olympic" },
+    { title: "World Cup ⚽️", emoji: "⚽️", mode: "worldcup" },
+    { title: "Land Mass 🌍", emoji: "🌍", mode: "landmass" },
+    { title: "Altitude 🏔️", emoji: "🏔️", mode: "altitude" },
+    { title: "Passport 🛂", emoji: "🛂", mode: "passport" },
+    { title: "Beer Consumption 🍺", emoji: "🍺", mode: "beer" },
+    { title: "Nobel Prize 🕊️", emoji: "🕊️", mode: "nobelprize" },
+    { title: "Rainfall 🌧️", emoji: "🌧️", mode: "precipitation" },
+  ];
+
+  const now = new Date();
+  const startOfEpoch = new Date(Date.UTC(2025, 0, 1));
+  const daysSinceEpoch = Math.floor((now - startOfEpoch) / 86400000);
+  const categoryIndex = daysSinceEpoch % categories.length;
+  const todayCategory = categories[categoryIndex];
+
+  const dailyCard = document.querySelector(".daily-challenge-card");
+  if (dailyCard) {
+    dailyCard.querySelector("h3").textContent = `Rank by ${todayCategory.title}`;
+    const playButton = dailyCard.querySelector("a");
+    playButton.href = `game.html?mode=${todayCategory.mode}`;
+
+    const bgMap = {
+      population: "population.jpg",
+      gdp: "gdp.jpg",
+      happiness: "happiness.jpg",
+      forest: "forest.jpg",
+      coastline: "coastline.jpg",
+      cuisine: "cuisine.jpg",
+      olympic: "olympic.jpg",
+      worldcup: "worldcup.jpg",
+      landmass: "landmass.jpg",
+      altitude: "altitude.jpg",
+      passport: "passport.jpg",
+      beer: "beer.jpg",
+      nobelprize: "nobelprize.jpg",
+      temperature: "hightemp.jpg",
+      precipitation: "rainfall.jpg",
+    };
+
+    const img = bgMap[todayCategory.mode];
+    if (img) {
+      dailyCard.style.backgroundImage = `url('images/categories/${img}')`;
+      dailyCard.classList.add("has-photo");
+    }
+  }
+</script>
+
+<!-- LOCKED CATEGORY LOGIC -->
+<script type="module">
+  // @ts-ignore
+  const supabase = window.supabaseClient;
+
+  const { data: { session } } = await supabase.auth.getSession();
+
+  let isPremium = false;
+
+  if (session) {
+    const { data: profile } = await supabase
+      .from("users")
+      .select("is_premium")
+      .eq("id", session.user.id)
+      .single();
+    isPremium = profile?.is_premium === true;
+  }
+
+  const premiumCards = document.querySelectorAll("[data-premium='true']");
+
+  if (!isPremium) {
+    premiumCards.forEach(card => {
+      card.classList.add("locked");
+
+      // Add golden lock
+      let lock = document.createElement("div");
+      lock.className = "lock-icon";
+      lock.textContent = "🔒";
+      card.appendChild(lock);
+
+      // On click: login check → open upgrade modal
+      card.addEventListener("click", async (e) => {
+        e.preventDefault();
+
+        const { data: { session: innerSession } } = await supabase.auth.getSession();
+
+        if (!innerSession) {
+          // NOT signed in → still show upgrade modal
+          const modal = document.getElementById("premiumModal");
+          if (modal) {
+            modal.classList.remove("hidden");
+            modal.scrollIntoView({ behavior: "smooth", block: "center" });
+          } else {
+            window.location.href = "premium.html";
+          }
+          return;
+        }
+
+        // Signed in but NOT premium
+        const modal = document.getElementById("premiumModal");
+        if (modal) {
+          modal.classList.remove("hidden");
+          modal.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else {
+          window.location.href = "premium.html";
+        }
+      });
+    });
+  }
+
+  // Handle footer buttons
+  const viewBtn = document.getElementById("viewCategoriesBtn");
+  const unlockBtn = document.getElementById("unlockCategoriesBtn");
+
+  viewBtn.onclick = () => window.location.href = "categories.html";
+  unlockBtn.onclick = () => window.location.href = "premium.html";
+
+  // Hide unlock button for premium users
+  if (isPremium) {
+    unlockBtn?.remove();
+    document.querySelector(".footer-buttons").style.justifyContent = "center";
+  }
+  
+  // Enable category grid after premium check is complete
+  const categoriesGrid = document.getElementById('categoriesGrid');
+  if (categoriesGrid) {
+    categoriesGrid.style.pointerEvents = 'auto';
+    categoriesGrid.style.opacity = '1';
+  }
+</script>
+
+
+<!-- PREMIUM MODAL BUTTONS -->
+<script>
+  document.getElementById("closePremiumBtn").onclick = () => {
+    const modal = document.getElementById("premiumModal");
+    if (modal) modal.classList.add("hidden");
+  };
+
+  document.getElementById("goPremiumBtn").onclick = () => {
+    window.location.href = "premium.html";
+  };
+</script>
+
+
+<!-- Hamburger Menu Logic -->
+<script>
+const toggleBtn = document.getElementById("menuToggle");
+const overlay = document.getElementById("menuOverlay");
+const closeBtn = document.getElementById("closeMenu");
+
+toggleBtn?.addEventListener("click", () => overlay.classList.add("active"));
+closeBtn?.addEventListener("click", () => overlay.classList.remove("active"));
+
+overlay.addEventListener("click", (e) => {
+  if (e.target === overlay) overlay.classList.remove("active");
+});
+</script>
+
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+  const supabase = createClient(
+    'https://ajwxgdaninuzcpfwawug.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
+  );
+
+  const { data: { session } } = await supabase.auth.getSession();
+
+  // Hide Account if user not logged in
+  if (!session || !session.user) {
+    document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+  }
+
+  // Hide Unlock All Categories if user is premium
+  if (session && session.user) {
+    const { data: profile } = await supabase
+      .from('users')
+      .select('is_premium')
+      .eq('id', session.user.id)
+      .single();
+
+    if (profile?.is_premium) {
+      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+    }
+  }
+</script>
+
 
 </body>
 </html>

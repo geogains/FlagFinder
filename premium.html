@@ -301,6 +301,9 @@
   to { opacity: 1; transform: translateY(0); }
 }
 </style>
+
+
+
   
 </head>
 <body>
@@ -385,8 +388,6 @@
 <!-- ========== SCRIPTS ========== -->
 <!-- ============================= -->
 
-<script src="https://js.stripe.com/v3/"></script>
-
 <script type="module">
   import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
@@ -397,75 +398,169 @@
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   window.supabaseClient = supabase;
 
-  // --- MENU & AUTH UI LOGIC ---
-  const handleAuthUI = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    const accountBtn = document.querySelector(".menu-btn-account");
-    const upgradeBtns = document.querySelectorAll('.upgrade-access-btn');
+  const submitBtn = document.getElementById("authSubmit");
+  const authTitle = document.getElementById("authModalTitle");
+  const emailInput = document.getElementById("authEmail");
+  const passwordInput = document.getElementById("authPassword");
+  const usernameInput = document.getElementById("authUsername");
+  const toggleAuthView = document.getElementById("toggleAuthView");
 
-    if (!session || !session.user) {
-      accountBtn?.remove();
-    } else {
-      // Hide upgrade button for premium users
-      const { data: profile } = await supabase
-        .from('users')
-        .select('is_premium')
-        .eq('id', session.user.id)
-        .single();
+  let isSignIn = true;
 
-      if (profile?.is_premium) {
-        upgradeBtns.forEach(btn => btn.remove());
+  function rebindToggleAuthLink() {
+    const newToggle = document.getElementById("toggleAuthLink");
+    const forgotLink = document.getElementById("forgotPasswordLink");
+
+    newToggle.addEventListener("click", () => {
+      isSignIn = !isSignIn;
+
+      if (isSignIn) {
+        authTitle.textContent = "Sign In";
+        submitBtn.textContent = "Continue";
+        passwordInput.placeholder = "Password";
+        usernameInput.style.display = "none";
+        forgotLink.style.display = "block";
+        toggleAuthView.innerHTML =
+          "Don't have an account? <span id='toggleAuthLink'>Sign Up</span>";
+      } else {
+        authTitle.textContent = "Sign Up";
+        submitBtn.textContent = "Register";
+        passwordInput.placeholder = "Create a password";
+        usernameInput.style.display = "block";
+        forgotLink.style.display = "none";
+        toggleAuthView.innerHTML =
+          "Already have an account? <span id='toggleAuthLink'>Sign In</span>";
       }
-    }
-  };
 
-  const setupMenuToggle = () => {
-    const toggleBtn = document.getElementById("menuToggle");
-    const overlay = document.getElementById("menuOverlay");
-    const closeBtn = document.getElementById("closeMenu");
-
-    toggleBtn?.addEventListener("click", () => overlay.classList.add("active"));
-    closeBtn?.addEventListener("click", () => overlay.classList.remove("active"));
-
-    overlay?.addEventListener("click", (e) => {
-      if (e.target === overlay) overlay.classList.remove("active");
+      rebindToggleAuthLink();
     });
-  };
+  }
 
-  // --- CHECKOUT LOGIC ---
-  const stripe = Stripe('pk_live_51Pf35JRxzGQTROMk2gQkLqj9O8yT7P6V3e42ToYgT1m5e3t3aK0a1a3e42ToYgT1m5e3t3aK0a1a3e42ToYgT1m5e3t3aK0a1');
+  async function handleAuth() {
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+    const username = usernameInput.value.trim();
 
-  async function startStripeCheckout(plan) {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      console.error("User not logged in for checkout");
+    if (!email || !password || (!isSignIn && !username)) {
+      return alert("Please fill in all fields");
+    }
+
+    if (isSignIn) {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) return alert("❌ " + error.message);
+      window.location.reload();
+    } 
+      else {
+      const { data: existing, error: checkError } = await supabase
+        .from("users")
+        .select("id")
+        .eq("username", username)
+        .maybeSingle();
+
+      if (checkError) return alert("❌ " + checkError.message);
+      if (existing) return alert("❌ Username already taken");
+
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { username } },
+      });
+
+      if (error) return alert("❌ " + error.message);
+
+      alert("✅ Please check your email to confirm your account.");
+    }
+
+    document.getElementById("authModal")?.classList.add("hidden");
+  }
+
+  submitBtn.addEventListener("click", handleAuth);
+  rebindToggleAuthLink();
+
+  const closeModalBtn = document.getElementById("closeAuthModal");
+  closeModalBtn?.addEventListener("click", () =>
+    document.getElementById("authModal")?.classList.add("hidden")
+  );
+
+  document
+    .getElementById("forgotPasswordLink")
+    ?.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const email = emailInput.value.trim();
+
+      if (!email) {
+        return alert("Please enter your email to reset your password.");
+      }
+
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: "https://www.geo-ranks.com/reset-password.html",
+      });
+
+      if (error) {
+        alert("❌ " + error.message);
+      } else {
+        alert("✅ Password reset email sent! Please check your inbox.");
+        document.getElementById("authModal")?.classList.add("hidden");
+      }
+    });
+</script>
+
+<!-- Hamburger Menu Logic -->
+<script>
+const toggleBtn = document.getElementById("menuToggle");
+const overlay = document.getElementById("menuOverlay");
+const closeBtn = document.getElementById("closeMenu");
+
+toggleBtn?.addEventListener("click", () => overlay.classList.add("active"));
+closeBtn?.addEventListener("click", () => overlay.classList.remove("active"));
+
+overlay.addEventListener("click", (e) => {
+  if (e.target === overlay) overlay.classList.remove("active");
+});
+</script>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+  const supabase = createClient(
+    'https://ajwxgdaninuzcpfwawug.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
+  );
+
+  const { data: { session } } = await supabase.auth.getSession();
+
+  // Hide Account if user not logged in
+  if (!session || !session.user) {
+    document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+  }
+
+  // Hide Unlock All Categories if user is premium
+  if (session && session.user) {
+    const { data: profile } = await supabase
+      .from('users')
+      .select('is_premium')
+      .eq('id', session.user.id)
+      .single();
+
+    if (profile?.is_premium) {
+      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+    }
+  }
+</script>
+
+<script>
+  // Safely trigger checkout only when called
+  async function startCheckout(plan) {
+    // Ensure client is available
+    const supabase = window.supabaseClient;
+    if (!supabase) {
+      console.error("Supabase client not found");
       return;
     }
 
-    const priceId = plan === 'monthly' ? 'price_1Pf3BQRxzGQTROMkHwGjiyN1' : 'price_1Pf3BQRxzGQTROMkHwGjiyN1';
-
-    try {
-      const { error } = await stripe.redirectToCheckout({
-        lineItems: [{ price: priceId, quantity: 1 }],
-        mode: 'subscription',
-        successUrl: `${window.location.origin}/success.html`,
-        cancelUrl: `${window.location.origin}/cancelled.html`,
-        customerEmail: session.user.email,
-        subscriptionData: {
-          trial_period_days: plan === 'yearly' ? 7 : undefined,
-        },
-      });
-      if (error) {
-        console.error('Stripe checkout error:', error);
-        alert(`Error: ${error.message}`);
-      }
-    } catch (e) {
-      console.error('Stripe error:', e);
-    }
-  }
-
-  // Make checkout function global
-  window.startCheckout = async (plan) => {
     const { data: { session } } = await supabase.auth.getSession();
 
     if (!session || !session.user) {
@@ -473,10 +568,13 @@
       return;
     }
 
-    startStripeCheckout(plan);
-  };
+    // Proceed to Stripe
+    if (window.startStripeCheckout) {
+      window.startStripeCheckout(plan);
+    }
+  }
 
-  // --- MODAL HANDLERS ---
+  // Modal handlers
   document.getElementById("closeAccountRequired")?.addEventListener("click", () => {
     document.getElementById("accountRequiredModal")?.classList.add("hidden");
   });
@@ -484,13 +582,11 @@
   document.getElementById("goToLoginPage")?.addEventListener("click", () => {
     window.location.href = "index.html?showAuth=true";
   });
-
-  // --- INITIALIZATION ---
-  document.addEventListener("DOMContentLoaded", async () => {
-    setupMenuToggle();
-    await handleAuthUI();
-  });
 </script>
+
+
+<script src="https://js.stripe.com/v3/"></script>
+<script type="module" src="js/premium.js"></script>
 
 </body>
 </html>

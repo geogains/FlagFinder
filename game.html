@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./css/home.css" />
   <link rel="stylesheet" href="./css/game-modes.css" />
-
+  
   <style>
     /* Loading overlay to prevent access during auth check */
     #authLoadingOverlay {
@@ -26,12 +26,12 @@
       z-index: 10000;
       color: #0d315a;
     }
-
+    
     #authLoadingOverlay h2 {
       font-size: 1.5rem;
       margin-bottom: 1rem;
     }
-
+    
     .spinner {
       width: 50px;
       height: 50px;
@@ -40,7 +40,7 @@
       border-radius: 50%;
       animation: spin 1s linear infinite;
     }
-
+    
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
@@ -123,142 +123,150 @@
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-  // NOTE: The category data imports are commented out because they are external files and cannot be included in this single block.
-  // You will need to ensure these files are available in your project structure and that the blind-ranking.js logic is also available.
-  // For the purpose of consolidation, I am including the core logic.
+  import { populationData } from './js/categories/population.js';
+  import { gdpData } from './js/categories/gdp.js';
+  import { happinessData } from './js/categories/happiness.js';
+  import { forestData } from './js/categories/forest.js';
+  import { coastlineData } from './js/categories/coastline.js';
+  import { cuisineData } from './js/categories/cuisine.js';
+  import { olympicData } from './js/categories/olympic.js';
+  import { worldcupData } from './js/categories/worldcup.js';
+  import { landmassData } from './js/categories/landmass.js';
+  import { crimerateData } from './js/categories/crimerate.js';
+  import { altitudeData } from './js/categories/altitude.js';
+  import { passportData } from './js/categories/passport.js';
+  import { beerData } from './js/categories/beer.js';
+  import { nobelprizeData } from './js/categories/nobelprize.js';
+  import { temperatureData } from './js/categories/temperature.js';
+  import { precipitationData } from './js/categories/rainfall.js';
 
-  // import { populationData } from './js/categories/population.js';
-  // import { gdpData } from './js/categories/gdp.js';
-  // import { happinessData } from './js/categories/happiness.js';
-  // import { forestData } from './js/categories/forest.js';
-  // import { coastlineData } from './js/categories/coastline.js';
-  // import { cuisineData } from './js/categories/cuisine.js';
-  // import { olympicData } from './js/categories/olympic.js';
-  // import { worldcupData } from './js/categories/worldcup.js';
-  // import { landmassData } from './js/categories/landmass.js';
-  // import { crimerateData } from './js/categories/crimerate.js';
-  // import { altitudeData } from './js/categories/altitude.js';
-  // import { passportData } from './js/categories/passport.js';
-  // import { beerData } from './js/categories/beer.js';
-  // import { nobelprizeData } from './js/categories/nobelprize.js';
-  // import { temperatureData } from './js/categories/temperature.js';
-  // import { precipitationData } from './js/categories/rainfall.js';
+  const supabase = createClient(
+    'https://ajwxgdaninuzcpfwawug.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
+  );
 
-  const SUPABASE_URL = 'https://ajwxgdaninuzcpfwawug.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI';
-
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   window.supabase = supabase; // make it globally accessible for blind-ranking.js
 
   // ========================================
   // 🔒 PREMIUM VALIDATION GUARD
   // ========================================
-
+  
   // Define which game modes require premium
   const PREMIUM_MODES = [
-    'coastline', 'cuisine', 'olympic', 'worldcup', 'landmass', 'crimerate',
-    'happiness', 'passport', 'beer', 'nobelprize', 'temperature', 'precipitation'
+    'coastline',
+    'cuisine',
+    'olympic',
+    'worldcup',
+    'landmass',
+    'crimerate',
+    'happiness',
+    'passport',
+    'beer',
+    'nobelprize',
+    'temperature',
+    'precipitation'
   ];
 
-  async function premiumValidationGuard() {
-    const params = new URLSearchParams(window.location.search);
-    const mode = params.get('mode') || 'population';
+  const params = new URLSearchParams(window.location.search);
+  const mode = params.get('mode') || 'population';
 
-    // Check if this mode requires premium
-    const requiresPremium = PREMIUM_MODES.includes(mode);
+  // Check if this mode requires premium
+  const requiresPremium = PREMIUM_MODES.includes(mode);
 
-    if (requiresPremium) {
-      // Get user session and premium status
-      const { data: { session } } = await supabase.auth.getSession();
-
-      let isPremium = false;
-
-      if (session && session.user) {
-        const { data: profile } = await supabase
-          .from('users')
-          .select('is_premium')
-          .eq('id', session.user.id)
-          .single();
-
-        isPremium = profile?.is_premium === true;
-      }
-
-      // If user is not premium, redirect to premium page
-      if (!isPremium) {
-        window.location.href = 'premium.html';
-        // Stop execution here
-        throw new Error('Premium required');
-      }
+  if (requiresPremium) {
+    // Get user session and premium status
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    let isPremium = false;
+    
+    if (session && session.user) {
+      const { data: profile } = await supabase
+        .from('users')
+        .select('is_premium')
+        .eq('id', session.user.id)
+        .single();
+      
+      isPremium = profile?.is_premium === true;
     }
-
-    // Remove loading overlay after validation
-    document.getElementById('authLoadingOverlay').style.display = 'none';
-
-    return true;
+    
+    // If user is not premium, redirect to premium page
+    if (!isPremium) {
+      window.location.href = 'premium.html';
+      // Stop execution here
+      throw new Error('Premium required');
+    }
   }
+  
+  // Remove loading overlay after validation
+  document.getElementById('authLoadingOverlay').style.display = 'none';
 
   // ========================================
   // 🎮 GAME INITIALIZATION (only if validated)
   // ========================================
 
-  async function initializeGame() {
-    try {
-      const isAllowed = await premiumValidationGuard();
-      if (!isAllowed) return;
+  const CATEGORY_ID_MAP = {
+    population: 3,
+    altitude: 2,
+    gdp: 4,
+    happiness: 5,
+    forest: 6,
+    coastline: 7,
+    cuisine: 8,
+    olympic: 9,
+    worldcup: 10,
+    landmass: 11,
+    crimerate: 12,
+    passport: 13,
+    beer: 14,
+    nobelprize: 15,
+    temperature: 16,
+    precipitation: 17,
+  };
 
-      const params = new URLSearchParams(window.location.search);
-      const mode = params.get('mode') || 'population';
+  const datasets = {
+    population: { title: 'RANK THESE COUNTRIES BY POPULATION 🌍', data: populationData },
+    gdp: { title: 'RANK THESE COUNTRIES BY GDP PER CAPITA 💰', data: gdpData },
+    happiness: { title: 'RANK THESE COUNTRIES BY HAPPINESS 😊', data: happinessData },
+    forest: { title: 'RANK THESE COUNTRIES BY FOREST COVER 🌲', data: forestData },
+    coastline: { title: 'RANK THESE COUNTRIES BY COASTLINE LENGTH 🌊', data: coastlineData },
+    cuisine: { title: 'RANK THESE COUNTRIES BY CUISINE 🍽️', data: cuisineData },
+    olympic: { title: 'RANK THESE COUNTRIES BY OLYMPIC MEDALS 🥇', data: olympicData },
+    worldcup: { title: 'RANK THESE COUNTRIES BY WORLD CUP TROPHIES ⚽', data: worldcupData },
+    landmass: { title: 'RANK THESE COUNTRIES BY LARGEST LAND MASS 🗻', data: landmassData },
+    crimerate: { title: 'RANK THESE COUNTRIES BY HIGHEST CRIME RATE 🚨', data: crimerateData },
+    altitude: { title: 'RANK THESE COUNTRIES BY HIGHEST ELEVATION 🏔️', data: altitudeData },
+    passport: { title: 'RANK THESE COUNTRIES BY BEST PASSPORT 🛂', data: passportData },
+    beer: { title: 'RANK THESE COUNTRIES BY HIGHEST BEER CONSUMPTION 🍺', data: beerData },
+    nobelprize: { title: 'RANK THESE COUNTRIES BY MOST NOBEL PRIZE WINNERS 🕊️', data: nobelprizeData },
+    temperature: { title: 'RANK THESE COUNTRIES BY HIGHEST AVERAGE TEMPERATURE ☀️', data: temperatureData },
+    precipitation: { title: 'RANK THESE COUNTRIES BY HIGHEST YEARLY RAINFALL 🌧️', data: precipitationData },
+  };
 
-      const CATEGORY_ID_MAP = {
-        population: 3, altitude: 2, gdp: 4, happiness: 5, forest: 6, coastline: 7,
-        cuisine: 8, olympic: 9, worldcup: 10, landmass: 11, crimerate: 12,
-        passport: 13, beer: 14, nobelprize: 15, temperature: 16, precipitation: 17,
-      };
+  const selected = datasets[mode] || datasets.population;
 
-      // NOTE: Since we cannot import the data files, we assume the data is available globally or loaded elsewhere.
-      // For now, we will use a placeholder for the datasets object.
-      // You must ensure your category data files are loaded before this script runs, or load them dynamically.
-      const datasets = {
-        population: { title: 'RANK THESE COUNTRIES BY POPULATION 🌍', data: window.populationData },
-        gdp: { title: 'RANK THESE COUNTRIES BY GDP PER CAPITA 💰', data: window.gdpData },
-        // ... all other datasets ...
-      };
+  window.countries = selected.data;
+  document.querySelector('.top-card-title').textContent = selected.title;
 
-      const selected = datasets[mode] || datasets.population;
+  const { startBlindRankingGame, setupRankButtons } = await import('./js/blind-ranking.js');
 
-      window.countries = selected.data;
-      document.querySelector('.top-card-title').textContent = selected.title;
+  startBlindRankingGame(CATEGORY_ID_MAP[mode] || 0); // pass category ID into game logic
+  setupRankButtons();
 
-      // NOTE: The blind-ranking.js module must be loaded separately or its logic included here.
-      // Assuming it is loaded via a separate <script> tag or its functions are defined globally.
-      // const { startBlindRankingGame, setupRankButtons } = await import('./js/blind-ranking.js');
-      const startBlindRankingGame = window.startBlindRankingGame || (() => console.error("startBlindRankingGame not found"));
-      const setupRankButtons = window.setupRankButtons || (() => console.error("setupRankButtons not found"));
+  window.scrollTo(0, 0);
+  window.datasets = datasets;
+</script>
 
-      startBlindRankingGame(CATEGORY_ID_MAP[mode] || 0); // pass category ID into game logic
-      setupRankButtons();
-
-      window.scrollTo(0, 0);
-      window.datasets = datasets;
-
-    } catch (e) {
-      if (e.message !== 'Premium required') {
-        console.error("Game Initialization Error:", e);
-      }
-    }
-  }
-
-  // --- MENU LOGIC ---
+<script>
   document.addEventListener("DOMContentLoaded", () => {
     const menuToggle = document.getElementById("menuToggle");
     const menuOverlay = document.getElementById("menuOverlay");
     const closeMenu = document.getElementById("closeMenu");
 
-    if (menuToggle) {
-      menuToggle.addEventListener("click", () => {
-        menuOverlay.classList.add("active");
-      });
-    }
+    if (!menuToggle || !menuOverlay) return;
+
+    menuToggle.addEventListener("click", () => {
+      menuOverlay.classList.add("active");
+    });
 
     if (closeMenu) {
       closeMenu.addEventListener("click", () => {
@@ -266,37 +274,53 @@
       });
     }
 
-    menuOverlay?.addEventListener("click", (e) => {
+    menuOverlay.addEventListener("click", (e) => {
       if (e.target === menuOverlay) {
         menuOverlay.classList.remove("active");
       }
     });
-
-    // --- AUTH UI & MENU LOGIC (Duplicated from other files for consolidation) ---
-    const handleAuthUI = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      const upgradeBtns = document.querySelectorAll('.upgrade-access-btn');
-      const accountBtn = document.querySelector(".menu-btn-account");
-
-      if (session && session.user) {
-        const { data: profile } = await supabase
-          .from('users')
-          .select('is_premium')
-          .eq('id', session.user.id)
-          .single();
-
-        if (profile?.is_premium) {
-          upgradeBtns.forEach(btn => btn.remove());
-        }
-        accountBtn.style.display = "block";
-      } else {
-        accountBtn.style.display = "none";
-      }
-    };
-
-    handleAuthUI();
-    initializeGame();
   });
+</script>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+  const supabase = createClient(
+    'https://ajwxgdaninuzcpfwawug.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
+  );
+
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if (session && session.user) {
+    const { data: profile } = await supabase
+      .from('users')
+      .select('is_premium')
+      .eq('id', session.user.id)
+      .single();
+
+    if (profile?.is_premium) {
+      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+    }
+  }
+</script>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+  const supabase = createClient('https://ajwxgdaninuzcpfwawug.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI');
+
+  const { data: { session } } = await supabase.auth.getSession();
+  const accountBtn = document.querySelector(".menu-btn-account");
+
+  if (!session || !session.user) {
+    if (accountBtn) {
+      accountBtn.style.display = "none";
+    }
+  } else {
+    if (accountBtn) {
+      accountBtn.style.display = "block";
+    }
+  }
 </script>
 
 </body>

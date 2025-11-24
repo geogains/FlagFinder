@@ -135,61 +135,54 @@
     </div>
   </main>
 
+  <script>
+    // same hamburger logic as other pages
+    document.addEventListener("DOMContentLoaded", () => {
+      const menuToggle = document.getElementById("menuToggle");
+      const menuOverlay = document.getElementById("menuOverlay");
+      const closeMenu = document.getElementById("closeMenu");
+
+      if (!menuToggle || !menuOverlay) return;
+
+      menuToggle.addEventListener("click", () => {
+        menuOverlay.classList.add("active");
+      });
+
+      if (closeMenu) {
+        closeMenu.addEventListener("click", () => {
+          menuOverlay.classList.remove("active");
+        });
+      }
+
+      menuOverlay.addEventListener("click", (e) => {
+        if (e.target === menuOverlay) {
+          menuOverlay.classList.remove("active");
+        }
+      });
+    });
+  </script>
+
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-  const SUPABASE_URL = 'https://ajwxgdaninuzcpfwawug.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI';
+  const supabase = createClient(
+    'https://ajwxgdaninuzcpfwawug.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
+  );
 
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const { data: { session } } = await supabase.auth.getSession();
 
-  // --- MENU & AUTH UI LOGIC ---
-  const handleAuthUI = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    const accountBtn = document.querySelector(".menu-btn-account");
-    const upgradeBtns = document.querySelectorAll('.upgrade-access-btn');
+  if (session && session.user) {
+    const { data: profile } = await supabase
+      .from('users')
+      .select('is_premium')
+      .eq('id', session.user.id)
+      .single();
 
-    if (!session || !session.user) {
-      accountBtn?.remove();
-    } else {
-      // Hide upgrade button for premium users
-      const { data: profile } = await supabase
-        .from('users')
-        .select('is_premium')
-        .eq('id', session.user.id)
-        .single();
-
-      if (profile?.is_premium) {
-        upgradeBtns.forEach(btn => btn.remove());
-      }
+    if (profile?.is_premium) {
+      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
     }
-  };
-
-  const setupMenuToggle = () => {
-    const menuToggle = document.getElementById("menuToggle");
-    const menuOverlay = document.getElementById("menuOverlay");
-    const closeMenu = document.getElementById("closeMenu");
-
-    menuToggle?.addEventListener("click", () => {
-      menuOverlay.classList.add("active");
-    });
-
-    closeMenu?.addEventListener("click", () => {
-      menuOverlay.classList.remove("active");
-    });
-
-    menuOverlay?.addEventListener("click", (e) => {
-      if (e.target === menuOverlay) {
-        menuOverlay.classList.remove("active");
-      }
-    });
-  };
-
-  // --- INITIALIZATION ---
-  document.addEventListener("DOMContentLoaded", async () => {
-    setupMenuToggle();
-    await handleAuthUI();
-  });
+  }
 </script>
 
 </body>

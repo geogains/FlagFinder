@@ -165,36 +165,30 @@
     </div>
   </main>
 
-<script type="module">
-  // --- MENU LOGIC ---
-  const setupMenuToggle = () => {
-    const menuToggle = document.getElementById("menuToggle");
-    const menuOverlay = document.getElementById("menuOverlay");
-    const closeMenu = document.getElementById("closeMenu");
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const menuToggle = document.getElementById("menuToggle");
+      const menuOverlay = document.getElementById("menuOverlay");
+      const closeMenu = document.getElementById("closeMenu");
 
-    if (!menuToggle || !menuOverlay) return;
+      if (!menuToggle || !menuOverlay) return;
 
-    menuToggle.addEventListener("click", () => {
-      menuOverlay.classList.add("active");
-    });
-
-    if (closeMenu) {
-      closeMenu.addEventListener("click", () => {
-        menuOverlay.classList.remove("active");
+      menuToggle.addEventListener("click", () => {
+        menuOverlay.classList.add("active");
       });
-    }
 
-    menuOverlay.addEventListener("click", (e) => {
-      if (e.target === menuOverlay) {
-        menuOverlay.classList.remove("active");
+      if (closeMenu) {
+        closeMenu.addEventListener("click", () => {
+          menuOverlay.classList.remove("active");
+        });
       }
-    });
-  };
 
-  // --- INITIALIZATION ---
-  document.addEventListener("DOMContentLoaded", () => {
-    setupMenuToggle();
-  });
-</script>
+      menuOverlay.addEventListener("click", (e) => {
+        if (e.target === menuOverlay) {
+          menuOverlay.classList.remove("active");
+        }
+      });
+    });
+  </script>
 </body>
 </html>
