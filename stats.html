@@ -158,33 +158,22 @@ body {
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-  const supabase = createClient(
-    'https://ajwxgdaninuzcpfwawug.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
-  );
+  const SUPABASE_URL = 'https://ajwxgdaninuzcpfwawug.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI';
 
-  const { data: { session } } = await supabase.auth.getSession();
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const modal = document.getElementById("premiumModal");
-  const statsContainer = document.getElementById("statsContainer");
-
-  if (!session || !session.user) {
-    modal.classList.remove("hidden");
-  } else {
-    const { data: profile } = await supabase
-      .from("users")
-      .select("is_premium")
-      .eq("id", session.user.id)
-      .single();
-
-    if (!profile?.is_premium) {
-      modal.classList.remove("hidden");
-    } else {
-      statsContainer.style.display = "block";
-      loadStats();
-    }
+  // --- CATEGORY NAME MAPPING ---
+  function getCategoryNameById(id) {
+    const mapping = {
+      1: 'Population', 2: 'Altitude', 3: 'GDP', 4: 'Happiness', 5: 'Forrest Cover',
+      6: 'Coastline', 7: 'Cuisine', 8: 'Olympic Medals', 9: 'World Cup',
+      10: 'Land Mass', 11: 'Crime Rate', 12: 'Passport',
+    };
+    return mapping[id] || `Category ${id}`;
   }
 
+  // --- STATS LOADING LOGIC ---
   async function loadStats() {
     const { data: { session } } = await supabase.auth.getSession();
     const user = session.user;
@@ -209,6 +198,7 @@ body {
       const { category_id, score } = entry;
       const categoryName = getCategoryNameById(category_id);
 
+      // Fetch rank by counting higher scores
       const { count: higherCount } = await supabase
         .from('category_scores')
         .select('*', { count: 'exact', head: true })
@@ -216,7 +206,7 @@ body {
         .eq('category_id', category_id);
 
       const rank = (higherCount || 0) + 1;
-      const progressPercent = Math.floor((score / 100) * 100);
+      const progressPercent = Math.floor((score / 100) * 100); // Assuming max score is 100
 
       const row = document.createElement('tr');
       row.innerHTML = `
@@ -233,24 +223,57 @@ body {
     }
   }
 
-  function getCategoryNameById(id) {
-    const mapping = {
-      1: 'Population',
-      2: 'Altitude',
-      3: 'GDP',
-      4: 'Happiness',
-      5: 'Forrest Cover',
-      6: 'Coastline',
-      7: 'Cuisine',
-      8: 'Olympic Medals',
-      9: 'World Cup',
-      10: 'Land Mass',
-      11: 'Crime Rate',
-      12: 'Passport',
-    };
-    return mapping[id] || `Category ${id}`;
-  }
+  // --- AUTH/PREMIUM GUARD & UI LOGIC ---
+  const handleAuthAndPremiumGuard = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const modal = document.getElementById("premiumModal");
+    const statsContainer = document.getElementById("statsContainer");
+    const accountBtn = document.querySelector(".menu-btn-account");
 
+    if (!session || !session.user) {
+      // Not logged in: Show modal and hide account button
+      modal.classList.remove("hidden");
+      accountBtn?.remove();
+    } else {
+      // Logged in: Check premium status
+      const { data: profile } = await supabase
+        .from("users")
+        .select("is_premium")
+        .eq("id", session.user.id)
+        .single();
+
+      if (!profile?.is_premium) {
+        // Not premium: Show modal
+        modal.classList.remove("hidden");
+      } else {
+        // Premium: Show stats and load data
+        statsContainer.style.display = "block";
+        loadStats();
+      }
+    }
+  };
+
+  const setupMenuToggle = () => {
+    const menuToggle = document.getElementById("menuToggle");
+    const menuOverlay = document.getElementById("menuOverlay");
+    const closeMenu = document.getElementById("closeMenu");
+
+    menuToggle?.addEventListener("click", () => {
+      menuOverlay.classList.add("active");
+    });
+
+    closeMenu?.addEventListener("click", () => {
+      menuOverlay.classList.remove("active");
+    });
+
+    menuOverlay?.addEventListener("click", (e) => {
+      if (e.target === menuOverlay) {
+        menuOverlay.classList.remove("active");
+      }
+    });
+  };
+
+  // --- MODAL BUTTON HANDLERS ---
   document.getElementById("closePremiumBtn").onclick = () => {
     document.getElementById("premiumModal").classList.add("hidden");
     window.location.href = "index.html";
@@ -259,27 +282,11 @@ body {
   document.getElementById("goPremiumBtn").onclick = () => {
     window.location.href = "premium.html";
   };
-</script>
 
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const menuToggle = document.getElementById("menuToggle");
-    const menuOverlay = document.getElementById("menuOverlay");
-    const closeMenu = document.getElementById("closeMenu");
-
-    menuToggle.addEventListener("click", () => {
-      menuOverlay.classList.add("active");
-    });
-
-    closeMenu.addEventListener("click", () => {
-      menuOverlay.classList.remove("active");
-    });
-
-    menuOverlay.addEventListener("click", (e) => {
-      if (e.target === menuOverlay) {
-        menuOverlay.classList.remove("active");
-      }
-    });
+  // --- INITIALIZATION ---
+  document.addEventListener("DOMContentLoaded", async () => {
+    setupMenuToggle();
+    await handleAuthAndPremiumGuard();
   });
 </script>
 

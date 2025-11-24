@@ -152,166 +152,119 @@
   </div>
 </main>
 
-<!-- ✅ Supabase Script -->
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-  const supabase = createClient(
-    'https://ajwxgdaninuzcpfwawug.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
-   );
+  const SUPABASE_URL = 'https://ajwxgdaninuzcpfwawug.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI';
 
-   window.supabaseClient = supabase;
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  window.supabaseClient = supabase;
 
-  // --- Element References ---
-  const usernameSpan = document.getElementById('currentUsername');
-  const emailSpan = document.getElementById('userEmail');
-  const sinceSpan = document.getElementById('userSince');
-  
-  const newUsernameInput = document.getElementById('newUsername');
-  const changeUsernameBtn = document.getElementById('changeUsernameBtn');
-  const usernameMsg = document.getElementById('usernameMsg');
+  // --- ACCOUNT PAGE LOGIC ---
+  async function setupAccountPage() {
+    const usernameSpan = document.getElementById('currentUsername');
+    const emailSpan = document.getElementById('userEmail');
+    const sinceSpan = document.getElementById('userSince');
+    const newUsernameInput = document.getElementById('newUsername');
+    const changeUsernameBtn = document.getElementById('changeUsernameBtn');
+    const usernameMsg = document.getElementById('usernameMsg');
+    const newEmailInput = document.getElementById('newEmail');
+    const changeEmailBtn = document.getElementById('changeEmailBtn');
+    const emailMsg = document.getElementById('emailMsg');
+    const logoutBtn = document.getElementById('logoutBtn');
 
-  const newEmailInput = document.getElementById('newEmail');
-  const changeEmailBtn = document.getElementById('changeEmailBtn');
-  const emailMsg = document.getElementById('emailMsg');
-  
-  const logoutBtn = document.getElementById('logoutBtn');
+    let currentUser = null;
 
-  let currentUser = null;
-
-  // --- Load User Data ---
-  const loadUser = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user) {
-      currentUser = session.user;
-      emailSpan.textContent = currentUser.email;
-      sinceSpan.textContent = new Date(currentUser.created_at).toLocaleDateString();
 
-      // Fetch username from the 'users' table
-      const { data: profile, error } = await supabase
-        .from('users') // Correct table name
-        .select('username') // Correct column name
-        .eq('id', currentUser.id)
-        .single();
-
-      if (profile) {
-        usernameSpan.textContent = profile.username; // Correct column name
-      } else {
-        usernameSpan.textContent = 'Not set';
-        console.error('Error fetching profile:', error?.message);
-      }
-
-    } else {
-      // If no user, redirect to login
+    if (!session?.user) {
       window.location.href = 'index.html';
+      return;
     }
-  };
 
-  loadUser();
+    currentUser = session.user;
+    emailSpan.textContent = currentUser.email;
+    sinceSpan.textContent = new Date(currentUser.created_at).toLocaleDateString();
 
-  // --- Event Listener for Username Change ---
-  changeUsernameBtn.addEventListener('click', async () => {
-    const newUsername = newUsernameInput.value.trim();
-    if (!newUsername) {
+    const { data: profile, error } = await supabase
+      .from('users')
+      .select('username, is_premium')
+      .eq('id', currentUser.id)
+      .single();
+
+    if (profile) {
+      usernameSpan.textContent = profile.username || 'Not set';
+      if (profile.is_premium) {
+        document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+      }
+    } else {
+      console.error('Error fetching profile:', error?.message);
+    }
+
+    changeUsernameBtn?.addEventListener('click', async () => {
+      const newUsername = newUsernameInput.value.trim();
+      if (!newUsername) {
         usernameMsg.textContent = '❌ Username cannot be empty.';
         usernameMsg.style.color = 'red';
         return;
-    }
-    if (!currentUser) return;
+      }
 
-    const { error } = await supabase
-      .from('users') // Correct table name
-      .update({ username: newUsername }) // Correct column name
-      .eq('id', currentUser.id);
+      const { error } = await supabase
+        .from('users')
+        .update({ username: newUsername })
+        .eq('id', currentUser.id);
 
-    usernameMsg.textContent = error ? `❌ ${error.message}` : '✅ Username updated successfully!';
-    usernameMsg.style.color = error ? 'red' : 'green';
+      usernameMsg.textContent = error ? `❌ ${error.message}` : '✅ Username updated successfully!';
+      usernameMsg.style.color = error ? 'red' : 'green';
 
-    if (!error) {
-        // Refresh the displayed username
+      if (!error) {
         usernameSpan.textContent = newUsername;
-        newUsernameInput.value = ''; // Clear the input field
-    }
-  });
+        newUsernameInput.value = '';
+      }
+    });
 
-  // --- Event Listener for Email Change ---
-  changeEmailBtn.addEventListener('click', async () => {
-    const newEmail = newEmailInput.value.trim();
-    if (!newEmail) return;
-    const { error } = await supabase.auth.updateUser({ email: newEmail });
-    emailMsg.textContent = error ? `❌ ${error.message}` : '✅ Confirmation sent to new email';
-    emailMsg.style.color = error ? 'red' : 'green';
-  });
+    changeEmailBtn?.addEventListener('click', async () => {
+      const newEmail = newEmailInput.value.trim();
+      if (!newEmail) return;
 
-  // --- Event Listener for Logout ---
-  logoutBtn.addEventListener('click', async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      alert("❌ Logout failed: " + error.message);
-    } else {
-      localStorage.setItem('showLogoutToast', 'true');
-      window.location.href = 'index.html';
-    }
-  });
+      const { error } = await supabase.auth.updateUser({ email: newEmail });
+      emailMsg.textContent = error ? `❌ ${error.message}` : '✅ Confirmation sent to new email';
+      emailMsg.style.color = error ? 'red' : 'green';
+    });
 
-</script>
+    logoutBtn?.addEventListener('click', async () => {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        alert("❌ Logout failed: " + error.message);
+      } else {
+        localStorage.setItem('showLogoutToast', 'true');
+        window.location.href = 'index.html';
+      }
+    });
 
-<!-- ✅ Sliding Menu Script -->
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
+    // Menu toggle logic
     const menuToggle = document.getElementById("menuToggle");
     const menuOverlay = document.getElementById("menuOverlay");
     const closeMenu = document.getElementById("closeMenu");
 
-    if (!menuToggle || !menuOverlay) return;
-
-    menuToggle.addEventListener("click", () => {
+    menuToggle?.addEventListener("click", () => {
       menuOverlay.classList.add("active");
     });
 
-    if (closeMenu) {
-      closeMenu.addEventListener("click", () => {
-        menuOverlay.classList.remove("active");
-      });
-    }
+    closeMenu?.addEventListener("click", () => {
+      menuOverlay.classList.remove("active");
+    });
 
-    menuOverlay.addEventListener("click", (e) => {
+    menuOverlay?.addEventListener("click", (e) => {
       if (e.target === menuOverlay) {
         menuOverlay.classList.remove("active");
       }
     });
-  });
-</script>
-
-<script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
-  const supabase = createClient(
-    'https://ajwxgdaninuzcpfwawug.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
-  );
-
-  const { data: { session } } = await supabase.auth.getSession();
-
-  if (session && session.user) {
-    const { data: profile } = await supabase
-      .from('users')
-      .select('is_premium')
-      .eq('id', session.user.id)
-      .single();
-
-    if (profile?.is_premium) {
-      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
-    }
   }
+
+  document.addEventListener("DOMContentLoaded", setupAccountPage);
 </script>
-
-<!-- Load Stripe FIRST -->
-<script src="https://js.stripe.com/v3/"></script>
-
-<!-- Load Your Premium Logic AFTER Stripe -->
-<script src="js/premium.js" defer></script>
 
 </body>
 </html>
