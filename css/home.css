@@ -313,18 +313,17 @@ h1, h2, h3, .tagline {
   max-width: 180px;
   min-height: 190px;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: transform 0.5s ease, box-shadow 0.5s ease;
 }
 
 .category-card:hover {
-  transform: translateY(-5px) scale(1.02);
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
+  transform: scale(1.05) !important;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25) !important;
 }
 
 .category-card:hover .category-info {
   background: linear-gradient(to bottom, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.9));
-  transition: background 0.3s ease;
+  transition: background 0.7s ease;
 }
 
 .category-info {
