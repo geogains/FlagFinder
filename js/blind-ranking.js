@@ -96,7 +96,7 @@ function computeBestRanks(list) {
   }
 }
 
-export function startBlindRankingGame() {
+export function startBlindRankingGame(withFade = false) {
   const countries = getCountries();
   if (!countries.length) {
     console.error("❌ No country data found!");
@@ -116,30 +116,42 @@ export function startBlindRankingGame() {
   res.style.display = "none";
   scrollToTop();
 
-  // ✅ Clean up previous slots and row styling
-  document.querySelectorAll(".ranking-row").forEach((row) => {
-    const slot = row.querySelector(".rank-slot");
-    slot.innerHTML = "";
-    slot.classList.add("empty-slot");
-    slot.classList.remove("stomp", "correct-slot");
+  const gameBoard = document.querySelector(".ranking-board");
 
-    row.style.background = ""; // remove green highlight
-  });
+  const resetGame = () => {
+    document.querySelectorAll(".ranking-row").forEach((row) => {
+      const slot = row.querySelector(".rank-slot");
+      slot.innerHTML = "";
+      slot.classList.add("empty-slot");
+      slot.classList.remove("stomp", "correct-slot");
+      row.style.background = "";
+    });
 
-  // ✅ Reset rank buttons
-  document.querySelectorAll(".rank-number").forEach((btn) => {
-    btn.classList.remove("used-rank");
-    btn.style.cursor = "pointer";
-  });
+    document.querySelectorAll(".rank-number").forEach((btn) => {
+      btn.classList.remove("used-rank");
+      btn.style.cursor = "pointer";
+    });
 
-  renderCountryPool();
+    renderCountryPool();
 
-  selectedCountry = selectedCountries[0];
-  const firstFlagItem = document.querySelector(
-    `.country-flag-item[data-code="${selectedCountry.code}"]`
-  );
-  if (firstFlagItem) firstFlagItem.classList.add("active");
-  updateFlagPreview(selectedCountry);
+    selectedCountry = selectedCountries[0];
+    const firstFlagItem = document.querySelector(
+      `.country-flag-item[data-code="${selectedCountry.code}"]`
+    );
+    if (firstFlagItem) firstFlagItem.classList.add("active");
+    updateFlagPreview(selectedCountry);
+
+    gameBoard.classList.remove("fade-out");
+    gameBoard.classList.add("fade-in");
+  };
+
+  if (withFade) {
+    gameBoard.classList.remove("fade-in");
+    gameBoard.classList.add("fade-out");
+    setTimeout(resetGame, 400);
+  } else {
+    resetGame();
+  }
 }
 
 function renderCountryPool() {
