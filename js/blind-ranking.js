@@ -455,3 +455,40 @@ export function setupRankButtons() {
 }
 
 window.addEventListener("DOMContentLoaded", setupRankButtons);
+
+document.addEventListener("DOMContentLoaded", () => {
+  const infoBtn = document.getElementById("infoBtn");
+  const infoModal = document.getElementById("infoModal");
+  const closeInfo = document.getElementById("closeInfo");
+  const infoText = document.getElementById("infoText");
+
+  const modeDescriptions = {
+    population: "Rank countries by population from highest to lowest.",
+    gdp: "Rank by GDP per capita in USD.",
+    happiness: "Rank countries based on their global happiness index scores.",
+    cuisine: "Rank countries based on the popularity and diversity of their cuisine.",
+    olympic: "Rank countries by total Olympic medals earned.",
+    // Add more categories as needed
+  };
+
+  if (infoBtn) {
+    infoBtn.addEventListener("click", () => {
+      const mode = new URLSearchParams(window.location.search).get("mode");
+      infoText.textContent =
+        modeDescriptions[mode] || "No information available for this category.";
+      infoModal.style.display = "block";
+    });
+  }
+
+  if (closeInfo) {
+    closeInfo.addEventListener("click", () => {
+      infoModal.style.display = "none";
+    });
+  }
+
+  window.addEventListener("click", (e) => {
+    if (e.target === infoModal) {
+      infoModal.style.display = "none";
+    }
+  });
+});
