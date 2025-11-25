@@ -464,11 +464,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const modeDescriptions = {
     population: "Rank countries by population from highest to lowest.",
-    gdp: "Rank by GDP per capita in USD.",
-    happiness: "Rank countries based on their global happiness index scores.",
-    cuisine: "Rank countries based on the popularity and diversity of their cuisine.",
-    olympic: "Rank countries by total Olympic medals earned.",
-    // Add more categories as needed
+    // Add others...
   };
 
   if (infoBtn) {

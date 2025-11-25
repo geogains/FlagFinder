@@ -84,9 +84,11 @@
 
 <!-- 🔹 Game Wrapper -->
 <div class="blind-ranking-wrapper">
-  <div class="top-card">
+  <div style="display: flex; align-items: center; justify-content: center; gap: 10px; position: relative;">
+  <h2 class="top-card-title">RANK THESE COUNTRIES BY POPULATION 🌍</h2>
+  <button class="info-btn" id="infoBtn">ℹ️</button>
+</div>
     <h2 class="top-card-title">Loading category...</h2>
-    <button class="info-btn" id="infoBtn">ℹ️</button>
     <div class="country-pool-panel"></div>
   </div>
 
@@ -323,13 +325,6 @@
     }
   }
 </script>
-
-<div class="info-modal" id="infoModal">
-  <div class="info-content">
-    <span class="close-info" id="closeInfo">&times;</span>
-    <div id="infoText">Loading info...</div>
-  </div>
-</div>
 
 </body>
 </html>
