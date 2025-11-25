@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GeoRanks — How to Play</title>
+  <link rel="stylesheet" href="css/home.css" />
+  <link rel="stylesheet" href="css/game-modes.css" />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to bottom right, #a7f3d0, #38bdf8);
+      margin: 0;
+      padding: 0;
+    }
+
+    .how-to-container {
+      max-width: 800px;
+      margin: 120px auto 40px;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 16px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    h2 {
+      font-size: 1.4rem;
+      color: #333;
+      margin-top: 1.5rem;
+    }
+
+    p, ul {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #222;
+    }
+
+    ul {
+      padding-left: 1.4rem;
+    }
+
+    .back-home {
+      display: inline-block;
+      margin-top: 2rem;
+      padding: 0.8rem 1.6rem;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #ff9770, #ff6f61);
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .back-home:hover {
+      opacity: 0.9;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      .how-to-container {
+        margin: 100px 20px 40px;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ✅ Header -->
+<header class="home-glass-header">
+  <div class="logo-header">
+    <a href="index.html" class="logo-link">
+      <img src="assets/logo.png" alt="GeoRanks Logo" />
+    </a>
+  </div>
+  <div class="hamburger-menu">
+    <div class="menu-icon" id="menuToggle">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</header>
+
+<!-- ✅ Sliding Menu -->
+<div class="menu-overlay" id="menuOverlay">
+  <div class="menu-panel">
+    <h2>Menu</h2>
+    <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
+    <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
+    <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
+    <button class="menu-btn" onclick="window.location.href='categories.html'">🎮 Categories</button>
+    <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
+    <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'">🔓 Unlock All Categories</button>
+    <button class="menu-btn menu-close" id="closeMenu">Close</button>
+  </div>
+</div>
+
+<!-- ✅ How To Play Content -->
+<main class="how-to-container">
+  <h1>How to Play</h1>
+  <p>Welcome to <strong>GeoRanks</strong> — the country ranking challenge! Here's how it works:</p>
+
+  <h2>🎯 Objective</h2>
+  <p>You're given 10 countries and a single ranking category (like population, happiness, GDP, etc.). Your goal is to arrange the countries from highest to lowest based on that category.</p>
+
+  <h2>🕹️ Gameplay</h2>
+  <ul>
+    <li>Select a category to start the game.</li>
+    <li>Drag each country flag into a ranking slot, or tap to assign it to a number.</li>
+    <li>Once all slots are filled, your results will be scored instantly.</li>
+  </ul>
+
+  <h2>🏆 Scoring</h2>
+  <ul>
+    <li>+1 point for each correct rank placement.</li>
+    <li>No penalty for mistakes — aim for a perfect 10!</li>
+  </ul>
+
+  <h2>💡 Tips & Strategy</h2>
+  <ul>
+    <li>Think in extremes — who’s likely the biggest or smallest?</li>
+    <li>Use what you know about regions, politics, culture, or sports.</li>
+    <li>Guess wisely — and have fun doing it!</li>
+  </ul>
+
+  <a href="index.html" class="back-home">Back to Home</a>
+</main>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const menuToggle = document.getElementById("menuToggle");
+    const menuOverlay = document.getElementById("menuOverlay");
+    const closeButton = document.getElementById("closeMenu");
+
+    if (menuToggle && menuOverlay) {
+      menuToggle.addEventListener("click", () => {
+        menuOverlay.classList.add("active");
+      });
+
+      closeButton?.addEventListener("click", () => {
+        menuOverlay.classList.remove("active");
+      });
+
+      menuOverlay.addEventListener("click", (e) => {
+        if (e.target === menuOverlay) {
+          menuOverlay.classList.remove("active");
+        }
+      });
+    }
+  });
+</script>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+  const supabase = createClient(
+    'https://ajwxgdaninuzcpfwawug.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
+  );
+
+  const { data: { session } } = await supabase.auth.getSession();
+
+  // Hide Account if user not logged in
+  if (!session || !session.user) {
+    document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+  }
+
+  // Hide Unlock All Categories if user is premium
+  if (session && session.user) {
+    const { data: profile } = await supabase
+      .from('users')
+      .select('is_premium')
+      .eq('id', session.user.id)
+      .single();
+
+    if (profile?.is_premium) {
+      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+    }
+  }
+</script>
+
+
+</body>
+</html>
