@@ -8,8 +8,8 @@ const supabase = createClient(
 );
 
 // ✅ Stripe Price IDs from your Dashboard
-const PRICE_MONTHLY = "price_1STKLbBAeA4hRlOutt7HfrMX";
-const PRICE_YEARLY  = "price_1STKnmBAeA4hRlOueE5oXkDP";
+const PRICE_MONTHLY = "price_1SXV7xB2pnEWYYPP3WmbEXAf";
+const PRICE_YEARLY  = "price_1SXV9CB2pnEWYYPPlAYocHkY";
 
 // ✅ Redirect to Stripe Checkout using Supabase Edge Function
 async function redirectToCheckout(priceId) {
@@ -41,7 +41,7 @@ async function redirectToCheckout(priceId) {
 
   const sessionData = await response.json();
 
-  const stripe = Stripe("pk_test_51STJo6BAeA4hRlOuGyvQ69OhlvaVYkJ8wEZxXOIpBISMf6as1JyEKC2piPaYSCUFiygQuKMdAqhQuQ6YqvVV3XpH0039kE4avf");
+  const stripe = Stripe("pk_live_51STJnqB2pnEWYYPPlzXvgKRntTDDeb83rXzxu795jyjUMKKxCX8FsZF9D3Q538TccPik2NOe8IAu8jgQnkz5i4EQ00MJDaq4V4");
   stripe.redirectToCheckout({ sessionId: sessionData.id });
 }
 
