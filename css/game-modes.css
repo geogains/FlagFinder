@@ -124,6 +124,15 @@ body {
   letter-spacing: 0.5px;
 }
 
+.blind-ranking-wrapper {
+  opacity: 1;
+  transition: opacity 0.4s ease-in-out;
+}
+
+.blind-ranking-wrapper.fade-out {
+  opacity: 0;
+}
+
 /* -------------------------------
    Ranking Rows
 ---------------------------------- */

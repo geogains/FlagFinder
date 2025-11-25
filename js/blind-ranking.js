@@ -96,7 +96,7 @@ function computeBestRanks(list) {
   }
 }
 
-export function startBlindRankingGame(withFade = false) {
+export function startBlindRankingGame() {
   const countries = getCountries();
   if (!countries.length) {
     console.error("❌ No country data found!");
@@ -116,42 +116,30 @@ export function startBlindRankingGame(withFade = false) {
   res.style.display = "none";
   scrollToTop();
 
-  const gameBoard = document.querySelector(".ranking-board");
+  // ✅ Clean up previous slots and row styling
+  document.querySelectorAll(".ranking-row").forEach((row) => {
+    const slot = row.querySelector(".rank-slot");
+    slot.innerHTML = "";
+    slot.classList.add("empty-slot");
+    slot.classList.remove("stomp", "correct-slot");
 
-  const resetGame = () => {
-    document.querySelectorAll(".ranking-row").forEach((row) => {
-      const slot = row.querySelector(".rank-slot");
-      slot.innerHTML = "";
-      slot.classList.add("empty-slot");
-      slot.classList.remove("stomp", "correct-slot");
-      row.style.background = "";
-    });
+    row.style.background = ""; // remove green highlight
+  });
 
-    document.querySelectorAll(".rank-number").forEach((btn) => {
-      btn.classList.remove("used-rank");
-      btn.style.cursor = "pointer";
-    });
+  // ✅ Reset rank buttons
+  document.querySelectorAll(".rank-number").forEach((btn) => {
+    btn.classList.remove("used-rank");
+    btn.style.cursor = "pointer";
+  });
 
-    renderCountryPool();
+  renderCountryPool();
 
-    selectedCountry = selectedCountries[0];
-    const firstFlagItem = document.querySelector(
-      `.country-flag-item[data-code="${selectedCountry.code}"]`
-    );
-    if (firstFlagItem) firstFlagItem.classList.add("active");
-    updateFlagPreview(selectedCountry);
-
-    gameBoard.classList.remove("fade-out");
-    gameBoard.classList.add("fade-in");
-  };
-
-  if (withFade) {
-    gameBoard.classList.remove("fade-in");
-    gameBoard.classList.add("fade-out");
-    setTimeout(resetGame, 400);
-  } else {
-    resetGame();
-  }
+  selectedCountry = selectedCountries[0];
+  const firstFlagItem = document.querySelector(
+    `.country-flag-item[data-code="${selectedCountry.code}"]`
+  );
+  if (firstFlagItem) firstFlagItem.classList.add("active");
+  updateFlagPreview(selectedCountry);
 }
 
 function renderCountryPool() {
@@ -437,12 +425,20 @@ function endGame() {
   const playRandom = document.querySelector(".action-play-random");
   const shareBtn = document.querySelector(".action-share");
 
-  playAgain.onclick = () => {
+playAgain.onclick = () => {
+  const wrapper = document.querySelector(".blind-ranking-wrapper");
+  if (!wrapper) return;
+
+  wrapper.classList.add("fade-out");
+
+  setTimeout(() => {
     res.classList.remove("visible");
     res.style.display = "none";
-    scrollToTop();
-    setTimeout(() => startBlindRankingGame(), 200);
-  };
+    startBlindRankingGame();
+    wrapper.classList.remove("fade-out");
+  }, 400); // match CSS transition duration
+};
+
 playRandom.onclick = () => {
   const allModes = Object.keys(datasets);
   const otherModes = allModes.filter((m) => m !== currentCategory);
