@@ -268,13 +268,17 @@
   document.addEventListener("DOMContentLoaded", function () {
     const menuToggle = document.getElementById("menuToggle");
     const menuOverlay = document.getElementById("menuOverlay");
+    const closeMenuBtn = document.getElementById("closeMenu");
 
     if (menuToggle && menuOverlay) {
       menuToggle.addEventListener("click", () => {
-        menuOverlay.classList.toggle("active");
+        menuOverlay.classList.add("active");
       });
 
-      // Optional: Close menu when clicking outside panel
+      closeMenuBtn?.addEventListener("click", () => {
+        menuOverlay.classList.remove("active");
+      });
+
       menuOverlay.addEventListener("click", (e) => {
         if (e.target === menuOverlay) {
           menuOverlay.classList.remove("active");
