@@ -1,14 +1,19 @@
-// index.ts - Supabase Edge Function for handling Stripe Webhook
+// stripe-webhook/index.ts
 
+// @deno-types="npm:@types/stripe"
+import Stripe from "npm:stripe";
 import { serve } from "https://deno.land/std@0.192.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@13.5.0?target=deno";
-import { Resend } from "npm:resend";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const stripe = Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
-  apiVersion: "2023-10-16",
+// Load secrets from environment
+const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
+  apiVersion: "2023-08-16",
 });
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+const supabase = createClient(
+  Deno.env.get("SUPABASE_URL")!,
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+);
 
 serve(async (req) => {
   const sig = req.headers.get("stripe-signature")!;
@@ -22,62 +27,36 @@ serve(async (req) => {
       Deno.env.get("STRIPE_WEBHOOK_SECRET")!
     );
   } catch (err) {
-    console.error("❌ Webhook signature verification failed:", err.message);
+    console.error("Webhook signature verification failed.", err.message);
     return new Response(`Webhook Error: ${err.message}`, { status: 400 });
   }
 
-  // Handle successful subscription payment
+  // Handle the checkout.session.completed event
   if (event.type === "checkout.session.completed") {
-    const session = event.data.object;
+    const session = event.data.object as Stripe.Checkout.Session;
 
-    const userId = session.metadata?.userId;
-    const email = session.customer_details?.email;
+    const customerEmail = session.customer_details?.email;
 
-    if (!userId || !email) {
-      console.error("❌ Missing userId or email in session metadata.");
-      return new Response("Missing user data", { status: 400 });
+    if (!customerEmail) {
+      return new Response("Missing customer email.", { status: 400 });
     }
 
-    // ✅ Update is_premium to true in Supabase
-    const supabaseUpdateRes = await fetch(`${Deno.env.get("SUPABASE_URL")}/rest/v1/profiles?id=eq.${userId}`, {
-      method: "PATCH",
-      headers: {
-        "apikey": Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-        "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!}`,
-        "Content-Type": "application/json",
-        "Prefer": "return=representation"
-      },
-      body: JSON.stringify({ is_premium: true }),
-    });
+    // Update Supabase user
+    const { error } = await supabase
+      .from("users")
+      .update({ is_premium: true })
+      .eq("email", customerEmail);
 
-    if (!supabaseUpdateRes.ok) {
-      const error = await supabaseUpdateRes.text();
-      console.error("❌ Supabase update failed:", error);
-    } else {
-      console.log("✅ Supabase profile updated to is_premium: true");
+    if (error) {
+      console.error("Supabase update error:", error.message);
+      return new Response("Failed to update user.", { status: 500 });
     }
 
-    // ✅ Send confirmation email using Resend
-    try {
-      await resend.emails.send({
-        from: "GeoRanks <no-reply@georanks.com>",
-        to: email,
-        subject: "🎉 Welcome to GeoRanks Premium!",
-        html: `
-          <h1>You're now a Premium Member!</h1>
-          <p>Thanks for upgrading, ${email}.</p>
-          <p>You now have access to all ranking categories without limits.</p>
-          <p>Happy ranking! 🌍</p>
-          <br/>
-          <strong>- The GeoRanks Team</strong>
-        `,
-      });
-
-      console.log("✅ Confirmation email sent to:", email);
-    } catch (emailErr) {
-      console.error("❌ Failed to send confirmation email:", emailErr);
-    }
+    console.log(`User ${customerEmail} upgraded to premium.`);
+    return new Response("Success", { status: 200 });
   }
 
-  return new Response("OK", { status: 200 });
+  // Return success for unhandled events
+  return new Response("Unhandled event type", { status: 200 });
 });
+
