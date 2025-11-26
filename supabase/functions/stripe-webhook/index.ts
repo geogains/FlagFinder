@@ -4,7 +4,7 @@ import { serve } from "https://deno.land/std@0.192.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "npm:resend";
 
-// ✅ Initialize Stripe + Supabase + Resend
+// ✅ Initialize Stripe, Supabase, and Resend
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2023-08-16",
 });
@@ -37,12 +37,13 @@ serve(async (req) => {
     const customerEmail = session.customer_details?.email;
 
     if (!customerEmail) {
+      console.error("❌ Missing customer email in session.");
       return new Response("Missing customer email.", { status: 400 });
     }
 
-    // ✅ Update Supabase
+    // ✅ Update Supabase user's is_premium flag
     const { error } = await supabase
-      .from("users") // use your actual table name
+      .from("users") // ensure this matches your actual table name
       .update({ is_premium: true })
       .eq("email", customerEmail);
 
@@ -53,9 +54,11 @@ serve(async (req) => {
 
     console.log(`✅ User ${customerEmail} upgraded to premium.`);
 
-    // ✅ Send Resend confirmation email
+    // ✅ Send confirmation email
     try {
-      await resend.emails.send({
+      console.log("📬 Attempting to send confirmation email to:", customerEmail);
+
+      const emailResponse = await resend.emails.send({
         from: "GeoRanks <no-reply@georanks.com>",
         to: customerEmail,
         subject: "🎉 Welcome to GeoRanks Premium!",
@@ -63,14 +66,14 @@ serve(async (req) => {
           <h1>You're now a Premium Member!</h1>
           <p>Thanks for upgrading, ${customerEmail}.</p>
           <p>You now have access to all ranking categories without limits.</p>
-          <p>Happy ranking! 🌍</p>
           <br/>
           <strong>- The GeoRanks Team</strong>
         `,
       });
-      console.log("✅ Confirmation email sent to:", customerEmail);
+
+      console.log("✅ Email send response:", emailResponse);
     } catch (emailErr) {
-      console.error("❌ Failed to send email:", emailErr);
+      console.error("❌ Failed to send confirmation email:", emailErr);
     }
 
     return new Response("Success", { status: 200 });
