@@ -62,7 +62,7 @@ serve(async (req) => {
       console.log("📬 Attempting to send confirmation email...");
 
       const emailResponse = await resend.emails.send({
-        from: "GeoRanks <no-reply@georanks.com>",
+        from: "GeoRanks <support@georanks.com>",
         to: customerEmail,
         subject: "🎉 Welcome to GeoRanks Premium!",
         html: `
