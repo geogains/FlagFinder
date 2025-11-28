@@ -8,44 +8,47 @@ import { Resend } from "npm:resend";
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2023-08-16",
 });
-
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
 );
-
 const resend = new Resend(Deno.env.get("RESEND_API_KEY")!);
 
 serve(async (req) => {
-  const sig = req.headers.get("stripe-signature")!;
-  const body = await req.text();
+  const sig = req.headers.get("stripe-signature");
+  if (!sig) {
+    console.error("❌ Missing Stripe signature");
+    return new Response("Missing Stripe signature", { status: 400 });
+  }
+
+  const rawBody = await req.arrayBuffer();
+  const textBody = new TextDecoder("utf-8").decode(rawBody);
 
   let event;
   try {
     event = await stripe.webhooks.constructEventAsync(
-      body,
+      textBody,
       sig,
       Deno.env.get("STRIPE_WEBHOOK_SECRET")!
     );
   } catch (err) {
     console.error("❌ Signature error:", err.message);
-    return new Response(`Webhook Error: ${err.message}`, { status: 400 });
+    return new Response(`Webhook Error: ${err.message}`, {
+      status: 400,
+    });
   }
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
-
     let customerEmail = session.customer_details?.email;
 
-    // ⚠️ Stripe CLI test events contain no email → override with your real email
     if (!customerEmail) {
-      console.log("⚠️ No customer email in event → using test override email");
-      customerEmail = "kieronjcrooks@outlook.com"; // your test address
+      console.log("⚠️ No customer email in event → using test override");
+      customerEmail = "kieronjcrooks@outlook.com";
     }
 
     console.log("📧 Email to use:", customerEmail);
 
-    // Update Supabase
     const { error } = await supabase
       .from("users")
       .update({ is_premium: true })
@@ -54,13 +57,10 @@ serve(async (req) => {
     if (error) {
       console.error("❌ Supabase update error:", error.message);
     } else {
-      console.log(`✅ Updated user ${customerEmail} to premium.`);
+      console.log(`✅ User ${customerEmail} upgraded to premium`);
     }
 
-    // Send email
     try {
-      console.log("📬 Attempting to send confirmation email...");
-
       const emailResponse = await resend.emails.send({
         from: "GeoRanks <support@geo-ranks.com>",
         to: customerEmail,
@@ -73,8 +73,7 @@ serve(async (req) => {
           <strong>– The GeoRanks Team</strong>
         `,
       });
-
-      console.log("✅ Email sent! Response:", emailResponse);
+      console.log("✅ Email sent:", emailResponse);
     } catch (emailErr) {
       console.error("❌ Email send failed:", emailErr);
     }
