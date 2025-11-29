@@ -60,12 +60,12 @@ serve(async (req) => {
       console.log(`✅ User ${customerEmail} upgraded to premium`);
     }
 
-    try {
-      const emailResponse = await resend.emails.send({
-        from: "GeoRanks <support@geo-ranks.com>",
-        to: customerEmail,
-        subject: "🎉 Welcome to GeoRanks Premium!",
-        html: `
+  try {
+  const emailResponse = await resend.emails.send({
+    from: "GeoRanks <support@geo-ranks.com>",
+    to: customerEmail,
+    subject: "🎉 Welcome to GeoRanks Premium!",
+    html: `
 <!DOCTYPE html>
 <html lang="en" style="font-family: 'Poppins', sans-serif;">
   <head>
@@ -85,30 +85,40 @@ serve(async (req) => {
       </div>
 
       <!-- Header -->
-      <h2 style="text-align: center; font-weight: 600;">You're now a Premium Member!</h2>
+      <h2 style="text-align: center; font-weight: 600;">Welcome to GeoRanks Premium! 🎉</h2>
 
       <!-- Message -->
       <p style="text-align: center; font-size: 16px;">
-        Thanks for upgrading, ${customerEmail}.
+        You can now enjoy full access to all Categories, Stats and Game Modes.
       </p>
       <p style="text-align: center; font-size: 16px;">
-        Enjoy full access to every ranking category.
+        Thanks for supporting the growth of GeoRanks.
       </p>
+
+      <!-- CTA Button -->
+      <div style="text-align: center; margin: 2rem 0;">
+        <a href="https://geo-ranks.com/success" style="background: linear-gradient(90deg, #f97316, #f43f5e); color: white; text-decoration: none; padding: 0.8rem 1.6rem; border-radius: 6px; font-weight: 600; display: inline-block;">
+          Explore Premium Features
+        </a>
+      </div>
 
       <!-- Footer -->
       <p style="text-align: center; font-size: 14px; color: #888; margin-top: 2rem;">
-        — The GeoRanks Team
+        — GeoRanks
       </p>
 
     </div>
   </body>
 </html>
-`,
-      });
-      console.log("✅ Email sent:", emailResponse);
-    } catch (emailErr) {
-      console.error("❌ Email send failed:", emailErr);
-    }
+`
+  });
+
+  console.log("✅ Email sent! Response:", emailResponse);
+
+} catch (emailErr) {
+  console.error("❌ Email send failed:", emailErr);
+}
+
 
     return new Response("Success", { status: 200 });
   }
