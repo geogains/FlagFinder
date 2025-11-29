@@ -66,12 +66,44 @@ serve(async (req) => {
         to: customerEmail,
         subject: "🎉 Welcome to GeoRanks Premium!",
         html: `
-          <h1>You're now a Premium Member!</h1>
-          <p>Thanks for upgrading, ${customerEmail}.</p>
-          <p>Enjoy full access to every ranking category.</p>
-          <br/>
-          <strong>– The GeoRanks Team</strong>
-        `,
+<!DOCTYPE html>
+<html lang="en" style="font-family: 'Poppins', sans-serif;">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Premium Confirmation</title>
+  </head>
+  <body style="background-color: #f5f7fa; padding: 2rem; color: #0d315a; font-family: 'Poppins', sans-serif;">
+    <div style="max-width: 480px; margin: auto; background: #ffffff; padding: 2rem; border-radius: 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);">
+      
+      <!-- Logo -->
+      <div style="text-align: center; margin-bottom: 1.5rem;">
+        <img 
+          src="https://geo-ranks.com/assets/logo.png" 
+          alt="GeoRanks Logo" 
+          style="width: 180px; max-width: 100%; height: auto;" 
+        />
+      </div>
+
+      <!-- Header -->
+      <h2 style="text-align: center; font-weight: 600;">You're now a Premium Member!</h2>
+
+      <!-- Message -->
+      <p style="text-align: center; font-size: 16px;">
+        Thanks for upgrading, ${customerEmail}.
+      </p>
+      <p style="text-align: center; font-size: 16px;">
+        Enjoy full access to every ranking category.
+      </p>
+
+      <!-- Footer -->
+      <p style="text-align: center; font-size: 14px; color: #888; margin-top: 2rem;">
+        — The GeoRanks Team
+      </p>
+
+    </div>
+  </body>
+</html>
+`,
       });
       console.log("✅ Email sent:", emailResponse);
     } catch (emailErr) {
