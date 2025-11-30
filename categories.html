@@ -82,6 +82,10 @@
   <!-- CATEGORIES -->
   <section class="categories-section">
     <h2>Explore All Categories 👇</h2>
+    <!-- 🔍 Advanced Search Bar -->
+<div class="search-bar-wrapper">
+  <input type="text" id="categorySearchInput" placeholder="🔍 Search Categories..." readonly />
+</div>
 
     <div class="categories-grid" id="categoriesGrid" style="pointer-events: none; opacity: 0.6;">
 
@@ -472,6 +476,86 @@ overlay.addEventListener("click", (e) => {
       document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
     }
   }
+</script>
+
+<!-- 🔍 Search Modal -->
+<div id="categorySearchModal" class="search-modal hidden">
+  <div class="search-modal-content glass-box">
+    <button class="close-search-modal" id="closeSearchModal">×</button>
+    <input type="text" id="liveSearchInput" placeholder="Start typing to search..." autofocus />
+    <div class="search-results" id="searchResults">
+      <!-- Dynamic Category Items Here -->
+    </div>
+  </div>
+</div>
+
+<script>
+  const allCategories = [
+    { name: "Altitude", slug: "altitude" },
+    { name: "Beer Consumption", slug: "beer" },
+    { name: "Coastline", slug: "coastline" },
+    { name: "Crime Rate", slug: "crimerate" },
+    { name: "Cuisine", slug: "cuisine" },
+    { name: "Forest Cover", slug: "forest" },
+    { name: "GDP Per Capita", slug: "gdp" },
+    { name: "Happiness", slug: "happiness" },
+    { name: "Highest Temperature", slug: "temperature" },
+    { name: "Land Mass", slug: "landmass" },
+    { name: "Noble Prize Winners", slug: "nobelprize" },
+    { name: "Olympic Medals", slug: "olympic" },
+    { name: "Passport Strength", slug: "passport" },
+    { name: "Population", slug: "population" },
+    { name: "Rainfall", slug: "precipitation" },
+    { name: "World Cup Trophies", slug: "worldcup" }
+  ];
+
+  const searchTrigger = document.getElementById('categorySearchInput');
+  const searchModal = document.getElementById('categorySearchModal');
+  const liveInput = document.getElementById('liveSearchInput');
+  const searchResults = document.getElementById('searchResults');
+  const closeSearchModal = document.getElementById('closeSearchModal');
+
+  const renderSearchResults = (query = "") => {
+    const normalized = query.toLowerCase();
+    searchResults.innerHTML = "";
+    allCategories
+      .filter(cat => cat.name.toLowerCase().includes(normalized))
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .forEach(cat => {
+        const item = document.createElement("div");
+        item.className = "search-item";
+        item.onclick = () => window.location.href = `game.html?mode=${cat.slug}`;
+        item.innerHTML = `
+          <img src="images/categories/${cat.slug}.jpg" alt="${cat.name}" />
+          <div class="info">${cat.name}</div>
+        `;
+        searchResults.appendChild(item);
+      });
+  };
+
+  searchTrigger?.addEventListener('click', () => {
+    searchModal.classList.remove("hidden");
+    setTimeout(() => {
+      liveInput.focus();
+      renderSearchResults();
+    }, 100);
+  });
+
+  closeSearchModal?.addEventListener('click', () => {
+    searchModal.classList.add("hidden");
+    liveInput.value = "";
+  });
+
+  liveInput?.addEventListener('input', (e) => {
+    renderSearchResults(e.target.value);
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      searchModal.classList.add("hidden");
+      liveInput.value = "";
+    }
+  });
 </script>
 
 
