@@ -327,6 +327,37 @@ h1, h2, h3, .tagline {
   transition: background 0.3s ease;
 }
 
+.search-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.search-header input {
+  flex: 1;
+  padding: 0.85rem 1.2rem;
+  font-size: 1.05rem;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.search-header input:focus {
+  outline: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.close-search-modal {
+  font-size: 1.8rem;
+  line-height: 1;
+  padding: 0.5rem 0.8rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
 
 .search-bar-wrapper {
   display: flex;

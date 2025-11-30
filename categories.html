@@ -481,8 +481,10 @@ overlay.addEventListener("click", (e) => {
 <!-- 🔍 Search Modal -->
 <div id="categorySearchModal" class="search-modal hidden">
   <div class="search-modal-content glass-box">
-    <button class="close-search-modal" id="closeSearchModal">×</button>
-    <input type="text" id="liveSearchInput" placeholder="Start typing to search..." autofocus />
+    <div class="search-header">
+  <input type="text" id="liveSearchInput" placeholder="Start typing to search..." autofocus />
+  <button class="close-search-modal" id="closeSearchModal">×</button>
+</div>
     <div class="search-results" id="searchResults">
       <!-- Dynamic Category Items Here -->
     </div>
