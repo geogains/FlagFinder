@@ -174,12 +174,9 @@
 <!-- ✅ Leaderboard Content -->
 <main class="leaderboard-container fade-in">
   <h1 class="leaderboard-title">🏆 Top Players</h1>
-  <div class="custom-dropdown-wrapper">
-    <div class="custom-dropdown" id="dropdown">
-      <div class="dropdown-selected" id="dropdownSelected">Select Category</div>
-      <ul class="dropdown-options" id="dropdownOptions"></ul>
-    </div>
-  </div>
+<div class="search-bar-wrapper">
+  <input type="text" id="categorySearchInput" placeholder="🔍 Search Categories..." readonly />
+</div>
 
   <table class="leaderboard-table" id="leaderboardTable">
     <thead>
@@ -226,9 +223,6 @@
   }
 
   // Leaderboard logic
-  const dropdown = document.getElementById('dropdown');
-  const dropdownSelected = document.getElementById('dropdownSelected');
-  const dropdownOptions = document.getElementById('dropdownOptions');
   const leaderboardBody = document.getElementById('leaderboardBody');
 
   function formatCategoryName(name) {
@@ -346,6 +340,65 @@
 </script>
 
 <script>
+  const categorySearchModal = document.getElementById('categorySearchModal');
+  const closeSearchModal = document.getElementById('closeSearchModal');
+  const liveSearchInput = document.getElementById('liveSearchInput');
+  const searchResults = document.getElementById('searchResults');
+
+ document.getElementById('categorySearchInput')?.addEventListener('click', () => {
+  categorySearchModal.classList.remove('hidden');
+  setTimeout(() => {
+    liveSearchInput.focus();
+    renderCategories('');
+  }, 50);
+});
+
+  closeSearchModal.addEventListener('click', () => {
+    categorySearchModal.classList.add('hidden');
+  });
+
+  window.addEventListener('click', (e) => {
+    if (e.target === categorySearchModal) {
+      categorySearchModal.classList.add('hidden');
+    }
+  });
+
+  liveSearchInput.addEventListener('input', (e) => {
+    renderCategories(e.target.value.toLowerCase());
+  });
+
+  async function renderCategories(filter = '') {
+    const { data: categories } = await supabase
+      .from('categories')
+      .select('*')
+      .order('name');
+
+    searchResults.innerHTML = '';
+
+    categories
+      .filter(cat => cat.name.toLowerCase().includes(filter))
+      .forEach(cat => {
+        const displayName = formatCategoryName(cat.name);
+        const categoryDiv = document.createElement('div');
+        categoryDiv.classList.add('category-result-item');
+        categoryDiv.innerHTML = `
+          <img src="images/categories/${cat.name.toLowerCase()}.jpg" alt="${displayName}" />
+          <span>${displayName}</span>
+        `;
+        categoryDiv.addEventListener('click', () => {
+          categorySearchModal.classList.add('hidden');
+          loadLeaderboard(cat.name);
+          document.getElementById('categorySearchInput').value = `🔍 ${displayName}`;
+          const newUrl = new URL(window.location);
+          newUrl.searchParams.set('mode', cat.name);
+          window.history.replaceState({}, '', newUrl);
+        });
+        searchResults.appendChild(categoryDiv);
+      });
+  }
+</script>
+
+<script>
   document.addEventListener("DOMContentLoaded", function () {
     const menuToggle = document.getElementById("menuToggle");
     const menuOverlay = document.getElementById("menuOverlay");
@@ -369,6 +422,18 @@
   });
 </script>
 
+<!-- 🔍 Category Search Modal -->
+<div id="categorySearchModal" class="search-modal hidden">
+  <div class="search-modal-content glass-box">
+    <div class="search-header">
+      <input type="text" id="liveSearchInput" placeholder="Start typing to search..." autofocus />
+      <button class="close-search-modal" id="closeSearchModal">×</button>
+    </div>
+    <div class="search-results" id="searchResults">
+      <!-- Dynamic Category Items Here -->
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
