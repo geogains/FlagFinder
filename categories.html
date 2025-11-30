@@ -536,12 +536,16 @@ overlay.addEventListener("click", (e) => {
   };
 
   searchTrigger?.addEventListener('click', () => {
-    searchModal.classList.remove("hidden");
-    setTimeout(() => {
-      liveInput.focus();
-      renderSearchResults();
-    }, 100);
-  });
+  searchModal.classList.remove("hidden");
+  setTimeout(() => {
+    liveInput.focus();
+    renderSearchResults();
+    const modalContent = document.querySelector('.search-modal-content');
+    if (modalContent) {
+      modalContent.scrollTo({ top: 0, behavior: 'instant' }); // Scrolls instantly to top
+    }
+  }, 100);
+});
 
   const closeModal = () => {
   searchModal.classList.add("hidden");
