@@ -194,9 +194,11 @@
 </main>
 
 <script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
   const supabase = createClient(
-    "https://ajwxgdaninuzcpfwawug.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI"
+    'https://ajwxgdaninuzcpfwawug.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
   );
 
   const leaderboardBody = document.getElementById("leaderboardBody");
@@ -210,12 +212,10 @@
       .trim();
   }
 
-  // ⭐ NEW CATEGORY LOADER (no dropdown)
   async function loadCategories() {
     const params = new URLSearchParams(window.location.search);
     const selectedParam = params.get("mode");
 
-    // Auto-select existing mode in URL or default to first category
     const { data: categories } = await supabase
       .from("categories")
       .select("*")
@@ -225,8 +225,6 @@
 
     const initial = selectedParam || categories[0].name;
     loadLeaderboard(initial);
-
-    // Update search bar placeholder
     document.getElementById("categorySearchInput").value =
       "🔍 " + formatCategoryName(initial);
   }
@@ -263,7 +261,6 @@
       const user = entry.users || {};
       const rankDisplay =
         index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `#${index + 1}`;
-
       const row = document.createElement("tr");
       row.innerHTML = `
         <td class="leaderboard-rank">${rankDisplay}</td>
