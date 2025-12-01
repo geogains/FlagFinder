@@ -205,6 +205,26 @@
   window.supabase = supabase; // 🔑 Make Supabase global
 
   const leaderboardBody = document.getElementById("leaderboardBody");
+  const displayNameMap = {
+  population: "Population",
+  gdp: "GDP Per Capita",
+  altitude: "Highest Altitude",
+  forest: "Forest Cover",
+  coastline: "Longest Coastline",
+  olympic: "Olympic Medals",
+  cuisine: "Cuisine",
+  worldcup: "World Cup Trophies",
+  landmass: "Land Mass",
+  crimerate: "Crime Rate",
+  happiness: "Happiness",
+  passport: "Passport Strength",
+  beer: "Beer Consumption",
+  nobelprize: "Nobel Prize Winners",
+  temperature: "Highest Temperature",
+  precipitation: "Rainfall"
+};
+
+window.displayNameMap = displayNameMap;
 
   window.formatCategoryName = function(category) {
     if (!category) return "";
@@ -226,10 +246,10 @@
 
     if (!categories?.length) return;
 
-    const initial = selectedParam || categories[0].name;
+   const initial = selectedParam || categories[0].name;
     loadLeaderboard(initial);
-    document.getElementById("categorySearchInput").value =
-      "🔍 " + formatCategoryName(initial);
+  const displayName = displayNameMap[initial.toLowerCase()] || formatCategoryName(initial);
+document.getElementById("categorySearchInput").value = "🔍 " + displayName;
   }
 
   async function loadLeaderboard(categoryName) {
@@ -337,7 +357,7 @@
     categories
       .filter(cat => cat.name.toLowerCase().includes(filter))
       .forEach(cat => {
-        const displayName = formatCategoryName(cat.name);
+        const displayName = displayNameMap[cat.name.toLowerCase()] || formatCategoryName(cat.name);
         const slug = cat.name.toLowerCase();
         const imageSlug = imageMap[slug] || slug;
 
