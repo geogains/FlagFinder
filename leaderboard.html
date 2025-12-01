@@ -199,7 +199,7 @@
 
   const supabase = createClient(
     'https://ajwxgdaninuzcpfwawug.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
   );
 
   window.supabase = supabase; // 🔑 Make Supabase global
@@ -320,34 +320,36 @@
   });
 
   async function renderCategories(filter = '') {
-    const { data: categories } = await supabase
-      .from('categories')
-      .select('*')
-      .order('name');
+  const { data: categories } = await supabase
+    .from('categories')
+    .select('*')
+    .order('name');
 
-    searchResults.innerHTML = '';
+  searchResults.innerHTML = '';
 
-    categories
-      .filter(cat => cat.name.toLowerCase().includes(filter))
-      .forEach(cat => {
-        const displayName = formatCategoryName(cat.name);
-        const categoryDiv = document.createElement('div');
-        categoryDiv.classList.add('category-result-item');
-        categoryDiv.innerHTML = `
-          <img src="images/categories/${cat.name.toLowerCase()}.jpg" alt="${displayName}" />
-          <span>${displayName}</span>
-        `;
-        categoryDiv.addEventListener('click', () => {
-          categorySearchModal.classList.add('hidden');
-          loadLeaderboard(cat.name);
-          document.getElementById('categorySearchInput').value = `🔍 ${displayName}`;
-          const newUrl = new URL(window.location);
-          newUrl.searchParams.set('mode', cat.name);
-          window.history.replaceState({}, '', newUrl);
-        });
-        searchResults.appendChild(categoryDiv);
-      });
-  }
+  categories
+    .filter(cat => cat.name.toLowerCase().includes(filter))
+    .forEach(cat => {
+      const displayName = formatCategoryName(cat.name);
+      const slug = cat.name.toLowerCase();
+
+      const item = document.createElement("div");
+      item.className = "search-item";
+      item.onclick = () => {
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.set('mode', cat.name);
+        window.history.replaceState({}, '', newUrl);
+        categorySearchModal.classList.add('hidden');
+        loadLeaderboard(cat.name);
+        document.getElementById('categorySearchInput').value = `🔍 ${displayName}`;
+      };
+      item.innerHTML = `
+        <img src="images/categories/${slug}.jpg" alt="${displayName}" />
+        <div class="info">${displayName}</div>
+      `;
+      searchResults.appendChild(item);
+    });
+}
 </script>
 
 <script>
