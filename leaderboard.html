@@ -194,150 +194,101 @@
 </main>
 
 <script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
   const supabase = createClient(
-    'https://ajwxgdaninuzcpfwawug.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
+    "https://ajwxgdaninuzcpfwawug.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI"
   );
 
-  const { data: { session } } = await supabase.auth.getSession();
+  const leaderboardBody = document.getElementById("leaderboardBody");
 
-  // Account button
-  const accountBtn = document.querySelector(".menu-btn-account");
-  if (!session || !session.user) {
-    accountBtn?.remove();
+  function formatCategoryName(category) {
+    if (!category) return "";
+    return category
+      .replace(/([A-Z])/g, " $1")
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase())
+      .trim();
   }
 
-  // Hide upgrade button for premium users
-  if (session && session.user) {
-    const { data: profile } = await supabase
-      .from('users')
-      .select('is_premium')
-      .eq('id', session.user.id)
-      .single();
-
-    if (profile?.is_premium) {
-      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
-    }
-  }
-
-  // Leaderboard logic
-  const leaderboardBody = document.getElementById('leaderboardBody');
-
-  function formatCategoryName(name) {
-    const mapping = {
-      population: 'Population',
-      altitude: 'Altitude',
-      gdp: 'GDP',
-      happiness: 'Happiness',
-      forest: 'Forest Cover',
-      coastline: 'Coastline',
-      cuisine: 'Cuisine',
-      olympic: 'Olympic Medals',
-      worldcup: 'World Cup',
-      landmass: 'Land Mass',
-      crimerate: 'Crime Rate',
-      passport: 'Passport',
-      beer: 'Beer Consumption',
-      nobelprize: 'Nobel Prize',
-      temperature: 'Highest Temperature',
-      precipitation: 'Rainfall',
-    };
-    return mapping[name.toLowerCase()] || name;
-  }
-
+  // ⭐ NEW CATEGORY LOADER (no dropdown)
   async function loadCategories() {
-    const { data: categories, error } = await supabase
-      .from('categories')
-      .select('*')
-      .order('name');
-
-    if (error) {
-      alert('Failed to load categories');
-      console.error('Category error:', error);
-      return;
-    }
-
-    dropdownOptions.innerHTML = '';
     const params = new URLSearchParams(window.location.search);
-    const selectedParam = params.get('mode') || categories[0]?.name;
+    const selectedParam = params.get("mode");
 
-    categories.forEach(cat => {
-      const display = formatCategoryName(cat.name);
-      const li = document.createElement('li');
-      li.textContent = display;
-      li.addEventListener('click', () => {
-        dropdownSelected.textContent = display;
-        const newUrl = new URL(window.location);
-        newUrl.searchParams.set('mode', cat.name);
-        window.history.replaceState({}, '', newUrl);
-        dropdownOptions.style.display = 'none';
-        loadLeaderboard(cat.name);
-      });
+    // Auto-select existing mode in URL or default to first category
+    const { data: categories } = await supabase
+      .from("categories")
+      .select("*")
+      .order("name");
 
-      dropdownOptions.appendChild(li);
+    if (!categories?.length) return;
 
-      if (cat.name === selectedParam) {
-        dropdownSelected.textContent = display;
-        loadLeaderboard(cat.name);
-      }
-    });
+    const initial = selectedParam || categories[0].name;
+    loadLeaderboard(initial);
+
+    // Update search bar placeholder
+    document.getElementById("categorySearchInput").value =
+      "🔍 " + formatCategoryName(initial);
   }
 
   async function loadLeaderboard(categoryName) {
     leaderboardBody.innerHTML = `<tr><td colspan="3">Loading...</td></tr>`;
 
-    const { data: catData, error: catErr } = await supabase
-      .from('categories')
-      .select('id')
-      .eq('name', categoryName)
+    const { data: catData } = await supabase
+      .from("categories")
+      .select("id")
+      .eq("name", categoryName)
       .single();
 
-    if (catErr || !catData) {
+    if (!catData) {
       leaderboardBody.innerHTML = `<tr><td colspan="3">❌ Category not found</td></tr>`;
       return;
     }
 
-    const { data: scores, error: scoreErr } = await supabase
-      .from('category_scores')
-      .select('score, user_id, users(username)')
-      .eq('category_id', catData.id)
-      .order('score', { ascending: false })
+    const { data: scores } = await supabase
+      .from("category_scores")
+      .select("score, user_id, users(username)")
+      .eq("category_id", catData.id)
+      .order("score", { ascending: false })
       .limit(20);
 
-    leaderboardBody.innerHTML = '';
+    leaderboardBody.innerHTML = "";
 
-    if (scoreErr || !scores?.length) {
+    if (!scores?.length) {
       leaderboardBody.innerHTML = `<tr><td colspan="3">👤 Create an account to view the leaderboard scores</td></tr>`;
       return;
     }
 
     scores.forEach((entry, index) => {
       const user = entry.users || {};
-      const rankDisplay = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
-      const row = document.createElement('tr');
+      const rankDisplay =
+        index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `#${index + 1}`;
+
+      const row = document.createElement("tr");
       row.innerHTML = `
         <td class="leaderboard-rank">${rankDisplay}</td>
-        <td>${user.username || 'Anonymous'}</td>
+        <td>${user.username || "Anonymous"}</td>
         <td>${entry.score}</td>
       `;
       leaderboardBody.appendChild(row);
     });
   }
 
-  dropdownSelected.addEventListener('click', () => {
-    dropdownOptions.style.display = dropdownOptions.style.display === 'block' ? 'none' : 'block';
-  });
-
-  document.addEventListener('click', (e) => {
-    if (!dropdown.contains(e.target)) {
-      dropdownOptions.style.display = 'none';
-    }
-  });
-
   loadCategories();
 </script>
+
+<!-- 🔍 Category Search Modal -->
+<div id="categorySearchModal" class="search-modal hidden">
+  <div class="search-modal-content glass-box">
+    <div class="search-header">
+      <input type="text" id="liveSearchInput" placeholder="Start typing to search..." autofocus />
+      <button class="close-search-modal" id="closeSearchModal">×</button>
+    </div>
+    <div class="search-results" id="searchResults">
+      <!-- Dynamic Category Items Here -->
+    </div>
+  </div>
+</div>
 
 <script>
   const categorySearchModal = document.getElementById('categorySearchModal');
@@ -421,19 +372,6 @@
     }
   });
 </script>
-
-<!-- 🔍 Category Search Modal -->
-<div id="categorySearchModal" class="search-modal hidden">
-  <div class="search-modal-content glass-box">
-    <div class="search-header">
-      <input type="text" id="liveSearchInput" placeholder="Start typing to search..." autofocus />
-      <button class="close-search-modal" id="closeSearchModal">×</button>
-    </div>
-    <div class="search-results" id="searchResults">
-      <!-- Dynamic Category Items Here -->
-    </div>
-  </div>
-</div>
 
 </body>
 </html>
