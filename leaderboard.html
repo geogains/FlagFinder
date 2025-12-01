@@ -320,38 +320,58 @@
   });
 
   async function renderCategories(filter = '') {
-  const { data: categories } = await supabase
-    .from('categories')
-    .select('*')
-    .order('name');
+    const { data: categories } = await supabase
+      .from('categories')
+      .select('*')
+      .order('name');
 
-  searchResults.innerHTML = '';
+    if (!categories) return;
 
-  categories
-    .filter(cat => cat.name.toLowerCase().includes(filter))
-    .forEach(cat => {
-      const displayName = formatCategoryName(cat.name);
-      const slug = cat.name.toLowerCase();
+    searchResults.innerHTML = '';
 
-      const item = document.createElement("div");
-      item.className = "search-item";
-      item.onclick = () => {
-        const newUrl = new URL(window.location);
-        newUrl.searchParams.set('mode', cat.name);
-        window.history.replaceState({}, '', newUrl);
-        categorySearchModal.classList.add('hidden');
-        loadLeaderboard(cat.name);
-        document.getElementById('categorySearchInput').value = `🔍 ${displayName}`;
-      };
-      item.innerHTML = `
-        <img src="images/categories/${slug}.jpg" alt="${displayName}" />
-        <div class="info">${displayName}</div>
-      `;
-      searchResults.appendChild(item);
-    });
-}
+    const imageMap = {
+      temperature: 'hightemp',
+      precipitation: 'rainfall',
+    };
+
+    categories
+      .filter(cat => cat.name.toLowerCase().includes(filter))
+      .forEach(cat => {
+        const displayName = formatCategoryName(cat.name);
+        const slug = cat.name.toLowerCase();
+        const imageSlug = imageMap[slug] || slug;
+
+        const item = document.createElement("div");
+        item.className = "search-item";
+
+        item.onclick = () => {
+          const newUrl = new URL(window.location);
+          newUrl.searchParams.set('mode', cat.name);
+          window.history.replaceState({}, '', newUrl);
+
+          // 💡 Fix: Delay leaderboard load slightly to let URL settle
+          setTimeout(() => {
+            loadLeaderboard(cat.name);
+          }, 10); // just enough delay to sync
+
+          // OPTIONAL: Use this instead to force a full refresh
+          // window.location.href = newUrl.href;
+
+          categorySearchModal.classList.add('hidden');
+          document.getElementById('categorySearchInput').value = `🔍 ${displayName}`;
+        };
+
+        item.innerHTML = `
+          <img src="images/categories/${imageSlug}.jpg" alt="${displayName}" />
+          <div class="info">${displayName}</div>
+        `;
+
+        searchResults.appendChild(item);
+      });
+  }
 </script>
 
+<!-- 🍔 Menu toggle logic -->
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const menuToggle = document.getElementById("menuToggle");
@@ -375,6 +395,7 @@
     }
   });
 </script>
+
 
 </body>
 </html>
