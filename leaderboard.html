@@ -347,7 +347,7 @@
         item.onclick = () => {
           const newUrl = new URL(window.location);
           newUrl.searchParams.set('mode', cat.name);
-          window.history.replaceState({}, '', newUrl);
+          window.location = newUrl.toString();
 
           // 💡 Fix: Delay leaderboard load slightly to let URL settle
           setTimeout(() => {
