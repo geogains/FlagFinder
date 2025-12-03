@@ -450,8 +450,8 @@ playRandom.onclick = () => {
 export function setupRankButtons() {
   console.log("✅ Rank buttons initialized");
   document
-    .querySelectorAll(".rank-number")
-    .forEach((btn) => btn.addEventListener("click", handleRankClick));
+    .querySelectorAll(".rank-number, .rank-slot")
+    .forEach((el) => el.addEventListener("click", handleRankClick));
 }
 
 window.addEventListener("DOMContentLoaded", setupRankButtons);
