@@ -91,10 +91,18 @@
   </div>
 
   <div class="ranking-card">
-    <div class="current-flag">
-      <div class="flag-box"><span>&lt;Country Flag&gt;</span></div>
-    </div>
-    <div class="flag-country-name">COUNTRY</div>
+    <!-- 🔁 Animated flag preview -->
+<div class="flag-preview-container fade-in" id="flag-preview-container">
+  <div class="flag-box">
+    <img id="flag-preview" src="" alt="" />
+  </div>
+  <div class="flag-country-name" id="flag-country-name"></div>
+</div>
+
+<!-- ✅ Submit button that replaces flag preview -->
+<div class="submit-btn-container fade-out" id="submit-btn-container" style="display: none;">
+  <button id="submit-rankings-btn" class="btn">✅ Submit Rankings</button>
+</div>
 
     <div class="ranking-list">
       <div class="ranking-row"><div class="rank-number">1</div><div class="rank-slot empty-slot"></div></div>
@@ -109,11 +117,6 @@
       <div class="ranking-row"><div class="rank-number">10</div><div class="rank-slot empty-slot"></div></div>
     </div>
   </div>
-
-  <!-- 🔘 Submit Button -->
-<div style="text-align:center; margin-top: 20px;">
-  <button id="submit-rankings-btn" class="btn" style="display:none;">Submit</button>
-</div>
 
   <div class="result-panel" style="display:none;">
     <div class="result-score">Score: <span class="result-score-value">0</span></div>

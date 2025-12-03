@@ -177,34 +177,74 @@ function updateFlagPreview(country) {
 
 // 🏅 Handle rank clicks (tie-range aware)
 function handleRankClick(event) {
-  if (isGameOver || !selectedCountry) return;
+  if (isGameOver) return;
 
-  const rankBtn = event.currentTarget;
-  const row = rankBtn.parentElement;
-  const slot = row.querySelector(".rank-slot");
+  const clickedElement = event.currentTarget;
+  const row = clickedElement.closest(".ranking-row");
   const index = [...document.querySelectorAll(".ranking-row")].indexOf(row);
-  const country = selectedCountry;
+  const slot = row.querySelector(".rank-slot");
 
-  // Remove previous assignment from this slot
-  const prevCode = rankAssignments[index];
-  if (prevCode) {
-    usedCountries.delete(prevCode);
-    const oldFlag = document.querySelector(`.country-flag-item[data-code="${prevCode}"]`);
-    if (oldFlag) oldFlag.classList.remove("used");
+  const isFilled = !slot.classList.contains("empty-slot");
+  const slotCode = rankAssignments[index];
+
+  // Case 1: all slots are filled and user clicks to unassign a slot
+  if (rankAssignments.every(code => code !== null) && isFilled) {
+    // Unassign the country
+    if (slotCode) {
+      usedCountries.delete(slotCode);
+      const flagEl = document.querySelector(`.country-flag-item[data-code="${slotCode}"]`);
+      if (flagEl) flagEl.classList.remove("used");
+
+      slot.innerHTML = "";
+      slot.classList.add("empty-slot");
+      slot.classList.remove("stomp");
+      rankAssignments[index] = null;
+
+      // Show flag preview again
+      const flagPreview = document.getElementById("flag-preview-container");
+      const submitBtn = document.getElementById("submit-btn-container");
+      flagPreview.classList.remove("fade-out");
+      flagPreview.classList.add("fade-in");
+      submitBtn.classList.remove("fade-in", "pop-in");
+      submitBtn.classList.add("fade-out");
+
+      // Re-select the removed country
+      const removedCountry = selectedCountries.find(c => c.code === slotCode);
+      if (removedCountry) {
+        selectedCountry = removedCountry;
+        updateFlagPreview(removedCountry);
+
+        document.querySelectorAll(".country-flag-item").forEach(el => el.classList.remove("active"));
+        const flagItem = document.querySelector(`.country-flag-item[data-code="${slotCode}"]`);
+        if (flagItem) flagItem.classList.add("active");
+      }
+    }
+    return;
   }
 
-  // If country is already placed elsewhere, remove it from that slot
-  const prevSlotIndex = rankAssignments.findIndex(code => code === country.code);
-  if (prevSlotIndex !== -1) {
-    const prevRow = document.querySelectorAll(".ranking-row")[prevSlotIndex];
+  // Case 2: no active selection
+  if (!selectedCountry) return;
+  const country = selectedCountry;
+
+  // Remove previous assignment from current slot
+  if (slotCode) {
+    usedCountries.delete(slotCode);
+    const flagEl = document.querySelector(`.country-flag-item[data-code="${slotCode}"]`);
+    if (flagEl) flagEl.classList.remove("used");
+  }
+
+  // Remove country from any previously assigned slot
+  const prevIndex = rankAssignments.findIndex(code => code === country.code);
+  if (prevIndex !== -1) {
+    const prevRow = document.querySelectorAll(".ranking-row")[prevIndex];
     const prevSlot = prevRow.querySelector(".rank-slot");
     prevSlot.innerHTML = "";
     prevSlot.classList.add("empty-slot");
     prevSlot.classList.remove("stomp");
-    rankAssignments[prevSlotIndex] = null;
+    rankAssignments[prevIndex] = null;
   }
 
-  // Assign to current slot
+  // Assign to selected slot
   slot.innerHTML = `<img src="flags/${country.code}.png" alt="${country.name}" /> ${country.name}`;
   slot.classList.remove("empty-slot");
   slot.classList.add("stomp");
@@ -212,18 +252,32 @@ function handleRankClick(event) {
   usedCountries.add(country.code);
   rankAssignments[index] = country.code;
 
-  const usedFlag = document.querySelector(`.country-flag-item[data-code="${country.code}"]`);
-  if (usedFlag) usedFlag.classList.add("used");
+  const flagItem = document.querySelector(`.country-flag-item[data-code="${country.code}"]`);
+  if (flagItem) flagItem.classList.add("used");
 
-  // Highlight active flag
-  document.querySelectorAll(".country-flag-item").forEach(el => el.classList.remove("active"));
-  const nextFlagEl = document.querySelector(`.country-flag-item[data-code="${country.code}"]`);
-  if (nextFlagEl) nextFlagEl.classList.add("active");
+  // Auto-select next available country
+  const nextCountry = selectedCountries.find(c => !usedCountries.has(c.code));
+  if (nextCountry) {
+    selectedCountry = nextCountry;
+    updateFlagPreview(nextCountry);
 
-  // Show the submit button if all slots filled
-  const allFilled = rankAssignments.every(code => code !== null);
-  document.getElementById("submit-rankings-btn").style.display = allFilled ? "inline-block" : "none";
+    document.querySelectorAll(".country-flag-item").forEach(el => el.classList.remove("active"));
+    const nextFlag = document.querySelector(`.country-flag-item[data-code="${nextCountry.code}"]`);
+    if (nextFlag) nextFlag.classList.add("active");
+  } else {
+    // All countries placed → fade out preview, fade in submit
+    const flagPreview = document.getElementById("flag-preview-container");
+    const submitBtn = document.getElementById("submit-btn-container");
+
+    flagPreview.classList.remove("fade-in");
+    flagPreview.classList.add("fade-out");
+    submitBtn.classList.remove("fade-out");
+    submitBtn.classList.add("fade-in", "pop-in");
+
+    selectedCountry = null;
+  }
 }
+
 
 
 function formatMetric(num) {
@@ -444,13 +498,10 @@ playRandom.onclick = () => {
 }
 
 export function setupRankButtons() {
-  console.log("✅ Rank buttons initialized");
   document
-    .querySelectorAll(".rank-number")
-    .forEach((btn) => btn.addEventListener("click", handleRankClick));
+    .querySelectorAll(".rank-number, .rank-slot")
+    .forEach((el) => el.addEventListener("click", handleRankClick));
 }
-
-window.addEventListener("DOMContentLoaded", setupRankButtons);
 
 document.addEventListener("DOMContentLoaded", () => {
   const submitBtn = document.getElementById("submit-rankings-btn");
@@ -464,4 +515,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+
+window.addEventListener("DOMContentLoaded", setupRankButtons);
 
