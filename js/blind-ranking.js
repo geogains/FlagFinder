@@ -16,6 +16,7 @@ function getCountries() {
 
 let selectedCountries = [];
 let totalScore = 0;
+let rankAssignments = Array(10).fill(null); // Tracks which country is in which slot
 let isGameOver = false;
 let usedCountries = new Set();
 let selectedCountry = null;
@@ -177,58 +178,53 @@ function updateFlagPreview(country) {
 // 🏅 Handle rank clicks (tie-range aware)
 function handleRankClick(event) {
   if (isGameOver || !selectedCountry) return;
+
   const rankBtn = event.currentTarget;
   const row = rankBtn.parentElement;
   const slot = row.querySelector(".rank-slot");
-  if (!slot.classList.contains("empty-slot")) return;
-
+  const index = [...document.querySelectorAll(".ranking-row")].indexOf(row);
   const country = selectedCountry;
-  usedCountries.add(country.code);
-  const usedFlag = document.querySelector(
-    `.country-flag-item[data-code="${country.code}"]`
-  );
-  if (usedFlag) usedFlag.classList.add("used");
 
+  // Remove previous assignment from this slot
+  const prevCode = rankAssignments[index];
+  if (prevCode) {
+    usedCountries.delete(prevCode);
+    const oldFlag = document.querySelector(`.country-flag-item[data-code="${prevCode}"]`);
+    if (oldFlag) oldFlag.classList.remove("used");
+  }
+
+  // If country is already placed elsewhere, remove it from that slot
+  const prevSlotIndex = rankAssignments.findIndex(code => code === country.code);
+  if (prevSlotIndex !== -1) {
+    const prevRow = document.querySelectorAll(".ranking-row")[prevSlotIndex];
+    const prevSlot = prevRow.querySelector(".rank-slot");
+    prevSlot.innerHTML = "";
+    prevSlot.classList.add("empty-slot");
+    prevSlot.classList.remove("stomp");
+    rankAssignments[prevSlotIndex] = null;
+  }
+
+  // Assign to current slot
   slot.innerHTML = `<img src="flags/${country.code}.png" alt="${country.name}" /> ${country.name}`;
   slot.classList.remove("empty-slot");
   slot.classList.add("stomp");
-  rankBtn.classList.add("used-rank");
-  rankBtn.style.cursor = "default";
 
-  const correctTier = country.bestRankInRound;
-  const range = country.rankRange || { min: correctTier, max: correctTier };
-  const allRows = Array.from(document.querySelectorAll(".ranking-row"));
-  const userTier = allRows.indexOf(row) + 1;
+  usedCountries.add(country.code);
+  rankAssignments[index] = country.code;
 
-  const withinTieRange = userTier >= range.min && userTier <= range.max;
-  const diff =
-    userTier < range.min
-      ? range.min - userTier
-      : userTier > range.max
-      ? userTier - range.max
-      : 0;
+  const usedFlag = document.querySelector(`.country-flag-item[data-code="${country.code}"]`);
+  if (usedFlag) usedFlag.classList.add("used");
 
-  let roundPoints = Math.max(10 - diff, 1);
+  // Highlight active flag
+  document.querySelectorAll(".country-flag-item").forEach(el => el.classList.remove("active"));
+  const nextFlagEl = document.querySelector(`.country-flag-item[data-code="${country.code}"]`);
+  if (nextFlagEl) nextFlagEl.classList.add("active");
 
-  totalScore += roundPoints;
-
-  const nextCountry = selectedCountries.find(
-    (c) => !usedCountries.has(c.code)
-  );
-  if (nextCountry) {
-    selectedCountry = nextCountry;
-    document
-      .querySelectorAll(".country-flag-item")
-      .forEach((el) => el.classList.remove("active"));
-    const nextFlagEl = document.querySelector(
-      `.country-flag-item[data-code="${nextCountry.code}"]`
-    );
-    if (nextFlagEl) nextFlagEl.classList.add("active");
-    updateFlagPreview(nextCountry);
-  }
-
-  if (usedCountries.size >= selectedCountries.length) endGame();
+  // Show the submit button if all slots filled
+  const allFilled = rankAssignments.every(code => code !== null);
+  document.getElementById("submit-rankings-btn").style.display = allFilled ? "inline-block" : "none";
 }
+
 
 function formatMetric(num) {
   if (metricKey === "temperature") return `${num}°C`;
@@ -455,4 +451,17 @@ export function setupRankButtons() {
 }
 
 window.addEventListener("DOMContentLoaded", setupRankButtons);
+
+document.addEventListener("DOMContentLoaded", () => {
+  const submitBtn = document.getElementById("submit-rankings-btn");
+  if (submitBtn) {
+    submitBtn.addEventListener("click", () => {
+      if (rankAssignments.includes(null)) {
+        alert("Please fill all 10 slots before submitting.");
+        return;
+      }
+      endGame();
+    });
+  }
+});
 

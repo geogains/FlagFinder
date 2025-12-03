@@ -6,6 +6,7 @@
   <title>GeoRanks — Leaderboard</title>
   <link rel="stylesheet" href="css/home.css"/>
   <link rel="stylesheet" href="css/game-modes.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     
     .leaderboard-container {
@@ -25,6 +26,14 @@
       font-size: 2rem;
       margin-bottom: 1.5rem;
     }
+
+    .search-results .info {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #1f2937; /* Tailwind gray-800, or adjust as needed */
+}
+
 
     .custom-dropdown-wrapper {
       display: flex;
@@ -208,9 +217,9 @@
   const displayNameMap = {
   population: "Population",
   gdp: "GDP Per Capita",
-  altitude: "Highest Altitude",
+  altitude: "Altitude",
   forest: "Forest Cover",
-  coastline: "Longest Coastline",
+  coastline: "Coastline",
   olympic: "Olympic Medals",
   cuisine: "Cuisine",
   worldcup: "World Cup Trophies",
@@ -416,6 +425,34 @@ document.getElementById("categorySearchInput").value = "🔍 " + displayName;
   });
 </script>
 
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+  const supabase = createClient(
+    'https://ajwxgdaninuzcpfwawug.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
+  );
+
+  const { data: { session } } = await supabase.auth.getSession();
+
+  // 🔒 Hide "Account" if user is not logged in
+  if (!session || !session.user) {
+    document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+  }
+
+  // 🔓 Hide "Unlock All Categories" if user is premium
+  if (session && session.user) {
+    const { data: profile } = await supabase
+      .from('users')
+      .select('is_premium')
+      .eq('id', session.user.id)
+      .single();
+
+    if (profile?.is_premium) {
+      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+    }
+  }
+</script>
 
 </body>
 </html>
