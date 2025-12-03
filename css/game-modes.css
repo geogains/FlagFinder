@@ -563,8 +563,12 @@ html {
 
 /* 🔁 Flag preview container and submit button swap zone */
 #flag-preview-container {
+  display: flex;
   flex-direction: column;
-  gap: 10px; /* 👈 Add this line */
+  align-items: center;
+  justify-content: center;
+  gap: 10px; /* creates space between flag and name */
+  margin-bottom: 16px;
 }
 
 #submit-btn-container {
@@ -577,14 +581,22 @@ html {
 
 /* 🎯 Style for the top submit button */
 #submit-rankings-btn {
-  font-size: 1.05rem;
+  margin: 0 auto;
+  display: none;
   padding: 12px 20px;
-  background: linear-gradient(135deg, #ff9770, #ff6f61);
-  color: #fff;
+  font-size: 1rem;
+  font-weight: bold;
   border: none;
   border-radius: 12px;
+  background-color: #ff7750;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#submit-rankings-btn.pop-in {
+  animation: popIn 0.3s ease forwards;
 }
 
 #submit-rankings-btn:hover {

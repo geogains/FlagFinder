@@ -201,14 +201,30 @@ function handleRankClick(event) {
       rankAssignments[index] = null;
 
       // Show flag preview again
-      const flagPreview = document.getElementById("flag-preview-container");
-      const submitBtn = document.getElementById("submit-btn-container");
-      flagPreview.style.display = "flex";
-      flagPreview.classList.remove("fade-out");
-      flagPreview.classList.add("fade-in");
-      submitBtn.style.display = "flex";
-      submitBtn.classList.remove("fade-in", "pop-in");
-      submitBtn.classList.add("fade-out");
+  const flagPreview = document.getElementById("flag-preview-container");
+const submitBtn = document.getElementById("submit-btn-container");
+
+const allFilled = rankAssignments.every(code => code !== null);
+
+if (allFilled) {
+  // Hide the flag + name preview
+  flagPreview.classList.remove("fade-in", "pop-in");
+  flagPreview.classList.add("fade-out");
+
+  // Show the submit button with pop
+  submitBtn.style.display = "flex";
+  submitBtn.classList.remove("fade-out");
+  submitBtn.classList.add("fade-in", "pop-in");
+} else {
+  // Show flag preview again if not all filled
+  flagPreview.style.display = "flex";
+  flagPreview.classList.remove("fade-out");
+  flagPreview.classList.add("fade-in", "pop-in");
+
+  // Hide submit button
+  submitBtn.classList.remove("fade-in", "pop-in");
+  submitBtn.classList.add("fade-out");
+}
 
       // Re-select the removed country
       const removedCountry = selectedCountries.find(c => c.code === slotCode);
