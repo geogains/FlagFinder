@@ -16,7 +16,6 @@ function getCountries() {
 
 let selectedCountries = [];
 let totalScore = 0;
-let rankAssignments = Array(10).fill(null); // Tracks which country is in which slot
 let isGameOver = false;
 let usedCountries = new Set();
 let selectedCountry = null;
@@ -177,126 +176,59 @@ function updateFlagPreview(country) {
 
 // 🏅 Handle rank clicks (tie-range aware)
 function handleRankClick(event) {
-  if (isGameOver) return;
-
-  const clickedElement = event.currentTarget;
-  const row = clickedElement.closest(".ranking-row");
-  const index = [...document.querySelectorAll(".ranking-row")].indexOf(row);
+  if (isGameOver || !selectedCountry) return;
+  const rankBtn = event.currentTarget;
+  const row = rankBtn.parentElement;
   const slot = row.querySelector(".rank-slot");
+  if (!slot.classList.contains("empty-slot")) return;
 
-  const isFilled = !slot.classList.contains("empty-slot");
-  const slotCode = rankAssignments[index];
-
-  // Case 1: all slots are filled and user clicks to unassign a slot
-  if (rankAssignments.every(code => code !== null) && isFilled) {
-    // Unassign the country
-    if (slotCode) {
-      usedCountries.delete(slotCode);
-      const flagEl = document.querySelector(`.country-flag-item[data-code="${slotCode}"]`);
-      if (flagEl) flagEl.classList.remove("used");
-
-      slot.innerHTML = "";
-      slot.classList.add("empty-slot");
-      slot.classList.remove("stomp");
-      rankAssignments[index] = null;
-
-      // Show flag preview again
-  const flagPreview = document.getElementById("flag-preview-container");
-const submitBtn = document.getElementById("submit-btn-container");
-
-const allFilled = rankAssignments.every(code => code !== null);
-
-if (allFilled) {
-  // Hide the flag + name preview
-  flagPreview.classList.remove("fade-in", "pop-in");
-  flagPreview.classList.add("fade-out");
-
-  // Show the submit button with pop
-  submitBtn.style.display = "flex";
-  submitBtn.classList.remove("fade-out");
-  submitBtn.classList.add("fade-in", "pop-in");
-} else {
-  // Show flag preview again if not all filled
-  flagPreview.style.display = "flex";
-  flagPreview.classList.remove("fade-out");
-  flagPreview.classList.add("fade-in", "pop-in");
-
-  // Hide submit button
-  submitBtn.classList.remove("fade-in", "pop-in");
-  submitBtn.classList.add("fade-out");
-}
-
-      // Re-select the removed country
-      const removedCountry = selectedCountries.find(c => c.code === slotCode);
-      if (removedCountry) {
-        selectedCountry = removedCountry;
-        updateFlagPreview(removedCountry);
-
-        document.querySelectorAll(".country-flag-item").forEach(el => el.classList.remove("active"));
-        const flagItem = document.querySelector(`.country-flag-item[data-code="${slotCode}"]`);
-        if (flagItem) flagItem.classList.add("active");
-      }
-    }
-    return;
-  }
-
-  // Case 2: no active selection
-  if (!selectedCountry) return;
   const country = selectedCountry;
+  usedCountries.add(country.code);
+  const usedFlag = document.querySelector(
+    `.country-flag-item[data-code="${country.code}"]`
+  );
+  if (usedFlag) usedFlag.classList.add("used");
 
-  // Remove previous assignment from current slot
-  if (slotCode) {
-    usedCountries.delete(slotCode);
-    const flagEl = document.querySelector(`.country-flag-item[data-code="${slotCode}"]`);
-    if (flagEl) flagEl.classList.remove("used");
-  }
-
-  // Remove country from any previously assigned slot
-  const prevIndex = rankAssignments.findIndex(code => code === country.code);
-  if (prevIndex !== -1) {
-    const prevRow = document.querySelectorAll(".ranking-row")[prevIndex];
-    const prevSlot = prevRow.querySelector(".rank-slot");
-    prevSlot.innerHTML = "";
-    prevSlot.classList.add("empty-slot");
-    prevSlot.classList.remove("stomp");
-    rankAssignments[prevIndex] = null;
-  }
-
-  // Assign to selected slot
   slot.innerHTML = `<img src="flags/${country.code}.png" alt="${country.name}" /> ${country.name}`;
   slot.classList.remove("empty-slot");
   slot.classList.add("stomp");
+  rankBtn.classList.add("used-rank");
+  rankBtn.style.cursor = "default";
 
-  usedCountries.add(country.code);
-  rankAssignments[index] = country.code;
+  const correctTier = country.bestRankInRound;
+  const range = country.rankRange || { min: correctTier, max: correctTier };
+  const allRows = Array.from(document.querySelectorAll(".ranking-row"));
+  const userTier = allRows.indexOf(row) + 1;
 
-  const flagItem = document.querySelector(`.country-flag-item[data-code="${country.code}"]`);
-  if (flagItem) flagItem.classList.add("used");
+  const withinTieRange = userTier >= range.min && userTier <= range.max;
+  const diff =
+    userTier < range.min
+      ? range.min - userTier
+      : userTier > range.max
+      ? userTier - range.max
+      : 0;
 
-  // Auto-select next available country
-  const nextCountry = selectedCountries.find(c => !usedCountries.has(c.code));
+  let roundPoints = Math.max(10 - diff, 1);
+
+  totalScore += roundPoints;
+
+  const nextCountry = selectedCountries.find(
+    (c) => !usedCountries.has(c.code)
+  );
   if (nextCountry) {
     selectedCountry = nextCountry;
+    document
+      .querySelectorAll(".country-flag-item")
+      .forEach((el) => el.classList.remove("active"));
+    const nextFlagEl = document.querySelector(
+      `.country-flag-item[data-code="${nextCountry.code}"]`
+    );
+    if (nextFlagEl) nextFlagEl.classList.add("active");
     updateFlagPreview(nextCountry);
-
-    document.querySelectorAll(".country-flag-item").forEach(el => el.classList.remove("active"));
-    const nextFlag = document.querySelector(`.country-flag-item[data-code="${nextCountry.code}"]`);
-    if (nextFlag) nextFlag.classList.add("active");
-  } else {
-    // All countries placed → fade out preview, fade in submit
-    const flagPreview = document.getElementById("flag-preview-container");
-    const submitBtn = document.getElementById("submit-btn-container");
-
-    flagPreview.classList.remove("fade-in");
-    flagPreview.classList.add("fade-out");
-    submitBtn.classList.remove("fade-out");
-    submitBtn.classList.add("fade-in", "pop-in");
-
-    selectedCountry = null;
   }
+
+  if (usedCountries.size >= selectedCountries.length) endGame();
 }
-
-
 
 function formatMetric(num) {
   if (metricKey === "temperature") return `${num}°C`;
@@ -516,24 +448,11 @@ playRandom.onclick = () => {
 }
 
 export function setupRankButtons() {
+  console.log("✅ Rank buttons initialized");
   document
-    .querySelectorAll(".rank-number, .rank-slot")
-    .forEach((el) => el.addEventListener("click", handleRankClick));
+    .querySelectorAll(".rank-number")
+    .forEach((btn) => btn.addEventListener("click", handleRankClick));
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-  const submitBtn = document.getElementById("submit-rankings-btn");
-  if (submitBtn) {
-    submitBtn.addEventListener("click", () => {
-      if (rankAssignments.includes(null)) {
-        alert("Please fill all 10 slots before submitting.");
-        return;
-      }
-      endGame();
-    });
-  }
-});
-
 
 window.addEventListener("DOMContentLoaded", setupRankButtons);
 
