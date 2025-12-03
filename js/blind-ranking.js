@@ -203,8 +203,10 @@ function handleRankClick(event) {
       // Show flag preview again
       const flagPreview = document.getElementById("flag-preview-container");
       const submitBtn = document.getElementById("submit-btn-container");
+      flagPreview.style.display = "flex";
       flagPreview.classList.remove("fade-out");
       flagPreview.classList.add("fade-in");
+      submitBtn.style.display = "flex";
       submitBtn.classList.remove("fade-in", "pop-in");
       submitBtn.classList.add("fade-out");
 

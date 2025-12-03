@@ -562,7 +562,11 @@ html {
 }
 
 /* 🔁 Flag preview container and submit button swap zone */
-#flag-preview-container,
+#flag-preview-container {
+  flex-direction: column;
+  gap: 10px; /* 👈 Add this line */
+}
+
 #submit-btn-container {
   display: flex;
   flex-direction: column;
@@ -575,7 +579,7 @@ html {
 #submit-rankings-btn {
   font-size: 1.05rem;
   padding: 12px 20px;
-  background: linear-gradient(135deg, #3cb9ff, #007adf);
+  background: linear-gradient(135deg, #ff9770, #ff6f61);
   color: #fff;
   border: none;
   border-radius: 12px;
