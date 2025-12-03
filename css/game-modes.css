@@ -561,3 +561,58 @@ html {
   transform: translateX(0%);
 }
 
+/* 🔁 Flag preview container and submit button swap zone */
+#flag-preview-container,
+#submit-btn-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+}
+
+/* 🎯 Style for the top submit button */
+#submit-rankings-btn {
+  font-size: 1.05rem;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #3cb9ff, #007adf);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#submit-rankings-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+
+/* ✨ Reuse existing animation classes */
+.fade-in {
+  opacity: 1;
+  transition: opacity 0.4s ease, transform 0.3s ease;
+  transform: scale(1);
+}
+
+.fade-out {
+  opacity: 0;
+  transition: opacity 0.4s ease, transform 0.3s ease;
+  transform: scale(0.9);
+  pointer-events: none;
+}
+
+.pop-in {
+  animation: popIn 0.3s ease forwards;
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
