@@ -125,14 +125,17 @@
   text-align: left;
 }
 
-.text-input-block label {
-  display: block;
+.text-input-block input[type="text"] {
+  width: 100%;
+  padding: 12px;
   font-size: 1rem;
-  margin-bottom: 6px;
-  color: #333;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
 }
 
-.text-input-block input[type="text"] {
+.text-input-block input[type="email"] {
   width: 100%;
   padding: 12px;
   font-size: 1rem;
@@ -189,6 +192,8 @@
 <div class="feedback-wrapper fade-in">
   <h1>Please let us know your thoughts 💭</h1>
 
+  <form action="https://formspree.io/f/mwpgqpnj" method="POST">
+
   <div class="slider-block">
     <label for="q1">How was your overall experience with GeoRanks?</label>
     <input type="range" id="q1" name="q1" min="0" max="10" value="5" class="slider" />
@@ -222,7 +227,13 @@
   <textarea id="more-feedback" name="more-feedback" placeholder="Any suggestions, reccomendations, or feedback? Let us know here!"></textarea>
 </div>
 
-  <button class="submit-btn">Submit Feedback</button>
+<div class="text-input-block">
+  <label for="email">Leave your email address</label>
+  <input type="email" id="email" name="email" placeholder="e.g. yourname@example.com (optional)" />
+</div>
+
+  <button type="submit" class="submit-btn">Submit Feedback</button>
+  </form>
 </div>
 
 <script>
@@ -234,11 +245,7 @@
     });
   });
 
-  // Feedback submit logic
-  document.querySelector(".submit-btn").addEventListener("click", () => {
-    alert("✅ Thank you for your feedback!");
-    window.location.href = "index.html";
-  });
+  // Formspree will handle submission, no custom JS needed for submission.
 
   // Hamburger menu
   const toggle = document.getElementById("menuToggle");
