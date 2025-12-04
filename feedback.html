@@ -58,7 +58,7 @@
       width: 24px;
       height: 24px;
       border-radius: 50%;
-      background: #ff6f61;
+      background: linear-gradient(135deg, #ff9770, #ff6f61);
       cursor: pointer;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     }
@@ -80,18 +80,28 @@
       color: #444;
     }
 
-    textarea {
-      width: 100%;
-      height: 120px;
-      border-radius: 12px;
-      border: 1px solid #ccc;
-      margin-top: 30px;
-      padding: 12px;
-      font-family: 'Poppins', sans-serif;
-      font-size: 1rem;
-      resize: vertical;
-    }
+    .text-input-block textarea {
+  width: 100%;
+  height: 120px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  padding: 12px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  resize: vertical;
+  box-sizing: border-box;
+  display: block;
+  margin: 0 auto;
+}
 
+.text-input-block label {
+  display: block;
+  text-align: left;
+  font-size: 1.05rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #333;
+}
     .submit-btn {
       margin-top: 30px;
       padding: 14px 24px;
@@ -106,8 +116,32 @@
     }
 
     .submit-btn:hover {
-      background: #fab1a0;
+       transform: scale(1.05);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
     }
+
+    .text-input-block {
+  margin: 24px 0;
+  text-align: left;
+}
+
+.text-input-block label {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 6px;
+  color: #333;
+}
+
+.text-input-block input[type="text"] {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
 
     @media (max-width: 599px) {
       .feedback-wrapper {
@@ -155,24 +189,42 @@
   <h1>We’d love your feedback 💬</h1>
 
   <div class="slider-block">
-    <label for="q1">⭐ How was your overall experience with GeoRanks?</label>
+    <label for="q1">How was your overall experience with GeoRanks?</label>
     <input type="range" id="q1" name="q1" min="1" max="10" value="5" class="slider" />
     <span class="slider-value" id="q1-value">5</span>
   </div>
 
   <div class="slider-block">
-    <label for="q2">⭐ How easy was it to understand the rules?</label>
+    <label for="q2">How easy was it to understand the rules?</label>
     <input type="range" id="q2" name="q2" min="1" max="10" value="5" class="slider" />
     <span class="slider-value" id="q2-value">5</span>
   </div>
 
   <div class="slider-block">
-    <label for="q3">⭐ How likely are you to play again?</label>
+    <label for="q3">How likely are you to play again?</label>
     <input type="range" id="q3" name="q3" min="1" max="10" value="5" class="slider" />
     <span class="slider-value" id="q3-value">5</span>
   </div>
 
-  <textarea placeholder="Any suggestions, bugs, or feedback? Let us know here!"></textarea>
+<div class="text-input-block">
+  <label for="confusion">What confused you, if anything?</label>
+  <input type="text" id="confusion" name="confusion" placeholder="e.g. I wasn’t sure how scores were calculated" />
+</div>
+
+<div class="text-input-block">
+  <label for="expectation">What did you expect but didn’t get?</label>
+  <input type="text" id="expectation" name="expectation" placeholder="e.g. I thought there would be a multiplayer mode" />
+</div>
+
+<div class="text-input-block">
+  <label for="friend">What would you tell a friend about GeoRanks?</label>
+  <input type="text" id="friend" name="friend" placeholder="e.g. It’s a fun and fast geography quiz!" />
+</div>
+
+<div class="text-input-block">
+  <label for="more-feedback">Anything else you'd like to share?</label>
+  <textarea id="more-feedback" name="more-feedback" placeholder="Any suggestions, bugs, or feedback? Let us know here!"></textarea>
+</div>
 
   <button class="submit-btn">Submit Feedback</button>
 </div>
