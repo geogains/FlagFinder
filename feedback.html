@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GeoRanks — Feedback</title>
+  <link rel="stylesheet" href="css/home.css"/>
+  <link rel="stylesheet" href="css/game-modes.css"/>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to bottom right, #a7f3d0, #38bdf8);
+      margin: 0;
+    }
+
+    .feedback-wrapper {
+      max-width: 720px;
+      margin: 120px auto 60px;
+      padding: 40px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .feedback-wrapper h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: #222;
+    }
+
+    .rating-question {
+      margin: 20px 0;
+      font-size: 1.1rem;
+      color: #333;
+    }
+
+    .star-rating {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.star {
+  width: 32px;
+  height: 32px;
+  background: url('assets/star-outline.png') no-repeat center;
+  background-size: contain;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.star.filled {
+  background-image: url('assets/star-filled.png');
+}
+
+.star:hover,
+.star:hover ~ .star {
+  transform: scale(1.15);
+}
+
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      border-radius: 12px;
+      border: 1px solid #ccc;
+      margin-top: 30px;
+      padding: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      resize: vertical;
+    }
+
+    .submit-btn {
+      margin-top: 30px;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #ff9770, #ff6f61);
+      color: white;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .submit-btn:hover {
+      background: #fab1a0;
+    }
+
+    @media (max-width: 599px) {
+      .feedback-wrapper {
+        margin: 100px 16px 40px;
+        padding: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header class="home-glass-header">
+  <div class="logo-header">
+    <a href="index.html" class="logo-link">
+      <img src="assets/logo.png" alt="GeoRanks Logo" />
+    </a>
+  </div>
+  <div class="hamburger-menu">
+    <div class="menu-icon" id="menuToggle">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== Overlay Menu ===== -->
+<div class="menu-overlay" id="menuOverlay">
+  <div class="menu-panel">
+    <h2>Menu</h2>
+    <button class="menu-btn" onclick="location.href='index.html'">🏠 Home</button>
+    <button class="menu-btn" onclick="location.href='categories.html'">🎮 Categories</button>
+    <button class="menu-btn" onclick="location.href='leaderboard.html'">🏆 Leaderboard</button>
+    <button class="menu-btn" onclick="location.href='stats.html'">📊 Stats</button>
+    <button class="menu-btn" onclick="location.href='account.html'">👤 Account</button>
+    <button class="menu-btn" onclick="location.href='how-to-play.html'">💡 How to Play</button>
+    <button class="menu-btn menu-close" id="closeMenu">Close</button>
+  </div>
+</div>
+
+<!-- ===== Feedback Form ===== -->
+<div class="feedback-wrapper fade-in">
+  <h1>We’d love your feedback 💬</h1>
+
+  <div class="rating-question">⭐ How was your overall experience with GeoRanks?</div>
+<div class="star-rating" data-question="q1">
+  <span class="star" data-value="1"></span>
+  <span class="star" data-value="2"></span>
+  <span class="star" data-value="3"></span>
+  <span class="star" data-value="4"></span>
+  <span class="star" data-value="5"></span>
+</div>
+
+  <div class="rating-question">⭐ How easy was it to understand the rules?</div>
+<div class="star-rating" data-question="q1">
+  <span class="star" data-value="1"></span>
+  <span class="star" data-value="2"></span>
+  <span class="star" data-value="3"></span>
+  <span class="star" data-value="4"></span>
+  <span class="star" data-value="5"></span>
+</div>
+
+  <div class="rating-question">⭐ How likely are you to play again?</div>
+<div class="star-rating" data-question="q1">
+  <span class="star" data-value="1"></span>
+  <span class="star" data-value="2"></span>
+  <span class="star" data-value="3"></span>
+  <span class="star" data-value="4"></span>
+  <span class="star" data-value="5"></span>
+</div>
+
+  <textarea placeholder="Any suggestions, bugs, or feedback? Let us know here!"></textarea>
+
+  <button class="submit-btn">Submit Feedback</button>
+</div>
+
+<!-- Optional: Add form handling logic -->
+<script>
+  // Optional basic handler
+  document.querySelector(".submit-btn").addEventListener("click", () => {
+    alert("✅ Thank you for your feedback!");
+    window.location.href = "index.html";
+  });
+
+  // Hamburger menu
+  const toggle = document.getElementById("menuToggle");
+  const overlay = document.getElementById("menuOverlay");
+  const close = document.getElementById("closeMenu");
+  toggle.addEventListener("click", () => overlay.classList.add("active"));
+  close.addEventListener("click", () => overlay.classList.remove("active"));
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) overlay.classList.remove("active");
+  });
+</script>
+
+<script>
+  document.querySelectorAll(".star-rating").forEach(rating => {
+    const stars = rating.querySelectorAll(".star");
+    stars.forEach(star => {
+      star.addEventListener("mouseenter", () => {
+        const val = parseInt(star.dataset.value);
+        stars.forEach(s => {
+          s.classList.toggle("filled", parseInt(s.dataset.value) <= val);
+        });
+      });
+
+      star.addEventListener("mouseleave", () => {
+        const selected = rating.dataset.selected || 0;
+        stars.forEach(s => {
+          s.classList.toggle("filled", parseInt(s.dataset.value) <= selected);
+        });
+      });
+
+      star.addEventListener("click", () => {
+        const val = parseInt(star.dataset.value);
+        rating.dataset.selected = val;
+        stars.forEach(s => {
+          s.classList.toggle("filled", parseInt(s.dataset.value) <= val);
+        });
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
