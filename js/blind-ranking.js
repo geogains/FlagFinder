@@ -177,30 +177,47 @@ function updateFlagPreview(country) {
 // 🏅 Handle rank clicks (tie-range aware)
 function handleRankClick(event) {
   if (isGameOver || !selectedCountry) return;
-  const rankBtn = event.currentTarget;
-  const row = rankBtn.parentElement;
+
+  const clickedEl = event.currentTarget;
+  const row = clickedEl.closest(".ranking-row");
+  const rankBtn = row.querySelector(".rank-number");
   const slot = row.querySelector(".rank-slot");
+
+  // Slot already filled? Do nothing (locked mode)
   if (!slot.classList.contains("empty-slot")) return;
 
   const country = selectedCountry;
+
+  //
+  // --- ASSIGN COUNTRY TO SLOT ---
+  //
   usedCountries.add(country.code);
+
   const usedFlag = document.querySelector(
     `.country-flag-item[data-code="${country.code}"]`
   );
-  if (usedFlag) usedFlag.classList.add("used");
+  if (usedFlag) {
+    usedFlag.classList.add("used");
+    usedFlag.classList.remove("active");
+  }
 
   slot.innerHTML = `<img src="flags/${country.code}.png" alt="${country.name}" /> ${country.name}`;
   slot.classList.remove("empty-slot");
   slot.classList.add("stomp");
+
+  // Grey out the rank number ALWAYS, even if clicking the slot
   rankBtn.classList.add("used-rank");
   rankBtn.style.cursor = "default";
 
+  //
+  // --- TIE RANGE + SCORING LOGIC (UNCHANGED) ---
+  //
   const correctTier = country.bestRankInRound;
   const range = country.rankRange || { min: correctTier, max: correctTier };
+
   const allRows = Array.from(document.querySelectorAll(".ranking-row"));
   const userTier = allRows.indexOf(row) + 1;
 
-  const withinTieRange = userTier >= range.min && userTier <= range.max;
   const diff =
     userTier < range.min
       ? range.min - userTier
@@ -209,26 +226,35 @@ function handleRankClick(event) {
       : 0;
 
   let roundPoints = Math.max(10 - diff, 1);
-
   totalScore += roundPoints;
 
+  //
+  // --- AUTO‑SELECT NEXT COUNTRY ---
+  //
   const nextCountry = selectedCountries.find(
     (c) => !usedCountries.has(c.code)
   );
+
   if (nextCountry) {
     selectedCountry = nextCountry;
+    updateFlagPreview(nextCountry);
+
     document
       .querySelectorAll(".country-flag-item")
       .forEach((el) => el.classList.remove("active"));
+
     const nextFlagEl = document.querySelector(
       `.country-flag-item[data-code="${nextCountry.code}"]`
     );
     if (nextFlagEl) nextFlagEl.classList.add("active");
-    updateFlagPreview(nextCountry);
   }
 
+  //
+  // --- END GAME WHEN ALL RANKS ARE FILLED ---
+  //
   if (usedCountries.size >= selectedCountries.length) endGame();
 }
+
 
 function formatMetric(num) {
   if (metricKey === "temperature") return `${num}°C`;
@@ -452,53 +478,6 @@ export function setupRankButtons() {
   document
     .querySelectorAll(".rank-number, .rank-slot")
     .forEach((el) => el.addEventListener("click", handleRankClick));
-}
-
-// 👇 Update this existing function too:
-function handleRankClick(event) {
-  if (isGameOver || !selectedCountry) return;
-
-  const clickedEl = event.currentTarget;
-  const row = clickedEl.closest(".ranking-row");
-  const rankBtn = row.querySelector(".rank-number");  // 👈 ensure we apply 'used-rank' to the button
-  const slot = row.querySelector(".rank-slot");
-
-  if (!slot.classList.contains("empty-slot")) return;
-
-  const country = selectedCountry;
-  usedCountries.add(country.code);
-
-  const usedFlag = document.querySelector(
-    `.country-flag-item[data-code="${country.code}"]`
-  );
-  if (usedFlag) usedFlag.classList.add("used");
-
-  // Fill the slot
-  slot.innerHTML = `<img src="flags/${country.code}.png" alt="${country.name}" /> ${country.name}`;
-  slot.classList.remove("empty-slot");
-  slot.classList.add("stomp");
-
-  // Mark button as used
-  rankBtn.classList.add("used-rank");
-  rankBtn.style.cursor = "default";
-
-  // Next country
-  const nextCountry = selectedCountries.find(
-    (c) => !usedCountries.has(c.code)
-  );
-  if (nextCountry) {
-    selectedCountry = nextCountry;
-    document
-      .querySelectorAll(".country-flag-item")
-      .forEach((el) => el.classList.remove("active"));
-    const nextFlagEl = document.querySelector(
-      `.country-flag-item[data-code="${nextCountry.code}"]`
-    );
-    if (nextFlagEl) nextFlagEl.classList.add("active");
-    updateFlagPreview(nextCountry);
-  }
-
-  if (usedCountries.size >= selectedCountries.length) endGame();
 }
 
 window.addEventListener("DOMContentLoaded", setupRankButtons);
