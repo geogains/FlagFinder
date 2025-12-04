@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact Us - GeoRanks</title>
+  <link rel="stylesheet" href="css/home.css"/>
+  <link rel="stylesheet" href="css/game-modes.css"/>
+  <style>
+    .contact-wrapper {
+      max-width: 640px;
+      margin: 120px auto 60px;
+      padding: 40px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      backdrop-filter: blur(10px);
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .contact-wrapper h1 {
+      font-size: 2rem;
+      margin-bottom: 24px;
+      color: #222;
+    }
+
+    .contact-wrapper p {
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .feedback-btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 12px 24px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #ff9770, #ff6f61);
+      color: white;
+      font-weight: bold;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .feedback-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+    }
+
+  .icon-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.icon-row img {
+  width: 40px;
+  height: 40px;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+}
+
+.icon-row img:hover {
+  transform: scale(1.1);
+}
+
+.divider {
+  width: 1px;
+  height: 28px;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header and Menu -->
+<header class="home-glass-header">
+  <div class="logo-header">
+    <a href="index.html" class="logo-link">
+      <img src="assets/logo.png" alt="GeoRanks Logo" />
+    </a>
+  </div>
+  <div class="hamburger-menu">
+    <div class="menu-icon" id="menuToggle">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</header>
+
+<!-- Menu Overlay -->
+<div class="menu-overlay" id="menuOverlay">
+  <div class="menu-panel">
+    <h2>Menu</h2>
+    <button class="menu-btn" onclick="location.href='index.html'">🏠 Home</button>
+    <button class="menu-btn" onclick="location.href='categories.html'">🎮 Categories</button>
+    <button class="menu-btn" onclick="location.href='leaderboard.html'">🏆 Leaderboard</button>
+    <button class="menu-btn" onclick="location.href='stats.html'">📊 My Stats</button>
+    <button class="menu-btn" onclick="location.href='account.html'">👤 Account</button>
+    <button class="menu-btn" onclick="location.href='how-to-play.html'">💡 How to Play</button>
+    <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
+    <button class="menu-btn menu-close" id="closeMenu">Close</button>
+  </div>
+</div>
+
+<!-- Contact Card -->
+<main class="contact-wrapper">
+  <h1>Contact Us</h1>
+  <p>If you have any questions, issues, or feedback — feel free to reach out:</p>
+  <p><strong>Email:</strong> <a href="mailto:support@geo-ranks.com">support@geo-ranks.com</a></p>
+
+  <a href="feedback.html" class="feedback-btn">📝 Feedback Form</a>
+
+    <div class="social-icons">
+    <div class="icon-row">
+      <a href="https://www.instagram.com/geo_ranks/" target="_blank" rel="noopener">
+        <img src="assets/instagram.png" alt="Instagram" />
+      </a>
+      <div class="divider"></div>
+      <a href="https://www.tiktok.com/@georanks" target="_blank" rel="noopener">
+        <img src="assets/tik-tok.png" alt="TikTok" />
+      </a>
+      <div class="divider"></div>
+      <a href="https://www.youtube.com/channel/UC8jrsBpCn09u0mHQle_O3Rw" target="_blank" rel="noopener">
+        <img src="assets/youtube.png" alt="YouTube" />
+      </a>
+    </div>
+  </div>
+
+<script>
+  // Simple hamburger toggle logic
+  document.getElementById('menuToggle')?.addEventListener('click', () => {
+    document.getElementById('menuOverlay')?.classList.toggle('open');
+  });
+
+  document.getElementById('closeMenu')?.addEventListener('click', () => {
+    document.getElementById('menuOverlay')?.classList.remove('open');
+  });
+</script>
+
+</body>
+</html>
