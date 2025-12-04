@@ -26,41 +26,59 @@
 
     .feedback-wrapper h1 {
       font-size: 2rem;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
       color: #222;
     }
 
-    .rating-question {
-      margin: 20px 0;
+    .slider-block {
+      margin: 30px 0;
+      text-align: center;
+    }
+
+    .slider-block label {
+      display: block;
+      margin-bottom: 12px;
       font-size: 1.1rem;
       color: #333;
     }
 
-    .star-rating {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 8px;
-}
+    .slider {
+      -webkit-appearance: none;
+      width: 80%;
+      height: 10px;
+      border-radius: 6px;
+      background: #ddd;
+      outline: none;
+      transition: background 0.3s;
+    }
 
-.star {
-  width: 32px;
-  height: 32px;
-  background: url('assets/star-outline.png') no-repeat center;
-  background-size: contain;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #ff6f61;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
 
-.star.filled {
-  background-image: url('assets/star-filled.png');
-}
+    .slider::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #ff6f61;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
 
-.star:hover,
-.star:hover ~ .star {
-  transform: scale(1.15);
-}
-
+    .slider-value {
+      display: inline-block;
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 1rem;
+      color: #444;
+    }
 
     textarea {
       width: 100%;
@@ -95,6 +113,10 @@
       .feedback-wrapper {
         margin: 100px 16px 40px;
         padding: 24px;
+      }
+
+      .slider {
+        width: 100%;
       }
     }
   </style>
@@ -132,41 +154,39 @@
 <div class="feedback-wrapper fade-in">
   <h1>We’d love your feedback 💬</h1>
 
-  <div class="rating-question">⭐ How was your overall experience with GeoRanks?</div>
-<div class="star-rating" data-question="q1">
-  <span class="star" data-value="1"></span>
-  <span class="star" data-value="2"></span>
-  <span class="star" data-value="3"></span>
-  <span class="star" data-value="4"></span>
-  <span class="star" data-value="5"></span>
-</div>
+  <div class="slider-block">
+    <label for="q1">⭐ How was your overall experience with GeoRanks?</label>
+    <input type="range" id="q1" name="q1" min="1" max="10" value="5" class="slider" />
+    <span class="slider-value" id="q1-value">5</span>
+  </div>
 
-  <div class="rating-question">⭐ How easy was it to understand the rules?</div>
-<div class="star-rating" data-question="q1">
-  <span class="star" data-value="1"></span>
-  <span class="star" data-value="2"></span>
-  <span class="star" data-value="3"></span>
-  <span class="star" data-value="4"></span>
-  <span class="star" data-value="5"></span>
-</div>
+  <div class="slider-block">
+    <label for="q2">⭐ How easy was it to understand the rules?</label>
+    <input type="range" id="q2" name="q2" min="1" max="10" value="5" class="slider" />
+    <span class="slider-value" id="q2-value">5</span>
+  </div>
 
-  <div class="rating-question">⭐ How likely are you to play again?</div>
-<div class="star-rating" data-question="q1">
-  <span class="star" data-value="1"></span>
-  <span class="star" data-value="2"></span>
-  <span class="star" data-value="3"></span>
-  <span class="star" data-value="4"></span>
-  <span class="star" data-value="5"></span>
-</div>
+  <div class="slider-block">
+    <label for="q3">⭐ How likely are you to play again?</label>
+    <input type="range" id="q3" name="q3" min="1" max="10" value="5" class="slider" />
+    <span class="slider-value" id="q3-value">5</span>
+  </div>
 
   <textarea placeholder="Any suggestions, bugs, or feedback? Let us know here!"></textarea>
 
   <button class="submit-btn">Submit Feedback</button>
 </div>
 
-<!-- Optional: Add form handling logic -->
 <script>
-  // Optional basic handler
+  // Live update slider values
+  document.querySelectorAll(".slider").forEach(slider => {
+    const valueEl = document.getElementById(slider.id + "-value");
+    slider.addEventListener("input", () => {
+      valueEl.textContent = slider.value;
+    });
+  });
+
+  // Feedback submit logic
   document.querySelector(".submit-btn").addEventListener("click", () => {
     alert("✅ Thank you for your feedback!");
     window.location.href = "index.html";
@@ -180,35 +200,6 @@
   close.addEventListener("click", () => overlay.classList.remove("active"));
   overlay.addEventListener("click", (e) => {
     if (e.target === overlay) overlay.classList.remove("active");
-  });
-</script>
-
-<script>
-  document.querySelectorAll(".star-rating").forEach(rating => {
-    const stars = rating.querySelectorAll(".star");
-    stars.forEach(star => {
-      star.addEventListener("mouseenter", () => {
-        const val = parseInt(star.dataset.value);
-        stars.forEach(s => {
-          s.classList.toggle("filled", parseInt(s.dataset.value) <= val);
-        });
-      });
-
-      star.addEventListener("mouseleave", () => {
-        const selected = rating.dataset.selected || 0;
-        stars.forEach(s => {
-          s.classList.toggle("filled", parseInt(s.dataset.value) <= selected);
-        });
-      });
-
-      star.addEventListener("click", () => {
-        const val = parseInt(star.dataset.value);
-        rating.dataset.selected = val;
-        stars.forEach(s => {
-          s.classList.toggle("filled", parseInt(s.dataset.value) <= val);
-        });
-      });
-    });
   });
 </script>
 
