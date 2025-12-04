@@ -180,29 +180,30 @@
     <button class="menu-btn" onclick="location.href='stats.html'">📊 Stats</button>
     <button class="menu-btn" onclick="location.href='account.html'">👤 Account</button>
     <button class="menu-btn" onclick="location.href='how-to-play.html'">💡 How to Play</button>
+    <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'">🔓 Unlock All Categories</button>
     <button class="menu-btn menu-close" id="closeMenu">Close</button>
   </div>
 </div>
 
 <!-- ===== Feedback Form ===== -->
 <div class="feedback-wrapper fade-in">
-  <h1>We’d love your feedback 💬</h1>
+  <h1>Please let us know your thoughts 💭</h1>
 
   <div class="slider-block">
     <label for="q1">How was your overall experience with GeoRanks?</label>
-    <input type="range" id="q1" name="q1" min="1" max="10" value="5" class="slider" />
+    <input type="range" id="q1" name="q1" min="0" max="10" value="5" class="slider" />
     <span class="slider-value" id="q1-value">5</span>
   </div>
 
   <div class="slider-block">
     <label for="q2">How easy was it to understand the rules?</label>
-    <input type="range" id="q2" name="q2" min="1" max="10" value="5" class="slider" />
+    <input type="range" id="q2" name="q2" min="0" max="10" value="5" class="slider" />
     <span class="slider-value" id="q2-value">5</span>
   </div>
 
   <div class="slider-block">
     <label for="q3">How likely are you to play again?</label>
-    <input type="range" id="q3" name="q3" min="1" max="10" value="5" class="slider" />
+    <input type="range" id="q3" name="q3" min="0" max="10" value="5" class="slider" />
     <span class="slider-value" id="q3-value">5</span>
   </div>
 
@@ -213,7 +214,7 @@
 
 <div class="text-input-block">
   <label for="expectation">Did you experience any bugs, issues or problems?</label>
-  <input type="text" id="expectation" name="expectation" placeholder="e.g. Clicking a rank didn’t register my selection sometimes" />
+  <textarea id="expectation" name="expectation" placeholder="e.g. Clicking a rank didn’t register my selection sometimes"></textarea>
 </div>
 
 <div class="text-input-block">
