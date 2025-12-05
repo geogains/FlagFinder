@@ -7,6 +7,17 @@
   <link rel="stylesheet" href="css/home.css"/>
   <link rel="stylesheet" href="css/game-modes.css"/>
   <style>
+   html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+    
     .contact-wrapper {
       max-width: 640px;
       margin: 120px auto 60px;
@@ -74,7 +85,12 @@
   background: rgba(0, 0, 0, 0.15);
 }
 
-
+@media (max-width: 600px) {
+  .contact-wrapper {
+    margin: 100px 16px 40px;
+    padding: 24px;
+  }
+}
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(40px); }
       to { opacity: 1; transform: translateY(0); }
@@ -102,13 +118,12 @@
   <div class="menu-panel">
     <h2>Menu</h2>
     <button class="menu-btn" onclick="location.href='index.html'">🏠 Home</button>
-    <button class="menu-btn" onclick="location.href='account.html'">👤 Account</button>
+     <button class="menu-btn menu-btn-account" onclick="location.href='account.html'">👤 Account</button>
     <button class="menu-btn" onclick="location.href='categories.html'">🎮 Categories</button>
     <button class="menu-btn" onclick="location.href='leaderboard.html'">🏆 Leaderboard</button>
     <button class="menu-btn" onclick="location.href='stats.html'">📊 My Stats</button>
     <button class="menu-btn" onclick="location.href='how-to-play.html'">💡 How to Play</button>
     <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
-    <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
     <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'">🔓 Unlock All Categories</button>
     <button class="menu-btn menu-close" id="closeMenu">Close</button>
   </div>
@@ -138,15 +153,54 @@
     </div>
   </div>
 
+<footer style="text-align: center; padding: 20px; color: #777; font-size: 0.9rem;">
+  © 2025 GeoRanks. All rights reserved.
+</footer>
+  
 <script>
   // Simple hamburger toggle logic
   document.getElementById('menuToggle')?.addEventListener('click', () => {
-    document.getElementById('menuOverlay')?.classList.toggle('open');
-  });
+  document.getElementById('menuOverlay')?.classList.add('active');
+});
 
-  document.getElementById('closeMenu')?.addEventListener('click', () => {
-    document.getElementById('menuOverlay')?.classList.remove('open');
-  });
+document.getElementById('closeMenu')?.addEventListener('click', () => {
+  document.getElementById('menuOverlay')?.classList.remove('active');
+});
+
+document.getElementById('menuOverlay')?.addEventListener('click', (e) => {
+  if (e.target === document.getElementById('menuOverlay')) {
+    document.getElementById('menuOverlay')?.classList.remove('active');
+  }
+});
+</script>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+  const supabase = createClient(
+    'https://ajwxgdaninuzcpfwawug.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
+  );
+
+  const { data: { session } } = await supabase.auth.getSession();
+
+  // Hide Account if user not logged in
+  if (!session || !session.user) {
+    document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+  }
+
+  // Hide Unlock All Categories if user is premium
+  if (session && session.user) {
+    const { data: profile } = await supabase
+      .from('users')
+      .select('is_premium')
+      .eq('id', session.user.id)
+      .single();
+
+    if (profile?.is_premium) {
+      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+    }
+  }
 </script>
 
 </body>

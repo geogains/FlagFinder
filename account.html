@@ -23,6 +23,17 @@
     animation: fadeInUp 0.8s ease-out both;
   }
 
+     html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 .account-glass-card {
   width: 90%;
   max-width: 480px;
@@ -35,6 +46,7 @@
   padding: 2rem;
   text-align: center;
   box-sizing: border-box; /* Ensure padding doesn't break width */
+  flex: 1;
 }
 
 
@@ -152,6 +164,25 @@
     <button class="btn full-btn logout-btn" id="logoutBtn">Log Out</button>
   </div>
 </main>
+
+  <footer class="home-footer">
+  <div class="footer-socials">
+    <div class="icon-row">
+      <a href="https://www.instagram.com/geo_ranks/" target="_blank" rel="noopener">
+        <img src="assets/instagram.png" alt="Instagram" />
+      </a>
+      <div class="divider"></div>
+      <a href="https://www.tiktok.com/@georanks" target="_blank" rel="noopener">
+        <img src="assets/tik-tok.png" alt="TikTok" />
+      </a>
+      <div class="divider"></div>
+      <a href="https://www.youtube.com/channel/UC8jrsBpCn09u0mHQle_O3Rw" target="_blank" rel="noopener">
+        <img src="assets/youtube.png" alt="YouTube" />
+      </a>
+    </div>
+    <p>© 2025 GeoRanks</p>
+  </div>
+</footer>
 
 <!-- ✅ Supabase Script -->
 <script type="module">
