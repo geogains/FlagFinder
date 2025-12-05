@@ -440,20 +440,22 @@ document.getElementById("goPremiumBtn").onclick = () => {
 </script>
 
 <!-- LOCKED CATEGORY LOGIC -->
+<!-- LOCKED CATEGORY LOGIC -->
 <script type="module">
-  // @ts-ignore
   const supabase = window.supabaseClient;
 
   const { data: { session } } = await supabase.auth.getSession();
 
   let isPremium = false;
 
-  if (session) {
+  // ✅ Only check premium if session exists
+  if (session?.user) {
     const { data: profile } = await supabase
       .from("users")
       .select("is_premium")
       .eq("id", session.user.id)
       .single();
+
     isPremium = profile?.is_premium === true;
   }
 
@@ -464,7 +466,7 @@ document.getElementById("goPremiumBtn").onclick = () => {
       card.classList.add("locked");
 
       // Add golden lock
-      let lock = document.createElement("div");
+      const lock = document.createElement("div");
       lock.className = "lock-icon";
       lock.textContent = "🔒";
       card.appendChild(lock);
@@ -476,7 +478,7 @@ document.getElementById("goPremiumBtn").onclick = () => {
         const { data: { session: innerSession } } = await supabase.auth.getSession();
 
         if (!innerSession) {
-          // NOT signed in → still show upgrade modal
+          // NOT signed in → show upgrade modal or redirect
           const modal = document.getElementById("premiumModal");
           if (modal) {
             modal.classList.remove("hidden");
@@ -487,7 +489,7 @@ document.getElementById("goPremiumBtn").onclick = () => {
           return;
         }
 
-        // Signed in but NOT premium
+        // Signed in but not premium
         const modal = document.getElementById("premiumModal");
         if (modal) {
           modal.classList.remove("hidden");
@@ -499,33 +501,38 @@ document.getElementById("goPremiumBtn").onclick = () => {
     });
   }
 
-  // Handle footer buttons
-  const viewBtn = document.getElementById("viewCategoriesBtn");
-  const unlockBtn = document.getElementById("unlockCategoriesBtn");
-
-  viewBtn.onclick = () => window.location.href = "categories.html";
-  unlockBtn.onclick = () => window.location.href = "premium.html";
+  // Footer buttons
+  document.getElementById("viewCategoriesBtn").onclick = () => window.location.href = "categories.html";
+  document.getElementById("unlockCategoriesBtn").onclick = () => window.location.href = "premium.html";
 
   // Hide unlock button for premium users
   if (isPremium) {
-    unlockBtn?.remove();
-    document.querySelector(".footer-buttons").style.justifyContent = "center";
+    document.getElementById("unlockCategoriesBtn")?.remove();
+    const footerBtns = document.querySelector(".footer-buttons");
+    if (footerBtns) footerBtns.style.justifyContent = "center";
   }
-  
-  // Enable category grid after premium check is complete
+
+  // Enable category grid interactivity
   const categoriesGrid = document.getElementById('categoriesGrid');
   if (categoriesGrid) {
     categoriesGrid.style.pointerEvents = 'auto';
     categoriesGrid.style.opacity = '1';
   }
-</script>
 
+  // Hamburger menu account visibility
+  if (!session || !session.user) {
+    document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+  }
+
+  if (isPremium) {
+    document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+  }
+</script>
 
 <!-- PREMIUM MODAL BUTTONS -->
 <script>
   document.getElementById("closePremiumBtn").onclick = () => {
-    const modal = document.getElementById("premiumModal");
-    if (modal) modal.classList.add("hidden");
+    document.getElementById("premiumModal")?.classList.add("hidden");
   };
 
   document.getElementById("goPremiumBtn").onclick = () => {
@@ -533,56 +540,18 @@ document.getElementById("goPremiumBtn").onclick = () => {
   };
 </script>
 
-
-
-
-
-<script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
-  const supabase = createClient(
-    'https://ajwxgdaninuzcpfwawug.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
-  );
-
-  const { data: { session } } = await supabase.auth.getSession();
-
-  // Hide Account if user not logged in
-  if (!session || !session.user) {
-    document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
-  }
-   if (!session) {
-  // Trigger your sign-in modal
-  const signInButton = document.querySelector('.menu-btn-signin');
-  if (signInButton) signInButton.click();
-}
-  // Hide Unlock All Categories if user is premium
-  if (session && session.user) {
-    const { data: profile } = await supabase
-      .from('users')
-      .select('is_premium')
-      .eq('id', session.user.id)
-      .single();
-
-    if (profile?.is_premium) {
-      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
-    }
-  }
-</script>
-
-
 <!-- Hamburger Menu Logic -->
 <script>
-const toggleBtn = document.getElementById("menuToggle");
-const overlay = document.getElementById("menuOverlay");
-const closeBtn = document.getElementById("closeMenu");
+  const toggleBtn = document.getElementById("menuToggle");
+  const overlay = document.getElementById("menuOverlay");
+  const closeBtn = document.getElementById("closeMenu");
 
-toggleBtn?.addEventListener("click", () => overlay.classList.add("active"));
-closeBtn?.addEventListener("click", () => overlay.classList.remove("active"));
+  toggleBtn?.addEventListener("click", () => overlay.classList.add("active"));
+  closeBtn?.addEventListener("click", () => overlay.classList.remove("active"));
 
-overlay.addEventListener("click", (e) => {
-  if (e.target === overlay) overlay.classList.remove("active");
-});
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) overlay.classList.remove("active");
+  });
 </script>
 
 </body>
