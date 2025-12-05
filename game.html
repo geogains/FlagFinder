@@ -126,8 +126,6 @@
 </div>
 
 <script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
   import { populationData } from './js/categories/population.js';
   import { gdpData } from './js/categories/gdp.js';
   import { happinessData } from './js/categories/happiness.js';
@@ -145,13 +143,11 @@
   import { temperatureData } from './js/categories/temperature.js';
   import { precipitationData } from './js/categories/rainfall.js';
 
-  const supabase = createClient(
-    'https://api.geo-ranks.com',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
-  );
+  // Reuse already-initialized client
+  window.supabase = window.supabaseClient;
+</script>
 
-  window.supabase = supabase; // make it globally accessible for blind-ranking.js
-
+<script type="module">
   // ========================================
   // 🔒 PREMIUM VALIDATION GUARD
   // ========================================
@@ -289,11 +285,18 @@
 
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+  const SUPABASE_URL = 'https://api.geo-ranks.com';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI';
 
-  const supabase = createClient(
-    'https://api.geo-ranks.com',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
-  );
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  });
+
+  window.supabaseClient = window.supabaseClient || supabase;
 
   const { data: { session } } = await supabase.auth.getSession();
 
@@ -306,24 +309,6 @@
 
     if (profile?.is_premium) {
       document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
-    }
-  }
-</script>
-
-<script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-  const supabase = createClient('https://api.geo-ranks.com', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI');
-
-  const { data: { session } } = await supabase.auth.getSession();
-  const accountBtn = document.querySelector(".menu-btn-account");
-
-  if (!session || !session.user) {
-    if (accountBtn) {
-      accountBtn.style.display = "none";
-    }
-  } else {
-    if (accountBtn) {
-      accountBtn.style.display = "block";
     }
   }
 </script>

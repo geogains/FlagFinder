@@ -218,14 +218,19 @@ document.getElementById("goPremiumBtn").onclick = () => {
 <!-- ============================= -->
 
 <script type="module">
-  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+  const SUPABASE_URL = 'https://api.geo-ranks.com';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI';
 
-  const SUPABASE_URL = "https://api.geo-ranks.com";
-  const SUPABASE_ANON_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI";
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  });
 
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  window.supabaseClient = supabase;
+  window.supabaseClient = window.supabaseClient || supabase;
 
   const signInText = document.getElementById("signInText");
   const submitBtn = document.getElementById("authSubmit");
@@ -538,12 +543,8 @@ document.getElementById("goPremiumBtn").onclick = () => {
 
 
 <script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
-  const supabase = createClient(
-    'https://api.geo-ranks.com',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
-  );
+  // Reuse global supabase instance created earlier
+  const supabase = window.supabaseClient;
 
   const { data: { session } } = await supabase.auth.getSession();
 
@@ -552,7 +553,6 @@ document.getElementById("goPremiumBtn").onclick = () => {
     document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
   }
 
-  
   // Hide Unlock All Categories if user is premium
   if (session && session.user) {
     const { data: profile } = await supabase
@@ -566,6 +566,7 @@ document.getElementById("goPremiumBtn").onclick = () => {
     }
   }
 </script>
+
 
 
 <!-- Hamburger Menu Logic -->
