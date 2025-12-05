@@ -551,7 +551,11 @@ document.getElementById("goPremiumBtn").onclick = () => {
   if (!session || !session.user) {
     document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
   }
-
+   if (!session) {
+  // Trigger your sign-in modal
+  const signInButton = document.querySelector('.menu-btn-signin');
+  if (signInButton) signInButton.click();
+}
   // Hide Unlock All Categories if user is premium
   if (session && session.user) {
     const { data: profile } = await supabase
