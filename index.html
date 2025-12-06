@@ -218,6 +218,9 @@ document.getElementById("goPremiumBtn").onclick = () => {
 <!-- ============================= -->
 
 <script type="module">
+  const { data: { session }, error } = await supabase.auth.getSession();
+console.log("Session:", session, "Error:", error, "localStorage:", Object.keys(window.localStorage));
+
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
   const SUPABASE_URL = 'https://api.geo-ranks.com';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI';
@@ -538,10 +541,6 @@ document.getElementById("goPremiumBtn").onclick = () => {
   };
 </script>
 
-
-
-
-
 <script type="module">
   // Reuse global supabase instance created earlier
   const supabase = window.supabaseClient;
@@ -566,7 +565,6 @@ document.getElementById("goPremiumBtn").onclick = () => {
     }
   }
 </script>
-
 
 
 <!-- Hamburger Menu Logic -->
