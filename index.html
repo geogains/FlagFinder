@@ -259,7 +259,7 @@ document.getElementById("goPremiumBtn").onclick = () => {
 </script>
 
 <script type="module">
-  const supabase = window.supabaseClient;
+  const supabase = window.supabase;
 
   const { data: { session } } = await supabase.auth.getSession();
   const signInText = document.getElementById("signInText");
@@ -475,7 +475,7 @@ document.getElementById("goPremiumBtn").onclick = () => {
 <!-- LOCKED CATEGORY LOGIC -->
 <script type="module">
   // @ts-ignore
-  const supabase = window.supabaseClient;
+  const supabase = window.supabase;
 
   const { data: { session } } = await supabase.auth.getSession();
 
@@ -568,7 +568,7 @@ document.getElementById("goPremiumBtn").onclick = () => {
 
 <script type="module">
   // Reuse global supabase instance created earlier
-  const supabase = window.supabaseClient;
+  const supabase = window.supabase;
 
   const { data: { session } } = await supabase.auth.getSession();
 

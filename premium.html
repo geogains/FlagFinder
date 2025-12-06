@@ -548,7 +548,7 @@ overlay.addEventListener("click", (e) => {
 
 <script type="module">
   // Reuse global supabase instance created earlier
-  const supabase = window.supabaseClient;
+  const supabase = window.supabase;
 
   const { data: { session } } = await supabase.auth.getSession();
 
@@ -576,7 +576,7 @@ overlay.addEventListener("click", (e) => {
   // Safely trigger checkout only when called
   async function startCheckout(plan) {
     // Ensure client is available
-    const supabase = window.supabaseClient;
+    const supabase = window.supabase;
     if (!supabase) {
       console.error("Supabase client not found");
       return;

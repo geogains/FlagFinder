@@ -15,7 +15,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js';
     }
   });
 
-  window.supabaseClient = window.supabaseClient || supabase;
+  window.supabase = window.supabase || supabase;
 
 function getCountries() {
   return window.countries && window.countries.length ? window.countries : [];

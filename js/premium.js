@@ -11,7 +11,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js';
     }
   });
 
-  window.supabaseClient = window.supabaseClient || supabase;
+  window.supabase = window.supabase || supabase;
 
 // ✅ Stripe Price IDs from your Dashboard
 const PRICE_MONTHLY = "price_1SXV7xB2pnEWYYPP3WmbEXAf";

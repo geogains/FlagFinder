@@ -469,7 +469,7 @@ document.getElementById("categorySearchInput").value = "🔍 " + displayName;
 </script>
 
 <script type="module">
-  const supabase = window.supabaseClient;
+  const supabase = window.supabase;
 
   const { data: { session } } = await supabase.auth.getSession();
 

@@ -392,7 +392,7 @@
 
 <!-- LOCKED CATEGORY LOGIC -->
 <script type="module">
-  const supabase = window.supabaseClient;
+  const supabase = window.supabase;
 
   const { data: { session } } = await supabase.auth.getSession();
 
@@ -486,7 +486,7 @@ overlay.addEventListener("click", (e) => {
 </script>
 
 <script type="module">
-  const supabase = window.supabaseClient;
+  const supabase = window.supabase;
 
   const { data: { session } } = await supabase.auth.getSession();
 
