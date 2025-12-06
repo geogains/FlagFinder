@@ -143,6 +143,24 @@
   import { temperatureData } from './js/categories/temperature.js';
   import { precipitationData } from './js/categories/rainfall.js';
 
+  const datasets = {
+    population: { title: 'RANK COUNTRIES FROM LARGEST TO SMALLEST POPULATION 👥', data: populationData },
+    gdp: { title: 'RANK COUNTRIES BASED ON AVERAGE INCOME PER PERSON 💰', data: gdpData },
+    happiness: { title: 'RANK THESE COUNTRIES BY NATIONAL HAPPINESS SCORES 😊', data: happinessData },
+    forest: { title: 'RANK COUNTRIES BASED ON THE TOTAL AREA COVERED BY FORESTS 🌲', data: forestData },
+    coastline: { title: 'RANK THESE COUNTRIES BY TOTAL COASTLINE LENGTH 🌊', data: coastlineData },
+    cuisine: { title: 'RANK THESE COUNTRIES BY CUISINE POPULARITY AND QUALITY 🍽️', data: cuisineData },
+    olympic: { title: 'RANK COUNTRIES BY TOTAL OLYMPIC MEDALS WON 🥇', data: olympicData },
+    worldcup: { title: 'RANK COUNTRIES BY THE NUMBER OF FIFA WORLD CUP TITLES THEY’VE WON ⚽', data: worldcupData },
+    landmass: { title: 'RANK COUNTRIES FROM LARGEST TO SMALLEST TOTAL LAND AREA 🌍', data: landmassData },
+    crimerate: { title: 'RANK THESE COUNTRIES BY HIGHEST CRIME RATE 🚨', data: crimerateData },
+    altitude: { title: 'RANK THESE COUNTRIES BY HIGHEST ELEVATION 🏔️', data: altitudeData },
+    passport: { title: 'RANK THESE COUNTRIES BY BEST PASSPORT 🛂', data: passportData },
+    beer: { title: 'RANK THESE COUNTRIES BY ANUAL BEER CONSUMPTION PER CAPITA 🍺', data: beerData },
+    nobelprize: { title: 'RANK THESE COUNTRIES BY MOST NOBEL PRIZE WINNERS 🕊️', data: nobelprizeData },
+    temperature: { title: 'RANK THESE COUNTRIES BY HIGHEST AVERAGE TEMPERATURE ☀️', data: temperatureData },
+    precipitation: { title: 'RANK THESE COUNTRIES BY HIGHEST AVERAGE PERCIPITATION 🌧️', data: precipitationData },
+  };
   // Reuse already-initialized client
   window.supabase = window.supabaseClient;
 </script>
@@ -222,25 +240,6 @@
     nobelprize: 15,
     temperature: 16,
     precipitation: 17,
-  };
-
-  const datasets = {
-    population: { title: 'RANK COUNTRIES FROM LARGEST TO SMALLEST POPULATION 👥', data: populationData },
-    gdp: { title: 'RANK COUNTRIES BASED ON AVERAGE INCOME PER PERSON 💰', data: gdpData },
-    happiness: { title: 'RANK THESE COUNTRIES BY NATIONAL HAPPINESS SCORES 😊', data: happinessData },
-    forest: { title: 'RANK COUNTRIES BASED ON THE TOTAL AREA COVERED BY FORESTS 🌲', data: forestData },
-    coastline: { title: 'RANK THESE COUNTRIES BY TOTAL COASTLINE LENGTH 🌊', data: coastlineData },
-    cuisine: { title: 'RANK THESE COUNTRIES BY CUISINE POPULARITY AND QUALITY 🍽️', data: cuisineData },
-    olympic: { title: 'RANK COUNTRIES BY TOTAL OLYMPIC MEDALS WON 🥇', data: olympicData },
-    worldcup: { title: 'RANK COUNTRIES BY THE NUMBER OF FIFA WORLD CUP TITLES THEY’VE WON ⚽', data: worldcupData },
-    landmass: { title: 'RANK COUNTRIES FROM LARGEST TO SMALLEST TOTAL LAND AREA 🌍', data: landmassData },
-    crimerate: { title: 'RANK THESE COUNTRIES BY HIGHEST CRIME RATE 🚨', data: crimerateData },
-    altitude: { title: 'RANK THESE COUNTRIES BY HIGHEST ELEVATION 🏔️', data: altitudeData },
-    passport: { title: 'RANK THESE COUNTRIES BY BEST PASSPORT 🛂', data: passportData },
-    beer: { title: 'RANK THESE COUNTRIES BY ANUAL BEER CONSUMPTION PER CAPITA 🍺', data: beerData },
-    nobelprize: { title: 'RANK THESE COUNTRIES BY MOST NOBEL PRIZE WINNERS 🕊️', data: nobelprizeData },
-    temperature: { title: 'RANK THESE COUNTRIES BY HIGHEST AVERAGE TEMPERATURE ☀️', data: temperatureData },
-    precipitation: { title: 'RANK THESE COUNTRIES BY HIGHEST AVERAGE PERCIPITATION 🌧️', data: precipitationData },
   };
 
   const selected = datasets[mode] || datasets.population;
