@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Supabase Auth Test</title>
+</head>
+<body>
+  <h1>Supabase Login Test</h1>
+  <button id="loginBtn">Login</button>
+  <pre id="output"></pre>
+
+  <script type="module">
+    // ✅ Global error logging
+    window.addEventListener('error', e => console.error('Global error:', e));
+    window.addEventListener('unhandledrejection', e => console.error('Unhandled promise rejection:', e));
+
+    // ✅ Import Supabase
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js';
+
+    // ✅ Your credentials
+    const SUPABASE_URL = 'https://api.geo-ranks.com';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // ← your full anon key here
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+      }
+    });
+
+    // ✅ Hook up button
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      const email = prompt("Email:");
+      const password = prompt("Password:");
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      
+      const output = document.getElementById('output');
+      if (error) {
+        console.error(error);
+        output.textContent = '❌ Login failed:\n' + JSON.stringify(error, null, 2);
+      } else {
+        console.log(data);
+        output.textContent = '✅ Login successful:\n' + JSON.stringify(data.session, null, 2);
+      }
+    });
+
+    // ✅ Check for existing session
+    const { data: { session } } = await supabase.auth.getSession();
+    console.log('Initial session:', session);
+  </script>
+</body>
+</html>
