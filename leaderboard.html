@@ -226,14 +226,35 @@
 <!-- 🌐 Supabase + Leaderboard Logic -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script>
-  const supabase = supabase.createClient('https://api.geo-ranks.com', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI', {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true
+  const supabase = window.supabase.createClient(
+    'https://api.geo-ranks.com',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI',
+    {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+      }
     }
-  });
-  window.supabaseClient = supabase;
+  );
+  window.supabase = supabase;
+
+  (async () => {
+    console.log('--- BEGIN SESSION DEBUG ---');
+    const { data: { session }, error } = await supabase.auth.getSession();
+    console.log('Session object:', session);
+    if (error) console.error('Session error:', error);
+
+    console.log('LocalStorage keys:', Object.keys(localStorage));
+    if (navigator.storage?.estimate) {
+      const estimate = await navigator.storage.estimate();
+      console.log('Storage estimate:', estimate);
+    }
+    console.log('--- END SESSION DEBUG ---');
+  })();
+</script>
+
+<script>
 
   const leaderboardBody = document.getElementById("leaderboardBody");
   const displayNameMap = {
