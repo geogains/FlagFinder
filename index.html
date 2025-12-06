@@ -217,39 +217,46 @@ document.getElementById("goPremiumBtn").onclick = () => {
 <!-- ========== SCRIPTS ========== -->
 <!-- ============================= -->
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script>
-  window.supabase = supabase.createClient(
-    'https://ajwxgdaninuzcpfwawug.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTkzMzgzMDUsImV4cCI6MjAxNDkxNDMwNX0.DuNqkac7atWsnT8xymGdo4GvU1XvFXoUXUJ_UZGB7vI',
-    {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true
-      }
+<script type="module">
+  const supabase = supabase.createClient('https://api.geo-ranks.com', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZx', {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      // Optionally: storage: sessionStorage
     }
-  );
+  });
+  window.supabaseClient = supabase;
 
-  // Delay session debug to after DOM load
-  window.addEventListener('DOMContentLoaded', async () => {
+  // ✅ Wrap this entire block in async function
+  (async () => {
     console.log('--- BEGIN SESSION DEBUG ---');
     try {
-      const { data: { session }, error } = await window.supabase.auth.getSession();
+      const { data: { session }, error } = await supabase.auth.getSession();
       console.log('Session object:', session);
       if (error) console.error('Session error:', error);
+      
+      if (!session) {
+        // 🔒 Show locked categories
+        // ✅ Enable "Sign In" button/modal
+        console.log("No session: showing locked UI");
+        document.querySelectorAll('.locked').forEach(el => el.classList.remove('hidden'));
+      } else {
+        // 🔓 Unlock categories
+        console.log("Session found: unlocking");
+      }
     } catch (e) {
       console.error('Error getting session:', e);
     }
-
-    console.log('LocalStorage keys:', Object.keys(window.localStorage));
+    console.log('LocalStorage keys:', Object.keys(localStorage));
     if (navigator.storage && navigator.storage.estimate) {
       const estimate = await navigator.storage.estimate();
       console.log('Storage estimate:', estimate);
     }
     console.log('--- END SESSION DEBUG ---');
-  });
+  })();
 </script>
+
 
 
 <script type="module">
