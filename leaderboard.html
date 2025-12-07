@@ -493,6 +493,19 @@ document.getElementById("categorySearchInput").value = "🔍 " + displayName;
     }
   })();
 </script>
-
+<script>
+const { data: scores } = await supabase
+  .from("category_scores")
+  .select(`
+    score,
+    user_id,
+    users (
+      username
+    )
+  `)
+  .eq("category_id", catData.id)
+  .order("score", { ascending: false })
+  .limit(20);
+</script>
 </body>
 </html>
