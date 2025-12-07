@@ -264,6 +264,7 @@
   console.log("🔍 All scores (no filter):", test1.data, "Error:", test1.error);
 
   const mode = new URLSearchParams(window.location.search).get('mode');
+  console.log("🌐 Mode from URL is:", mode);
   if (!mode) return;
 
   const catResult = await supabase
