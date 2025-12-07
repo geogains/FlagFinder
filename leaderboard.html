@@ -165,71 +165,92 @@
   }
 
   async function loadCategories() {
-    const { data: categories, error } = await supabase
-      .from('categories')
-      .select('name')
-      .order('name');
+  const { data: categories, error } = await supabase
+    .from('categories')
+    .select('name')
+    .order('name');
 
-    if (error) {
-      console.error('❌ Error loading categories:', error.message);
-      return;
-    }
-
-    const selected = new URLSearchParams(window.location.search).get('mode') || categories[0]?.name;
-    document.getElementById('categorySearchInput').value = `🔍 ${selected}`;
-
-    await loadLeaderboard(selected);
+  if (error || !categories?.length) {
+    console.error('❌ Error loading categories:', error?.message);
+    return;
   }
+
+  const params = new URLSearchParams(window.location.search);
+  const selected = params.get('mode');
+
+  // 🧠 This avoids calling with undefined
+  const categoryName = selected || categories[0]?.name;
+
+  if (!categoryName) {
+    console.warn('❌ No valid category to load leaderboard');
+    return;
+  }
+
+  // ✅ Set dropdown/search bar display
+  document.getElementById('categorySearchInput').value = `🔍 ${categoryName}`;
+
+  // ✅ Safe call
+  await loadLeaderboard(categoryName);
+}
 
   async function loadLeaderboard(categoryName) {
-    const { data: catData, error: catErr } = await supabase
-      .from('categories')
-      .select('id')
-      .eq('name', categoryName)
-      .single();
-
-    const leaderboardBody = document.getElementById('leaderboardBody');
-    if (!leaderboardBody) {
-      console.error('❌ leaderboardBody not found');
-      return;
-    }
-
-    if (catErr || !catData) {
-      leaderboardBody.innerHTML = `<tr><td colspan="3">❌ Category not found</td></tr>`;
-      return;
-    }
-
-    const { data: scores, error: scoreErr } = await supabase
-      .from('category_scores')
-      .select('score, users(username)')
-      .eq('category_id', catData.id)
-      .order('score', { ascending: false })
-      .limit(20);
-
-    if (scoreErr) {
-      console.error('❌ Error fetching leaderboard:', scoreErr.message);
-      leaderboardBody.innerHTML = `<tr><td colspan="3">❌ Error loading leaderboard</td></tr>`;
-      return;
-    }
-
-    if (!scores || scores.length === 0) {
-      leaderboardBody.innerHTML = `<tr><td colspan="3">No scores yet</td></tr>`;
-      return;
-    }
-
-    leaderboardBody.innerHTML = '';
-    scores.forEach((entry, index) => {
-      const user = entry.users || {};
-      const rankDisplay = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td class="leaderboard-rank">${rankDisplay}</td>
-        <td>${user.username || 'Anonymous'}</td>
-        <td>${entry.score}</td>
-      `;
-      leaderboardBody.appendChild(tr);
-    });
+  const leaderboardBody = document.getElementById('leaderboardBody');
+  if (!leaderboardBody) {
+    console.error('❌ leaderboardBody not found');
+    return;
   }
+
+  if (!categoryName) {
+    console.warn('❌ loadLeaderboard was called with undefined category');
+    leaderboardBody.innerHTML = `<tr><td colspan="3">❌ Invalid category</td></tr>`;
+    return;
+  }
+
+  leaderboardBody.innerHTML = `<tr><td colspan="3">Loading...</td></tr>`;
+
+  const { data: catData, error: catErr } = await supabase
+    .from('categories')
+    .select('id')
+    .eq('name', categoryName)
+    .single();
+
+  if (catErr || !catData) {
+    console.error('❌ Category not found:', catErr?.message);
+    leaderboardBody.innerHTML = `<tr><td colspan="3">❌ Category not found</td></tr>`;
+    return;
+  }
+
+  const { data: scores, error: scoreErr } = await supabase
+    .from('category_scores')
+    .select('score, users(username)')
+    .eq('category_id', catData.id)
+    .order('score', { ascending: false })
+    .limit(20);
+
+  if (scoreErr) {
+    console.error('❌ Error fetching leaderboard:', scoreErr.message);
+    leaderboardBody.innerHTML = `<tr><td colspan="3">❌ Error loading leaderboard</td></tr>`;
+    return;
+  }
+
+  if (!scores?.length) {
+    leaderboardBody.innerHTML = `<tr><td colspan="3">No scores yet</td></tr>`;
+    return;
+  }
+
+  leaderboardBody.innerHTML = '';
+  scores.forEach((entry, index) => {
+    const user = entry.users || {};
+    const rankDisplay = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="leaderboard-rank">${rankDisplay}</td>
+      <td>${user.username || 'Anonymous'}</td>
+      <td>${entry.score}</td>
+    `;
+    leaderboardBody.appendChild(tr);
+  });
+}
 
   // Initialize
   initLeaderboard();
