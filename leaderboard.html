@@ -469,8 +469,6 @@ document.getElementById("categorySearchInput").value = "🔍 " + displayName;
 </script>
 
 <script type="module">
-  const supabase = window.supabase;
-
   (async () => {
     const { data: { session } } = await supabase.auth.getSession();
 
@@ -480,7 +478,7 @@ document.getElementById("categorySearchInput").value = "🔍 " + displayName;
     }
 
     // Hide Unlock All Categories if user is premium
-    if (session && session.user) {
+    if (session?.user) {
       const { data: profile } = await supabase
         .from('users')
         .select('is_premium')
@@ -491,60 +489,15 @@ document.getElementById("categorySearchInput").value = "🔍 " + displayName;
         document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
       }
     }
+
+    // Automatically load leaderboard from URL param
+    const catNameFromUrl = new URLSearchParams(window.location.search).get('mode');
+    if (catNameFromUrl) {
+      console.log('📦 Category requested:', catNameFromUrl);
+      loadLeaderboard(catNameFromUrl);
+    }
   })();
-
-     // Load leaderboard if category is in URL
-(async () => {
-  const catNameFromUrl = new URLSearchParams(window.location.search).get('mode');
-  if (!catNameFromUrl) return;
-
-  const { data: catData, error: catErr } = await supabase
-    .from('categories')
-    .select('id')
-    .eq('name', catNameFromUrl)
-    .single();
-
-  if (catErr || !catData) {
-    console.error('❌ Could not fetch category:', catErr?.message);
-    return;
-  }
-
-  const { data: scores, error: scoreErr } = await supabase
-    .from("category_scores")
-    .select(`
-      score,
-      user_id,
-      users (
-        username
-      )
-    `)
-    .eq("category_id", catData.id)
-    .order("score", { ascending: false })
-    .limit(20);
-
-  if (scoreErr) {
-    console.error('❌ Error fetching leaderboard:', scoreErr.message);
-    return;
-  }
-
-const leaderboardBody = document.getElementById('leaderboardBody');
-if (!leaderboardBody) {
-  console.error('❌ leaderboardBody element not found.');
-  return;
-}
-
-leaderboardBody.innerHTML = ''; // Clear existing rows
-
-scores.forEach((score, index) => {
-  const row = document.createElement('tr');
-  row.innerHTML = `
-    <td>${index + 1}</td>
-    <td>${score.users?.username || 'Anonymous'}</td>
-    <td>${score.score}</td>
-  `;
-  leaderboardBody.appendChild(row);
-});
-})();
 </script>
+
 </body>
 </html>
