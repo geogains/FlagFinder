@@ -143,7 +143,7 @@
   import { temperatureData } from './js/categories/temperature.js';
   import { precipitationData } from './js/categories/rainfall.js';
 
-  const datasets = {
+  window.datasets = {
     population: { title: 'RANK COUNTRIES FROM LARGEST TO SMALLEST POPULATION 👥', data: populationData },
     gdp: { title: 'RANK COUNTRIES BASED ON AVERAGE INCOME PER PERSON 💰', data: gdpData },
     happiness: { title: 'RANK THESE COUNTRIES BY NATIONAL HAPPINESS SCORES 😊', data: happinessData },
@@ -312,21 +312,24 @@
   })();
 </script>
 
-<script>
+<script type="module">
+  const supabase = window.supabase;
 
-  const { data: { session } } = await supabase.auth.getSession();
+  (async () => {
+    const { data: { session } } = await supabase.auth.getSession();
 
-  if (session && session.user) {
-    const { data: profile } = await supabase
-      .from('users')
-      .select('is_premium')
-      .eq('id', session.user.id)
-      .single();
+    if (session && session.user) {
+      const { data: profile } = await supabase
+        .from('users')
+        .select('is_premium')
+        .eq('id', session.user.id)
+        .single();
 
-    if (profile?.is_premium) {
-      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+      if (profile?.is_premium) {
+        document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+      }
     }
-  }
+  })();
 </script>
 
 </body>
