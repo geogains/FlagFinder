@@ -267,12 +267,12 @@
   console.log("🌐 Mode from URL is:", mode);
   if (!mode) return;
 
-  console.log("⏱ Looking up category with name:", `"${catNameFromUrl}"`);
+console.log("⏱ Looking up category with name:", `"${mode}"`);
 
   const { data: catData, error: catErr } = await supabase
   .from('categories')
   .select('id')
-  .eq('name', catNameFromUrl)
+  .eq('name', mode)
   .maybeSingle();
 
 if (catErr) {
@@ -285,7 +285,7 @@ if (catErr) {
   const test2 = await supabase
     .from('category_scores')
     .select('score, user_id')
-    .eq('category_id', catResult.data.id)
+    .eq('category_id', catData.id)
     .limit(5);
 
   console.log("🔎 Filtered scores for mode:", mode, test2.data, "Error:", test2.error);
