@@ -267,16 +267,20 @@
   console.log("🌐 Mode from URL is:", mode);
   if (!mode) return;
 
-  const catResult = await supabase
-    .from('categories')
-    .select('id')
-    .eq('name', mode)
-    .single();
+  console.log("⏱ Looking up category with name:", `"${catNameFromUrl}"`);
 
-  if (!catResult.data) {
-    console.error("❌ Category not found:", catResult.error?.message);
-    return;
-  }
+  const { data: catData, error: catErr } = await supabase
+  .from('categories')
+  .select('id')
+  .eq('name', catNameFromUrl)
+  .maybeSingle();
+
+if (catErr) {
+  console.error("❌ Error fetching category:", catErr.message);
+} else if (!catData) {
+  console.warn("⚠️ No category found with that name.");
+}
+
 
   const test2 = await supabase
     .from('category_scores')
