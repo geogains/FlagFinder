@@ -494,37 +494,5 @@ document.getElementById("categorySearchInput").value = "🔍 " + displayName;
   })();
 </script>
 
-<script type="module">
-  const supabase = window.supabase;
-
-  (async () => {
-    // Fetch leaderboard data
-   const { data: scores, error } = await supabase
-  .from('category_scores')
-  .select('score, inserted_at, users(username), categories(name)')
-  .order('score', { ascending: false })
-  .limit(100);
-
-    if (error) {
-      console.error('❌ Error fetching leaderboard data:', error.message);
-      return;
-    }
-
-    const leaderboardContainer = document.getElementById('leaderboard-container');
-
-    if (!leaderboardContainer) {
-      console.error('❌ Could not find leaderboard container element.');
-      return;
-    }
-
-    leaderboardContainer.innerHTML = scores.map((entry, i) => `
-      <div class="leaderboard-entry">
-        <span>${i + 1}. ${entry.username || 'Anonymous'}</span>
-        <span>${entry.score} pts (${entry.category})</span>
-      </div>
-    `).join('');
-  })();
-</script>
-
 </body>
 </html>
