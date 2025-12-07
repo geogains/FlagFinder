@@ -471,27 +471,28 @@ document.getElementById("categorySearchInput").value = "🔍 " + displayName;
 <script type="module">
   const supabase = window.supabase;
 
-  const { data: { session } } = await supabase.auth.getSession();
+  (async () => {
+    const { data: { session } } = await supabase.auth.getSession();
 
-  // Hide Account if user not logged in
-  if (!session || !session.user) {
-    document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
-  }
-
-  // Hide Unlock All Categories if user is premium
-  if (session && session.user) {
-    const { data: profile } = await supabase
-      .from('users')
-      .select('is_premium')
-      .eq('id', session.user.id)
-      .single();
-
-    if (profile?.is_premium) {
-      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+    // Hide Account if user not logged in
+    if (!session || !session.user) {
+      document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
     }
-  }
-</script>
 
+    // Hide Unlock All Categories if user is premium
+    if (session && session.user) {
+      const { data: profile } = await supabase
+        .from('users')
+        .select('is_premium')
+        .eq('id', session.user.id)
+        .single();
+
+      if (profile?.is_premium) {
+        document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+      }
+    }
+  })();
+</script>
 
 </body>
 </html>
