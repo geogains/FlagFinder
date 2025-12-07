@@ -8,7 +8,6 @@
   <link rel="stylesheet" href="css/game-modes.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    
     .leaderboard-container {
       max-width: 720px;
       min-height: calc(100vh - 160px);
@@ -21,96 +20,31 @@
       box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
       text-align: center;
     }
-
     .leaderboard-title {
       font-size: 2rem;
       margin-bottom: 1.5rem;
     }
-
-    .search-results .info {
-  font-family: 'Poppins', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: #1f2937; /* Tailwind gray-800, or adjust as needed */
-}
-
-
-    .custom-dropdown-wrapper {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 1.4rem;
-    }
-
-    .custom-dropdown {
-      position: relative;
-      width: 220px;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .dropdown-selected {
-      background: linear-gradient(135deg, #ff9770, #ff6f61);
-      color: #fff;
-      padding: 0.6rem 1rem;
-      border-radius: 8px;
-      text-align: center;
-      font-weight: bold;
-    }
-
-    .dropdown-options {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-      margin-top: 0.4rem;
-      display: none;
-      z-index: 100;
-      overflow: hidden;
-      text-align: center;
-      padding-left: 0; 
-    }
-
-    .dropdown-options li {
-      padding: 0.6rem 1rem;
-      list-style: none;
-      text-align: center;
-      transition: background 0.2s;
-      cursor: pointer;
-    }
-
-    .dropdown-options li:hover {
-      background: rgba(0, 0, 0, 0.05);
-    }
-
     .leaderboard-table {
       width: 100%;
       border-collapse: collapse;
     }
-
     .leaderboard-table th,
     .leaderboard-table td {
       padding: 0.75rem 1rem;
       border-bottom: 1px solid rgba(0, 0, 0, 0.1);
       text-align: center;
     }
-
     .leaderboard-table th {
       font-weight: 600;
       background: rgba(0, 0, 0, 0.05);
     }
-
     .leaderboard-rank {
       font-weight: bold;
       font-size: 1.1rem;
     }
-
     .gold { color: #facc15; }
     .silver { color: #e5e7eb; }
     .bronze { color: #f97316; }
-
     .back-home {
       margin-top: 2rem;
       display: inline-block;
@@ -122,37 +56,18 @@
       background: linear-gradient(135deg, #ff9770, #ff6f61);
       transition: background 0.3s ease;
     }
-
     .back-home:hover {
       opacity: 0.9;
     }
-
-    @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(40px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.fade-in {
-  opacity: 0;
-  animation: fadeInUp 0.8s ease-out forwards;
-}
-
-@media (max-width: 600px) {
-  .leaderboard-container {
-    margin: 100px 20px 40px;
-  }
-}
+    @media (max-width: 600px) {
+      .leaderboard-container {
+        margin: 100px 20px 40px;
+      }
+    }
   </style>
 </head>
 <body>
 
-<!-- ✅ Header -->
 <header class="home-glass-header">
   <div class="logo-header">
     <a href="index.html" class="logo-link">
@@ -166,7 +81,6 @@
   </div>
 </header>
 
-<!-- ✅ Sliding Menu -->
 <div class="menu-overlay" id="menuOverlay">
   <div class="menu-panel">
     <h2>Menu</h2>
@@ -182,12 +96,11 @@
   </div>
 </div>
 
-<!-- ✅ Leaderboard Content -->
 <main class="leaderboard-container fade-in">
   <h1 class="leaderboard-title">🏆 Top Players</h1>
-<div class="search-bar-wrapper">
-  <input type="text" id="categorySearchInput" placeholder="🔍 Search Categories..." readonly />
-</div>
+  <div class="search-bar-wrapper">
+    <input type="text" id="categorySearchInput" placeholder="🔍 Search Categories..." readonly />
+  </div>
 
   <table class="leaderboard-table" id="leaderboardTable">
     <thead>
@@ -201,6 +114,7 @@
       <tr><td colspan="3">Loading...</td></tr>
     </tbody>
   </table>
+
   <a href="index.html" class="back-home">Home</a>
 </main>
 
@@ -223,11 +137,10 @@
   </div>
 </footer>
 
-<!-- 🌐 Supabase Client Initialization -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script>
-  // Initializing the client and assigning it to a unique global variable
-  const client = window.supabase.createClient(
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+  const supabase = createClient(
     'https://api.geo-ranks.com',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI',
     {
@@ -238,122 +151,88 @@
       }
     }
   );
-  window.supabaseClient = client;
 
-  (async () => {
+  window.supabase = supabase;
+
+  async function initLeaderboard() {
     console.log('--- BEGIN SESSION DEBUG ---');
-    const { data: { session }, error } = await client.auth.getSession();
+    const { data: { session }, error: sessErr } = await supabase.auth.getSession();
     console.log('Session object:', session);
-    if (error) console.error('Session error:', error);
+    if (sessErr) console.error('Session error:', sessErr);
 
-    console.log('LocalStorage keys:', Object.keys(localStorage));
-    if (navigator.storage?.estimate) {
-      const estimate = await navigator.storage.estimate();
-      console.log('Storage estimate:', estimate);
-    }
-    console.log('--- END SESSION DEBUG ---');
-  })();
-</script>
-
-<!-- 🌐 Leaderboard Logic -->
-<script>
-  // Retrieve the client from the global scope
-  const supabase = window.supabaseClient;
-
-  const leaderboardBody = document.getElementById("leaderboardBody");
-  const displayNameMap = {
-  population: "Population",
-  gdp: "GDP Per Capita",
-  altitude: "Altitude",
-  forest: "Forest Cover",
-  coastline: "Coastline",
-  olympic: "Olympic Medals",
-  cuisine: "Cuisine",
-  worldcup: "World Cup Trophies",
-  landmass: "Land Mass",
-  crimerate: "Crime Rate",
-  happiness: "Happiness",
-  passport: "Passport Strength",
-  beer: "Beer Consumption",
-  nobelprize: "Nobel Prize Winners",
-  temperature: "Highest Temperature",
-  precipitation: "Rainfall"
-};
-
-window.displayNameMap = displayNameMap;
-
-  window.formatCategoryName = function(category) {
-    if (!category) return "";
-    return category
-      .replace(/([A-Z])/g, " $1")
-      .replace(/_/g, " ")
-      .replace(/\b\w/g, (c) => c.toUpperCase())
-      .trim();
-  };
+    // Load categories and initial leaderboard
+    loadCategories();
+  }
 
   async function loadCategories() {
-    const params = new URLSearchParams(window.location.search);
-    const selectedParam = params.get("mode");
+    const { data: categories, error } = await supabase
+      .from('categories')
+      .select('name')
+      .order('name');
 
-    // Use the retrieved 'supabase' client
-    const { data: categories } = await supabase
-      .from("categories")
-      .select("*")
-      .order("name");
+    if (error) {
+      console.error('❌ Error loading categories:', error.message);
+      return;
+    }
 
-    if (!categories?.length) return;
+    const selected = new URLSearchParams(window.location.search).get('mode') || categories[0]?.name;
+    document.getElementById('categorySearchInput').value = `🔍 ${selected}`;
 
-   const initial = selectedParam || categories[0].name;
-    loadLeaderboard(initial);
-  const displayName = displayNameMap[initial.toLowerCase()] || formatCategoryName(initial);
-document.getElementById("categorySearchInput").value = "🔍 " + displayName;
+    await loadLeaderboard(selected);
   }
 
   async function loadLeaderboard(categoryName) {
-    leaderboardBody.innerHTML = `<tr><td colspan="3">Loading...</td></tr>`;
-
-    // Use the retrieved 'supabase' client
-    const { data: catData } = await supabase
-      .from("categories")
-      .select("id")
-      .eq("name", categoryName)
+    const { data: catData, error: catErr } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('name', categoryName)
       .single();
 
-    if (!catData) {
+    const leaderboardBody = document.getElementById('leaderboardBody');
+    if (!leaderboardBody) {
+      console.error('❌ leaderboardBody not found');
+      return;
+    }
+
+    if (catErr || !catData) {
       leaderboardBody.innerHTML = `<tr><td colspan="3">❌ Category not found</td></tr>`;
       return;
     }
 
-    // Use the retrieved 'supabase' client
-    const { data: scores } = await supabase
-      .from("category_scores")
-      .select("score, user_id, users(username)")
-      .eq("category_id", catData.id)
-      .order("score", { ascending: false })
+    const { data: scores, error: scoreErr } = await supabase
+      .from('category_scores')
+      .select('score, users(username)')
+      .eq('category_id', catData.id)
+      .order('score', { ascending: false })
       .limit(20);
 
-    leaderboardBody.innerHTML = "";
-
-    if (!scores?.length) {
-      leaderboardBody.innerHTML = `<tr><td colspan="3">👤 Create an account to view the leaderboard scores</td></tr>`;
+    if (scoreErr) {
+      console.error('❌ Error fetching leaderboard:', scoreErr.message);
+      leaderboardBody.innerHTML = `<tr><td colspan="3">❌ Error loading leaderboard</td></tr>`;
       return;
     }
 
+    if (!scores || scores.length === 0) {
+      leaderboardBody.innerHTML = `<tr><td colspan="3">No scores yet</td></tr>`;
+      return;
+    }
+
+    leaderboardBody.innerHTML = '';
     scores.forEach((entry, index) => {
       const user = entry.users || {};
-      const rankDisplay =
-        index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `#${index + 1}`;
-      const row = document.createElement("tr");
-      row.innerHTML = `
+      const rankDisplay = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
         <td class="leaderboard-rank">${rankDisplay}</td>
-        <td>${user.username || "Anonymous"}</td>
+        <td>${user.username || 'Anonymous'}</td>
         <td>${entry.score}</td>
       `;
-      leaderboardBody.appendChild(row);
+      leaderboardBody.appendChild(tr);
     });
   }
 
-  loadCategories();
+  // Initialize
+  initLeaderboard();
 </script>
 
 </body>
