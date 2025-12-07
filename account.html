@@ -198,23 +198,11 @@ body {
     }
   );
   window.supabase = supabase;
-
-  (async () => {
-    console.log('--- BEGIN SESSION DEBUG ---');
-    const { data: { session }, error } = await supabase.auth.getSession();
-    console.log('Session object:', session);
-    if (error) console.error('Session error:', error);
-
-    console.log('LocalStorage keys:', Object.keys(localStorage));
-    if (navigator.storage?.estimate) {
-      const estimate = await navigator.storage.estimate();
-      console.log('Storage estimate:', estimate);
-    }
-    console.log('--- END SESSION DEBUG ---');
-  })();
 </script>
 
 <script>
+(async () => {
+
   const usernameSpan = document.getElementById('currentUsername');
   const emailSpan = document.getElementById('userEmail');
   const sinceSpan = document.getElementById('userSince');
@@ -226,53 +214,41 @@ body {
   const emailMsg = document.getElementById('emailMsg');
   const logoutBtn = document.getElementById('logoutBtn');
 
-  let currentUser = null;
-
   const { data: { session } } = await supabase.auth.getSession();
 
   if (!session?.user) {
     window.location.href = 'index.html';
-  } else {
-    currentUser = session.user;
-    emailSpan.textContent = currentUser.email;
-    sinceSpan.textContent = new Date(currentUser.created_at).toLocaleDateString();
+    return;
+  }
 
-    const { data: profile, error } = await supabase
-      .from('users')
-      .select('username, is_premium')
-      .eq('id', currentUser.id)
-      .single();
+  const currentUser = session.user;
 
-    if (profile) {
-      usernameSpan.textContent = profile.username || 'Not set';
-      if (profile.is_premium) {
-        document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
-      }
-    } else {
-      console.error('Error fetching profile:', error?.message);
+  emailSpan.textContent = currentUser.email;
+  sinceSpan.textContent = new Date(currentUser.created_at).toLocaleDateString();
+
+  const { data: profile, error } = await supabase
+    .from('users')
+    .select('username, is_premium')
+    .eq('id', currentUser.id)
+    .single();
+
+  if (profile) {
+    usernameSpan.textContent = profile.username || 'Not set';
+    if (profile.is_premium) {
+      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
     }
   }
 
   changeUsernameBtn?.addEventListener('click', async () => {
     const newUsername = newUsernameInput.value.trim();
-    if (!newUsername) {
-      usernameMsg.textContent = '❌ Username cannot be empty.';
-      usernameMsg.style.color = 'red';
-      return;
-    }
+    if (!newUsername) return;
 
     const { error } = await supabase
       .from('users')
       .update({ username: newUsername })
       .eq('id', currentUser.id);
 
-    usernameMsg.textContent = error ? `❌ ${error.message}` : '✅ Username updated successfully!';
-    usernameMsg.style.color = error ? 'red' : 'green';
-
-    if (!error) {
-      usernameSpan.textContent = newUsername;
-      newUsernameInput.value = '';
-    }
+    usernameMsg.textContent = error ? error.message : '✅ Username updated';
   });
 
   changeEmailBtn?.addEventListener('click', async () => {
@@ -280,20 +256,18 @@ body {
     if (!newEmail) return;
 
     const { error } = await supabase.auth.updateUser({ email: newEmail });
-    emailMsg.textContent = error ? `❌ ${error.message}` : '✅ Confirmation sent to new email';
-    emailMsg.style.color = error ? 'red' : 'green';
+    emailMsg.textContent = error ? error.message : '✅ Confirmation email sent';
   });
 
   logoutBtn?.addEventListener('click', async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      alert("❌ Logout failed: " + error.message);
-    } else {
-      localStorage.setItem('showLogoutToast', 'true');
-      window.location.href = 'index.html';
-    }
+    await supabase.auth.signOut();
+    window.location.href = 'index.html';
   });
 
+})();
+</script>
+
+<script>
   // Menu toggle logic
   document.addEventListener("DOMContentLoaded", () => {
     const menuToggle = document.getElementById("menuToggle");
@@ -345,7 +319,7 @@ body {
 <script src="https://js.stripe.com/v3/"></script>
 
 <!-- Load Your Premium Logic AFTER Stripe -->
-<script src="js/premium.js" defer></script>
+<script type="module" src="js/premium.js"></script>
 
 </body>
 </html>
