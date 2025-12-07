@@ -492,20 +492,49 @@ document.getElementById("categorySearchInput").value = "🔍 " + displayName;
       }
     }
   })();
-</script>
-<script>
-const { data: scores } = await supabase
-  .from("category_scores")
-  .select(`
-    score,
-    user_id,
-    users (
-      username
-    )
-  `)
-  .eq("category_id", catData.id)
-  .order("score", { ascending: false })
-  .limit(20);
+
+      // Load leaderboard if category is in URL
+    const catNameFromUrl = new URLSearchParams(window.location.search).get('mode');
+    if (catNameFromUrl) {
+      const { data: catData } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('name', catNameFromUrl)
+        .single();
+
+      if (catData) {
+        const { data: scores } = await supabase
+          .from("category_scores")
+          .select(`
+            score,
+            user_id,
+            users (
+              username
+            )
+          `)
+          .eq("category_id", catData.id)
+          .order("score", { ascending: false })
+          .limit(20);
+
+        const leaderboardContainer = document.getElementById('leaderboardContainer');
+        if (!leaderboardContainer) {
+          console.error('❌ Could not find leaderboard container element.');
+        } else if (scores) {
+          leaderboardContainer.innerHTML = '';
+          scores.forEach((score, index) => {
+            const row = document.createElement('div');
+            row.className = 'leaderboard-row';
+            row.innerHTML = `
+              <div class="rank">#${index + 1}</div>
+              <div class="username">${score.users?.username || 'Anonymous'}</div>
+              <div class="score">${score.score}</div>
+            `;
+            leaderboardContainer.appendChild(row);
+          });
+        }
+      }
+    }
+
 </script>
 </body>
 </html>
