@@ -252,6 +252,40 @@
     }
     console.log('--- END SESSION DEBUG ---');
   })();
+
+  (async () => {
+  console.log("🧪 Debug: Fetching test data from category_scores...");
+
+  const test1 = await supabase
+    .from('category_scores')
+    .select('*')
+    .limit(5);
+
+  console.log("🔍 All scores (no filter):", test1.data, "Error:", test1.error);
+
+  const mode = new URLSearchParams(window.location.search).get('mode');
+  if (!mode) return;
+
+  const catResult = await supabase
+    .from('categories')
+    .select('id')
+    .eq('name', mode)
+    .single();
+
+  if (!catResult.data) {
+    console.error("❌ Category not found:", catResult.error?.message);
+    return;
+  }
+
+  const test2 = await supabase
+    .from('category_scores')
+    .select('score, user_id')
+    .eq('category_id', catResult.data.id)
+    .limit(5);
+
+  console.log("🔎 Filtered scores for mode:", mode, test2.data, "Error:", test2.error);
+})();
+
 </script>
 
 <script>
