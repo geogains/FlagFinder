@@ -500,10 +500,10 @@ document.getElementById("categorySearchInput").value = "🔍 " + displayName;
   (async () => {
     // Fetch leaderboard data
     const { data: scores, error } = await supabase
-      .from('scores')
+      .from('category_scores')
       .select('username, score, category')
       .order('score', { ascending: false })
-      .limit(10); // adjust if needed
+      .limit(100); // adjust if needed
 
     if (error) {
       console.error('❌ Error fetching leaderboard data:', error.message);
