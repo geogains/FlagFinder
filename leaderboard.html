@@ -493,48 +493,58 @@ document.getElementById("categorySearchInput").value = "🔍 " + displayName;
     }
   })();
 
-      // Load leaderboard if category is in URL
-    const catNameFromUrl = new URLSearchParams(window.location.search).get('mode');
-    if (catNameFromUrl) {
-      const { data: catData } = await supabase
-        .from('categories')
-        .select('id')
-        .eq('name', catNameFromUrl)
-        .single();
+     // Load leaderboard if category is in URL
+(async () => {
+  const catNameFromUrl = new URLSearchParams(window.location.search).get('mode');
+  if (!catNameFromUrl) return;
 
-      if (catData) {
-        const { data: scores } = await supabase
-          .from("category_scores")
-          .select(`
-            score,
-            user_id,
-            users (
-              username
-            )
-          `)
-          .eq("category_id", catData.id)
-          .order("score", { ascending: false })
-          .limit(20);
+  const { data: catData, error: catErr } = await supabase
+    .from('categories')
+    .select('id')
+    .eq('name', catNameFromUrl)
+    .single();
 
-        const leaderboardContainer = document.getElementById('leaderboardContainer');
-        if (!leaderboardContainer) {
-          console.error('❌ Could not find leaderboard container element.');
-        } else if (scores) {
-          leaderboardContainer.innerHTML = '';
-          scores.forEach((score, index) => {
-            const row = document.createElement('div');
-            row.className = 'leaderboard-row';
-            row.innerHTML = `
-              <div class="rank">#${index + 1}</div>
-              <div class="username">${score.users?.username || 'Anonymous'}</div>
-              <div class="score">${score.score}</div>
-            `;
-            leaderboardContainer.appendChild(row);
-          });
-        }
-      }
-    }
+  if (catErr || !catData) {
+    console.error('❌ Could not fetch category:', catErr?.message);
+    return;
+  }
 
+  const { data: scores, error: scoreErr } = await supabase
+    .from("category_scores")
+    .select(`
+      score,
+      user_id,
+      users (
+        username
+      )
+    `)
+    .eq("category_id", catData.id)
+    .order("score", { ascending: false })
+    .limit(20);
+
+  if (scoreErr) {
+    console.error('❌ Error fetching leaderboard:', scoreErr.message);
+    return;
+  }
+
+const leaderboardBody = document.getElementById('leaderboardBody');
+if (!leaderboardBody) {
+  console.error('❌ leaderboardBody element not found.');
+  return;
+}
+
+leaderboardBody.innerHTML = ''; // Clear existing rows
+
+scores.forEach((score, index) => {
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td>${index + 1}</td>
+    <td>${score.users?.username || 'Anonymous'}</td>
+    <td>${score.score}</td>
+  `;
+  leaderboardBody.appendChild(row);
+});
+})();
 </script>
 </body>
 </html>
