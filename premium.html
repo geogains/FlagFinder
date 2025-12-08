@@ -553,9 +553,6 @@ overlay.addEventListener("click", (e) => {
 </script>
 
 <script type="module">
-  // Reuse global supabase instance created earlier
-  const supabase = window.supabase;
-
   const { data: { session } } = await supabase.auth.getSession();
 
   // Hide Account if user not logged in
