@@ -216,8 +216,7 @@
   })();
 </script>
 
-<script>
-
+<script type="module">
   const { data: { session } } = await supabase.auth.getSession();
 
   // Hide Account if user not logged in
@@ -238,7 +237,6 @@
     }
   }
 </script>
-
 
 </body>
 </html>
