@@ -434,9 +434,10 @@
   let isSignIn = true;
 
   function rebindToggleAuthLink() {
-    const newToggle = document.getElementById("toggleAuthLink");
-    const forgotLink = document.getElementById("forgotPasswordLink");
+  const newToggle = document.getElementById("toggleAuthLink");
+  const forgotLink = document.getElementById("forgotPasswordLink");
 
+  if (newToggle) {
     newToggle.addEventListener("click", () => {
       isSignIn = !isSignIn;
 
@@ -458,9 +459,10 @@
           "Already have an account? <span id='toggleAuthLink'>Sign In</span>";
       }
 
-      rebindToggleAuthLink();
+      rebindToggleAuthLink(); // rebind after updating HTML
     });
   }
+}
 
   async function handleAuth() {
     const email = emailInput.value.trim();
