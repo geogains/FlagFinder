@@ -503,7 +503,9 @@
     document.getElementById("authModal")?.classList.add("hidden");
   }
 
+ if (submitBtn) {
   submitBtn.addEventListener("click", handleAuth);
+}
   rebindToggleAuthLink();
 
   const closeModalBtn = document.getElementById("closeAuthModal");
