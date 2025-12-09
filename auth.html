@@ -1,75 +1,240 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GeoRanks — Sign In / Register</title>
-  <link rel="stylesheet" href="css/home.css">
-  <!-- plus other needed CSS -->
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ---------- RESET & BASE ---------- */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to bottom right, #a7f3d0, #38bdf8);
+      color: #111;
+      overflow-x: hidden;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* ---------- GLASS HEADER ---------- */
+    .glass-header {
+      width: 100%;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+    }
+    .glass-header .logo-link img {
+      height: 40px;
+    }
+
+    /* ---------- MAIN LAYOUT ---------- */
+    .auth-layout {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-top: 80px; /* space for header */
+      padding-bottom: 2rem;
+    }
+    @media (max-width: 768px) {
+      .auth-layout {
+        justify-content: center;
+        padding: 80px 1rem 2rem 1rem;
+      }
+    }
+
+    /* ---------- AUTH CARD PANEL ---------- */
+    .auth-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 420px;
+      padding: 2rem;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .auth-card h1 {
+      font-size: 1.9rem;
+      font-weight: 600;
+      margin-bottom: 1.4rem;
+      text-align: center;
+    }
+
+    .auth-card form {
+      width: 100%;
+    }
+    .auth-card input {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .auth-card input:focus {
+      border-color: #ff6f61;
+      box-shadow: 0 0 0 2px rgba(255, 111, 97, 0.3);
+      outline: none;
+    }
+
+    .auth-card button {
+      width: 100%;
+      padding: 0.95rem 1rem;
+      background: linear-gradient(135deg, #ff9770, #ff6f61);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .auth-card button:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+
+    .toggle-view, .forgot-password {
+      margin-top: 1rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #555;
+    }
+    .toggle-view span {
+      color: #ff6f61;
+      cursor: pointer;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+    .toggle-view span:hover {
+      color: #ff9770;
+    }
+    .forgot-password a {
+      color: #ff6f61;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+    .forgot-password a:hover {
+      color: #ff9770;
+    }
+  </style>
 </head>
+
 <body>
-  <!-- include your header (logo, menu, etc) — same as main site -->
-  <header> … </header>
 
-  <main class="auth-container">
-    <h1 id="authTitle">Sign In</h1>
+  <!-- Glass Header with Logo -->
+  <header class="glass-header">
+    <a href="index.html" class="logo-link">
+      <img src="assets/logo.png" alt="GeoRanks Logo" />
+    </a>
+  </header>
 
-    <form id="authForm">
-      <input id="emailInput" type="email" placeholder="Email" required />
-      <input id="passwordInput" type="password" placeholder="Password" required />
-      <input id="usernameInput" type="text" placeholder="Username (for register)" style="display:none;" />
-      <button id="authSubmit">Continue</button>
-    </form>
+  <!-- Auth Layout & Card -->
+  <div class="auth-layout">
+    <div class="auth-card" id="authCard">
 
-    <p id="toggleAuthView">
-      Don't have an account? <span id="toggleAuthLink">Sign Up</span>
-    </p>
+      <h1 id="authTitle">Sign In</h1>
 
-    <p>
-      <a href="#" id="forgotPasswordLink">Forgot Password?</a>
-    </p>
-  </main>
+      <form id="authForm">
+        <input id="emailInput" type="email" placeholder="Email" required />
+        <input id="passwordInput" type="password" placeholder="Password" required />
+        <input id="usernameInput" type="text" placeholder="Username" style="display: none;" />
+        <button id="authSubmit" type="submit">Continue</button>
+      </form>
+
+      <p class="toggle-view" id="toggleView">
+        Don't have an account? <span id="toggleAuthLink">Sign Up</span>
+      </p>
+
+      <p class="forgot-password" id="forgotPasswordWrapper">
+        <a href="#" id="forgotPasswordLink">Forgot Password?</a>
+      </p>
+
+    </div>
+  </div>
 
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-    const supabase = createClient('https://api.geo-ranks.com', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI', { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
 
-    let isSignIn = true;
+    const supabase = createClient(
+      'https://api.geo-ranks.com',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI',  // <--- Replace with your Supabase public anon key
+      { auth: { persistSession: true, autoRefreshToken: true } }
+    );
+
+    // Elements
+    const authCard = document.getElementById('authCard');
+    const authTitle = document.getElementById('authTitle');
+    const authForm = document.getElementById('authForm');
     const emailInput = document.getElementById('emailInput');
     const passwordInput = document.getElementById('passwordInput');
     const usernameInput = document.getElementById('usernameInput');
-    const authForm = document.getElementById('authForm');
     const authSubmit = document.getElementById('authSubmit');
-    const authTitle = document.getElementById('authTitle');
-    const toggleAuthView = document.getElementById('toggleAuthView');
     const toggleAuthLink = document.getElementById('toggleAuthLink');
+    const toggleView = document.getElementById('toggleView');
+    const forgotPasswordWrapper = document.getElementById('forgotPasswordWrapper');
     const forgotPasswordLink = document.getElementById('forgotPasswordLink');
 
+    let isSignIn = true;
+
+    // Toggle sign in / sign up
     toggleAuthLink.addEventListener('click', () => {
       isSignIn = !isSignIn;
-      if (isSignIn) {
-        authTitle.textContent = 'Sign In';
-        usernameInput.style.display = 'none';
-        authSubmit.textContent = 'Continue';
-        toggleAuthView.innerHTML = "Don't have an account? <span id='toggleAuthLink'>Sign Up</span>";
-      } else {
-        authTitle.textContent = 'Sign Up';
-        usernameInput.style.display = 'block';
-        authSubmit.textContent = 'Register';
-        toggleAuthView.innerHTML = "Already have an account? <span id='toggleAuthLink'>Sign In</span>";
-      }
+      authTitle.textContent = isSignIn ? 'Sign In' : 'Create Account';
+      authSubmit.textContent = isSignIn ? 'Continue' : 'Register';
+      usernameInput.style.display = isSignIn ? 'none' : 'block';
+      forgotPasswordWrapper.style.display = isSignIn ? 'block' : 'none';
+      toggleView.innerHTML = isSignIn
+        ? `Don't have an account? <span id="toggleAuthLink">Sign Up</span>`
+        : `Already have an account? <span id="toggleAuthLink">Sign In</span>`;
+      // Re-bind after DOM update
+      document.getElementById('toggleAuthLink')?.addEventListener('click', arguments.callee);
     });
 
+    // Form submit (sign-in or register)
     authForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = emailInput.value.trim();
       const password = passwordInput.value;
       const username = usernameInput.value.trim();
+
       if (!email || !password || (!isSignIn && !username)) {
-        alert('Please fill in all fields');
+        alert('❗ Please fill in all required fields.');
         return;
       }
+
       if (isSignIn) {
+        // Sign in
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {
           alert('❌ ' + error.message);
@@ -77,45 +242,57 @@
           window.location.href = 'index.html';
         }
       } else {
-        const { data: existing, error: checkError } = await supabase
+        // Register
+        const { data: existing, error: checkErr } = await supabase
           .from('users')
           .select('id')
           .eq('username', username)
           .maybeSingle();
-        if (checkError) {
-          alert('❌ ' + checkError.message);
+        if (checkErr) {
+          alert('❌ ' + checkErr.message);
           return;
         }
         if (existing) {
-          alert('❌ Username already taken');
+          alert('❌ That username is already taken.');
           return;
         }
-        const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { username } } });
+
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { data: { username } }
+        });
+
         if (error) {
           if (error.message.includes('duplicate key')) {
-            alert('❌ Username or email already in use');
+            alert('❌ Username or email already in use.');
           } else {
             alert('❌ ' + error.message);
           }
         } else {
-          alert('✅ Please check your email to confirm your account.');
+          alert('✅ Account created! Check your email to confirm.');
+          window.location.href = 'index.html';
         }
       }
     });
 
+    // Forgot password
     forgotPasswordLink.addEventListener('click', async (e) => {
       e.preventDefault();
-      const email = prompt('Enter your email for password reset:');
-      if (!email) return;
-      alert('📧 Sending password reset link...');
+      const email = emailInput.value.trim();
+      if (!email) {
+        alert('❗ Please enter your email to reset password.');
+        return;
+      }
+
+      alert('📧 Sending password reset email...');
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: 'https://www.geo-ranks.com/reset-password.html'
       });
       if (error) {
         alert('❌ ' + error.message);
       } else {
-        alert('✅ Password reset link sent! Check your email.');
-        window.location.href = 'index.html';
+        alert('✅ Password reset link sent! Please check your inbox.');
       }
     });
   </script>

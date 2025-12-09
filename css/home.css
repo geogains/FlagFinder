@@ -999,6 +999,21 @@ html, body {
   background: rgba(0, 0, 0, 0.15);
 }
 
+.menu-icon {
+  position: fixed; /* 🔥 This is critical */
+  top: 1rem;
+  right: 1rem;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  background: none !important;
+  border: none !important;
+  cursor: pointer;
+}
+
+
 /* ===== PREMIUM MODAL OVERLAY ===== */
 .premium-modal {
   position: fixed;
