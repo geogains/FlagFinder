@@ -476,7 +476,7 @@ function endGame() {
     return userTier >= range.min && userTier <= range.max ? "✅" : "❌";
   });
 
-  const shareText = `${scoreLine}\n${markers.join(" ")}\n\nPlay at: https://geo-ranks.com\n\n✅ - Correct placement\n❌ - Incorrect placement`;
+  const shareText = `${scoreLine}\n${markers.join(" ")}\n\nPlay at: https://geo-ranks.com\n\n✅`;
 
   navigator.clipboard.writeText(shareText)
     .then(() => alert("📋 Copied your results to clipboard!"))
