@@ -378,25 +378,28 @@ setInterval(() => {
   const supabaseUrl = 'https://api.geo-ranks.com';
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI';
   const supabase = createClient(supabaseUrl, supabaseKey);
+  window.supabase = supabase;
 
   const signInForm = document.getElementById('signInForm');
   const signUpForm = document.getElementById('signUpForm');
 
-  signInForm.addEventListener('submit', async (e) => {
+  signInForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = signInForm.querySelector('input[type="email"]').value;
     const password = signInForm.querySelector('input[type="password"]').value;
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
       alert("❌ " + error.message);
-    } else {
+    } else if (data?.session) {
       window.location.href = "index.html";
+    } else {
+      alert("❌ Login failed. Please try again.");
     }
   });
 
-  signUpForm.addEventListener('submit', async (e) => {
+  signUpForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const username = signUpForm.querySelector('input[type="text"]').value;
     const email = signUpForm.querySelector('input[type="email"]').value;
@@ -414,9 +417,7 @@ setInterval(() => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: { username }
-      }
+      options: { data: { username } }
     });
 
     if (error) {
@@ -429,7 +430,29 @@ setInterval(() => {
       alert("✅ Please check your email to confirm your account.");
     }
   });
+
+  document.querySelector('.forgot-password')?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const email = signInForm.querySelector('input[type="email"]').value;
+    if (!email) {
+      alert("❌ Please enter your email first.");
+      return;
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: 'https://www.geo-ranks.com/reset-password.html'
+    });
+
+    if (error) {
+      alert("❌ " + error.message);
+    } else {
+      alert("✅ Password reset email sent! Please check your inbox.");
+    }
+  });
 </script>
+
+
+
 
 </body>
 </html>
