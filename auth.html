@@ -223,6 +223,61 @@
       font-size: 0.9rem;
     }
 
+    .home-footer {
+  width: 100%;
+  text-align: center;
+  padding: 1.6rem 0;
+  margin-top: 3rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.footer-socials {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.icon-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+}
+
+.icon-row img {
+  width: 32px;
+  height: 32px;
+  transition: transform 0.2s ease;
+}
+
+.icon-row img:hover {
+  transform: scale(1.1);
+}
+
+.footer-socials {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.footer-socials p {
+  margin-top: 12px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.divider {
+  width: 1px;
+  height: 18px;
+  background: rgba(0, 0, 0, 0.2); /* Darker or more solid */
+}
+
+
+
     @keyframes fadeInSlideShow {
   from {
     opacity: 0;
@@ -451,8 +506,28 @@ setInterval(() => {
   });
 </script>
 
-
-
+<footer class="home-footer">
+  <div class="footer-socials">
+    <div class="icon-row">
+      <a href="https://www.instagram.com/geo_ranks/" target="_blank" rel="noopener">
+        <img src="assets/instagram.png" alt="Instagram" />
+      </a>
+      <div class="divider"></div>
+      <a href="https://www.tiktok.com/@georanks" target="_blank" rel="noopener">
+        <img src="assets/tik-tok.png" alt="TikTok" />
+      </a>
+      <div class="divider"></div>
+      <a href="https://www.youtube.com/channel/UC8jrsBpCn09u0mHQle_O3Rw" target="_blank" rel="noopener">
+        <img src="assets/youtube.png" alt="YouTube" />
+      </a>
+      <div class="divider"></div>
+      <a href="https://x.com/Kieroncroo66687" target="_blank" rel="noopener">
+        <img src="assets/x.png" alt="X" />
+      </a>
+    </div>
+    <p>© 2025 GeoRanks</p>
+  </div>
+</footer>
 
 </body>
 </html>
