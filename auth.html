@@ -32,6 +32,7 @@
   max-width: 100%;
   object-fit: contain;
   transition: transform 0.3s ease;
+  margin-bottom: 0.1rem;
 }
 
 .auth-logo:hover {
@@ -49,7 +50,29 @@
   100% { opacity: 1; transform: translateY(0); }
 }
 
-    
+.auth-heading {
+  color: white;
+  font-size: 1.8rem;
+  font-weight: 600;
+  text-align: center;
+  margin: 0; /* Reset all margins */
+  padding: 0; /* Remove padding just in case */
+  opacity: 0;
+  animation: fadeInUp 1s ease forwards;
+  animation-delay: 0.3s;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}    
+
     header {
       position: sticky;
       top: 0;
@@ -242,6 +265,7 @@
     <img src="assets/logo-white.png" alt="Geo Ranks Logo" class="auth-logo">
   </a>
 </div>
+<h1 class="auth-heading">Test Your World Ranking Knowledge! 🌍</h1>
   
   <div class="auth-container">
     <div class="slideshow-container">
@@ -352,5 +376,6 @@ setInterval(() => {
       });
     });
   </script>
+
 </body>
 </html>
