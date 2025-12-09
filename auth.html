@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GeoRanks — Sign In / Register</title>
+  <link rel="stylesheet" href="css/home.css">
+  <!-- plus other needed CSS -->
+</head>
+<body>
+  <!-- include your header (logo, menu, etc) — same as main site -->
+  <header> … </header>
+
+  <main class="auth-container">
+    <h1 id="authTitle">Sign In</h1>
+
+    <form id="authForm">
+      <input id="emailInput" type="email" placeholder="Email" required />
+      <input id="passwordInput" type="password" placeholder="Password" required />
+      <input id="usernameInput" type="text" placeholder="Username (for register)" style="display:none;" />
+      <button id="authSubmit">Continue</button>
+    </form>
+
+    <p id="toggleAuthView">
+      Don't have an account? <span id="toggleAuthLink">Sign Up</span>
+    </p>
+
+    <p>
+      <a href="#" id="forgotPasswordLink">Forgot Password?</a>
+    </p>
+  </main>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    const supabase = createClient('https://api.geo-ranks.com', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI', { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+
+    let isSignIn = true;
+    const emailInput = document.getElementById('emailInput');
+    const passwordInput = document.getElementById('passwordInput');
+    const usernameInput = document.getElementById('usernameInput');
+    const authForm = document.getElementById('authForm');
+    const authSubmit = document.getElementById('authSubmit');
+    const authTitle = document.getElementById('authTitle');
+    const toggleAuthView = document.getElementById('toggleAuthView');
+    const toggleAuthLink = document.getElementById('toggleAuthLink');
+    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+
+    toggleAuthLink.addEventListener('click', () => {
+      isSignIn = !isSignIn;
+      if (isSignIn) {
+        authTitle.textContent = 'Sign In';
+        usernameInput.style.display = 'none';
+        authSubmit.textContent = 'Continue';
+        toggleAuthView.innerHTML = "Don't have an account? <span id='toggleAuthLink'>Sign Up</span>";
+      } else {
+        authTitle.textContent = 'Sign Up';
+        usernameInput.style.display = 'block';
+        authSubmit.textContent = 'Register';
+        toggleAuthView.innerHTML = "Already have an account? <span id='toggleAuthLink'>Sign In</span>";
+      }
+    });
+
+    authForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      const username = usernameInput.value.trim();
+      if (!email || !password || (!isSignIn && !username)) {
+        alert('Please fill in all fields');
+        return;
+      }
+      if (isSignIn) {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) {
+          alert('❌ ' + error.message);
+        } else {
+          window.location.href = 'index.html';
+        }
+      } else {
+        const { data: existing, error: checkError } = await supabase
+          .from('users')
+          .select('id')
+          .eq('username', username)
+          .maybeSingle();
+        if (checkError) {
+          alert('❌ ' + checkError.message);
+          return;
+        }
+        if (existing) {
+          alert('❌ Username already taken');
+          return;
+        }
+        const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { username } } });
+        if (error) {
+          if (error.message.includes('duplicate key')) {
+            alert('❌ Username or email already in use');
+          } else {
+            alert('❌ ' + error.message);
+          }
+        } else {
+          alert('✅ Please check your email to confirm your account.');
+        }
+      }
+    });
+
+    forgotPasswordLink.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const email = prompt('Enter your email for password reset:');
+      if (!email) return;
+      alert('📧 Sending password reset link...');
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: 'https://www.geo-ranks.com/reset-password.html'
+      });
+      if (error) {
+        alert('❌ ' + error.message);
+      } else {
+        alert('✅ Password reset link sent! Check your email.');
+        window.location.href = 'index.html';
+      }
+    });
+  </script>
+</body>
+</html>
