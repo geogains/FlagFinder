@@ -458,6 +458,31 @@ function endGame() {
   const playRandom = document.querySelector(".action-play-random");
   const shareBtn = document.querySelector(".action-share");
 
+  shareBtn.onclick = () => {
+  const maxScore = selectedCountries.length * 10;
+  const scoreLine = `GeoRanks 🌍 - ${currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1)} Challenge\nScore: ${totalScore}/${maxScore}\n`;
+
+  const results = document.querySelectorAll(".ranking-row");
+  const markers = Array.from(results).map(row => {
+    const slot = row.querySelector(".rank-slot");
+    if (!slot.innerHTML.trim()) return "❌";
+
+    const code = slot.querySelector("img")?.src?.split("/").pop()?.split(".")[0];
+    const c = selectedCountries.find(x => x.code === code);
+    if (!c) return "❌";
+
+    const userTier = [...results].indexOf(row) + 1;
+    const range = c.rankRange || { min: c.bestRankInRound, max: c.bestRankInRound };
+    return userTier >= range.min && userTier <= range.max ? "✅" : "❌";
+  });
+
+  const shareText = `${scoreLine}\n${markers.join(" ")}\n\nPlay at: https://geo-ranks.com\n\n✅ - Correct placement\n❌ - Incorrect placement`;
+
+  navigator.clipboard.writeText(shareText)
+    .then(() => alert("📋 Copied your results to clipboard!"))
+    .catch(err => alert("❌ Failed to copy results."));
+};
+
 playAgain.onclick = () => {
   const wrapper = document.querySelector(".blind-ranking-wrapper");
   if (!wrapper) return;
