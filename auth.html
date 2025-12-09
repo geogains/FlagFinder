@@ -265,7 +265,7 @@
     <img src="assets/logo-white.png" alt="Geo Ranks Logo" class="auth-logo">
   </a>
 </div>
-<h1 class="auth-heading">Test Your World Ranking Knowledge! 🌍</h1>
+<h1 class="auth-heading">Sign in or Create an account</h1>
   
   <div class="auth-container">
     <div class="slideshow-container">
@@ -369,13 +369,67 @@ setInterval(() => {
     });
 
     // Redirect logic (placeholder only)
-    document.querySelectorAll("form").forEach(form => {
-      form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        window.location.href = "index.html";
-      });
-    });
   </script>
+
+  <!-- Add this just before the closing </body> -->
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+  const supabaseUrl = 'https://api.geo-ranks.com';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI';
+  const supabase = createClient(supabaseUrl, supabaseKey);
+
+  const signInForm = document.getElementById('signInForm');
+  const signUpForm = document.getElementById('signUpForm');
+
+  signInForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = signInForm.querySelector('input[type="email"]').value;
+    const password = signInForm.querySelector('input[type="password"]').value;
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      alert("❌ " + error.message);
+    } else {
+      window.location.href = "index.html";
+    }
+  });
+
+  signUpForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = signUpForm.querySelector('input[type="text"]').value;
+    const email = signUpForm.querySelector('input[type="email"]').value;
+    const password = signUpForm.querySelector('input[type="password"]').value;
+
+    const { data: existing, error: checkError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('username', username)
+      .maybeSingle();
+
+    if (checkError) return alert("❌ " + checkError.message);
+    if (existing) return alert("❌ Username already taken");
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { username }
+      }
+    });
+
+    if (error) {
+      if (error.message.includes("duplicate key")) {
+        alert("❌ Username or email already in use");
+      } else {
+        alert("❌ " + error.message);
+      }
+    } else {
+      alert("✅ Please check your email to confirm your account.");
+    }
+  });
+</script>
 
 </body>
 </html>
