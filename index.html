@@ -14,28 +14,6 @@
 
 <body>
 
-<!-- ========== AUTH MODAL ========== -->
-<div class="auth-modal hidden" id="authModal">
-  <div class="modal-window">
-    <button class="close-auth-modal" id="closeAuthModal">×</button>
-    <h2 id="authModalTitle">Sign In</h2>
-
-    <input type="text" id="authUsername" placeholder="Username" style="display:none;" />
-    <input type="email" id="authEmail" placeholder="Email address" />
-    <input type="password" id="authPassword" placeholder="Password" />
-
-    <div id="forgotPasswordLink" style="margin-top: 0.75rem; text-align: center;">
-      <a href="#" style="font-size: 0.9rem; text-decoration: underline; color: #0d315a;">Forgot Password?</a>
-    </div>
-
-    <button class="btn-auth" id="authSubmit">Continue</button>
-
-    <div class="toggle-view" id="toggleAuthView">
-      Don’t have an account? <span id="toggleAuthLink">Sign Up</span>
-    </div>
-  </div>
-</div>
-
 <!-- 🔒 PREMIUM UPGRADE MODAL -->
 <div id="premiumModal" class="premium-modal hidden">
   <div class="premium-window">
@@ -61,7 +39,7 @@ document.getElementById("goPremiumBtn").onclick = () => {
 
 <!-- ========== HEADER ========== -->
 <header class="home-glass-header">
-  <a href="auth.html" class="menu-btn menu-btn-account">Sign In</a>
+  <a href="auth.html" class="menu-btn menu-btn-account" id="signInText">Sign In</a>
   <div class="hamburger-menu">
     <div class="menu-icon" id="menuToggle">
       <span></span>
@@ -258,186 +236,6 @@ document.getElementById("goPremiumBtn").onclick = () => {
   })();
 </script>
 
-<script type="module">
-  const supabase = window.supabase;
-
-  const { data: { session } } = await supabase.auth.getSession();
-  const signInText = document.getElementById("signInText");
-  const submitBtn = document.getElementById("authSubmit");
-  const authTitle = document.getElementById("authModalTitle");
-  const emailInput = document.getElementById("authEmail");
-  const passwordInput = document.getElementById("authPassword");
-  const usernameInput = document.getElementById("authUsername");
-  const toggleAuthView = document.getElementById("toggleAuthView");
-
-  let isSignIn = true;
-
-  function rebindToggleAuthLink() {
-    const newToggle = document.getElementById("toggleAuthLink");
-    const forgotLink = document.getElementById("forgotPasswordLink");
-
-    newToggle.addEventListener("click", () => {
-      isSignIn = !isSignIn;
-
-      if (isSignIn) {
-        authTitle.textContent = "Sign In";
-        submitBtn.textContent = "Continue";
-        passwordInput.placeholder = "Password";
-        usernameInput.style.display = "none";
-        forgotLink.style.display = "block";
-        toggleAuthView.innerHTML =
-          'Don’t have an account? <span id="toggleAuthLink">Sign Up</span>';
-      } else {
-        authTitle.textContent = "Sign Up";
-        submitBtn.textContent = "Register";
-        passwordInput.placeholder = "Create a password";
-        usernameInput.style.display = "block";
-        forgotLink.style.display = "none";
-        toggleAuthView.innerHTML =
-          'Already have an account? <span id="toggleAuthLink">Sign In</span>';
-      }
-
-      rebindToggleAuthLink();
-    });
-  }
-
-  async function handleAuth() {
-    const email = emailInput.value.trim();
-    const password = passwordInput.value.trim();
-    const username = usernameInput.value.trim();
-
-    if (!email || !password || (!isSignIn && !username)) {
-      return alert("Please fill in all fields");
-    }
-
-    if (isSignIn) {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (error) return alert("❌ " + error.message);
-      window.location.reload();
-    } 
-      else {
-      const { data: existing, error: checkError } = await supabase
-        .from("users")
-        .select("id")
-        .eq("username", username)
-        .maybeSingle();
-
-      if (error) {
-  if (error.message.includes("duplicate key")) {
-    return alert("❌ Username or email already in use");
-  }
-  return alert("❌ " + error.message);
-}
-      if (existing) return alert("❌ Username already taken");
-
-      const { data, error } = await supabase.auth.signUp({
-  email,
-  password,
-  options: { data: { username } },
-});
-
-if (error) {
-  if (error.message.includes("duplicate key")) {
-    return alert("❌ Username or email already in use");
-  }
-  return alert("❌ " + error.message);
-}
-
-if (data.user) {
-  alert("✅ Account created! Please check your email to confirm and activate your account.");
-} else {
-  alert("✅ Confirmation email sent! Please check your inbox.");
-}
-
-    document.getElementById("authModal")?.classList.add("hidden");
-  }
-
-  submitBtn.addEventListener("click", handleAuth);
-  rebindToggleAuthLink();
-
-  const handleAuthUI = async (session) => {
-    if (session?.user) {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (user) {
-        const { data: profile, error } = await supabase
-          .from("users")
-          .select("username")
-          .eq("id", user.id)
-          .single();
-
-        if (error) {
-          console.error("❌ Failed to load user profile:", error.message);
-          signInText.textContent = user.email || "Account";
-        } else {
-          signInText.textContent = profile.username;
-        }
-
-        signInText.style.cursor = "pointer";
-        signInText.onclick = () => (window.location.href = "account.html");
-      }
-    } else {
-      signInText.textContent = "Sign In";
-      signInText.style.cursor = "pointer";
-      signInText.onclick = () =>
-        document.getElementById("authModal")?.classList.remove("hidden");
-    }
-  };
-
-  supabase.auth.getSession().then(({ data: { session } }) => {
-    handleAuthUI(session);
-  });
-
-  supabase.auth.onAuthStateChange((event, session) => {
-    handleAuthUI(session);
-    if (event === "SIGNED_OUT") {
-      window.location.href = "index.html";
-    }
-  });
-
-  const closeModalBtn = document.getElementById("closeAuthModal");
-  closeModalBtn?.addEventListener("click", () =>
-    document.getElementById("authModal")?.classList.add("hidden")
-  );
-
-  document
-    .getElementById("forgotPasswordLink")
-    ?.addEventListener("click", async (e) => {
-      e.preventDefault();
-      const email = emailInput.value.trim();
-
-      if (!email) {
-        return alert("Please enter your email to reset your password.");
-      }
-
-      alert("⏳ Sending password reset email...");
-
-const { error } = await supabase.auth.resetPasswordForEmail(email, {
-  redirectTo: "https://www.geo-ranks.com/reset-password.html",
-});
-
-if (error) {
-  alert("❌ " + error.message);
-} else {
-  alert("✅ Password reset email sent! Please check your inbox.");
-  document.getElementById("authModal")?.classList.add("hidden");
-}
-
-
-      if (error) {
-        alert("❌ " + error.message);
-      } else {
-        alert("✅ Password reset email sent! Please check your inbox.");
-        document.getElementById("authModal")?.classList.add("hidden");
-      }
-    });
-</script>
-
 <!-- DAILY CHALLENGE SCRIPT -->
 <script>
   const categories = [
@@ -590,30 +388,35 @@ if (error) {
 </script>
 
 <script type="module">
-  // Reuse global supabase instance created earlier
   const supabase = window.supabase;
 
   const { data: { session } } = await supabase.auth.getSession();
+  const signInText = document.getElementById("signInText");
 
-  // Hide Account if user not logged in
   if (!session || !session.user) {
-    document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
-  }
-
-  // Hide Unlock All Categories if user is premium
-  if (session && session.user) {
+    if (signInText) {
+      signInText.textContent = "Sign In";
+      signInText.href = "auth.html";
+    }
+  } else {
+    // Update the sign-in link to show username
     const { data: profile } = await supabase
       .from('users')
-      .select('is_premium')
+      .select('username, is_premium')
       .eq('id', session.user.id)
       .single();
 
+    if (profile?.username && signInText) {
+      signInText.textContent = profile.username;
+      signInText.href = "account.html";
+    }
+
+    // Hide upgrade button for premium users
     if (profile?.is_premium) {
       document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
     }
   }
 </script>
-
 
 <!-- Hamburger Menu Logic -->
 <script>
