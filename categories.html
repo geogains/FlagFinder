@@ -377,9 +377,19 @@
         return alert("Please enter your email to reset your password.");
       }
 
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: "https://www.geo-ranks.com/reset-password.html",
-      });
+      alert("⏳ Sending password reset email...");
+
+const { error } = await supabase.auth.resetPasswordForEmail(email, {
+  redirectTo: "https://www.geo-ranks.com/reset-password.html",
+});
+
+if (error) {
+  alert("❌ " + error.message);
+} else {
+  alert("✅ Password reset email sent! Please check your inbox.");
+  document.getElementById("authModal")?.classList.add("hidden");
+}
+
 
       if (error) {
         alert("❌ " + error.message);

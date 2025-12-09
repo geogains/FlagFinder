@@ -325,19 +325,32 @@ document.getElementById("goPremiumBtn").onclick = () => {
         .eq("username", username)
         .maybeSingle();
 
-      if (checkError) return alert("❌ " + checkError.message);
+      if (error) {
+  if (error.message.includes("duplicate key")) {
+    return alert("❌ Username or email already in use");
+  }
+  return alert("❌ " + error.message);
+}
       if (existing) return alert("❌ Username already taken");
 
       const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { data: { username } },
-      });
+  email,
+  password,
+  options: { data: { username } },
+});
 
-      if (error) return alert("❌ " + error.message);
+if (error) {
+  if (error.message.includes("duplicate key")) {
+    return alert("❌ Username or email already in use");
+  }
+  return alert("❌ " + error.message);
+}
 
-      alert("✅ Please check your email to confirm your account.");
-    }
+if (data.user) {
+  alert("✅ Account created! Please check your email to confirm and activate your account.");
+} else {
+  alert("✅ Confirmation email sent! Please check your inbox.");
+}
 
     document.getElementById("authModal")?.classList.add("hidden");
   }
@@ -402,9 +415,19 @@ document.getElementById("goPremiumBtn").onclick = () => {
         return alert("Please enter your email to reset your password.");
       }
 
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: "https://www.geo-ranks.com/reset-password.html",
-      });
+      alert("⏳ Sending password reset email...");
+
+const { error } = await supabase.auth.resetPasswordForEmail(email, {
+  redirectTo: "https://www.geo-ranks.com/reset-password.html",
+});
+
+if (error) {
+  alert("❌ " + error.message);
+} else {
+  alert("✅ Password reset email sent! Please check your inbox.");
+  document.getElementById("authModal")?.classList.add("hidden");
+}
+
 
       if (error) {
         alert("❌ " + error.message);
