@@ -265,53 +265,67 @@ body {
   }
 
   uploadAvatarBtn?.addEventListener('click', () => {
-    avatarUpload.click(); // trigger hidden file input
-  });
+  avatarUpload.click();
+});
 
-  avatarUpload?.addEventListener('change', async () => {
-    const file = avatarUpload.files[0];
-    if (!file) return;
+avatarUpload?.addEventListener('change', async () => {
+  const file = avatarUpload.files[0];
+  if (!file || !currentUser) return;
 
-    const filePath = `avatars/${currentUser.id}_${file.name}`;
-    const { error: uploadError } = await supabase
-  .storage
-  .from('avatars')
-  .upload(filePath, file, { upsert: true });
+  const fileExt = file.name.split('.').pop();
+  const filePath = `${currentUser.id}.${fileExt}`;
 
-    if (uploadError) {
-      avatarMsg.textContent = '❌ Upload failed';
-      return;
-    }
+  const { error: uploadError } = await supabase.storage
+    .from('avatars')
+    .upload(filePath, file, {
+      upsert: true,
+      contentType: file.type
+    });
 
-    const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
+  if (uploadError) {
+    console.error(uploadError);
+    avatarMsg.textContent = '❌ Upload failed';
+    return;
+  }
 
-    const { error: updateError } = await supabase
-      .from('users')
-      .update({ avatar_url: urlData.publicUrl })
-      .eq('id', currentUser.id);
+  const { data } = supabase.storage
+    .from('avatars')
+    .getPublicUrl(filePath);
 
-    if (!updateError) {
-      profilePreview.src = urlData.publicUrl;
-      avatarMsg.textContent = '✅ Avatar updated!';
-    } else {
-      avatarMsg.textContent = '❌ Failed to update profile';
-    }
-  });
+  const publicUrl = data.publicUrl;
+
+  const { error: updateError } = await supabase
+    .from('users')
+    .update({ avatar_url: publicUrl })
+    .eq('id', currentUser.id);
+
+  if (!updateError) {
+    profilePreview.src = publicUrl;
+    avatarMsg.textContent = '✅ Avatar updated!';
+  } else {
+    avatarMsg.textContent = '❌ Failed to update profile';
+  }
+});
 
   deleteAvatarBtn?.addEventListener('click', async () => {
-    const { error } = await supabase
-      .from('users')
-      .update({ avatar_url: null })
-      .eq('id', currentUser.id);
+  if (!currentUser) return;
 
-    if (!error) {
-      profilePreview.src = 'assets/profile-icon.jpg';
-      avatarMsg.textContent = '✅ Reverted to default avatar';
-    } else {
-      avatarMsg.textContent = '❌ Failed to delete avatar';
-    }
-  });
-}
+  await supabase.storage
+    .from('avatars')
+    .remove([`${currentUser.id}.jpg`, `${currentUser.id}.png`, `${currentUser.id}.jpeg`]);
+
+  const { error } = await supabase
+    .from('users')
+    .update({ avatar_url: null })
+    .eq('id', currentUser.id);
+
+  if (!error) {
+    profilePreview.src = 'assets/profile-icon.jpg';
+    avatarMsg.textContent = '✅ Reverted to default avatar';
+  } else {
+    avatarMsg.textContent = '❌ Failed to delete avatar';
+  }
+});
 
   changeUsernameBtn?.addEventListener('click', async () => {
     const newUsername = newUsernameInput.value.trim();
