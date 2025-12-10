@@ -215,144 +215,143 @@ body {
 </script>
 
 <script>
-(async () => {
+  (async () => {
+    const usernameSpan = document.getElementById('currentUsername');
+    const emailSpan = document.getElementById('userEmail');
+    const sinceSpan = document.getElementById('userSince');
+    const newUsernameInput = document.getElementById('newUsername');
+    const changeUsernameBtn = document.getElementById('changeUsernameBtn');
+    const usernameMsg = document.getElementById('usernameMsg');
+    const newEmailInput = document.getElementById('newEmail');
+    const changeEmailBtn = document.getElementById('changeEmailBtn');
+    const emailMsg = document.getElementById('emailMsg');
+    const logoutBtn = document.getElementById('logoutBtn');
 
-  const usernameSpan = document.getElementById('currentUsername');
-  const emailSpan = document.getElementById('userEmail');
-  const sinceSpan = document.getElementById('userSince');
-  const newUsernameInput = document.getElementById('newUsername');
-  const changeUsernameBtn = document.getElementById('changeUsernameBtn');
-  const usernameMsg = document.getElementById('usernameMsg');
-  const newEmailInput = document.getElementById('newEmail');
-  const changeEmailBtn = document.getElementById('changeEmailBtn');
-  const emailMsg = document.getElementById('emailMsg');
-  const logoutBtn = document.getElementById('logoutBtn');
+    const { data: { session } } = await supabase.auth.getSession();
 
-  const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) {
+      window.location.href = 'index.html';
+      return;
+    }
 
-  if (!session?.user) {
-    window.location.href = 'index.html';
-    return;
-  }
+    const currentUser = session.user;
+    emailSpan.textContent = currentUser.email;
+    sinceSpan.textContent = new Date(currentUser.created_at).toLocaleDateString();
 
-  const currentUser = session.user;
+    const { data: profile, error } = await supabase
+      .from('users')
+      .select('username, is_premium, avatar_url')
+      .eq('id', currentUser.id)
+      .single();
 
-  emailSpan.textContent = currentUser.email;
-  sinceSpan.textContent = new Date(currentUser.created_at).toLocaleDateString();
+    if (profile) {
+      usernameSpan.textContent = profile.username || 'Not set';
 
-  const { data: profile, error } = await supabase
-    .from('users')
-    .select('username, is_premium')
-    .eq('id', currentUser.id)
-    .single();
+      if (profile.is_premium) {
+        document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+      }
 
-  if (profile) {
-  usernameSpan.textContent = profile.username || 'Not set';
-  if (profile.is_premium) {
-    document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
-  }
+      // Avatar logic
+      const avatarUpload = document.getElementById('avatarUpload');
+      const uploadAvatarBtn = document.getElementById('uploadAvatarBtn');
+      const deleteAvatarBtn = document.getElementById('deleteAvatarBtn');
+      const avatarMsg = document.getElementById('avatarMsg');
+      const profilePreview = document.getElementById('profilePreview');
 
-  // ✅ Avatar logic — moved inside where profile is accessible
-  const avatarUpload = document.getElementById('avatarUpload');
-  const uploadAvatarBtn = document.getElementById('uploadAvatarBtn');
-  const deleteAvatarBtn = document.getElementById('deleteAvatarBtn');
-  const avatarMsg = document.getElementById('avatarMsg');
-  const profilePreview = document.getElementById('profilePreview');
+      if (profile.avatar_url) {
+        profilePreview.src = profile.avatar_url;
+      }
 
-  // Show existing avatar if available
-  if (profile.avatar_url) {
-    profilePreview.src = profile.avatar_url;
-  }
+      uploadAvatarBtn?.addEventListener('click', () => {
+        avatarUpload.click();
+      });
 
-  uploadAvatarBtn?.addEventListener('click', () => {
-  avatarUpload.click();
-});
+      avatarUpload?.addEventListener('change', async () => {
+        const file = avatarUpload.files[0];
+        if (!file || !currentUser) return;
 
-avatarUpload?.addEventListener('change', async () => {
-  const file = avatarUpload.files[0];
-  if (!file || !currentUser) return;
+        const fileExt = file.name.split('.').pop();
+        const filePath = `${currentUser.id}.${fileExt}`;
 
-  const fileExt = file.name.split('.').pop();
-  const filePath = `${currentUser.id}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(filePath, file, {
+            upsert: true,
+            contentType: file.type
+          });
 
-  const { error: uploadError } = await supabase.storage
-    .from('avatars')
-    .upload(filePath, file, {
-      upsert: true,
-      contentType: file.type
+        if (uploadError) {
+          console.error(uploadError);
+          avatarMsg.textContent = '❌ Upload failed';
+          return;
+        }
+
+        const { data } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(filePath);
+
+        const publicUrl = data.publicUrl;
+
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({ avatar_url: publicUrl })
+          .eq('id', currentUser.id);
+
+        if (!updateError) {
+          profilePreview.src = publicUrl;
+          avatarMsg.textContent = '✅ Avatar updated!';
+        } else {
+          avatarMsg.textContent = '❌ Failed to update profile';
+        }
+      });
+
+      deleteAvatarBtn?.addEventListener('click', async () => {
+        if (!currentUser) return;
+
+        await supabase.storage
+          .from('avatars')
+          .remove([`${currentUser.id}.jpg`, `${currentUser.id}.png`, `${currentUser.id}.jpeg`]);
+
+        const { error } = await supabase
+          .from('users')
+          .update({ avatar_url: null })
+          .eq('id', currentUser.id);
+
+        if (!error) {
+          profilePreview.src = 'assets/profile-icon.jpg';
+          avatarMsg.textContent = '✅ Reverted to default avatar';
+        } else {
+          avatarMsg.textContent = '❌ Failed to delete avatar';
+        }
+      });
+    }
+
+    changeUsernameBtn?.addEventListener('click', async () => {
+      const newUsername = newUsernameInput.value.trim();
+      if (!newUsername) return;
+
+      const { error } = await supabase
+        .from('users')
+        .update({ username: newUsername })
+        .eq('id', currentUser.id);
+
+      usernameMsg.textContent = error ? error.message : '✅ Username updated';
     });
 
-  if (uploadError) {
-    console.error(uploadError);
-    avatarMsg.textContent = '❌ Upload failed';
-    return;
-  }
+    changeEmailBtn?.addEventListener('click', async () => {
+      const newEmail = newEmailInput.value.trim();
+      if (!newEmail) return;
 
-  const { data } = supabase.storage
-    .from('avatars')
-    .getPublicUrl(filePath);
+      const { error } = await supabase.auth.updateUser({ email: newEmail });
+      emailMsg.textContent = error ? error.message : '✅ Confirmation email sent';
+    });
 
-  const publicUrl = data.publicUrl;
+    logoutBtn?.addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.href = 'index.html';
+    });
 
-  const { error: updateError } = await supabase
-    .from('users')
-    .update({ avatar_url: publicUrl })
-    .eq('id', currentUser.id);
-
-  if (!updateError) {
-    profilePreview.src = publicUrl;
-    avatarMsg.textContent = '✅ Avatar updated!';
-  } else {
-    avatarMsg.textContent = '❌ Failed to update profile';
-  }
-});
-
-  deleteAvatarBtn?.addEventListener('click', async () => {
-  if (!currentUser) return;
-
-  await supabase.storage
-    .from('avatars')
-    .remove([`${currentUser.id}.jpg`, `${currentUser.id}.png`, `${currentUser.id}.jpeg`]);
-
-  const { error } = await supabase
-    .from('users')
-    .update({ avatar_url: null })
-    .eq('id', currentUser.id);
-
-  if (!error) {
-    profilePreview.src = 'assets/profile-icon.jpg';
-    avatarMsg.textContent = '✅ Reverted to default avatar';
-  } else {
-    avatarMsg.textContent = '❌ Failed to delete avatar';
-  }
-});
-
-  changeUsernameBtn?.addEventListener('click', async () => {
-    const newUsername = newUsernameInput.value.trim();
-    if (!newUsername) return;
-
-    const { error } = await supabase
-      .from('users')
-      .update({ username: newUsername })
-      .eq('id', currentUser.id);
-
-    usernameMsg.textContent = error ? error.message : '✅ Username updated';
-  });
-
-  changeEmailBtn?.addEventListener('click', async () => {
-    const newEmail = newEmailInput.value.trim();
-    if (!newEmail) return;
-
-    const { error } = await supabase.auth.updateUser({ email: newEmail });
-    emailMsg.textContent = error ? error.message : '✅ Confirmation email sent';
-  });
-
-  logoutBtn?.addEventListener('click', async () => {
-    await supabase.auth.signOut();
-    window.location.href = 'index.html';
-  });
-
-})();
+  })();
 </script>
 
 <script>
