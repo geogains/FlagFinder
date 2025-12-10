@@ -452,12 +452,12 @@ setInterval(() => {
     });
   }
 
-  if (signUpEl) {
-    signUpEl.addEventListener('submit', async (e) => {
+  if (signUpForm) {
+    signUpForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const username = signUpEl.querySelector('input[type="text"]').value;
-      const email = signUpEl.querySelector('input[type="email"]').value;
-      const password = signUpEl.querySelector('input[type="password"]').value;
+      const username = signUpForm.querySelector('input[type="text"]').value;
+      const email = signUpForm.querySelector('input[type="email"]').value;
+      const password = signUpForm.querySelector('input[type="password"]').value;
 
       const { data: existing, error: checkError } = await supabase
         .from('users')
