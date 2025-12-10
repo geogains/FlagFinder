@@ -431,19 +431,16 @@ setInterval(() => {
 
 <!-- Auth Logic -->
 <script>
-  const supabase = supabase.createClient(
+  const supabase = window.supabase.createClient(
     'https://api.geo-ranks.com',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
   );
 
-  const signInEl = document.getElementById('signInForm');
-  const signUpEl = document.getElementById('signUpForm');
-
-  if (signInEl) {
-    signInEl.addEventListener('submit', async (e) => {
+  if (signInForm) {
+    signInForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = signInEl.querySelector('input[type="email"]').value;
-      const password = signInEl.querySelector('input[type="password"]').value;
+      const email = signInForm.querySelector('input[type="email"]').value;
+      const password = signInForm.querySelector('input[type="password"]').value;
 
       const { error } = await supabase.auth.signInWithPassword({ email, password });
 
@@ -491,7 +488,7 @@ setInterval(() => {
   if (forgotPasswordLink) {
     forgotPasswordLink.addEventListener('click', async (e) => {
       e.preventDefault();
-      const email = signInEl.querySelector('input[type="email"]').value;
+      const email = signInForm.querySelector('input[type="email"]').value;
       if (!email) return alert("❌ Please enter your email first.");
 
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
