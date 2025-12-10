@@ -247,11 +247,71 @@ body {
     .single();
 
   if (profile) {
-    usernameSpan.textContent = profile.username || 'Not set';
-    if (profile.is_premium) {
-      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
-    }
+  usernameSpan.textContent = profile.username || 'Not set';
+  if (profile.is_premium) {
+    document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
   }
+
+  // ✅ Avatar logic — moved inside where profile is accessible
+  const avatarUpload = document.getElementById('avatarUpload');
+  const uploadAvatarBtn = document.getElementById('uploadAvatarBtn');
+  const deleteAvatarBtn = document.getElementById('deleteAvatarBtn');
+  const avatarMsg = document.getElementById('avatarMsg');
+  const profilePreview = document.getElementById('profilePreview');
+
+  // Show existing avatar if available
+  if (profile.avatar_url) {
+    profilePreview.src = profile.avatar_url;
+  }
+
+  uploadAvatarBtn?.addEventListener('click', () => {
+    avatarUpload.click(); // trigger hidden file input
+  });
+
+  avatarUpload?.addEventListener('change', async () => {
+    const file = avatarUpload.files[0];
+    if (!file) return;
+
+    const filePath = `avatars/${currentUser.id}_${file.name}`;
+    const { error: uploadError } = await supabase
+  .storage
+  .from('avatars')
+  .upload(filePath, file, { upsert: true });
+
+    if (uploadError) {
+      avatarMsg.textContent = '❌ Upload failed';
+      return;
+    }
+
+    const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
+
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ avatar_url: urlData.publicUrl })
+      .eq('id', currentUser.id);
+
+    if (!updateError) {
+      profilePreview.src = urlData.publicUrl;
+      avatarMsg.textContent = '✅ Avatar updated!';
+    } else {
+      avatarMsg.textContent = '❌ Failed to update profile';
+    }
+  });
+
+  deleteAvatarBtn?.addEventListener('click', async () => {
+    const { error } = await supabase
+      .from('users')
+      .update({ avatar_url: null })
+      .eq('id', currentUser.id);
+
+    if (!error) {
+      profilePreview.src = 'assets/profile-icon.jpg';
+      avatarMsg.textContent = '✅ Reverted to default avatar';
+    } else {
+      avatarMsg.textContent = '❌ Failed to delete avatar';
+    }
+  });
+}
 
   changeUsernameBtn?.addEventListener('click', async () => {
     const newUsername = newUsernameInput.value.trim();
@@ -303,91 +363,6 @@ body {
     });
   });
 </script>
-
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const menuToggle = document.getElementById("menuToggle");
-    const menuOverlay = document.getElementById("menuOverlay");
-    const closeMenuBtn = document.getElementById("closeMenu");
-
-    if (menuToggle && menuOverlay) {
-      menuToggle.addEventListener("click", () => {
-        menuOverlay.classList.add("active");
-      });
-
-      closeMenuBtn?.addEventListener("click", () => {
-        menuOverlay.classList.remove("active");
-      });
-
-      menuOverlay.addEventListener("click", (e) => {
-        if (e.target === menuOverlay) {
-          menuOverlay.classList.remove("active");
-        }
-      });
-    }
-  });
-
-  const avatarUpload = document.getElementById('avatarUpload');
-const uploadAvatarBtn = document.getElementById('uploadAvatarBtn');
-const deleteAvatarBtn = document.getElementById('deleteAvatarBtn');
-const avatarMsg = document.getElementById('avatarMsg');
-const profilePreview = document.getElementById('profilePreview');
-
-if (profile?.avatar_url) {
-  profilePreview.src = profile.avatar_url;
-}
-
-uploadAvatarBtn?.addEventListener('click', () => {
-  avatarUpload.click(); // trigger hidden file input
-});
-
-avatarUpload?.addEventListener('change', async () => {
-  const file = avatarUpload.files[0];
-  if (!file) return;
-
-  const filePath = `avatars/${currentUser.id}_${file.name}`;
-  const { error: uploadError } = await supabase.storage
-    .from('avatars')
-    .upload(filePath, file, { upsert: true });
-
-  if (uploadError) {
-    avatarMsg.textContent = '❌ Upload failed';
-    return;
-  }
-
-  const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
-
-  const { error: updateError } = await supabase
-    .from('users')
-    .update({ avatar_url: urlData.publicUrl })
-    .eq('id', currentUser.id);
-
-  if (!updateError) {
-    profilePreview.src = urlData.publicUrl;
-    avatarMsg.textContent = '✅ Avatar updated!';
-  } else {
-    avatarMsg.textContent = '❌ Failed to update profile';
-  }
-});
-
-deleteAvatarBtn?.addEventListener('click', async () => {
-  const { error } = await supabase
-    .from('users')
-    .update({ avatar_url: null })
-    .eq('id', currentUser.id);
-
-  if (!error) {
-    profilePreview.src = 'assets/profile-icon.jpg';
-    avatarMsg.textContent = '✅ Reverted to default avatar';
-  } else {
-    avatarMsg.textContent = '❌ Failed to delete avatar';
-  }
-});
-
-
-</script>
-
-
 
 <!-- Load Stripe FIRST -->
 <script src="https://js.stripe.com/v3/"></script>
