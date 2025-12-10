@@ -134,8 +134,9 @@ body {
     <h2>Account Settings</h2>
 
     <div class="form-section">
-  <h3>🖼️ Profile Image</h3>
-  <img id="profilePreview" src="assets/profile-icon.jpg" alt="Profile Icon" style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%;"/>
+  <div style="display: flex; justify-content: center; margin-bottom: 1rem;">
+  <img id="profilePreview" src="assets/profile-icon.jpg" alt="Profile Icon" style="width: 110px; height: 110px; object-fit: cover; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" />
+</div>
   <input type="file" id="avatarUpload" accept="image/*" />
   <button class="btn full-btn" id="uploadAvatarBtn">Upload Photo</button>
   <button class="btn full-btn" id="deleteAvatarBtn">Remove Photo</button>
@@ -385,9 +386,5 @@ deleteAvatarBtn?.addEventListener('click', async () => {
 
 <!-- Load Stripe FIRST -->
 <script src="https://js.stripe.com/v3/"></script>
-
-<!-- Load Your Premium Logic AFTER Stripe -->
-<script type="module" src="js/premium.js"></script>
-
 </body>
 </html>
