@@ -393,10 +393,14 @@ document.getElementById("goPremiumBtn").onclick = () => {
   const signInText = document.getElementById("signInText");
 
   if (!session || !session.user) {
-    if (signInText) {
-      signInText.textContent = "Sign In";
-      signInText.href = "auth.html";
-    }
+  if (signInText) {
+    signInText.innerHTML = `
+      <span style="color: inherit;">Sign In</span>
+      <span class="divider" style="margin: 0 8px; width: 1px; height: 16px; background: #aaa; display: inline-block; vertical-align: middle;"></span>
+      <span style="color: inherit;">Create Account</span>
+    `;
+    signInText.href = "auth.html";
+  }
   } else {
     // Update the sign-in link to show username
     const { data: profile } = await supabase
