@@ -363,11 +363,11 @@ document.getElementById("categorySearchInput").value = "🔍 " + displayName;
     }
 
     const { data: scores } = await supabase
-      .from("category_scores")
-      .select("score, user_id, users(username)")
-      .eq("category_id", catData.id)
-      .order("score", { ascending: false })
-      .limit(20);
+  .from("category_scores")
+  .select("score, user_id, users(username, avatar_url, is_premium)")
+  .eq("category_id", catData.id)
+  .order("score", { ascending: false })
+  .limit(20);
 
     leaderboardBody.innerHTML = "";
 
