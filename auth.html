@@ -426,13 +426,15 @@ setInterval(() => {
     // Redirect logic (placeholder only)
   </script>
 
-  <!-- Add this just before the closing </body> -->
-<script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/dist/esm/index.js';
+  <!-- Load Supabase UMD library -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
-  const supabaseUrl = 'https://api.geo-ranks.com';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'; // replace with your actual anon public key
-  const supabase = createClient(supabaseUrl, supabaseKey);
+<!-- Auth Logic -->
+<script>
+  const supabase = supabaseJs.createClient(
+    'https://api.geo-ranks.com',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
+  );
 
   const signInForm = document.getElementById('signInForm');
   const signUpForm = document.getElementById('signUpForm');
@@ -506,7 +508,6 @@ setInterval(() => {
     });
   }
 </script>
-
 
 <footer class="home-footer">
   <div class="footer-socials">
