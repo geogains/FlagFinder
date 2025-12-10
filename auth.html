@@ -431,98 +431,82 @@ setInterval(() => {
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
   const supabaseUrl = 'https://api.geo-ranks.com';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'; // replace with your actual anon public key
   const supabase = createClient(supabaseUrl, supabaseKey);
 
   const signInForm = document.getElementById('signInForm');
   const signUpForm = document.getElementById('signUpForm');
 
-  // Handle Sign In
-  signInForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = signInForm.querySelector('input[type="email"]').value;
-    const password = signInForm.querySelector('input[type="password"]').value;
+  if (signInForm) {
+    signInForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = signInForm.querySelector('input[type="email"]').value;
+      const password = signInForm.querySelector('input[type="password"]').value;
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
 
-    if (error) {
-      alert("❌ " + error.message);
-    } else {
-      // Ensure user is in users table
-      const user = data.user;
-      const { data: existingUser } = await supabase
+      if (error) {
+        alert("❌ " + error.message);
+      } else {
+        window.location.href = "index.html";
+      }
+    });
+  }
+
+  if (signUpForm) {
+    signUpForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = signUpForm.querySelector('input[type="text"]').value;
+      const email = signUpForm.querySelector('input[type="email"]').value;
+      const password = signUpForm.querySelector('input[type="password"]').value;
+
+      const { data: existing, error: checkError } = await supabase
         .from('users')
         .select('id')
-        .eq('id', user.id)
+        .eq('username', username)
         .maybeSingle();
 
-      if (!existingUser) {
-        await supabase.from('users').insert({
-          id: user.id,
-          email: user.email,
-          username: user.user_metadata?.username || 'anonymous'
-        });
-      }
+      if (checkError) return alert("❌ " + checkError.message);
+      if (existing) return alert("❌ Username already taken");
 
-      window.location.href = "index.html";
-    }
-  });
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { username } }
+      });
 
-  // Handle Sign Up
-  signUpForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const username = signUpForm.querySelector('input[type="text"]').value;
-    const email = signUpForm.querySelector('input[type="email"]').value;
-    const password = signUpForm.querySelector('input[type="password"]').value;
-
-    // Check for username uniqueness
-    const { data: existing, error: checkError } = await supabase
-      .from('users')
-      .select('id')
-      .eq('username', username)
-      .maybeSingle();
-
-    if (checkError) return alert("❌ " + checkError.message);
-    if (existing) return alert("❌ Username already taken");
-
-    // Sign up
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { username }
-      }
-    });
-
-    if (error) {
-      if (error.message.includes("duplicate key")) {
-        alert("❌ Username or email already in use");
+      if (error) {
+        if (error.message.includes("duplicate key")) {
+          alert("❌ Username or email already in use");
+        } else {
+          alert("❌ " + error.message);
+        }
       } else {
-        alert("❌ " + error.message);
+        alert("✅ Please check your email to confirm your account.");
       }
-    } else {
-      alert("✅ Please check your email to confirm your account.");
-    }
-  });
-
-  // Handle Forgot Password
-  document.querySelector('.forgot-password')?.addEventListener('click', async (e) => {
-    e.preventDefault();
-    const email = signInForm.querySelector('input[type="email"]').value;
-
-    if (!email) return alert("❌ Please enter your email first.");
-
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: 'https://www.geo-ranks.com/reset-password.html'
     });
+  }
 
-    if (error) {
-      alert("❌ " + error.message);
-    } else {
-      alert("✅ Password reset email sent! Please check your inbox.");
-    }
-  });
+  const forgotPasswordLink = document.querySelector('.forgot-password');
+  if (forgotPasswordLink) {
+    forgotPasswordLink.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const email = signInForm.querySelector('input[type="email"]').value;
+      if (!email) return alert("❌ Please enter your email first.");
+
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: 'https://geo-ranks.com/reset-password.html',
+      });
+
+      if (error) {
+        alert("❌ " + error.message);
+      } else {
+        alert("✅ Password reset email sent! Please check your inbox.");
+      }
+    });
+  }
 </script>
+
 
 <footer class="home-footer">
   <div class="footer-socials">
