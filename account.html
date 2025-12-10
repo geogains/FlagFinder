@@ -133,15 +133,20 @@ body {
 <main class="account-glass-card fade-in">
     <h2>Account Settings</h2>
 
-    <div class="form-section">
-  <div style="display: flex; justify-content: center; margin-bottom: 1rem;">
-    <img id="profilePreview" src="assets/profile-icon.jpg" alt="Profile Icon" style="width: 110px; height: 110px; object-fit: cover; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" />
+    <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 1rem;">
+  <div style="position: relative; display: inline-block; margin-bottom: 0.8rem;">
+    <img id="profilePreview" src="assets/profile-icon.jpg" alt="Profile Icon"
+      style="width: 110px; height: 110px; object-fit: cover; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" />
+    <img id="premiumBadge" src="assets/GeoRanksPremium.png" alt="Premium Badge"
+      style="position: absolute; bottom: -2px; right: -2px; width: 36px; height: 36px; display: none;" />
   </div>
+
   <button class="btn full-btn" id="uploadAvatarBtn">Upload Photo</button>
   <button class="btn full-btn" id="deleteAvatarBtn">Remove Photo</button>
   <input type="file" id="avatarUpload" accept="image/*" style="display: none;" />
   <div class="message" id="avatarMsg"></div>
 </div>
+
 
     <div class="account-info">
       <p><strong>Username:</strong> <span id="currentUsername">Loading...</span></p>
@@ -247,9 +252,16 @@ body {
     if (profile) {
       usernameSpan.textContent = profile.username || 'Not set';
 
-      if (profile.is_premium) {
-        document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
-      }
+      
+const premiumBadge = document.getElementById('premiumBadge');
+
+if (profile.is_premium) {
+  document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+  if (premiumBadge) premiumBadge.style.display = 'block';
+} else {
+  if (premiumBadge) premiumBadge.style.display = 'none';
+}
+
 
       // Avatar logic
       const avatarUpload = document.getElementById('avatarUpload');
