@@ -159,65 +159,75 @@
   .leaderboard-container {
     margin: 80px 10px 40px;
     padding: 1rem;
+    overflow-x: hidden;
   }
 
   table.leaderboard {
-    font-size: 13px;
-    table-layout: fixed;
+    font-size: 12.5px;
     width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
   }
 
   .leaderboard-table th,
   .leaderboard-table td {
-    padding: 6px 4px;
-    font-size: 13px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Restore row lines */
+    padding: 6px 2px;
+    font-size: 12.5px;
     text-align: center;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Clear row lines */
     word-wrap: break-word;
   }
 
   .leaderboard-table th {
-    background: rgba(255, 255, 255, 0.4); /* Restore glass look */
+    background: rgba(255, 255, 255, 0.4); /* Glass effect */
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+    color: #000;
+    font-weight: 600;
+  }
+
+  /* Column fine-tuning */
+  .leaderboard-table td:nth-child(1) {
+    width: 10%;
   }
 
   .leaderboard-table td:nth-child(2) {
-    min-width: 40px;
+    width: 20%;
   }
 
   .leaderboard-table td:nth-child(3) {
-    max-width: 100px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    width: 45%;
+    text-align: left;
   }
 
   .leaderboard-table td:nth-child(4) {
+    width: 25%;
     text-align: right;
   }
 
+  /* Avatar image size */
   .leaderboard-table td img {
-    width: 36px !important;
-    height: 36px !important;
+    width: 34px !important;
+    height: 34px !important;
     object-fit: cover;
     border-radius: 50%;
   }
 
-  /* Adjust premium badge positioning for mobile */
+  /* Wrap avatar + badge */
   .leaderboard-table td > div {
     position: relative;
     display: inline-block;
   }
 
   .leaderboard-table td > div img:last-child {
-    width: 16px !important;
-    height: 16px !important;
+    width: 14px !important;
+    height: 14px !important;
     position: absolute;
     bottom: -2px;
     right: -2px;
   }
 }
+
   </style>
 </head>
 <body>
