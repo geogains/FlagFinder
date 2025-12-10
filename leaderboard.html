@@ -145,7 +145,60 @@
 
 @media (max-width: 600px) {
   .leaderboard-container {
-    margin: 100px 20px 40px;
+    margin: 80px 10px 40px;
+    padding: 1rem;
+  }
+
+  .leaderboard-table {
+    font-size: 13px;
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  .leaderboard-table th,
+  .leaderboard-table td {
+    padding: 6px 4px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Row dividers */
+    text-align: center;
+    word-wrap: break-word;
+  }
+
+  .leaderboard-table th {
+    background: rgba(255, 255, 255, 0.4); /* Glass effect */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .leaderboard-table td:nth-child(2) {
+    min-width: 40px;
+  }
+
+  .leaderboard-table td:nth-child(3) {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .leaderboard-table td img {
+    width: 36px !important;
+    height: 36px !important;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+
+  .leaderboard-table td > div {
+    position: relative;
+    display: inline-block;
+  }
+
+  .leaderboard-table td > div img:last-child {
+    width: 16px !important;
+    height: 16px !important;
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
   }
 }
   </style>
