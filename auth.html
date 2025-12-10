@@ -426,24 +426,24 @@ setInterval(() => {
     // Redirect logic (placeholder only)
   </script>
 
-  <!-- Load Supabase UMD library -->
+<!-- Load Supabase UMD library -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
 <!-- Auth Logic -->
 <script>
-  const supabase = supabaseJs.createClient(
+  const supabase = supabase.createClient(
     'https://api.geo-ranks.com',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI'
   );
 
-  const signInForm = document.getElementById('signInForm');
-  const signUpForm = document.getElementById('signUpForm');
+  const signInEl = document.getElementById('signInForm');
+  const signUpEl = document.getElementById('signUpForm');
 
-  if (signInForm) {
-    signInForm.addEventListener('submit', async (e) => {
+  if (signInEl) {
+    signInEl.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = signInForm.querySelector('input[type="email"]').value;
-      const password = signInForm.querySelector('input[type="password"]').value;
+      const email = signInEl.querySelector('input[type="email"]').value;
+      const password = signInEl.querySelector('input[type="password"]').value;
 
       const { error } = await supabase.auth.signInWithPassword({ email, password });
 
@@ -455,12 +455,12 @@ setInterval(() => {
     });
   }
 
-  if (signUpForm) {
-    signUpForm.addEventListener('submit', async (e) => {
+  if (signUpEl) {
+    signUpEl.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const username = signUpForm.querySelector('input[type="text"]').value;
-      const email = signUpForm.querySelector('input[type="email"]').value;
-      const password = signUpForm.querySelector('input[type="password"]').value;
+      const username = signUpEl.querySelector('input[type="text"]').value;
+      const email = signUpEl.querySelector('input[type="email"]').value;
+      const password = signUpEl.querySelector('input[type="password"]').value;
 
       const { data: existing, error: checkError } = await supabase
         .from('users')
@@ -474,15 +474,13 @@ setInterval(() => {
       const { error } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { username } }
+        options: {
+          data: { username }
+        }
       });
 
       if (error) {
-        if (error.message.includes("duplicate key")) {
-          alert("❌ Username or email already in use");
-        } else {
-          alert("❌ " + error.message);
-        }
+        alert("❌ " + error.message);
       } else {
         alert("✅ Please check your email to confirm your account.");
       }
@@ -493,7 +491,7 @@ setInterval(() => {
   if (forgotPasswordLink) {
     forgotPasswordLink.addEventListener('click', async (e) => {
       e.preventDefault();
-      const email = signInForm.querySelector('input[type="email"]').value;
+      const email = signInEl.querySelector('input[type="email"]').value;
       if (!email) return alert("❌ Please enter your email first.");
 
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -508,6 +506,7 @@ setInterval(() => {
     });
   }
 </script>
+
 
 <footer class="home-footer">
   <div class="footer-socials">
