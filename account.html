@@ -135,11 +135,11 @@ body {
 
     <div class="form-section">
   <div style="display: flex; justify-content: center; margin-bottom: 1rem;">
-  <img id="profilePreview" src="assets/profile-icon.jpg" alt="Profile Icon" style="width: 110px; height: 110px; object-fit: cover; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" />
-</div>
-  <input type="file" id="avatarUpload" accept="image/*" />
+    <img id="profilePreview" src="assets/profile-icon.jpg" alt="Profile Icon" style="width: 110px; height: 110px; object-fit: cover; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" />
+  </div>
   <button class="btn full-btn" id="uploadAvatarBtn">Upload Photo</button>
   <button class="btn full-btn" id="deleteAvatarBtn">Remove Photo</button>
+  <input type="file" id="avatarUpload" accept="image/*" style="display: none;" />
   <div class="message" id="avatarMsg"></div>
 </div>
 
@@ -337,7 +337,11 @@ if (profile?.avatar_url) {
   profilePreview.src = profile.avatar_url;
 }
 
-uploadAvatarBtn?.addEventListener('click', async () => {
+uploadAvatarBtn?.addEventListener('click', () => {
+  avatarUpload.click(); // trigger hidden file input
+});
+
+avatarUpload?.addEventListener('change', async () => {
   const file = avatarUpload.files[0];
   if (!file) return;
 
@@ -379,6 +383,7 @@ deleteAvatarBtn?.addEventListener('click', async () => {
     avatarMsg.textContent = '❌ Failed to delete avatar';
   }
 });
+
 
 </script>
 
