@@ -193,6 +193,7 @@
     <thead>
       <tr>
         <th>Rank</th>
+        <th></th> 
         <th>User</th>
         <th>Score</th>
       </tr>
@@ -288,7 +289,7 @@ if (catErr) {
 
   const test2 = await supabase
     .from('category_scores')
-    .select('score, user_id')
+    .select('score, user_id, users(username, avatar_url, is_premium)')
     .eq('category_id', catData.id)
     .limit(5);
 
@@ -375,19 +376,31 @@ document.getElementById("categorySearchInput").value = "🔍 " + displayName;
       return;
     }
 
-    scores.forEach((entry, index) => {
-      const user = entry.users || {};
-      const rankDisplay =
-        index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `#${index + 1}`;
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td class="leaderboard-rank">${rankDisplay}</td>
-        <td>${user.username || "Anonymous"}</td>
-        <td>${entry.score}</td>
-      `;
-      leaderboardBody.appendChild(row);
-    });
-  }
+   scores.forEach((entry, index) => {
+  const user = entry.users || {};
+  const rankDisplay =
+    index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `#${index + 1}`;
+
+  const defaultIcon = 'assets/profile-icon.jpg';
+  const premiumBadge = 'assets/GeoRanksPremium.png';
+
+  const avatarHtml = `
+    <div style="position: relative; display: inline-block;">
+      <img src="${user.avatar_url || defaultIcon}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;" />
+      ${user.is_premium ? `<img src="${premiumBadge}" style="position: absolute; bottom: -2px; right: -2px; width: 18px; height: 18px;" />` : ''}
+    </div>
+  `;
+
+  const row = document.createElement("tr");
+  row.innerHTML = `
+    <td class="leaderboard-rank">${rankDisplay}</td>
+    <td>${avatarHtml}</td>
+    <td>${user.username || "Anonymous"}</td>
+    <td>${entry.score}</td>
+  `;
+
+  leaderboardBody.appendChild(row);
+});
 
   loadCategories();
 </script>
