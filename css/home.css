@@ -98,6 +98,7 @@ h1, h2, h3, .tagline {
   font-size: 1.1rem;
   cursor: pointer;
   margin-left: 1.2rem;
+  text-decoration: none;
 }
 
 .menu-icon {
