@@ -155,56 +155,69 @@
   min-width: 400px;
 }
 
-/* Already existing but needs slight updates */
 @media (max-width: 600px) {
   .leaderboard-container {
-    margin: 100px 10px 40px;
+    margin: 80px 10px 40px;
+    padding: 1rem;
   }
 
   table.leaderboard {
     font-size: 13px;
-    table-layout: auto;
+    table-layout: fixed;
+    width: 100%;
   }
 
-  table.leaderboard td img {
-    width: 32px !important;
-    height: 32px !important;
-    object-fit: cover;
-    border-radius: 50%;
-  }
-
-  .leaderboard td,
-  .leaderboard th {
-    padding: 4px 6px;
-  }
-
-  .leaderboard td:nth-child(2),
-  .leaderboard th:nth-child(2) {
-    min-width: 40px;
+  .leaderboard-table th,
+  .leaderboard-table td {
+    padding: 6px 4px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Restore row lines */
     text-align: center;
+    word-wrap: break-word;
   }
 
-  .leaderboard td:nth-child(3),
-  .leaderboard th:nth-child(3) {
+  .leaderboard-table th {
+    background: rgba(255, 255, 255, 0.4); /* Restore glass look */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .leaderboard-table td:nth-child(2) {
     min-width: 40px;
-    text-align: center;
   }
 
-  .leaderboard td:nth-child(4),
-  .leaderboard th:nth-child(4) {
-    max-width: 90px;
+  .leaderboard-table td:nth-child(3) {
+    max-width: 100px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .leaderboard td:nth-child(5),
-  .leaderboard th:nth-child(5) {
+  .leaderboard-table td:nth-child(4) {
     text-align: right;
-    min-width: 50px;
+  }
+
+  .leaderboard-table td img {
+    width: 36px !important;
+    height: 36px !important;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+
+  /* Adjust premium badge positioning for mobile */
+  .leaderboard-table td > div {
+    position: relative;
+    display: inline-block;
+  }
+
+  .leaderboard-table td > div img:last-child {
+    width: 16px !important;
+    height: 16px !important;
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
   }
 }
-
   </style>
 </head>
 <body>
