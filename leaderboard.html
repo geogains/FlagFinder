@@ -29,7 +29,9 @@
 ------------------------------ */
 .leaderboard-table {
   width: 100%;
-  border-collapse: collapse;
+  background: rgba(255, 255, 255, 0.377);
+  border-collapse: separate;
+  border-spacing: 0;
   table-layout: fixed; /* required for controlled column sizing */
   margin-top: 1rem;
 }
@@ -73,13 +75,26 @@
   width: 20%;   /* Score */
 }
 
+/* Top corners of the header row */
 .leaderboard-table th:first-child {
   border-top-left-radius: 12px;
+  border-left: none;
 }
 
 .leaderboard-table th:last-child {
   border-top-right-radius: 12px;
+  border-right: none;
 }
+
+/* Bottom corners of the last row */
+.leaderboard-table tr:last-child td:first-child {
+  border-bottom-left-radius: 12px;
+}
+
+.leaderboard-table tr:last-child td:last-child {
+  border-bottom-right-radius: 12px;
+}
+
 
 /* ------------------------------
    AVATAR + BADGE
