@@ -156,19 +156,13 @@
   }
 
   .leaderboard-table th,
-  .leaderboard-table td {
-    padding: 6px 4px;
-    font-size: 13px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Row dividers */
-    text-align: center;
-    word-wrap: break-word;
-  }
-
-  .leaderboard-table th {
-    background: rgba(255, 255, 255, 0.4); /* Glass effect */
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-  }
+.leaderboard-table td {
+  padding: 0.6rem 0.4rem;
+  font-size: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  text-align: center;
+  word-wrap: break-word;
+}
 
   .leaderboard-table td:nth-child(2) {
     min-width: 40px;
@@ -182,11 +176,11 @@
   }
 
   .leaderboard-table td img {
-    width: 36px !important;
-    height: 36px !important;
-    object-fit: cover;
-    border-radius: 50%;
-  }
+     width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 50%;
+}
 
   .leaderboard-table td > div {
     position: relative;
@@ -194,13 +188,14 @@
   }
 
   .leaderboard-table td > div img:last-child {
-    width: 16px !important;
-    height: 16px !important;
-    position: absolute;
-    bottom: -2px;
-    right: -2px;
-  }
+  width: 18px;
+  height: 18px;
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
 }
+}
+
   </style>
 </head>
 <body>
@@ -417,7 +412,7 @@ document.getElementById("categorySearchInput").value = "🔍 " + displayName;
 
     const { data: scores } = await supabase
       .from("category_scores")
-      .select("score, user_id, users(username)")
+      .select("score, user_id, users(username, avatar_url, is_premium)")
       .eq("category_id", catData.id)
       .order("score", { ascending: false })
       .limit(20);
