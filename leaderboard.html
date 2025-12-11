@@ -122,9 +122,20 @@
 /* -----------------------------
    MEDALS
 ------------------------------ */
-.gold { color: #facc15; }
-.silver { color: #cbd5e1; }
-.bronze { color: #f97316; }
+.leaderboard-rank {
+  font-weight: bold;
+  font-size: 1.25rem;
+}
+
+.leaderboard-rank:has(> .medal) {
+  line-height: 1;
+}
+
+.medal {
+  font-size: 1.75rem;
+  display: inline-block;
+}
+
 
 /* ------------------------------
    BUTTON
@@ -421,7 +432,10 @@ document.getElementById("categorySearchInput").value = "🔍 " + displayName;
    scores.forEach((entry, index) => {
   const user = entry.users || {};
   const rankDisplay =
-    index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `#${index + 1}`;
+  index === 0 ? '<span class="medal">🥇</span>' :
+  index === 1 ? '<span class="medal">🥈</span>' :
+  index === 2 ? '<span class="medal">🥉</span>' :
+  `#${index + 1}`;
 
   const defaultIcon = 'assets/profile-icon.jpg';
   const premiumBadge = 'assets/GeoRanksPremium.png';
