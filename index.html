@@ -356,13 +356,21 @@ document.getElementById("goPremiumBtn").onclick = () => {
   const viewBtn = document.getElementById("viewCategoriesBtn");
   const unlockBtn = document.getElementById("unlockCategoriesBtn");
 
-  viewBtn.onclick = () => window.location.href = "categories.html";
-  unlockBtn.onclick = () => window.location.href = "premium.html";
+  if (viewBtn) {
+    viewBtn.onclick = () => window.location.href = "categories.html";
+  }
+  
+  if (unlockBtn) {
+    unlockBtn.onclick = () => window.location.href = "premium.html";
+  }
 
   // Hide unlock button for premium users
-  if (isPremium) {
-    unlockBtn?.remove();
-    document.querySelector(".footer-buttons").style.justifyContent = "center";
+  if (isPremium && unlockBtn) {
+    unlockBtn.remove();
+    const footerButtons = document.querySelector(".footer-buttons");
+    if (footerButtons) {
+      footerButtons.style.justifyContent = "center";
+    }
   }
   
   // Enable category grid after premium check is complete
@@ -370,6 +378,23 @@ document.getElementById("goPremiumBtn").onclick = () => {
   if (categoriesGrid) {
     categoriesGrid.style.pointerEvents = 'auto';
     categoriesGrid.style.opacity = '1';
+  }
+
+  // Premium modal button handlers
+  const closePremiumBtn = document.getElementById("closePremiumBtn");
+  const goPremiumBtn = document.getElementById("goPremiumBtn");
+  
+  if (closePremiumBtn) {
+    closePremiumBtn.onclick = () => {
+      const modal = document.getElementById("premiumModal");
+      if (modal) modal.classList.add("hidden");
+    };
+  }
+  
+  if (goPremiumBtn) {
+    goPremiumBtn.onclick = () => {
+      window.location.href = "premium.html";
+    };
   }
 </script>
 
