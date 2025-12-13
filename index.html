@@ -33,17 +33,6 @@
   </div>
 </div>
 
-<script>
-document.getElementById("closePremiumBtn").onclick = () => {
-  const modal = document.getElementById("premiumModal");
-  if (modal) modal.classList.add("hidden");
-};
-
-document.getElementById("goPremiumBtn").onclick = () => {
-  window.location.href = "premium.html";
-};
-</script>
-
 <div class="home-wrapper">
 
   <!-- Main Header -->
@@ -194,20 +183,8 @@ document.getElementById("goPremiumBtn").onclick = () => {
 <!-- ========== SCRIPTS ========== -->
 <!-- ============================= -->
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script>
-  const supabase = window.supabase.createClient(
-    'https://api.geo-ranks.com',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI',
-    {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true
-      }
-    }
-  );
-  window.supabase = supabase;
+<script type="module">
+  import { supabase } from './js/supabase-client.js';
 
   (async () => {
     console.log('--- BEGIN SESSION DEBUG ---');
@@ -223,7 +200,6 @@ document.getElementById("goPremiumBtn").onclick = () => {
       });
     } else {
       console.log('✅ Session found: unlock logic can go here');
-      // Optional: Unlock premium UI here
     }
 
     console.log('LocalStorage keys:', Object.keys(localStorage));
@@ -294,9 +270,7 @@ document.getElementById("goPremiumBtn").onclick = () => {
 
 <!-- LOCKED CATEGORY LOGIC -->
 <script type="module">
-  // @ts-ignore
-  const supabase = window.supabase;
-
+  import { supabase } from './js/supabase-client.js';
   const { data: { session } } = await supabase.auth.getSession();
 
   let isPremium = false;
@@ -400,19 +374,8 @@ document.getElementById("goPremiumBtn").onclick = () => {
 
 
 <!-- PREMIUM MODAL BUTTONS -->
-<script>
-  document.getElementById("closePremiumBtn").onclick = () => {
-    const modal = document.getElementById("premiumModal");
-    if (modal) modal.classList.add("hidden");
-  };
-
-  document.getElementById("goPremiumBtn").onclick = () => {
-    window.location.href = "premium.html";
-  };
-</script>
-
 <script type="module">
-  const supabase = window.supabase;
+  import { supabase } from './js/supabase-client.js';
 
   const { data: { session } } = await supabase.auth.getSession();
   const signInText = document.getElementById("signInText");
