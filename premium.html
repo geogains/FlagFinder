@@ -392,124 +392,11 @@
 <!-- ========== SCRIPTS ========== -->
 <!-- ============================= -->
 
-<script>
+<!-- ============================= -->
+<!-- ========== SCRIPTS ========== -->
+<!-- ============================= -->
 
-  const submitBtn = document.getElementById("authSubmit");
-  const authTitle = document.getElementById("authModalTitle");
-  const emailInput = document.getElementById("authEmail");
-  const passwordInput = document.getElementById("authPassword");
-  const usernameInput = document.getElementById("authUsername");
-  const toggleAuthView = document.getElementById("toggleAuthView");
-
-  let isSignIn = true;
-
-  function rebindToggleAuthLink() {
-  const newToggle = document.getElementById("toggleAuthLink");
-  const forgotLink = document.getElementById("forgotPasswordLink");
-
-  if (newToggle) {
-    newToggle.addEventListener("click", () => {
-      isSignIn = !isSignIn;
-
-      if (isSignIn) {
-        authTitle.textContent = "Sign In";
-        submitBtn.textContent = "Continue";
-        passwordInput.placeholder = "Password";
-        usernameInput.style.display = "none";
-        forgotLink.style.display = "block";
-        toggleAuthView.innerHTML =
-          "Don't have an account? <span id='toggleAuthLink'>Sign Up</span>";
-      } else {
-        authTitle.textContent = "Sign Up";
-        submitBtn.textContent = "Register";
-        passwordInput.placeholder = "Create a password";
-        usernameInput.style.display = "block";
-        forgotLink.style.display = "none";
-        toggleAuthView.innerHTML =
-          "Already have an account? <span id='toggleAuthLink'>Sign In</span>";
-      }
-
-      rebindToggleAuthLink(); // rebind after updating HTML
-    });
-  }
-}
-
-  async function handleAuth() {
-    const email = emailInput.value.trim();
-    const password = passwordInput.value.trim();
-    const username = usernameInput.value.trim();
-
-    if (!email || !password || (!isSignIn && !username)) {
-      return alert("Please fill in all fields");
-    }
-
-    if (isSignIn) {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (error) return alert("❌ " + error.message);
-      window.location.reload();
-    } 
-      else {
-      const { data: existing, error: checkError } = await supabase
-        .from("users")
-        .select("id")
-        .eq("username", username)
-        .maybeSingle();
-
-      if (checkError) return alert("❌ " + checkError.message);
-      if (existing) return alert("❌ Username already taken");
-
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { data: { username } },
-      });
-
-      if (error) return alert("❌ " + error.message);
-
-      alert("✅ Please check your email to confirm your account.");
-    }
-
-    document.getElementById("authModal")?.classList.add("hidden");
-  }
-
- if (submitBtn) {
-  submitBtn.addEventListener("click", handleAuth);
-}
-  rebindToggleAuthLink();
-
-  const closeModalBtn = document.getElementById("closeAuthModal");
-  closeModalBtn?.addEventListener("click", () =>
-    document.getElementById("authModal")?.classList.add("hidden")
-  );
-
-  document
-    .getElementById("forgotPasswordLink")
-    ?.addEventListener("click", async (e) => {
-      e.preventDefault();
-      const email = emailInput.value.trim();
-
-      if (!email) {
-        return alert("Please enter your email to reset your password.");
-      }
-
-      alert("⏳ Sending password reset email...");
-
-const { error } = await supabase.auth.resetPasswordForEmail(email, {
-  redirectTo: "https://www.geo-ranks.com/reset-password.html",
-});
-
-if (error) {
-  alert("❌ " + error.message);
-} else {
-  alert("✅ Password reset email sent! Please check your inbox.");
-  document.getElementById("authModal")?.classList.add("hidden");
-}
-</script>
-
-<!-- Hamburger Menu Logic -->
+<!-- ✅ HAMBURGER MENU -->
 <script>
 const toggleBtn = document.getElementById("menuToggle");
 const overlay = document.getElementById("menuOverlay");
@@ -523,9 +410,9 @@ overlay.addEventListener("click", (e) => {
 });
 </script>
 
+<!-- ✅ MENU ACCOUNT/PREMIUM LOGIC -->
 <script type="module">
-  // Reuse global supabase instance created earlier
-  const supabase = window.supabase;
+  import { supabase } from './js/supabase-client.js';
 
   const { data: { session } } = await supabase.auth.getSession();
 
@@ -534,7 +421,7 @@ overlay.addEventListener("click", (e) => {
     document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
   }
 
-  // Hide Unlock All Categories if user is premium
+  // Check premium status
   if (session && session.user) {
     const { data: profile } = await supabase
       .from('users')
@@ -543,22 +430,31 @@ overlay.addEventListener("click", (e) => {
       .single();
 
     if (profile?.is_premium) {
+      // Hide upgrade buttons from menu
       document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+      
+      // Hide pricing cards and show "Already Premium" message
+      const pricingCards = document.querySelector('.pricing-cards');
+      
+      if (pricingCards) {
+        pricingCards.innerHTML = `
+          <div style="text-align: center; padding: 2rem;">
+            <h2 style="color: #16a34a; font-size: 2rem;">✅ You're already Premium!</h2>
+            <p style="font-size: 1.1rem; margin-top: 1rem;">Thanks for supporting GeoRanks!</p>
+            <a href="index.html" style="display: inline-block; margin-top: 1.5rem; padding: 0.8rem 1.5rem; background: linear-gradient(135deg, #ff9770, #ff6f61); color: white; text-decoration: none; border-radius: 10px; font-weight: bold;">Return to Home</a>
+          </div>
+        `;
+      }
     }
   }
 </script>
 
+<!-- ✅ CHECKOUT SCRIPT -->
+<script type="module">
+  import { supabase } from './js/supabase-client.js';
 
-<script>
   // Safely trigger checkout only when called
   async function startCheckout(plan) {
-    // Ensure client is available
-    const supabase = window.supabase;
-    if (!supabase) {
-      console.error("Supabase client not found");
-      return;
-    }
-
     const { data: { session } } = await supabase.auth.getSession();
 
     if (!session || !session.user) {
@@ -572,16 +468,18 @@ overlay.addEventListener("click", (e) => {
     }
   }
 
+  // Make globally accessible for onclick handlers
+  window.startCheckout = startCheckout;
+
   // Modal handlers
   document.getElementById("closeAccountRequired")?.addEventListener("click", () => {
     document.getElementById("accountRequiredModal")?.classList.add("hidden");
   });
 
   document.getElementById("goToLoginPage")?.addEventListener("click", () => {
-    window.location.href = "index.html?showAuth=true";
+    window.location.href = "auth.html";
   });
 </script>
-
 
 <script src="https://js.stripe.com/v3/"></script>
 <script type="module" src="js/premium.js"></script>
