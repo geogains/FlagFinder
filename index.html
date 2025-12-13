@@ -378,154 +378,67 @@
 <script type="module">
   import { supabase } from './js/supabase-client.js';
 
-  const signInForm = document.getElementById('signInForm');
-  const signUpForm = document.getElementById('signUpForm');
+  const { data: { session } } = await supabase.auth.getSession();
+  const signInText = document.getElementById("signInText");
 
-  // ===== SIGN IN HANDLER =====
-  if (signInForm) {
-    signInForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
+  if (!session || !session.user) {
+    if (signInText) {
+      signInText.innerHTML = `
+        <span style="color: inherit;">Sign In</span>
+        <span class="divider" style="margin: 0 8px; width: 1px; height: 16px; background: #aaa; display: inline-block; vertical-align: middle;"></span>
+        <span style="color: inherit;">Create Account</span>
+      `;
+      signInText.href = "auth.html";
+    }
+  } else {
+    // User is logged in - try to get username from database first
+    const { data: profile } = await supabase
+      .from('users')
+      .select('username, is_premium')
+      .eq('id', session.user.id)
+      .single();
+
+    let displayName = null;
+
+    if (profile?.username) {
+      // Username found in database
+      displayName = profile.username;
+    } else if (session.user.user_metadata?.username) {
+      // Fallback to username from auth metadata (for newly confirmed users)
+      displayName = session.user.user_metadata.username;
       
-      const submitBtn = signInForm.querySelector('button[type="submit"]');
-      const email = signInForm.querySelector('input[type="email"]').value;
-      const password = signInForm.querySelector('input[type="password"]').value;
-
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Signing in...';
-
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-      if (error) {
-        alert("❌ " + error.message);
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Continue';
-      } else {
-        submitBtn.textContent = 'Redirecting...';
-        window.location.href = "index.html";
-      }
-    });
-  }
-
-  // ===== SIGN UP HANDLER (OPTIMIZED) =====
-  if (signUpForm) {
-    signUpForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const submitBtn = signUpForm.querySelector('button[type="submit"]');
-      const username = signUpForm.querySelector('input[type="text"]').value.trim();
-      const email = signUpForm.querySelector('input[type="email"]').value.trim();
-      const password = signUpForm.querySelector('input[type="password"]').value;
-
-      // Client-side validation
-      if (!username || !email || !password) {
-        alert("❌ Please fill in all fields");
-        return;
-      }
-
-      if (username.length < 3) {
-        alert("❌ Username must be at least 3 characters");
-        return;
-      }
-
-      if (password.length < 6) {
-        alert("❌ Password must be at least 6 characters");
-        return;
-      }
-
-      // Show immediate feedback
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Checking availability...';
-
-      try {
-        // Quick username check
-        const { data: usernameExists } = await supabase
+      // Trigger a database insert if user doesn't exist yet (backup)
+      setTimeout(async () => {
+        const { error } = await supabase
           .from('users')
-          .select('username')
-          .eq('username', username)
-          .maybeSingle();
-
-        if (usernameExists) {
-          alert("❌ Username already taken. Please choose another.");
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Continue';
-          return;
-        }
-
-        // Update button state
-        submitBtn.textContent = 'Creating account...';
-
-        // Attempt sign up
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { username: username },
-            emailRedirectTo: 'https://www.geo-ranks.com/index.html'
-          }
-        });
-
-        if (error) {
-          console.error('Sign up error:', error);
-          
-          // Handle duplicate email
-          if (error.message.includes('already') || error.status === 422) {
-            alert("❌ This email is already registered. Please sign in instead.");
-          } else if (error.message.toLowerCase().includes('password')) {
-            alert("❌ Password must be at least 6 characters");
-          } else {
-            alert("❌ " + error.message);
-          }
-          
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Continue';
-          return;
-        }
-
-        // Success - show immediate confirmation
-        submitBtn.textContent = 'Email sent!';
-        alert("✅ Account created! Check your email to confirm.\n\nThe confirmation link may take a moment to arrive.");
+          .insert({
+            id: session.user.id,
+            username: session.user.user_metadata.username,
+            email: session.user.email,
+            avatar_url: 'assets/profile-icon.jpg',
+            is_premium: false
+          })
+          .select()
+          .single();
         
-        // Optional: Clear the form
-        signUpForm.reset();
+        if (error && error.code !== '23505') { // Ignore duplicate key errors
+          console.error('Error creating user profile:', error);
+        }
+      }, 100);
+    } else {
+      // Last fallback - use email prefix
+      displayName = session.user.email.split('@')[0];
+    }
 
-      } catch (err) {
-        console.error('Unexpected error:', err);
-        alert("❌ An unexpected error occurred. Please try again.");
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Continue';
-      }
-    });
-  }
+    if (signInText && displayName) {
+      signInText.textContent = displayName;
+      signInText.href = "account.html";
+    }
 
-  // ===== FORGOT PASSWORD HANDLER =====
-  const forgotPasswordLink = document.querySelector('.forgot-password');
-  if (forgotPasswordLink) {
-    forgotPasswordLink.addEventListener('click', async (e) => {
-      e.preventDefault();
-      const email = signInForm?.querySelector('input[type="email"]')?.value;
-      
-      if (!email) {
-        return alert("❌ Please enter your email first.");
-      }
-
-      // Show loading state immediately
-      const originalText = forgotPasswordLink.textContent;
-      forgotPasswordLink.textContent = 'Sending...';
-      forgotPasswordLink.style.pointerEvents = 'none';
-
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: 'https://www.geo-ranks.com/reset-password.html',
-      });
-
-      forgotPasswordLink.textContent = originalText;
-      forgotPasswordLink.style.pointerEvents = 'auto';
-
-      if (error) {
-        alert("❌ " + error.message);
-      } else {
-        alert("✅ Password reset email sent! Please check your inbox.");
-      }
-    });
+    // Hide upgrade button for premium users
+    if (profile?.is_premium) {
+      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+    }
   }
 </script>
 
