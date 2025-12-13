@@ -282,76 +282,8 @@
 </footer>
 
 <!-- 🌐 Supabase + Leaderboard Logic -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script>
-  const supabase = window.supabase.createClient(
-    'https://api.geo-ranks.com',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI',
-    {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true
-      }
-    }
-  );
-  window.supabase = supabase;
-
-  (async () => {
-    console.log('--- BEGIN SESSION DEBUG ---');
-    const { data: { session }, error } = await supabase.auth.getSession();
-    console.log('Session object:', session);
-    if (error) console.error('Session error:', error);
-
-    console.log('LocalStorage keys:', Object.keys(localStorage));
-    if (navigator.storage?.estimate) {
-      const estimate = await navigator.storage.estimate();
-      console.log('Storage estimate:', estimate);
-    }
-    console.log('--- END SESSION DEBUG ---');
-  })();
-
-  (async () => {
-  console.log("🧪 Debug: Fetching test data from category_scores...");
-
-  const test1 = await supabase
-    .from('category_scores')
-    .select('*')
-    .limit(5);
-
-  console.log("🔍 All scores (no filter):", test1.data, "Error:", test1.error);
-
-  const mode = new URLSearchParams(window.location.search).get('mode');
-  console.log("🌐 Mode from URL is:", mode);
-  if (!mode) return;
-
-console.log("⏱ Looking up category with name:", `"${mode}"`);
-
-  const { data: catData, error: catErr } = await supabase
-  .from('categories')
-  .select('id')
-  .eq('name', mode)
-  .maybeSingle();
-
-if (catErr) {
-  console.error("❌ Error fetching category:", catErr.message);
-} else if (!catData) {
-  console.warn("⚠️ No category found with that name.");
-}
-
-
-  const test2 = await supabase
-    .from('category_scores')
-    .select('score, user_id, users(username, avatar_url, is_premium)')
-    .eq('category_id', catData.id)
-    .limit(5);
-
-  console.log("🔎 Filtered scores for mode:", mode, test2.data, "Error:", test2.error);
-})();
-
-</script>
-
-<script>
+<script type="module">
+  import { supabase } from './js/supabase-client.js';
 
   const leaderboardBody = document.getElementById("leaderboardBody");
   const displayNameMap = {
@@ -457,6 +389,10 @@ document.getElementById("categorySearchInput").value = "🔍 " + displayName;
     leaderboardBody.appendChild(row);
   });
 }
+
+// Make functions globally accessible
+window.loadLeaderboard = loadLeaderboard;
+
   loadCategories();
 </script>
 
@@ -474,7 +410,9 @@ document.getElementById("categorySearchInput").value = "🔍 " + displayName;
 </div>
 
 <!-- 🔍 Modal Logic -->
-<script>
+<script type="module">
+  import { supabase } from './js/supabase-client.js';
+
   const categorySearchModal = document.getElementById('categorySearchModal');
   const closeSearchModal = document.getElementById('closeSearchModal');
   const liveSearchInput = document.getElementById('liveSearchInput');
@@ -580,6 +518,8 @@ document.getElementById("categorySearchInput").value = "🔍 " + displayName;
 </script>
 
 <script type="module">
+  import { supabase } from './js/supabase-client.js';
+
   (async () => {
     const { data: { session } } = await supabase.auth.getSession();
 

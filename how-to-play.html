@@ -191,6 +191,8 @@
 </script>
 
 <script type="module">
+  import { supabase } from './js/supabase-client.js';
+
   const { data: { session } } = await supabase.auth.getSession();
 
   // Hide Account if user not logged in
