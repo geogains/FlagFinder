@@ -263,25 +263,31 @@
 
       // On click: check auth status and show appropriate response
       card.addEventListener("click", async (e) => {
-        e.preventDefault();
+  e.preventDefault();
 
-        const { data: { session: innerSession } } = await supabase.auth.getSession();
+  const { data: { session: innerSession } } = await supabase.auth.getSession();
 
-        if (!innerSession) {
-          // NOT signed in → redirect to home page
-          window.location.href = "index.html";
-          return;
-        }
+  if (!innerSession) {
+    // NOT signed in → show upgrade modal (SAME AS INDEX.HTML)
+    const modal = document.getElementById("premiumModal");
+    if (modal) {
+      modal.classList.remove("hidden");
+      modal.scrollIntoView({ behavior: "smooth", block: "center" });
+    } else {
+      window.location.href = "premium.html";
+    }
+    return;
+  }
 
-        // Signed in but NOT premium → show upgrade modal
-        const modal = document.getElementById("premiumModal");
-        if (modal) {
-          modal.classList.remove("hidden");
-          modal.scrollIntoView({ behavior: "smooth", block: "center" });
-        } else {
-          window.location.href = "premium.html";
-        }
-      });
+  // Signed in but NOT premium → show upgrade modal
+  const modal = document.getElementById("premiumModal");
+  if (modal) {
+    modal.classList.remove("hidden");
+    modal.scrollIntoView({ behavior: "smooth", block: "center" });
+  } else {
+    window.location.href = "premium.html";
+  }
+});
     });
   }
   
