@@ -30,7 +30,7 @@
 .leaderboard-table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed;
+  table-layout: fixed; /* required for controlled column sizing */
   margin-top: 1rem;
 }
 
@@ -38,7 +38,7 @@
   font-weight: 600;
   padding: 1rem;
   font-size: 1.2rem;
-  text-align: center;
+  
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
@@ -48,36 +48,33 @@
   border-bottom: 1px solid rgba(0,0,0,0.12);
   font-size: 1.25rem;
   text-align: center;
-  vertical-align: middle;
 }
 
+.leaderboard-table tbody tr td[colspan] {
+  text-align: center !important;
+  padding: 2rem 1rem;
+}
 /* ------------------------------
    COLUMN WIDTHS (TOTAL = 100%)
 ------------------------------ */
 .leaderboard-table th:nth-child(1),
 .leaderboard-table td:nth-child(1) {
-  width: 15%;   /* Rank */
+  width: 20%;   /* Rank */
 }
 
 .leaderboard-table th:nth-child(2),
 .leaderboard-table td:nth-child(2) {
-  width: 15%;   /* Avatar */
+  width: 20%;   /* Avatar */
 }
 
 .leaderboard-table th:nth-child(3),
 .leaderboard-table td:nth-child(3) {
-  width: 50%;   /* Username */
+  width: 40%;   /* Username */
 }
 
 .leaderboard-table th:nth-child(4),
 .leaderboard-table td:nth-child(4) {
   width: 20%;   /* Score */
-}
-
-/* Center colspan messages */
-.leaderboard-table tbody tr td[colspan] {
-  text-align: center !important;
-  padding: 2rem 1rem;
 }
 
 /* Top corners of the header row */
@@ -259,7 +256,7 @@
       </tr>
     </thead>
     <tbody id="leaderboardBody">
-      <tr><td colspan="3">Loading...</td></tr>
+      <tr><td colspan="4">Loading...</td></tr>
     </tbody>
   </table>
   <a href="index.html" class="back-home">Home</a>
@@ -341,7 +338,7 @@ document.getElementById("categorySearchInput").value = "🔍 " + displayName;
   }
 
   async function loadLeaderboard(categoryName) {
-    leaderboardBody.innerHTML = `<tr><td colspan="3">Loading...</td></tr>`;
+    leaderboardBody.innerHTML = `<tr><td colspan="4">Loading...</td></tr>`;
 
     const { data: catData } = await supabase
       .from("categories")
@@ -350,7 +347,7 @@ document.getElementById("categorySearchInput").value = "🔍 " + displayName;
       .single();
 
     if (!catData) {
-      leaderboardBody.innerHTML = `<tr><td colspan="3">❌ Category not found</td></tr>`;
+      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Category not found</td></tr>`;
       return;
     }
 
@@ -364,7 +361,7 @@ document.getElementById("categorySearchInput").value = "🔍 " + displayName;
     leaderboardBody.innerHTML = "";
 
     if (!scores?.length) {
-      leaderboardBody.innerHTML = `<tr><td colspan="3">👤 Create an account to view the leaderboard scores</td></tr>`;
+      leaderboardBody.innerHTML = `<tr><td colspan="4">👤 Create an account to view the leaderboard scores</td></tr>`;
       return;
     }
 
