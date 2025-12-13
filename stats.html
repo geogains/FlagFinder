@@ -158,6 +158,8 @@ body {
 </div>
 
 <script type="module">
+  import { supabase } from './js/supabase-client.js';
+
   const { data: { session } } = await supabase.auth.getSession();
   const modal = document.getElementById("premiumModal");
   const statsContainer = document.getElementById("statsContainer");
