@@ -253,26 +253,35 @@
 
   if (!isPremium) {
     premiumCards.forEach(card => {
+      card.classList.add("locked");
+
+      // Add golden lock
+      let lock = document.createElement("div");
+      lock.className = "lock-icon";
+      lock.textContent = "🔒";
+      card.appendChild(lock);
+
+      // On click: check auth status and show appropriate response
       card.addEventListener("click", async (e) => {
-  e.preventDefault();
+        e.preventDefault();
 
-  const { data: { session: innerSession } } = await supabase.auth.getSession();
+        const { data: { session: innerSession } } = await supabase.auth.getSession();
 
-  if (!innerSession) {
-    // NOT signed in → redirect to home page
-    window.location.href = "index.html";
-    return;
-  }
+        if (!innerSession) {
+          // NOT signed in → redirect to home page
+          window.location.href = "index.html";
+          return;
+        }
 
-  // Signed in but NOT premium → show upgrade modal
-  const modal = document.getElementById("premiumModal");
-  if (modal) {
-    modal.classList.remove("hidden");
-    modal.scrollIntoView({ behavior: "smooth", block: "center" });
-  } else {
-    window.location.href = "premium.html";
-  }
-});
+        // Signed in but NOT premium → show upgrade modal
+        const modal = document.getElementById("premiumModal");
+        if (modal) {
+          modal.classList.remove("hidden");
+          modal.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else {
+          window.location.href = "premium.html";
+        }
+      });
     });
   }
   
@@ -283,7 +292,6 @@
     categoriesGrid.style.opacity = '1';
   }
 </script>
-
 
 <!-- PREMIUM MODAL BUTTONS -->
 <script>
