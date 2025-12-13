@@ -374,45 +374,64 @@
 
 
 <!-- PREMIUM MODAL BUTTONS -->
+<!-- PREMIUM MODAL BUTTONS -->
 <script type="module">
   import { supabase } from './js/supabase-client.js';
-
-    // Check if user just confirmed email
-  const hashParams = new URLSearchParams(window.location.hash.substring(1));
-  if (hashParams.get('type') === 'signup') {
-    // User just confirmed email, they should be auto-logged in
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-      console.log('✅ User confirmed and logged in:', session.user.email);
-      // Optionally show a success message
-      setTimeout(() => {
-        alert('✅ Email confirmed! Welcome to GeoRanks!');
-      }, 500);
-    }
-  }
 
   const { data: { session } } = await supabase.auth.getSession();
   const signInText = document.getElementById("signInText");
 
   if (!session || !session.user) {
-  if (signInText) {
-    signInText.innerHTML = `
-      <span style="color: inherit;">Sign In</span>
-      <span class="divider" style="margin: 0 8px; width: 1px; height: 16px; background: #aaa; display: inline-block; vertical-align: middle;"></span>
-      <span style="color: inherit;">Create Account</span>
-    `;
-    signInText.href = "auth.html";
-  }
+    if (signInText) {
+      signInText.innerHTML = `
+        <span style="color: inherit;">Sign In</span>
+        <span class="divider" style="margin: 0 8px; width: 1px; height: 16px; background: #aaa; display: inline-block; vertical-align: middle;"></span>
+        <span style="color: inherit;">Create Account</span>
+      `;
+      signInText.href = "auth.html";
+    }
   } else {
-    // Update the sign-in link to show username
+    // User is logged in - try to get username from database first
     const { data: profile } = await supabase
       .from('users')
       .select('username, is_premium')
       .eq('id', session.user.id)
       .single();
 
-    if (profile?.username && signInText) {
-      signInText.textContent = profile.username;
+    let displayName = null;
+
+    if (profile?.username) {
+      // Username found in database
+      displayName = profile.username;
+    } else if (session.user.user_metadata?.username) {
+      // Fallback to username from auth metadata (for newly confirmed users)
+      displayName = session.user.user_metadata.username;
+      
+      // Trigger a database insert if user doesn't exist yet (backup)
+      setTimeout(async () => {
+        const { error } = await supabase
+          .from('users')
+          .insert({
+            id: session.user.id,
+            username: session.user.user_metadata.username,
+            email: session.user.email,
+            avatar_url: 'assets/profile-icon.jpg',
+            is_premium: false
+          })
+          .select()
+          .single();
+        
+        if (error && error.code !== '23505') { // Ignore duplicate key errors
+          console.error('Error creating user profile:', error);
+        }
+      }, 100);
+    } else {
+      // Last fallback - use email prefix
+      displayName = session.user.email.split('@')[0];
+    }
+
+    if (signInText && displayName) {
+      signInText.textContent = displayName;
       signInText.href = "account.html";
     }
 
