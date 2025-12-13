@@ -360,69 +360,61 @@
   </div>
 
   <script>
-    // Slideshow logic
-    const images = ["assets/image1.png", "assets/image2.png", "assets/image3.png"];
-    let currentIndex = 0;
-    const slideshow = document.getElementById("slideshow");
+  // Slideshow logic
+  const images = ["assets/image1.png", "assets/image2.png", "assets/image3.png"];
+  let currentIndex = 0;
+  const slideshow = document.getElementById("slideshow");
+  const dots = document.querySelectorAll(".dot");
 
-    setInterval(() => {
-      currentIndex = (currentIndex + 1) % images.length;
-      slideshow.style.opacity = 0;
-      setTimeout(() => {
-        slideshow.src = images[currentIndex];
-        slideshow.style.opacity = 1;
-      }, 500);
-    }, 4000);
+  function updateDots(index) {
+    dots.forEach((dot, i) => {
+      dot.classList.toggle("active", i === index);
+    });
+  }
 
-    const dots = document.querySelectorAll(".dot");
+  function changeSlide(index) {
+    currentIndex = index; // Ensure currentIndex stays in sync
+    slideshow.style.opacity = 0;
+    setTimeout(() => {
+      slideshow.src = images[currentIndex];
+      slideshow.style.opacity = 1;
+      updateDots(currentIndex);
+    }, 400);
+  }
 
-function updateDots(index) {
+  // Auto-advance slides every 4 seconds
+  setInterval(() => {
+    currentIndex = (currentIndex + 1) % images.length;
+    changeSlide(currentIndex);
+  }, 4000);
+
+  // Manual dot click navigation
   dots.forEach((dot, i) => {
-    dot.classList.toggle("active", i === index);
-  });
-}
-
-dots.forEach((dot, i) => {
-  dot.addEventListener("click", () => {
-    currentIndex = i;
-    slideshow.src = images[currentIndex];
-    updateDots(currentIndex);
-  });
-});
-
-setInterval(() => {
-  currentIndex = (currentIndex + 1) % images.length;
-  slideshow.style.opacity = 0;
-  setTimeout(() => {
-    slideshow.src = images[currentIndex];
-    slideshow.style.opacity = 1;
-    updateDots(currentIndex);
-  }, 500);
-}, 4000);
-
-
-    // Toggle logic
-    const signInToggle = document.getElementById("signInToggle");
-    const signUpToggle = document.getElementById("signUpToggle");
-    const signInForm = document.getElementById("signInForm");
-    const signUpForm = document.getElementById("signUpForm");
-
-    signInToggle.addEventListener("click", () => {
-      signInForm.classList.add("active");
-      signUpForm.classList.remove("active");
-      signInToggle.classList.add("active");
-      signUpToggle.classList.remove("active");
+    dot.addEventListener("click", () => {
+      changeSlide(i);
     });
+  });
 
-    signUpToggle.addEventListener("click", () => {
-      signUpForm.classList.add("active");
-      signInForm.classList.remove("active");
-      signUpToggle.classList.add("active");
-      signInToggle.classList.remove("active");
-    });
+  // Toggle logic
+  const signInToggle = document.getElementById("signInToggle");
+  const signUpToggle = document.getElementById("signUpToggle");
+  const signInForm = document.getElementById("signInForm");
+  const signUpForm = document.getElementById("signUpForm");
 
-    // Redirect logic (placeholder only)
-  </script>
+  signInToggle.addEventListener("click", () => {
+    signInForm.classList.add("active");
+    signUpForm.classList.remove("active");
+    signInToggle.classList.add("active");
+    signUpToggle.classList.remove("active");
+  });
+
+  signUpToggle.addEventListener("click", () => {
+    signUpForm.classList.add("active");
+    signInForm.classList.remove("active");
+    signUpToggle.classList.add("active");
+    signInToggle.classList.remove("active");
+  });
+</script>
 
 <!-- Auth Logic -->
 <script type="module">
