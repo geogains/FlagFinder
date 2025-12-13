@@ -30,7 +30,7 @@
 .leaderboard-table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed; /* required for controlled column sizing */
+  table-layout: fixed;
   margin-top: 1rem;
 }
 
@@ -38,7 +38,7 @@
   font-weight: 600;
   padding: 1rem;
   font-size: 1.2rem;
-  
+  text-align: center;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
@@ -48,17 +48,7 @@
   border-bottom: 1px solid rgba(0,0,0,0.12);
   font-size: 1.25rem;
   text-align: center;
-}
-
-.leaderboard-table th,
-.leaderboard-table td {
-  text-align: center !important;
   vertical-align: middle;
-}
-
-.leaderboard-table tbody tr td[colspan] {
-  text-align: center !important;
-  padding: 2rem 1rem;
 }
 
 /* ------------------------------
@@ -66,22 +56,28 @@
 ------------------------------ */
 .leaderboard-table th:nth-child(1),
 .leaderboard-table td:nth-child(1) {
-  width: 20%;   /* Rank */
+  width: 15%;   /* Rank */
 }
 
 .leaderboard-table th:nth-child(2),
 .leaderboard-table td:nth-child(2) {
-  width: 20%;   /* Avatar */
+  width: 15%;   /* Avatar */
 }
 
 .leaderboard-table th:nth-child(3),
 .leaderboard-table td:nth-child(3) {
-  width: 40%;   /* Username */
+  width: 50%;   /* Username */
 }
 
 .leaderboard-table th:nth-child(4),
 .leaderboard-table td:nth-child(4) {
   width: 20%;   /* Score */
+}
+
+/* Center colspan messages */
+.leaderboard-table tbody tr td[colspan] {
+  text-align: center !important;
+  padding: 2rem 1rem;
 }
 
 /* Top corners of the header row */
