@@ -416,7 +416,6 @@
   });
 </script>
 
-<!-- Auth Logic -->
 <script type="module">
   import { supabase } from './js/supabase-client.js';
 
@@ -432,7 +431,6 @@
       const email = signInForm.querySelector('input[type="email"]').value;
       const password = signInForm.querySelector('input[type="password"]').value;
 
-      // Disable button and show loading state
       submitBtn.disabled = true;
       submitBtn.textContent = 'Signing in...';
 
@@ -460,61 +458,87 @@
       e.preventDefault();
       
       const submitBtn = signUpForm.querySelector('button[type="submit"]');
-      const username = signUpForm.querySelector('input[type="text"]').value;
-      const email = signUpForm.querySelector('input[type="email"]').value;
+      const username = signUpForm.querySelector('input[type="text"]').value.trim();
+      const email = signUpForm.querySelector('input[type="email"]').value.trim();
       const password = signUpForm.querySelector('input[type="password"]').value;
 
-      // Disable button and show loading state
+      // Basic validation
+      if (!username || !email || !password) {
+        alert("❌ Please fill in all fields");
+        return;
+      }
+
+      if (username.length < 3) {
+        alert("❌ Username must be at least 3 characters");
+        return;
+      }
+
       submitBtn.disabled = true;
       submitBtn.textContent = 'Creating account...';
 
       try {
-        // Check if username is already taken
-        const { data: existing, error: checkError } = await supabase
+        // 1. Check if username is already taken
+        const { data: usernameExists, error: usernameError } = await supabase
           .from('users')
-          .select('id')
+          .select('username')
           .eq('username', username)
           .maybeSingle();
 
-        if (checkError) {
-          alert("❌ " + checkError.message);
+        if (usernameError && usernameError.code !== 'PGRST116') {
+          console.error('Username check error:', usernameError);
+          alert("❌ Error checking username availability");
           submitBtn.disabled = false;
           submitBtn.textContent = 'Continue';
           return;
         }
 
-        if (existing) {
+        if (usernameExists) {
           alert("❌ Username already taken. Please choose another.");
           submitBtn.disabled = false;
           submitBtn.textContent = 'Continue';
           return;
         }
 
-        // Attempt sign up
-        const { error } = await supabase.auth.signUp({
+        // 2. Check if email is already registered (check auth.users via RPC or try signup)
+        // We'll attempt signup and catch the error
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            data: { username }
+            data: { 
+              username: username 
+            },
+            emailRedirectTo: 'https://www.geo-ranks.com/index.html'
           }
         });
 
         if (error) {
-          // Check for duplicate email
-          if (error.message.includes('already registered') || error.message.includes('User already registered')) {
+          console.error('Sign up error:', error);
+          
+          // Handle specific errors
+          if (error.message.includes('already registered') || 
+              error.message.includes('User already registered') ||
+              error.status === 422) {
             alert("❌ This email is already registered. Please sign in instead.");
+          } else if (error.message.includes('Password')) {
+            alert("❌ Password must be at least 6 characters");
           } else {
             alert("❌ " + error.message);
           }
+          
           submitBtn.disabled = false;
           submitBtn.textContent = 'Continue';
-        } else {
-          alert("✅ Please check your email to confirm your account.");
-          // Keep button disabled after success
-          submitBtn.textContent = 'Check your email';
+          return;
         }
+
+        // Success
+        alert("✅ Account created! Please check your email to confirm.");
+        submitBtn.textContent = 'Check your email';
+        // Keep button disabled
+
       } catch (err) {
-        alert("❌ An unexpected error occurred");
+        console.error('Unexpected error:', err);
+        alert("❌ An unexpected error occurred. Please try again.");
         submitBtn.disabled = false;
         submitBtn.textContent = 'Continue';
       }
@@ -532,7 +556,6 @@
         return alert("❌ Please enter your email first.");
       }
 
-      // Show loading message immediately
       alert("⏳ Sending password reset email...");
 
       try {

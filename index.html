@@ -377,6 +377,20 @@
 <script type="module">
   import { supabase } from './js/supabase-client.js';
 
+    // Check if user just confirmed email
+  const hashParams = new URLSearchParams(window.location.hash.substring(1));
+  if (hashParams.get('type') === 'signup') {
+    // User just confirmed email, they should be auto-logged in
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      console.log('✅ User confirmed and logged in:', session.user.email);
+      // Optionally show a success message
+      setTimeout(() => {
+        alert('✅ Email confirmed! Welcome to GeoRanks!');
+      }, 500);
+    }
+  }
+
   const { data: { session } } = await supabase.auth.getSession();
   const signInText = document.getElementById("signInText");
 
