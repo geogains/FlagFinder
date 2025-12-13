@@ -236,7 +236,6 @@
   <button type="submit" class="submit-btn">Submit Feedback</button>
   </form>
 </div>
-</form>
 
 <div id="thank-you-message" style="display:none; margin-top: 20px; text-align: center;">
   <h2>🎉 Thank you for your feedback!</h2>
@@ -285,6 +284,8 @@
 </script>
 
 <script type="module">
+  import { supabase } from './js/supabase-client.js';
+
   const { data: { session } } = await supabase.auth.getSession();
 
   // Hide Account if user not logged in

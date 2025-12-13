@@ -161,11 +161,10 @@
     temperature: { title: 'RANK THESE COUNTRIES BY HIGHEST AVERAGE TEMPERATURE ☀️', data: temperatureData },
     precipitation: { title: 'RANK THESE COUNTRIES BY HIGHEST AVERAGE PERCIPITATION 🌧️', data: precipitationData },
   };
-  // Reuse already-initialized client
-  window.supabase = window.supabase;
 </script>
 
 <script type="module">
+  import { supabase } from './js/supabase-client.js';
   // ========================================
   // 🔒 PREMIUM VALIDATION GUARD
   // ========================================
@@ -283,6 +282,8 @@
 </script>
 
 <script type="module">
+  import { supabase } from './js/supabase-client.js';
+
   const { data: { session } } = await supabase.auth.getSession();
 
   // Hide Account if user not logged in
