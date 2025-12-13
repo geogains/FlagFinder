@@ -423,5 +423,17 @@ overlay.addEventListener("click", (e) => {
 });
 </script>
 
+<!-- Menu Account Visibility Logic -->
+<script type="module">
+  import { supabase } from './js/supabase-client.js';
+
+  const { data: { session } } = await supabase.auth.getSession();
+
+  // Hide Account if user not logged in
+  if (!session || !session.user) {
+    document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+  }
+</script>
+
 </body>
 </html>
