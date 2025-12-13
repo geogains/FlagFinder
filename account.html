@@ -203,23 +203,9 @@ body {
 </footer>
 
 <!-- ✅ Supabase Script -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script>
-  const supabase = window.supabase.createClient(
-    'https://api.geo-ranks.com',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI',
-    {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true
-      }
-    }
-  );
-  window.supabase = supabase;
-</script>
+<script type="module">
+  import { supabase } from './js/supabase-client.js';
 
-<script>
   (async () => {
     const usernameSpan = document.getElementById('currentUsername');
     const emailSpan = document.getElementById('userEmail');
@@ -252,16 +238,14 @@ body {
     if (profile) {
       usernameSpan.textContent = profile.username || 'Not set';
 
-      
-const premiumBadge = document.getElementById('premiumBadge');
+      const premiumBadge = document.getElementById('premiumBadge');
 
-if (profile.is_premium) {
-  document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
-  if (premiumBadge) premiumBadge.style.display = 'block';
-} else {
-  if (premiumBadge) premiumBadge.style.display = 'none';
-}
-
+      if (profile.is_premium) {
+        document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+        if (premiumBadge) premiumBadge.style.display = 'block';
+      } else {
+        if (premiumBadge) premiumBadge.style.display = 'none';
+      }
 
       // Avatar logic
       const avatarUpload = document.getElementById('avatarUpload');
