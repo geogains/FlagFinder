@@ -223,10 +223,20 @@ body {
 
 .result-buttons {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: 1fr; /* Mobile: 1 column */
   gap: 0.8rem;
   justify-content: center;
   text-align: center;
+  max-width: 100%;
+}
+
+/* Desktop: 2x2 grid */
+@media (min-width: 600px) {
+  .result-buttons {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 500px;
+    margin: 0 auto;
+  }
 }
 
 .result-panel {
