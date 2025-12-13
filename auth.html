@@ -423,69 +423,130 @@
   const signInForm = document.getElementById('signInForm');
   const signUpForm = document.getElementById('signUpForm');
 
+  // ===== SIGN IN HANDLER =====
   if (signInForm) {
     signInForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      
+      const submitBtn = signInForm.querySelector('button[type="submit"]');
       const email = signInForm.querySelector('input[type="email"]').value;
       const password = signInForm.querySelector('input[type="password"]').value;
 
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      // Disable button and show loading state
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Signing in...';
 
-      if (error) {
-        alert("❌ " + error.message);
-      } else {
-        window.location.href = "index.html";
+      try {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+        if (error) {
+          alert("❌ " + error.message);
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Continue';
+        } else {
+          window.location.href = "index.html";
+        }
+      } catch (err) {
+        alert("❌ An unexpected error occurred");
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Continue';
       }
     });
   }
 
+  // ===== SIGN UP HANDLER =====
   if (signUpForm) {
     signUpForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      
+      const submitBtn = signUpForm.querySelector('button[type="submit"]');
       const username = signUpForm.querySelector('input[type="text"]').value;
       const email = signUpForm.querySelector('input[type="email"]').value;
       const password = signUpForm.querySelector('input[type="password"]').value;
 
-      const { data: existing, error: checkError } = await supabase
-        .from('users')
-        .select('id')
-        .eq('username', username)
-        .maybeSingle();
+      // Disable button and show loading state
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creating account...';
 
-      if (checkError) return alert("❌ " + checkError.message);
-      if (existing) return alert("❌ Username already taken");
+      try {
+        // Check if username is already taken
+        const { data: existing, error: checkError } = await supabase
+          .from('users')
+          .select('id')
+          .eq('username', username)
+          .maybeSingle();
 
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { username }
+        if (checkError) {
+          alert("❌ " + checkError.message);
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Continue';
+          return;
         }
-      });
 
-      if (error) {
-        alert("❌ " + error.message);
-      } else {
-        alert("✅ Please check your email to confirm your account.");
+        if (existing) {
+          alert("❌ Username already taken. Please choose another.");
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Continue';
+          return;
+        }
+
+        // Attempt sign up
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { username }
+          }
+        });
+
+        if (error) {
+          // Check for duplicate email
+          if (error.message.includes('already registered') || error.message.includes('User already registered')) {
+            alert("❌ This email is already registered. Please sign in instead.");
+          } else {
+            alert("❌ " + error.message);
+          }
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Continue';
+        } else {
+          alert("✅ Please check your email to confirm your account.");
+          // Keep button disabled after success
+          submitBtn.textContent = 'Check your email';
+        }
+      } catch (err) {
+        alert("❌ An unexpected error occurred");
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Continue';
       }
     });
   }
 
+  // ===== FORGOT PASSWORD HANDLER =====
   const forgotPasswordLink = document.querySelector('.forgot-password');
   if (forgotPasswordLink) {
     forgotPasswordLink.addEventListener('click', async (e) => {
       e.preventDefault();
       const email = signInForm.querySelector('input[type="email"]').value;
-      if (!email) return alert("❌ Please enter your email first.");
+      
+      if (!email) {
+        return alert("❌ Please enter your email first.");
+      }
 
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: 'https://www.geo-ranks.com/reset-password.html',
-      });
+      // Show loading message immediately
+      alert("⏳ Sending password reset email...");
 
-      if (error) {
-        alert("❌ " + error.message);
-      } else {
-        alert("✅ Password reset email sent! Please check your inbox.");
+      try {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: 'https://www.geo-ranks.com/reset-password.html',
+        });
+
+        if (error) {
+          alert("❌ " + error.message);
+        } else {
+          alert("✅ Password reset email sent! Please check your inbox.");
+        }
+      } catch (err) {
+        alert("❌ An unexpected error occurred");
       }
     });
   }
