@@ -25,12 +25,66 @@
 }
 
 /* ------------------------------
+   MODE TOGGLE
+------------------------------ */
+.mode-toggle {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.mode-btn {
+  padding: 10px 24px;
+  border: 2px solid #e5e7eb;
+  background: white;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-family: 'Poppins', sans-serif;
+}
+
+.mode-btn.active {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border-color: #667eea;
+}
+
+.mode-btn:hover:not(.active) {
+  background: #f3f4f6;
+}
+
+/* ------------------------------
+   DATE SELECTOR
+------------------------------ */
+.date-selector {
+  margin: 20px 0;
+  display: none;
+}
+
+.date-selector.active {
+  display: block;
+}
+
+.date-selector select {
+  padding: 10px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  background: white;
+  cursor: pointer;
+}
+
+/* ------------------------------
    TABLE BASE
 ------------------------------ */
 .leaderboard-table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed; /* required for controlled column sizing */
+  table-layout: fixed;
   margin-top: 1rem;
 }
 
@@ -38,7 +92,6 @@
   font-weight: 600;
   padding: 1rem;
   font-size: 1.2rem;
-  
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
@@ -54,30 +107,30 @@
   text-align: center !important;
   padding: 2rem 1rem;
 }
+
 /* ------------------------------
-   COLUMN WIDTHS (TOTAL = 100%)
+   COLUMN WIDTHS
 ------------------------------ */
 .leaderboard-table th:nth-child(1),
 .leaderboard-table td:nth-child(1) {
-  width: 20%;   /* Rank */
+  width: 20%;
 }
 
 .leaderboard-table th:nth-child(2),
 .leaderboard-table td:nth-child(2) {
-  width: 20%;   /* Avatar */
+  width: 20%;
 }
 
 .leaderboard-table th:nth-child(3),
 .leaderboard-table td:nth-child(3) {
-  width: 40%;   /* Username */
+  width: 40%;
 }
 
 .leaderboard-table th:nth-child(4),
 .leaderboard-table td:nth-child(4) {
-  width: 20%;   /* Score */
+  width: 20%;
 }
 
-/* Top corners of the header row */
 .leaderboard-table th:first-child {
   border-top-left-radius: 12px;
   border-left: none;
@@ -88,7 +141,6 @@
   border-right: none;
 }
 
-/* Bottom corners of the last row */
 .leaderboard-table tr:last-child td:first-child {
   border-bottom-left-radius: 12px;
 }
@@ -96,7 +148,6 @@
 .leaderboard-table tr:last-child td:last-child {
   border-bottom-right-radius: 12px;
 }
-
 
 /* ------------------------------
    AVATAR + BADGE
@@ -123,7 +174,7 @@
   height: 22px;
 }
 
-/* -----------------------------
+/* ------------------------------
    MEDALS
 ------------------------------ */
 .leaderboard-rank {
@@ -139,7 +190,6 @@
   font-size: 1.75rem;
   display: inline-block;
 }
-
 
 /* ------------------------------
    BUTTON
@@ -160,10 +210,18 @@
    MOBILE FIXES
 ------------------------------ */
 @media (max-width: 600px) {
-
   .leaderboard-container {
     margin: 80px 12px 40px;
     padding: 1rem;
+  }
+
+  .mode-toggle {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .mode-btn {
+    width: 100%;
   }
 
   .leaderboard-table {
@@ -176,7 +234,6 @@
     font-size: 1.05rem;
   }
 
-  /* Avatar size for mobile */
   .avatar-wrapper {
     width: 52px;
     height: 52px;
@@ -193,19 +250,9 @@
     bottom: -3px;
     right: -3px;
   }
-
-  /* Prevent Abdul misalignment */
-  .leaderboard-table td:nth-child(2) {
-    overflow: visible !important;
-  }
-
-  .avatar-wrapper {
-    transform: translateX(0); /* reset misplaced shifting */
-  }
 }
 
 </style>
-
 </head>
 <body>
 
@@ -241,10 +288,24 @@
 
 <!-- ✅ Leaderboard Content -->
 <main class="leaderboard-container fade-in">
-  <h1 class="leaderboard-title">🏆 Top Players</h1>
-<div class="search-bar-wrapper">
-  <input type="text" id="categorySearchInput" placeholder="🔍 Search Categories..." readonly />
-</div>
+  <h1 class="leaderboard-title">🏆 Leaderboard</h1>
+
+  <!-- Mode Toggle -->
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="classicModeBtn">Classic</button>
+    <button class="mode-btn" id="top10ModeBtn">Top 10</button>
+  </div>
+
+  <!-- Date Selector (only for Top 10) -->
+  <div class="date-selector" id="dateSelector">
+    <select id="dateDropdown">
+      <option value="">Select Date...</option>
+    </select>
+  </div>
+
+  <div class="search-bar-wrapper">
+    <input type="text" id="categorySearchInput" placeholder="🔍 Search Categories..." readonly />
+  </div>
 
   <table class="leaderboard-table" id="leaderboardTable">
     <thead>
@@ -285,31 +346,52 @@
   </div>
 </footer>
 
-<!-- 🌐 Supabase + Leaderboard Logic -->
+<!-- 🔍 Category Search Modal -->
+<div id="categorySearchModal" class="search-modal hidden">
+  <div class="search-modal-content glass-box">
+    <div class="search-header">
+      <input type="text" id="liveSearchInput" placeholder="Start typing to search..." autofocus />
+      <button class="close-search-modal" id="closeSearchModal">×</button>
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<!-- 🌐 Main Leaderboard Logic -->
 <script type="module">
   import { supabase } from './js/supabase-client.js';
+  import { CATEGORY_ID_MAP } from './js/top10-data.js';
 
   const leaderboardBody = document.getElementById("leaderboardBody");
-  const displayNameMap = {
-  population: "Population",
-  gdp: "GDP Per Capita",
-  altitude: "Altitude",
-  forest: "Forest Cover",
-  coastline: "Coastline",
-  olympic: "Olympic Medals",
-  cuisine: "Cuisine",
-  worldcup: "World Cup Trophies",
-  landmass: "Land Mass",
-  crimerate: "Crime Rate",
-  happiness: "Happiness",
-  passport: "Passport Strength",
-  beer: "Beer Consumption",
-  nobelprize: "Nobel Prize Winners",
-  temperature: "Highest Temperature",
-  precipitation: "Rainfall"
-};
+  const classicModeBtn = document.getElementById("classicModeBtn");
+  const top10ModeBtn = document.getElementById("top10ModeBtn");
+  const dateSelector = document.getElementById("dateSelector");
+  const dateDropdown = document.getElementById("dateDropdown");
 
-window.displayNameMap = displayNameMap;
+  let currentMode = 'classic'; // 'classic' or 'top10'
+  let currentCategory = null;
+  let currentDate = null;
+
+  const displayNameMap = {
+    population: "Population",
+    gdp: "GDP Per Capita",
+    altitude: "Altitude",
+    forest: "Forest Cover",
+    coastline: "Coastline",
+    olympic: "Olympic Medals",
+    cuisine: "Cuisine",
+    worldcup: "World Cup Trophies",
+    landmass: "Land Mass",
+    crimerate: "Crime Rate",
+    happiness: "Happiness",
+    passport: "Passport Strength",
+    beer: "Beer Consumption",
+    nobelprize: "Nobel Prize Winners",
+    temperature: "Highest Temperature",
+    precipitation: "Rainfall"
+  };
+
+  window.displayNameMap = displayNameMap;
 
   window.formatCategoryName = function(category) {
     if (!category) return "";
@@ -319,6 +401,57 @@ window.displayNameMap = displayNameMap;
       .replace(/\b\w/g, (c) => c.toUpperCase())
       .trim();
   };
+
+  // Mode toggle handlers
+  classicModeBtn.addEventListener('click', () => {
+    currentMode = 'classic';
+    classicModeBtn.classList.add('active');
+    top10ModeBtn.classList.remove('active');
+    dateSelector.classList.remove('active');
+    if (currentCategory) loadLeaderboard(currentCategory);
+  });
+
+  top10ModeBtn.addEventListener('click', () => {
+    currentMode = 'top10';
+    top10ModeBtn.classList.add('active');
+    classicModeBtn.classList.remove('active');
+    dateSelector.classList.add('active');
+    populateDateDropdown();
+    if (currentCategory && currentDate) loadTop10Leaderboard(currentCategory, currentDate);
+  });
+
+  // Date dropdown handler
+  dateDropdown.addEventListener('change', (e) => {
+    currentDate = e.target.value;
+    if (currentCategory && currentDate) {
+      loadTop10Leaderboard(currentCategory, currentDate);
+    }
+  });
+
+  // Populate date dropdown (last 30 days)
+  function populateDateDropdown() {
+    const today = new Date();
+    dateDropdown.innerHTML = '';
+    
+    for (let i = 0; i < 30; i++) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+      const displayDate = date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric' 
+      });
+      
+      const option = document.createElement('option');
+      option.value = dateStr;
+      option.textContent = i === 0 ? `Today (${displayDate})` : displayDate;
+      dateDropdown.appendChild(option);
+    }
+    
+    // Set to today by default
+    currentDate = dateDropdown.value;
+  }
 
   async function loadCategories() {
     const params = new URLSearchParams(window.location.search);
@@ -331,12 +464,21 @@ window.displayNameMap = displayNameMap;
 
     if (!categories?.length) return;
 
-   const initial = selectedParam || categories[0].name;
-    loadLeaderboard(initial);
-  const displayName = displayNameMap[initial.toLowerCase()] || formatCategoryName(initial);
-document.getElementById("categorySearchInput").value = "🔍 " + displayName;
+    const initial = selectedParam || categories[0].name;
+    currentCategory = initial;
+    
+    if (currentMode === 'classic') {
+      loadLeaderboard(initial);
+    } else {
+      populateDateDropdown();
+      loadTop10Leaderboard(initial, currentDate);
+    }
+    
+    const displayName = displayNameMap[initial.toLowerCase()] || formatCategoryName(initial);
+    document.getElementById("categorySearchInput").value = "🔍 " + displayName;
   }
 
+  // Load Classic Mode Leaderboard
   async function loadLeaderboard(categoryName) {
     leaderboardBody.innerHTML = `<tr><td colspan="4">Loading...</td></tr>`;
 
@@ -358,60 +500,75 @@ document.getElementById("categorySearchInput").value = "🔍 " + displayName;
       .order("score", { ascending: false })
       .limit(20);
 
-    leaderboardBody.innerHTML = "";
+    renderLeaderboard(scores);
+  }
 
-    if (!scores?.length) {
-      leaderboardBody.innerHTML = `<tr><td colspan="4">👤 Create an account to view the leaderboard scores</td></tr>`;
+  // Load Top 10 Mode Leaderboard
+  async function loadTop10Leaderboard(categoryName, date) {
+    leaderboardBody.innerHTML = `<tr><td colspan="4">Loading...</td></tr>`;
+
+    const categoryId = CATEGORY_ID_MAP[categoryName.toLowerCase()];
+    
+    if (!categoryId) {
+      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Category not available for Top 10</td></tr>`;
       return;
     }
 
-   scores.forEach((entry, index) => {
-  const user = entry.users || {};
-  const rankDisplay =
-  index === 0 ? '<span class="medal">🥇</span>' :
-  index === 1 ? '<span class="medal">🥈</span>' :
-  index === 2 ? '<span class="medal">🥉</span>' :
-  `#${index + 1}`;
+    const { data: scores } = await supabase
+      .from("top10_scores")
+      .select("score, user_id, users(username, avatar_url, is_premium)")
+      .eq("category_id", categoryId)
+      .eq("challenge_date", date)
+      .order("score", { ascending: false })
+      .limit(20);
 
-  const defaultIcon = 'assets/profile-icon.jpg';
-  const premiumBadge = 'assets/GeoRanksPremium.png';
+    renderLeaderboard(scores);
+  }
 
-  const avatarHtml = `
-    <div style="position: relative; display: inline-block;">
-      <img src="${user.avatar_url || defaultIcon}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;" />
-      ${user.is_premium ? `<img src="${premiumBadge}" style="position: absolute; bottom: 3px; right: 0px; width: 18px; height: 18px;" />` : ''}
-    </div>
-  `;
+  // Render leaderboard table
+  function renderLeaderboard(scores) {
+    leaderboardBody.innerHTML = "";
 
-  const row = document.createElement("tr");
-  row.innerHTML = `
-    <td class="leaderboard-rank">${rankDisplay}</td>
-    <td>${avatarHtml}</td>
-    <td>${user.username || "Anonymous"}</td>
-    <td>${entry.score}</td>
-  `;
-    leaderboardBody.appendChild(row);
-  });
-}
+    if (!scores?.length) {
+      leaderboardBody.innerHTML = `<tr><td colspan="4">👤 No scores yet for this ${currentMode === 'top10' ? 'date' : 'category'}</td></tr>`;
+      return;
+    }
 
-// Make functions globally accessible
-window.loadLeaderboard = loadLeaderboard;
+    scores.forEach((entry, index) => {
+      const user = entry.users || {};
+      const rankDisplay =
+        index === 0 ? '<span class="medal">🥇</span>' :
+        index === 1 ? '<span class="medal">🥈</span>' :
+        index === 2 ? '<span class="medal">🥉</span>' :
+        `#${index + 1}`;
+
+      const defaultIcon = 'assets/profile-icon.jpg';
+      const premiumBadge = 'assets/GeoRanksPremium.png';
+
+      const avatarHtml = `
+        <div style="position: relative; display: inline-block;">
+          <img src="${user.avatar_url || defaultIcon}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;" />
+          ${user.is_premium ? `<img src="${premiumBadge}" style="position: absolute; bottom: 3px; right: 0px; width: 18px; height: 18px;" />` : ''}
+        </div>
+      `;
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td class="leaderboard-rank">${rankDisplay}</td>
+        <td>${avatarHtml}</td>
+        <td>${user.username || "Anonymous"}</td>
+        <td>${entry.score}</td>
+      `;
+      leaderboardBody.appendChild(row);
+    });
+  }
+
+  // Make functions globally accessible
+  window.loadLeaderboard = loadLeaderboard;
+  window.loadTop10Leaderboard = loadTop10Leaderboard;
 
   loadCategories();
 </script>
-
-<!-- 🔍 Category Search Modal -->
-<div id="categorySearchModal" class="search-modal hidden">
-  <div class="search-modal-content glass-box">
-    <div class="search-header">
-      <input type="text" id="liveSearchInput" placeholder="Start typing to search..." autofocus />
-      <button class="close-search-modal" id="closeSearchModal">×</button>
-    </div>
-    <div class="search-results" id="searchResults">
-      <!-- Dynamic Category Items Here -->
-    </div>
-  </div>
-</div>
 
 <!-- 🔍 Modal Logic -->
 <script type="module">
@@ -472,18 +629,17 @@ window.loadLeaderboard = loadLeaderboard;
         item.onclick = () => {
           const newUrl = new URL(window.location);
           newUrl.searchParams.set('mode', cat.name);
-          window.location = newUrl.toString();
+          window.history.pushState({}, '', newUrl);
 
-          // 💡 Fix: Delay leaderboard load slightly to let URL settle
-          setTimeout(() => {
-            loadLeaderboard(cat.name);
-          }, 10); // just enough delay to sync
-
-          // OPTIONAL: Use this instead to force a full refresh
-          // window.location.href = newUrl.href;
+          if (window.currentMode === 'classic') {
+            window.loadLeaderboard(cat.name);
+          } else if (window.currentMode === 'top10' && window.currentDate) {
+            window.loadTop10Leaderboard(cat.name, window.currentDate);
+          }
 
           categorySearchModal.classList.add('hidden');
           document.getElementById('categorySearchInput').value = `🔍 ${displayName}`;
+          window.currentCategory = cat.name;
         };
 
         item.innerHTML = `
@@ -496,7 +652,7 @@ window.loadLeaderboard = loadLeaderboard;
   }
 </script>
 
-<!-- 🍔 Menu toggle logic -->
+<!-- 🍔 Menu Logic -->
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const menuToggle = document.getElementById("menuToggle");
@@ -527,12 +683,10 @@ window.loadLeaderboard = loadLeaderboard;
   (async () => {
     const { data: { session } } = await supabase.auth.getSession();
 
-    // Hide Account if user not logged in
     if (!session || !session.user) {
       document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
     }
 
-    // Hide Unlock All Categories if user is premium
     if (session?.user) {
       const { data: profile } = await supabase
         .from('users')
@@ -543,13 +697,6 @@ window.loadLeaderboard = loadLeaderboard;
       if (profile?.is_premium) {
         document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
       }
-    }
-
-    // Automatically load leaderboard from URL param
-    const catNameFromUrl = new URLSearchParams(window.location.search).get('mode');
-    if (catNameFromUrl) {
-      console.log('📦 Category requested:', catNameFromUrl);
-      loadLeaderboard(catNameFromUrl);
     }
   })();
 </script>
