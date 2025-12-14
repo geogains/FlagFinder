@@ -303,7 +303,14 @@
     </select>
   </div>
 
-  <div class="search-bar-wrapper">
+  <!-- Category Display (for Top 10 mode) -->
+  <div id="top10CategoryDisplay" style="display: none; text-align: center; margin: 15px 0;">
+    <p style="font-size: 1.1rem; color: #6b7280; font-weight: 500;">
+      Category: <strong id="top10CategoryName" style="color: #0d315a;"></strong>
+    </p>
+  </div>
+
+  <div class="search-bar-wrapper" id="categorySearchWrapper">
     <input type="text" id="categorySearchInput" placeholder="🔍 Search Categories..." readonly />
   </div>
 
@@ -367,6 +374,9 @@
   const top10ModeBtn = document.getElementById("top10ModeBtn");
   const dateSelector = document.getElementById("dateSelector");
   const dateDropdown = document.getElementById("dateDropdown");
+  const categorySearchWrapper = document.getElementById("categorySearchWrapper");
+  const top10CategoryDisplay = document.getElementById("top10CategoryDisplay");
+  const top10CategoryName = document.getElementById("top10CategoryName");
 
   let currentMode = 'classic'; // 'classic' or 'top10'
   let currentCategory = null;
@@ -408,6 +418,8 @@
     classicModeBtn.classList.add('active');
     top10ModeBtn.classList.remove('active');
     dateSelector.classList.remove('active');
+    categorySearchWrapper.style.display = 'block';
+    top10CategoryDisplay.style.display = 'none';
     if (currentCategory) loadLeaderboard(currentCategory);
   });
 
@@ -416,17 +428,67 @@
     top10ModeBtn.classList.add('active');
     classicModeBtn.classList.remove('active');
     dateSelector.classList.add('active');
+    categorySearchWrapper.style.display = 'none';
+    top10CategoryDisplay.style.display = 'block';
     populateDateDropdown();
-    if (currentCategory && currentDate) loadTop10Leaderboard(currentCategory, currentDate);
+    if (currentDate) loadTop10LeaderboardForDate(currentDate);
   });
 
   // Date dropdown handler
   dateDropdown.addEventListener('change', (e) => {
     currentDate = e.target.value;
-    if (currentCategory && currentDate) {
-      loadTop10Leaderboard(currentCategory, currentDate);
+    if (currentDate) {
+      loadTop10LeaderboardForDate(currentDate);
     }
   });
+
+  // Load Top 10 for selected date (determines category automatically)
+  async function loadTop10LeaderboardForDate(date) {
+    leaderboardBody.innerHTML = `<tr><td colspan="4">Loading...</td></tr>`;
+
+    // Calculate which category was active on this date
+    const selectedDate = new Date(date + 'T00:00:00Z');
+    const startOfEpoch = new Date(Date.UTC(2025, 0, 1));
+    const daysSinceEpoch = Math.floor((selectedDate - startOfEpoch) / 86400000);
+    
+    const top10Categories = ['population', 'gdp', 'altitude', 'forest', 'coastline', 'olympic', 'landmass', 'passport', 'beer', 'nobelprize', 'worldcup', 'temperature', 'precipitation'];
+    const categoryIndex = daysSinceEpoch % top10Categories.length;
+    const categoryKey = top10Categories[categoryIndex];
+    
+    // Display category name
+    const displayName = displayNameMap[categoryKey] || formatCategoryName(categoryKey);
+    top10CategoryName.textContent = displayName;
+    
+    // Get category ID from map
+    const categoryIdMap = {
+      population: 3, gdp: 4, altitude: 2, forest: 6, coastline: 7,
+      olympic: 9, landmass: 11, passport: 13, beer: 14, nobelprize: 15,
+      temperature: 16, precipitation: 17, worldcup: 10
+    };
+    
+    const categoryId = categoryIdMap[categoryKey];
+    
+    if (!categoryId) {
+      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Category not available</td></tr>`;
+      return;
+    }
+
+    const { data: scores, error } = await supabase
+      .from("top10_scores")
+      .select("score, user_id, users(username, avatar_url, is_premium)")
+      .eq("category_id", categoryId)
+      .eq("challenge_date", date)
+      .order("score", { ascending: false })
+      .limit(20);
+
+    if (error) {
+      console.error('Error loading Top 10 scores:', error);
+      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Error loading scores</td></tr>`;
+      return;
+    }
+
+    renderLeaderboard(scores);
+  }
 
   // Populate date dropdown (last 30 days)
   function populateDateDropdown() {
@@ -529,8 +591,8 @@
   function renderLeaderboard(scores) {
     leaderboardBody.innerHTML = "";
 
-    if (!scores?.length) {
-      leaderboardBody.innerHTML = `<tr><td colspan="4">👤 No scores yet for this ${currentMode === 'top10' ? 'date' : 'category'}</td></tr>`;
+    if (!scores || scores.length === 0) {
+      leaderboardBody.innerHTML = `<tr><td colspan="4">👤 No scores yet for this ${currentMode === 'top10' ? 'challenge' : 'category'}</td></tr>`;
       return;
     }
 
@@ -565,7 +627,10 @@
 
   // Make functions globally accessible
   window.loadLeaderboard = loadLeaderboard;
-  window.loadTop10Leaderboard = loadTop10Leaderboard;
+  window.loadTop10LeaderboardForDate = loadTop10LeaderboardForDate;
+  window.currentMode = currentMode;
+  window.currentDate = currentDate;
+  window.currentCategory = currentCategory;
 
   loadCategories();
 </script>

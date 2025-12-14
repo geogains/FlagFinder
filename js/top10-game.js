@@ -41,6 +41,15 @@ function getTodayCategory() {
 
 // Initialize game
 async function initGame() {
+  // Check if user is signed in FIRST
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (!session || !session.user) {
+    // User not signed in - show modal
+    showSignInRequiredModal();
+    return;
+  }
+  
   gameState.categoryKey = getTodayCategory();
   gameState.categoryData = top10Data[gameState.categoryKey];
   
@@ -50,26 +59,22 @@ async function initGame() {
     return;
   }
   
-  // Check if user already played today (only for signed-in users)
-  const { data: { session } } = await supabase.auth.getSession();
+  // Check if user already played today
+  const today = new Date().toISOString().split('T')[0];
+  const categoryId = CATEGORY_ID_MAP[gameState.categoryKey];
   
-  if (session?.user) {
-    const today = new Date().toISOString().split('T')[0];
-    const categoryId = CATEGORY_ID_MAP[gameState.categoryKey];
-    
-    const { data: existingScore } = await supabase
-      .from('top10_scores')
-      .select('score, correct_count, created_at')
-      .eq('user_id', session.user.id)
-      .eq('category_id', categoryId)
-      .eq('challenge_date', today)
-      .maybeSingle();
-    
-    if (existingScore) {
-      // User already played today - show their score
-      showAlreadyPlayedMessage(existingScore);
-      return;
-    }
+  const { data: existingScore } = await supabase
+    .from('top10_scores')
+    .select('score, correct_count, created_at')
+    .eq('user_id', session.user.id)
+    .eq('category_id', categoryId)
+    .eq('challenge_date', today)
+    .maybeSingle();
+  
+  if (existingScore) {
+    // User already played today - show their score
+    showAlreadyPlayedMessage(existingScore);
+    return;
   }
   
   // Set category title
@@ -88,6 +93,35 @@ async function initGame() {
   searchInput.focus();
   
   console.log('Game initialized:', gameState.categoryKey);
+}
+
+// Show sign-in required modal
+function showSignInRequiredModal() {
+  const container = document.querySelector('.game-container');
+  
+  container.innerHTML = `
+    <div style="text-align: center; padding: 40px 20px;">
+      <div style="font-size: 4rem; margin-bottom: 20px;">🔒</div>
+      <h2 style="color: #0d315a; margin-bottom: 10px;">Sign In Required</h2>
+      <p style="font-size: 1.1rem; color: #6b7280; margin-bottom: 30px;">
+        Please sign in to play the Daily Challenge
+      </p>
+      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+        <button onclick="window.location.href='auth.html'" 
+                style="padding: 12px 24px; background: linear-gradient(135deg, #ff9770, #ff6f61); 
+                       color: white; border: none; border-radius: 10px; font-weight: 600; 
+                       font-size: 1rem; cursor: pointer; font-family: 'Poppins', sans-serif;">
+          Sign In / Create Account
+        </button>
+        <button onclick="window.location.href='index.html'" 
+                style="padding: 12px 24px; background: #e5e7eb; color: #374151; 
+                       border: none; border-radius: 10px; font-weight: 600; 
+                       font-size: 1rem; cursor: pointer; font-family: 'Poppins', sans-serif;">
+          Back Home
+        </button>
+      </div>
+    </div>
+  `;
 }
 
 // Show message for users who already played today
