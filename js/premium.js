@@ -5,6 +5,9 @@ import { supabase } from './supabase-client.js';
 const PRICE_MONTHLY = "price_1SXV7xB2pnEWYYPP3WmbEXAf";
 const PRICE_YEARLY  = "price_1SXV9CB2pnEWYYPPlAYocHkY";
 
+// Get anon key for function calls
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI';
+
 // ✅ Redirect to Stripe Checkout using Supabase Edge Function
 async function redirectToCheckout(priceId) {
   const { data: { session } } = await supabase.auth.getSession();
@@ -21,7 +24,7 @@ async function redirectToCheckout(priceId) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${SUPABASE_ANON_KEY}` // Add auth header
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
       },
       body: JSON.stringify({
         priceId: priceId,
