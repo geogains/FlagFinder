@@ -78,7 +78,7 @@ async function initGame() {
   }
   
   // Set category title
-  categoryTitle.textContent = `TOP 10: ${gameState.categoryData.title}`;
+  categoryTitle.textContent = `NAME THE TOP 10 COUNTRIES RANKED BY: ${gameState.categoryData.title}`;
   
   // Render empty ranking slots
   renderRankings();
@@ -544,7 +544,7 @@ window.shareResults = function() {
     year: 'numeric' 
   });
   
-  const text = `🎮 GeoRanks Top 10
+  const text = `🌍 GeoRanks Top 10
 📅 ${today}
 ${gameState.categoryData.emoji} ${gameState.categoryData.title}
 
