@@ -63,7 +63,7 @@ function buildSearchDropdown() {
     option.className = 'country-option';
     option.dataset.countryCode = country.code;
     option.innerHTML = `
-      <img src="assets/flags/${country.flag}" alt="${country.name}" class="country-flag">
+      <img src="${country.flag}" alt="${country.name}" class="country-flag">
       <span class="country-name">${country.name}</span>
     `;
     option.addEventListener('click', () => selectCountry(country));
@@ -135,7 +135,7 @@ function selectCountry(country) {
     const formattedValue = formatValue(country.value, currentCategory.unit);
     
     slot.innerHTML = `
-      <img src="assets/flags/${country.flag}" alt="${country.name}" class="rank-flag">
+      <img src="${country.flag}" alt="${country.name}" class="rank-flag">
       <span class="rank-data">${formattedValue}</span>
     `;
     
@@ -302,7 +302,7 @@ function buildResultsTable() {
     
     row.innerHTML = `
       <span class="table-rank">#${country.rank}</span>
-      <img src="assets/flags/${country.flag}" alt="${country.name}" class="table-flag">
+      <img src="${country.flag}" alt="${country.name}" class="table-flag">
       <span class="table-country">${country.name}</span>
       <span class="table-data">${formattedValue}</span>
     `;
