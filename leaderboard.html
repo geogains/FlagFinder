@@ -459,23 +459,22 @@
     const displayName = displayNameMap[categoryKey] || formatCategoryName(categoryKey);
     top10CategoryName.textContent = displayName;
     
-    // Get category ID from map
-    const categoryIdMap = {
-      population: 3, gdp: 4, altitude: 2, forest: 6, coastline: 7,
-      olympic: 9, landmass: 11, passport: 13, beer: 14, nobelprize: 15,
-      temperature: 16, precipitation: 17, worldcup: 10
-    };
-    
-    const categoryId = categoryIdMap[categoryKey];
+    // Import the correct category ID mapping from top10-data.js
+    const { CATEGORY_ID_MAP } = await import('./js/top10-data.js');
+    const categoryId = CATEGORY_ID_MAP[categoryKey];
     
     if (!categoryId) {
+      console.error('Category ID not found for:', categoryKey);
       leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Category not available</td></tr>`;
       return;
     }
 
+    console.log('Loading Top 10 for:', { date, categoryKey, categoryId });
+
+    // Get scores WITHOUT nested user data
     const { data: scores, error } = await supabase
       .from("top10_scores")
-      .select("score, user_id, users(username, avatar_url, is_premium)")
+      .select("score, user_id")
       .eq("category_id", categoryId)
       .eq("challenge_date", date)
       .order("score", { ascending: false })
@@ -483,11 +482,33 @@
 
     if (error) {
       console.error('Error loading Top 10 scores:', error);
-      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Error loading scores</td></tr>`;
+      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Error loading scores: ${error.message}</td></tr>`;
       return;
     }
 
-    renderLeaderboard(scores);
+    // Now fetch user data separately
+    if (scores && scores.length > 0) {
+      const userIds = scores.map(s => s.user_id);
+      
+      const { data: users } = await supabase
+        .from("users")
+        .select("id, username, avatar_url, is_premium")
+        .in("id", userIds);
+
+      // Combine scores with user data
+      const scoresWithUsers = scores.map(score => {
+        const user = users?.find(u => u.id === score.user_id);
+        return {
+          score: score.score,
+          user_id: score.user_id,
+          users: user || { username: 'Anonymous', avatar_url: null, is_premium: false }
+        };
+      });
+
+      renderLeaderboard(scoresWithUsers);
+    } else {
+      renderLeaderboard([]);
+    }
   }
 
   // Populate date dropdown (last 30 days)
