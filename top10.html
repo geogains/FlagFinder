@@ -34,35 +34,23 @@
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
     }
 
-    /* Inline header with timer, title, and lives on same row */
+    /* Timer and Lives above title */
     .game-header-inline {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 25px;
-      padding-bottom: 15px;
-      border-bottom: 2px solid rgba(13, 49, 90, 0.1);
+      margin-bottom: 15px;
     }
 
     /* Match Classic Game Header */
     .top-card-title {
-      font-size: 1.35rem;
+      font-size: 1.5rem;
       font-weight: 700;
       text-align: center;
       color: #0d315a;
-      margin: 0;
+      margin: 0 0 25px 0;
       font-family: 'Rubik', sans-serif;
       line-height: 1.3;
-      flex: 1;
-    }
-
-    .game-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 25px;
-      padding-bottom: 15px;
-      border-bottom: 2px solid rgba(13, 49, 90, 0.1);
     }
 
     /* Match Classic Game Header */
@@ -147,10 +135,11 @@
       display: flex;
       align-items: center;
       gap: 14px;
-      padding: 12px 18px;
+      padding: 8px 18px;
       cursor: pointer;
       transition: background 0.2s;
       border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      min-height: 48px;
     }
 
     .country-option:hover {
@@ -168,11 +157,12 @@
     }
 
     .country-flag {
-      width: 36px;
-      height: 27px;
+      width: 48px;
+      height: 36px;
       object-fit: cover;
       border-radius: 4px;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+      flex-shrink: 0;
     }
 
     .country-name {
@@ -208,14 +198,16 @@
 
     .rank-number {
       font-weight: 700;
-      font-size: 1.15rem;
-      min-width: 50px;
+      font-size: 1.3rem;
+      min-width: 60px;
       color: white;
       font-family: 'Rubik', sans-serif;
       background: linear-gradient(135deg, #ff9770, #ff6f61);
-      padding: 8px 12px;
-      border-radius: 8px;
+      padding: 10px 14px;
+      border-radius: 10px;
       text-align: center;
+      box-shadow: 0 3px 8px rgba(255, 111, 97, 0.3);
+      flex-shrink: 0;
     }
 
     .rank-flag {
@@ -522,7 +514,7 @@
         <span>⏱️</span>
         <span id="timerDisplay">2:00</span>
       </div>
-      <h2 class="top-card-title" id="categoryTitle">NAME THE TOP 10 COUNTRIES RANKED BY: LOADING...</h2>
+      <h2 class="top-card-title" id="categoryTitle">TOP 10: LOADING...</h2>
       <div class="lives" id="livesDisplay">
         <span>❤️</span>
         <span>❤️</span>
