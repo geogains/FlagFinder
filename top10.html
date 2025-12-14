@@ -22,51 +22,47 @@
       min-height: 100vh;
     }
 
-    /* Fixed Hamburger Menu Icon */
-    .hamburger-fixed {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 1000;
-      background: white;
-      border-radius: 50%;
-      padding: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-
-    .hamburger-fixed:hover {
-      transform: scale(1.05);
-    }
-
-    .menu-icon {
-      width: 24px;
-      height: 20px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      cursor: pointer;
-    }
-
-    .menu-icon span {
-      width: 100%;
-      height: 3px;
-      background: #0d315a;
-      border-radius: 2px;
-      transition: all 0.3s;
-    }
-
     /* Match Classic Game Container Style */
     .game-container {
       max-width: 700px;
-      margin: 80px auto 60px;
+      margin: 120px auto 60px;
       background: rgba(255, 255, 255, 0.92);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
       padding: 40px 30px;
       border-radius: 20px;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Inline header with timer, title, and lives on same row */
+    .game-header-inline {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid rgba(13, 49, 90, 0.1);
+    }
+
+    /* Match Classic Game Header */
+    .top-card-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      text-align: center;
+      color: #0d315a;
+      margin: 0;
+      font-family: 'Rubik', sans-serif;
+      line-height: 1.3;
+      flex: 1;
+    }
+
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid rgba(13, 49, 90, 0.1);
     }
 
     /* Match Classic Game Header */
@@ -457,8 +453,23 @@
         padding: 25px 20px;
       }
 
+      .game-header-inline {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+      }
+
       .top-card-title {
-        font-size: 1.3rem;
+        font-size: 1.2rem;
+        order: -1;
+      }
+
+      .timer {
+        font-size: 1rem;
+      }
+
+      .lives {
+        font-size: 1.2rem;
       }
 
       .results-card {
@@ -473,14 +484,21 @@
 </head>
 <body>
 
-  <!-- HAMBURGER ICON (Fixed Position) -->
-  <div class="hamburger-fixed">
-    <div class="menu-icon" id="menuToggle">
-      <span></span>
-      <span></span>
-      <span></span>
+  <!-- HEADER -->
+  <header class="home-glass-header">
+    <div class="logo-header">
+      <a href="index.html" class="logo-link">
+        <img src="assets/logo.png" alt="GeoRanks Logo" />
+      </a>
     </div>
-  </div>
+    <div class="hamburger-menu">
+      <div class="menu-icon" id="menuToggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </header>
 
   <!-- Hamburger Menu -->
   <div class="menu-overlay" id="menuOverlay">
@@ -500,13 +518,12 @@
 
   <!-- GAME CONTAINER -->
   <div class="game-container">
-    <h2 class="top-card-title" id="categoryTitle">TOP 10: LOADING...</h2>
-    
-    <div class="game-header">
+    <div class="game-header-inline">
       <div class="timer">
         <span>⏱️</span>
         <span id="timerDisplay">2:00</span>
       </div>
+      <h2 class="top-card-title" id="categoryTitle">TOP 10: LOADING...</h2>
       <div class="lives" id="livesDisplay">
         <span>❤️</span>
         <span>❤️</span>
