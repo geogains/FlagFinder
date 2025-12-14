@@ -1,17 +1,5 @@
-// ✅ Import Supabase client via ES Module
-import { createClient } from 'https://esm.sh/@supabase/supabase-js';
-  const SUPABASE_URL = 'https://api.geo-ranks.com';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI';
-
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true
-    }
-  });
-
-  window.supabase = window.supabase || supabase;
+// ✅ Import shared Supabase client
+import { supabase } from './supabase-client.js';
 
 // ✅ Stripe Price IDs from your Dashboard
 const PRICE_MONTHLY = "price_1SXV7xB2pnEWYYPP3WmbEXAf";
@@ -26,29 +14,45 @@ async function redirectToCheckout(priceId) {
     return;
   }
 
-  const functionUrl = `${supabase.supabaseUrl}/functions/v1/create-checkout-session`;
-  const response = await fetch(functionUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      priceId: priceId,
-      userId: session.user.id,
-    }),
-  });
+  try {
+    const functionUrl = `https://api.geo-ranks.com/functions/v1/create-checkout-session`;
+    
+    const response = await fetch(functionUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}` // Add auth header
+      },
+      body: JSON.stringify({
+        priceId: priceId,
+        userId: session.user.id,
+        userEmail: session.user.email
+      }),
+    });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("❌ Supabase Function Error:", errorText);
-    alert("Checkout error: Could not connect to payment service.");
-    return;
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("❌ Supabase Function Error:", errorText);
+      alert("Checkout error: Could not connect to payment service.");
+      return;
+    }
+
+    const sessionData = await response.json();
+
+    // Initialize Stripe
+    const stripe = Stripe("pk_live_51STJnqB2pnEWYYPPlzXvgKRntTDDeb83rXzxu795jyjUMKKxCX8FsZF9D3Q538TccPik2NOe8IAu8jgQnkz5i4EQ00MJDaq4V4");
+    
+    // Redirect to checkout
+    const { error } = await stripe.redirectToCheckout({ sessionId: sessionData.id });
+    
+    if (error) {
+      console.error("Stripe redirect error:", error);
+      alert("Failed to redirect to checkout. Please try again.");
+    }
+  } catch (err) {
+    console.error("Unexpected error:", err);
+    alert("An error occurred. Please try again.");
   }
-
-  const sessionData = await response.json();
-
-  const stripe = Stripe("pk_live_51STJnqB2pnEWYYPPlzXvgKRntTDDeb83rXzxu795jyjUMKKxCX8FsZF9D3Q538TccPik2NOe8IAu8jgQnkz5i4EQ00MJDaq4V4");
-  stripe.redirectToCheckout({ sessionId: sessionData.id });
 }
 
 // ✅ Main handler exposed globally
