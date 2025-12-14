@@ -1,8 +1,4 @@
 // js/top10-game.js
-import { supabase } from './supabase-client.js';
-import { top10Data, CATEGORY_ID_MAP } from './top10-data.js';
-import { allCountries } from './countries-list.js';
-
 export const CATEGORY_ID_MAP = {
   population: 1,
   gdp: 2,
@@ -21,6 +17,12 @@ export const CATEGORY_ID_MAP = {
   temperature: 15,
   precipitation: 16
 };
+
+import { supabase } from './supabase-client.js';
+import { top10Data, CATEGORY_ID_MAP } from './top10-data.js';
+import { allCountries } from './countries-list.js';
+
+
 
 // Game state
 let gameState = {
