@@ -269,8 +269,7 @@ function renderDropdown(countries) {
       <div class="${classes}" data-country="${country.name}" data-code="${flagCode}">
         <img src="flags/${flagCode}.png" 
              alt="${country.name}" 
-             class="country-flag"
-             onerror="this.src='assets/placeholder-flag.png'" />
+             class="country-flag" />
         <span class="country-name">${country.name}</span>
       </div>
     `;
@@ -356,8 +355,7 @@ function updateRankSlot(rank, countryName, countryCode) {
     <div class="rank-number">${rank}</div>
     <img src="flags/${countryCode}.png" 
          alt="${countryName}" 
-         class="rank-flag"
-         onerror="this.src='assets/placeholder-flag.png'" />
+         class="rank-flag" />
     <div class="rank-country">${countryName}</div>
   `;
 }
@@ -501,8 +499,7 @@ function showResults(score, reason) {
         <div class="table-rank">${country.rank}</div>
         <img src="flags/${country.code}.png" 
              alt="${country.name}" 
-             class="table-flag"
-             onerror="this.src='assets/placeholder-flag.png'" />
+             class="table-flag" />
         <div class="table-country">${country.name}</div>
         <div>${isCorrect ? '✅' : '❌'}</div>
       </div>
