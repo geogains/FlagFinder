@@ -78,7 +78,7 @@ async function initGame() {
   }
   
   // Set category title
-  categoryTitle.textContent = `NAME THE TOP 10 COUNTRIES RANKED BY: ${gameState.categoryData.title}`;
+  categoryTitle.textContent = `NAME THE TOP 10 COUNTRIES RANKED BY: ${gameState.categoryData.titletoUpperCase()}`;
   
   // Render empty ranking slots
   renderRankings();
