@@ -40,7 +40,7 @@ function getTodayCategory() {
 }
 
 // Initialize game
-function initGame() {
+async function initGame() {
   gameState.categoryKey = getTodayCategory();
   gameState.categoryData = top10Data[gameState.categoryKey];
   
@@ -48,6 +48,28 @@ function initGame() {
     alert('Invalid category!');
     window.location.href = 'index.html';
     return;
+  }
+  
+  // Check if user already played today (only for signed-in users)
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (session?.user) {
+    const today = new Date().toISOString().split('T')[0];
+    const categoryId = CATEGORY_ID_MAP[gameState.categoryKey];
+    
+    const { data: existingScore } = await supabase
+      .from('top10_scores')
+      .select('score, correct_count, created_at')
+      .eq('user_id', session.user.id)
+      .eq('category_id', categoryId)
+      .eq('challenge_date', today)
+      .maybeSingle();
+    
+    if (existingScore) {
+      // User already played today - show their score
+      showAlreadyPlayedMessage(existingScore);
+      return;
+    }
   }
   
   // Set category title
@@ -68,6 +90,64 @@ function initGame() {
   console.log('Game initialized:', gameState.categoryKey);
 }
 
+// Show message for users who already played today
+function showAlreadyPlayedMessage(scoreData) {
+  const container = document.querySelector('.game-container');
+  
+  const timeUntilMidnight = getTimeUntilMidnightUTC();
+  
+  container.innerHTML = `
+    <div style="text-align: center; padding: 40px 20px;">
+      <div style="font-size: 4rem; margin-bottom: 20px;">✅</div>
+      <h2 style="color: #0d315a; margin-bottom: 10px;">You've Already Played Today!</h2>
+      <p style="font-size: 1.2rem; color: #6b7280; margin-bottom: 30px;">
+        Your score: <strong style="color: #10b981;">${scoreData.score}</strong> 
+        (${scoreData.correct_count}/10 correct)
+      </p>
+      <p style="font-size: 1rem; color: #6b7280; margin-bottom: 30px;">
+        Next challenge available in: <strong>${timeUntilMidnight}</strong>
+      </p>
+      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+        <button onclick="window.location.href='categories.html'" 
+                style="padding: 12px 24px; background: linear-gradient(135deg, #ff9770, #ff6f61); 
+                       color: white; border: none; border-radius: 10px; font-weight: 600; 
+                       font-size: 1rem; cursor: pointer; font-family: 'Poppins', sans-serif;">
+          Play Classic Mode
+        </button>
+        <button onclick="window.location.href='leaderboard.html'" 
+                style="padding: 12px 24px; background: #e5e7eb; color: #374151; 
+                       border: none; border-radius: 10px; font-weight: 600; 
+                       font-size: 1rem; cursor: pointer; font-family: 'Poppins', sans-serif;">
+          View Leaderboard
+        </button>
+        <button onclick="window.location.href='index.html'" 
+                style="padding: 12px 24px; background: #e5e7eb; color: #374151; 
+                       border: none; border-radius: 10px; font-weight: 600; 
+                       font-size: 1rem; cursor: pointer; font-family: 'Poppins', sans-serif;">
+          Back Home
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// Get time until midnight UTC
+function getTimeUntilMidnightUTC() {
+  const now = new Date();
+  const midnight = new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate() + 1,
+    0, 0, 0
+  ));
+  
+  const diff = midnight - now;
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  
+  return `${hours}h ${minutes}m`;
+}
+
 // Render ranking slots
 function renderRankings() {
   rankingsGrid.innerHTML = '';
@@ -78,8 +158,8 @@ function renderRankings() {
     slot.id = `rank-${i}`;
     
     slot.innerHTML = `
-      <div class="rank-number">#${i}</div>
-      <div class="rank-country rank-empty">?</div>
+      <div class="rank-number">${i}</div>
+      <div class="rank-country rank-empty"></div>
     `;
     
     rankingsGrid.appendChild(slot);
@@ -370,7 +450,7 @@ function showResults(score, reason) {
     
     tableHTML += `
       <div class="${rowClass}">
-        <div class="table-rank">#${country.rank}</div>
+        <div class="table-rank">${country.rank}</div>
         <img src="https://flagcdn.com/w40/${country.code.toLowerCase()}.png" 
              alt="${country.name}" 
              class="table-flag"
@@ -393,8 +473,21 @@ function showResults(score, reason) {
     `).join('');
   }
   
+  // Setup Play Classic button
+  const playClassicBtn = document.getElementById('playClassicBtn');
+  if (playClassicBtn) {
+    playClassicBtn.onclick = () => {
+      window.location.href = 'categories.html';
+    };
+  }
+  
   // Show overlay
   resultsOverlay.classList.add('active');
+  
+  // Auto-scroll to center results after a brief delay
+  setTimeout(() => {
+    resultsOverlay.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 300);
 }
 
 // Share results
