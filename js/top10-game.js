@@ -1,10 +1,15 @@
 // js/top10-game.js
 import { top10Data, CATEGORY_ID_MAP } from './top10-data.js';
 
+console.log('Top10 game script loaded');
+console.log('Available categories:', Object.keys(top10Data));
+
 // Get category from URL or default to population
 const params = new URLSearchParams(window.location.search);
 const categoryKey = params.get('mode') || 'population';
 const currentCategory = top10Data[categoryKey] || top10Data.population;
+
+console.log('Current category:', categoryKey, currentCategory);
 
 // Game state
 let gameState = {
@@ -19,6 +24,8 @@ let gameState = {
 
 // Initialize game
 function initGame() {
+  console.log('Initializing game...');
+  
   // Set title
   const titleText = `NAME THE TOP 10 COUNTRIES RANKED BY: ${currentCategory.title.toUpperCase()}`;
   document.getElementById('categoryTitle').textContent = titleText;
@@ -47,16 +54,27 @@ function initGame() {
   
   // Setup search functionality
   setupSearch();
+  
+  console.log('Game initialized successfully');
 }
 
 function buildSearchDropdown() {
+  console.log('Building search dropdown...');
   const dropdown = document.getElementById('searchDropdown');
+  
+  if (!dropdown) {
+    console.error('Dropdown element not found!');
+    return;
+  }
+  
   dropdown.innerHTML = '';
   
   // Sort alphabetically for easier finding
   const sortedCountries = [...currentCategory.countries].sort((a, b) => 
     a.name.localeCompare(b.name)
   );
+  
+  console.log('Number of countries to add:', sortedCountries.length);
   
   sortedCountries.forEach(country => {
     const option = document.createElement('div');
@@ -69,14 +87,28 @@ function buildSearchDropdown() {
     option.addEventListener('click', () => selectCountry(country));
     dropdown.appendChild(option);
   });
+  
+  console.log('Dropdown built with', dropdown.children.length, 'options');
 }
 
 function setupSearch() {
+  console.log('Setting up search...');
   const searchInput = document.getElementById('searchInput');
   const dropdown = document.getElementById('searchDropdown');
   
+  if (!searchInput) {
+    console.error('Search input not found!');
+    return;
+  }
+  
+  if (!dropdown) {
+    console.error('Search dropdown not found!');
+    return;
+  }
+  
   searchInput.addEventListener('input', (e) => {
     const searchTerm = e.target.value.toLowerCase().trim();
+    console.log('Search term:', searchTerm);
     
     if (searchTerm === '') {
       dropdown.classList.remove('active');
@@ -93,6 +125,7 @@ function setupSearch() {
       if (matches) hasVisibleOptions = true;
     });
     
+    console.log('Has visible options:', hasVisibleOptions);
     dropdown.classList.toggle('active', hasVisibleOptions);
   });
   
@@ -105,11 +138,15 @@ function setupSearch() {
   
   // Focus on search input on load
   searchInput.focus();
+  console.log('Search setup complete');
 }
 
 function selectCountry(country) {
+  console.log('Selected country:', country.name);
+  
   // Check if already guessed
   if (gameState.guessedCountries.has(country.code)) {
+    console.log('Country already guessed');
     return;
   }
   
@@ -130,6 +167,7 @@ function selectCountry(country) {
   const isCorrect = country.rank >= 1 && country.rank <= 10;
   
   if (isCorrect) {
+    console.log('Correct guess! Rank:', country.rank);
     // Place in correct slot with flag and data value
     const slot = document.querySelector(`[data-rank="${country.rank}"]`);
     slot.classList.add('correct');
@@ -149,6 +187,7 @@ function selectCountry(country) {
       setTimeout(() => endGame(true), 500);
     }
   } else {
+    console.log('Incorrect guess');
     // Incorrect guess - lose a life
     gameState.lives--;
     gameState.incorrectGuesses.push(country.name);
@@ -337,4 +376,5 @@ Can you beat my score? Play at geo-ranks.com`;
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', initGame);
+console.log('Event listener added for DOMContentLoaded');
 
