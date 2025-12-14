@@ -47,9 +47,8 @@
 }
 
 .mode-btn.active {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #ff9770, #ff6f61);
   color: white;
-  border-color: #667eea;
 }
 
 .mode-btn:hover:not(.active) {
@@ -418,8 +417,14 @@
     classicModeBtn.classList.add('active');
     top10ModeBtn.classList.remove('active');
     dateSelector.classList.remove('active');
+    
+    // Reset search wrapper display
     categorySearchWrapper.style.display = 'block';
+    categorySearchWrapper.style.width = '';
+    categorySearchWrapper.style.maxWidth = '';
+    
     top10CategoryDisplay.style.display = 'none';
+    
     if (currentCategory) loadLeaderboard(currentCategory);
   });
 
