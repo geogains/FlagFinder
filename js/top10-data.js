@@ -3,6 +3,25 @@ import { supabase } from './supabase-client.js';
 import { top10Data, CATEGORY_ID_MAP } from './top10-data.js';
 import { allCountries } from './countries-list.js';
 
+export const CATEGORY_ID_MAP = {
+  population: 1,
+  gdp: 2,
+  altitude: 3,
+  forest: 4,
+  coastline: 5,
+  olympic: 6,
+  cuisine: 7,
+  worldcup: 8,
+  landmass: 9,
+  crimerate: 10,
+  happiness: 11,
+  passport: 12,
+  beer: 13,
+  nobelprize: 14,
+  temperature: 15,
+  precipitation: 16
+};
+
 // Game state
 let gameState = {
   categoryKey: null,
