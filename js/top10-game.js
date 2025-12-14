@@ -1,8 +1,10 @@
 // js/top10-game.js
 import { top10Data, CATEGORY_ID_MAP } from './top10-data.js';
+import { allCountries } from './countries-list.js';
 
 console.log('Top10 game script loaded');
 console.log('Available categories:', Object.keys(top10Data));
+console.log('Total countries available for search:', allCountries.length);
 
 // Get category from URL or default to population
 const params = new URLSearchParams(window.location.search);
@@ -14,7 +16,7 @@ console.log('Current category:', categoryKey, currentCategory);
 // Game state
 let gameState = {
   countries: [...currentCategory.countries],
-  guessedCountries: new Set(),
+  guessedCountries: new Set(), // Stores country names that have been guessed
   lives: 3,
   score: 0,
   timeRemaining: 120, // 2 minutes
@@ -69,8 +71,8 @@ function buildSearchDropdown() {
   
   dropdown.innerHTML = '';
   
-  // Sort alphabetically for easier finding
-  const sortedCountries = [...currentCategory.countries].sort((a, b) => 
+  // Sort all countries alphabetically for easier finding
+  const sortedCountries = [...allCountries].sort((a, b) => 
     a.name.localeCompare(b.name)
   );
   
@@ -80,11 +82,15 @@ function buildSearchDropdown() {
     const option = document.createElement('div');
     option.className = 'country-option';
     option.dataset.countryCode = country.code;
+    
+    // Convert country code to lowercase flag filename
+    const flagFilename = `flags/${country.name.toLowerCase().replace(/\s+/g, '-')}.png`;
+    
     option.innerHTML = `
-      <img src="${country.flag}" alt="${country.name}" class="country-flag">
+      <img src="${flagFilename}" alt="${country.name}" class="country-flag" onerror="this.style.display='none'">
       <span class="country-name">${country.name}</span>
     `;
-    option.addEventListener('click', () => selectCountry(country));
+    option.addEventListener('click', () => selectCountryByName(country.name));
     dropdown.appendChild(option);
   });
   
@@ -141,23 +147,52 @@ function setupSearch() {
   console.log('Search setup complete');
 }
 
+function selectCountryByName(countryName) {
+  console.log('Selected country:', countryName);
+  
+  // Find the country in the top 10 data for this category
+  const country = currentCategory.countries.find(c => c.name === countryName);
+  
+  if (!country) {
+    // Country not in top 10 - incorrect guess
+    console.log('Country not in top 10 - incorrect guess');
+    gameState.lives--;
+    gameState.incorrectGuesses.push(countryName);
+    updateLives();
+    
+    // Clear search
+    document.getElementById('searchInput').value = '';
+    document.getElementById('searchDropdown').classList.remove('active');
+    
+    if (gameState.lives === 0) {
+      setTimeout(() => endGame(false), 500);
+    }
+    return;
+  }
+  
+  // Country is in top 10 - pass to selectCountry
+  selectCountry(country);
+}
+
 function selectCountry(country) {
-  console.log('Selected country:', country.name);
+  console.log('Selected country from top 10:', country.name);
   
   // Check if already guessed
-  if (gameState.guessedCountries.has(country.code)) {
+  if (gameState.guessedCountries.has(country.name)) {
     console.log('Country already guessed');
     return;
   }
   
   // Mark as guessed
-  gameState.guessedCountries.add(country.code);
+  gameState.guessedCountries.add(country.name);
   
-  // Disable in dropdown
-  const option = document.querySelector(`[data-country-code="${country.code}"]`);
-  if (option) {
-    option.classList.add('disabled');
-  }
+  // Disable in dropdown - find by country name
+  const options = document.querySelectorAll('.country-option');
+  options.forEach(option => {
+    if (option.querySelector('.country-name').textContent === country.name) {
+      option.classList.add('disabled');
+    }
+  });
   
   // Clear search
   document.getElementById('searchInput').value = '';
@@ -336,7 +371,7 @@ function buildResultsTable() {
   table.innerHTML = '';
   
   currentCategory.countries.forEach(country => {
-    const isGuessed = gameState.guessedCountries.has(country.code);
+    const isGuessed = gameState.guessedCountries.has(country.name);
     const row = document.createElement('div');
     row.className = `table-row ${isGuessed ? 'correct' : ''}`;
     
