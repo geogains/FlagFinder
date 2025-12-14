@@ -64,14 +64,14 @@
     </div>
   </div>
 
-  <!-- DAILY CHALLENGE -->
- <section class="daily-challenge-card fade-in">
-  <div class="daily-info">
-    <h2>📅 DAILY CHALLENGE</h2>
-    <h3>Loading...</h3>
-    <a href="#" class="btn-primary glow">Play Now</a>
-  </div>
-</section>
+  <!-- DAILY TOP 10 CHALLENGE -->
+  <section class="daily-challenge-card fade-in" id="dailyChallengeCard">
+    <div class="daily-info">
+      <h2>📅 TODAY'S TOP 10</h2>
+      <h3 id="dailyChallengeTitle">Loading...</h3>
+      <a href="#" id="dailyChallengeBtn" class="btn-primary glow">Play Now</a>
+    </div>
+  </section>
 
   <!-- CATEGORIES -->
   <section class="categories-section">
@@ -149,33 +149,32 @@
   </section>
 
   <div class="footer-buttons">
-  <button id="unlockCategoriesBtn" class="upgrade-access-btn">🔓 Unlock All Categories</button>
-  <button id="viewCategoriesBtn">View All Categories</button>
-</div>
-
- <footer class="home-footer">
-  <div class="footer-socials">
-    <div class="icon-row">
-      <a href="https://www.instagram.com/geo_ranks/" target="_blank" rel="noopener">
-        <img src="assets/instagram.png" alt="Instagram" />
-      </a>
-      <div class="divider"></div>
-      <a href="https://www.tiktok.com/@georanks" target="_blank" rel="noopener">
-        <img src="assets/tik-tok.png" alt="TikTok" />
-      </a>
-      <div class="divider"></div>
-      <a href="https://www.youtube.com/channel/UC8jrsBpCn09u0mHQle_O3Rw" target="_blank" rel="noopener">
-        <img src="assets/youtube.png" alt="YouTube" />
-      </a>
-      <div class="divider"></div>
-      <a href="https://x.com/Kieroncroo66687" target="_blank" rel="noopener">
-        <img src="assets/x.png" alt="X" />
-      </a>
-    </div>
-    <p>© 2025 GeoRanks</p>
+    <button id="unlockCategoriesBtn" class="upgrade-access-btn">🔓 Unlock All Categories</button>
+    <button id="viewCategoriesBtn">View All Categories</button>
   </div>
-</footer>
 
+  <footer class="home-footer">
+    <div class="footer-socials">
+      <div class="icon-row">
+        <a href="https://www.instagram.com/geo_ranks/" target="_blank" rel="noopener">
+          <img src="assets/instagram.png" alt="Instagram" />
+        </a>
+        <div class="divider"></div>
+        <a href="https://www.tiktok.com/@georanks" target="_blank" rel="noopener">
+          <img src="assets/tik-tok.png" alt="TikTok" />
+        </a>
+        <div class="divider"></div>
+        <a href="https://www.youtube.com/channel/UC8jrsBpCn09u0mHQle_O3Rw" target="_blank" rel="noopener">
+          <img src="assets/youtube.png" alt="YouTube" />
+        </a>
+        <div class="divider"></div>
+        <a href="https://x.com/Kieroncroo66687" target="_blank" rel="noopener">
+          <img src="assets/x.png" alt="X" />
+        </a>
+      </div>
+      <p>© 2025 GeoRanks</p>
+    </div>
+  </footer>
 
 </div>
 
@@ -211,61 +210,70 @@
   })();
 </script>
 
-<!-- DAILY CHALLENGE SCRIPT -->
-<script>
-  const categories = [
-    { title: "Population 👥", emoji: "👥", mode: "population" },
-    { title: "GDP 💵", emoji: "💵", mode: "gdp" },
-    { title: "Happiness ☺️", emoji: "☺️", mode: "happiness" },
-    { title: "Forest Cover 🌲", emoji: "🌲", mode: "forest" },
-    { title: "Longest Coastline 🌊", emoji: "🌊", mode: "coastline" },
-    { title: "Cuisine 🍽️", emoji: "🍽️", mode: "cuisine" },
-    { title: "Olympic Medals 🥇", emoji: "🥇", mode: "olympic" },
-    { title: "World Cup ⚽️", emoji: "⚽️", mode: "worldcup" },
-    { title: "Land Mass 🌍", emoji: "🌍", mode: "landmass" },
-    { title: "Altitude 🏔️", emoji: "🏔️", mode: "altitude" },
-    { title: "Passport 🛂", emoji: "🛂", mode: "passport" },
-    { title: "Beer Consumption 🍺", emoji: "🍺", mode: "beer" },
-    { title: "Nobel Prize 🕊️", emoji: "🕊️", mode: "nobelprize" },
-    { title: "Rainfall 🌧️", emoji: "🌧️", mode: "precipitation" },
+<!-- DAILY TOP 10 CHALLENGE SCRIPT -->
+<script type="module">
+  import { top10Data } from './js/top10-data.js';
+
+  // Top 10 categories (13 total for daily rotation)
+  const top10Categories = [
+    { key: "population", title: "POPULATION 👥", emoji: "👥" },
+    { key: "gdp", title: "GDP PER CAPITA 💵", emoji: "💵" },
+    { key: "altitude", title: "HIGHEST ALTITUDE 🏔️", emoji: "🏔️" },
+    { key: "forest", title: "FOREST COVER 🌲", emoji: "🌲" },
+    { key: "coastline", title: "LONGEST COASTLINE 🌊", emoji: "🌊" },
+    { key: "olympic", title: "OLYMPIC MEDALS 🥇", emoji: "🥇" },
+    { key: "landmass", title: "LAND MASS 🌍", emoji: "🌍" },
+    { key: "passport", title: "PASSPORT STRENGTH 🛂", emoji: "🛂" },
+    { key: "beer", title: "BEER CONSUMPTION 🍺", emoji: "🍺" },
+    { key: "nobelprize", title: "NOBEL PRIZE WINNERS 🕊️", emoji: "🕊️" },
+    { key: "worldcup", title: "WORLD CUP TROPHIES ⚽", emoji: "⚽" },
+    { key: "temperature", title: "HIGHEST TEMPERATURE ☀️", emoji: "☀️" },
+    { key: "precipitation", title: "HIGHEST RAINFALL 🌧️", emoji: "🌧️" }
   ];
 
+  // Calculate today's category (same rotation logic as before)
   const now = new Date();
   const startOfEpoch = new Date(Date.UTC(2025, 0, 1));
   const daysSinceEpoch = Math.floor((now - startOfEpoch) / 86400000);
-  const categoryIndex = daysSinceEpoch % categories.length;
-  const todayCategory = categories[categoryIndex];
+  const categoryIndex = daysSinceEpoch % top10Categories.length;
+  const todayCategory = top10Categories[categoryIndex];
 
-  const dailyCard = document.querySelector(".daily-challenge-card");
+  // Update daily challenge card
+  const dailyCard = document.getElementById("dailyChallengeCard");
+  const dailyTitle = document.getElementById("dailyChallengeTitle");
+  const dailyBtn = document.getElementById("dailyChallengeBtn");
+
+  if (dailyTitle && dailyBtn) {
+    dailyTitle.textContent = todayCategory.title;
+    dailyBtn.href = `top10.html?category=${todayCategory.key}`;
+  }
+
+  // Set background image
   if (dailyCard) {
-    dailyCard.querySelector("h3").textContent = `Rank by ${todayCategory.title}`;
-    const playButton = dailyCard.querySelector("a");
-    playButton.href = `game.html?mode=${todayCategory.mode}`;
-
     const bgMap = {
       population: "population.jpg",
       gdp: "gdp.jpg",
-      happiness: "happiness.jpg",
+      altitude: "altitude.jpg",
       forest: "forest.jpg",
       coastline: "coastline.jpg",
-      cuisine: "cuisine.jpg",
       olympic: "olympic.jpg",
-      worldcup: "worldcup.jpg",
       landmass: "landmass.jpg",
-      altitude: "altitude.jpg",
       passport: "passport.jpg",
       beer: "beer.jpg",
       nobelprize: "nobelprize.jpg",
+      worldcup: "worldcup.jpg",
       temperature: "hightemp.jpg",
       precipitation: "rainfall.jpg",
     };
 
-    const img = bgMap[todayCategory.mode];
+    const img = bgMap[todayCategory.key];
     if (img) {
       dailyCard.style.backgroundImage = `url('images/categories/${img}')`;
       dailyCard.classList.add("has-photo");
     }
   }
+
+  console.log(`📅 Today's Top 10: ${todayCategory.title}`);
 </script>
 
 <!-- LOCKED CATEGORY LOGIC -->
@@ -372,8 +380,6 @@
   }
 </script>
 
-
-<!-- PREMIUM MODAL BUTTONS -->
 <!-- PREMIUM MODAL BUTTONS -->
 <script type="module">
   import { supabase } from './js/supabase-client.js';
