@@ -228,9 +228,12 @@ function renderDropdown(countries) {
     const isGuessed = gameState.guessedCountries.has(country.name);
     const classes = isGuessed ? 'country-option disabled' : 'country-option';
     
+    // Find matching country in top10Data to get correct flag filename
+    const flagCode = getCountryFlagCode(country.name);
+    
     return `
-      <div class="${classes}" data-country="${country.name}" data-code="${country.code}">
-        <img src="https://flagcdn.com/w40/${country.code.toLowerCase()}.png" 
+      <div class="${classes}" data-country="${country.name}" data-code="${flagCode}">
+        <img src="flags/${flagCode}.png" 
              alt="${country.name}" 
              class="country-flag"
              onerror="this.src='assets/placeholder-flag.png'" />
@@ -238,6 +241,17 @@ function renderDropdown(countries) {
       </div>
     `;
   }).join('');
+  
+// Helper function to get flag code from country name
+function getCountryFlagCode(countryName) {
+  // Search all categories for matching country
+  for (const category of Object.values(top10Data)) {
+    const country = category.countries.find(c => c.name === countryName);
+    if (country) return country.code;
+  }
+  // Fallback: convert name to lowercase-hyphenated
+  return countryName.toLowerCase().replace(/\s+/g, '-');
+}
   
   searchDropdown.classList.add('active');
   
@@ -305,8 +319,8 @@ function updateRankSlot(rank, countryName, countryCode) {
   
   slot.classList.add('correct');
   slot.innerHTML = `
-    <div class="rank-number">#${rank}</div>
-    <img src="https://flagcdn.com/w40/${countryCode.toLowerCase()}.png" 
+    <div class="rank-number">${rank}</div>
+    <img src="flags/${countryCode}.png" 
          alt="${countryName}" 
          class="rank-flag"
          onerror="this.src='assets/placeholder-flag.png'" />
@@ -451,7 +465,7 @@ function showResults(score, reason) {
     tableHTML += `
       <div class="${rowClass}">
         <div class="table-rank">${country.rank}</div>
-        <img src="https://flagcdn.com/w40/${country.code.toLowerCase()}.png" 
+        <img src="flags/${country.code}.png" 
              alt="${country.name}" 
              class="table-flag"
              onerror="this.src='assets/placeholder-flag.png'" />
