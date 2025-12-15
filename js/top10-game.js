@@ -491,7 +491,7 @@ async function restoreGameState() {
   }
 }
 
-function selectCountryByName(countryName) {
+async function selectCountryByName(countryName) {
   console.log('Selected country:', countryName);
   
   // Find the country in the top 10 data for this category
@@ -527,7 +527,7 @@ function selectCountryByName(countryName) {
   selectCountry(country);
 }
 
-function selectCountry(country) {
+async function selectCountry(country) {
   console.log('Selected country from top 10:', country.name);
   
   // Check if already guessed
