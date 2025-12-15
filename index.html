@@ -231,12 +231,28 @@
     { key: "precipitation", title: "HIGHEST RAINFALL 🌧️", emoji: "🌧️" }
   ];
 
-  // Calculate today's category (same rotation logic as before)
-  const now = new Date();
-  const startOfEpoch = new Date(Date.UTC(2025, 0, 1));
-  const daysSinceEpoch = Math.floor((now - startOfEpoch) / 86400000);
-  const categoryIndex = daysSinceEpoch % top10Categories.length;
-  const todayCategory = top10Categories[categoryIndex];
+  // Calculate today's category using seeded random (stays same all day UTC)
+  function getDailyChallengeCategory() {
+    const now = new Date();
+    const year = now.getUTCFullYear();
+    const month = now.getUTCMonth() + 1;
+    const day = now.getUTCDate();
+    
+    // Create a seed from the date (YYYYMMDD format)
+    const seed = year * 10000 + month * 100 + day;
+    
+    // Simple seeded random function (same seed = same result)
+    const seededRandom = (seed) => {
+      const x = Math.sin(seed) * 10000;
+      return x - Math.floor(x);
+    };
+    
+    // Get random index based on today's seed
+    const randomIndex = Math.floor(seededRandom(seed) * top10Categories.length);
+    return top10Categories[randomIndex];
+  }
+  
+  const todayCategory = getDailyChallengeCategory();
 
   // Update daily challenge card
   const dailyCard = document.getElementById("dailyChallengeCard");
@@ -245,7 +261,7 @@
 
   if (dailyTitle && dailyBtn) {
     dailyTitle.textContent = todayCategory.title;
-    dailyBtn.href = `top10.html?category=${todayCategory.key}`;
+    dailyBtn.href = `top10.html?mode=${todayCategory.key}`;
   }
 
   // Set background image
