@@ -51,6 +51,8 @@
 .mode-btn {
   padding: 10px 24px;
   background: white;
+  border: none;
+  outline: none;
   border-radius: 10px;
   font-weight: 600;
   font-size: 1rem;
@@ -62,6 +64,8 @@
 .mode-btn.active {
   background: linear-gradient(135deg, #ff9770, #ff6f61);
   color: white;
+  border: none;
+  outline: none;
 }
 
 .mode-btn:hover:not(.active) {
@@ -211,11 +215,14 @@
   display: inline-block;
   padding: 0.9rem 1.8rem;
   border-radius: 10px;
+  border: none;
+  outline: none;
   color: white;
   font-size: 1.2rem;
   font-weight: 600;
   text-decoration: none;
   background: linear-gradient(135deg, #ff9770, #ff6f61);
+  cursor: pointer;
 }
 
 /* ------------------------------
@@ -467,11 +474,29 @@
     // Calculate which category was active on this date
     const selectedDate = new Date(date + 'T00:00:00Z');
     const startOfEpoch = new Date(Date.UTC(2025, 0, 1));
-    const daysSinceEpoch = Math.floor((selectedDate - startOfEpoch) / 86400000);
+    // Get daily category using seeded random (same logic as index.html)
+    function getDailyChallengeCategory(date) {
+      const year = date.getUTCFullYear();
+      const month = date.getUTCMonth() + 1;
+      const day = date.getUTCDate();
+      
+      // Create a seed from the date (YYYYMMDD format)
+      const seed = year * 10000 + month * 100 + day;
+      
+      // Simple seeded random function (same seed = same result)
+      const seededRandom = (seed) => {
+        const x = Math.sin(seed) * 10000;
+        return x - Math.floor(x);
+      };
+      
+      const top10Categories = ['population', 'gdp', 'altitude', 'forest', 'coastline', 'olympic', 'landmass', 'passport', 'beer', 'nobelprize', 'worldcup', 'temperature', 'precipitation'];
+      
+      // Get random index based on date's seed
+      const randomIndex = Math.floor(seededRandom(seed) * top10Categories.length);
+      return top10Categories[randomIndex];
+    }
     
-    const top10Categories = ['population', 'gdp', 'altitude', 'forest', 'coastline', 'olympic', 'landmass', 'passport', 'beer', 'nobelprize', 'worldcup', 'temperature', 'precipitation'];
-    const categoryIndex = daysSinceEpoch % top10Categories.length;
-    const categoryKey = top10Categories[categoryIndex];
+    const categoryKey = getDailyChallengeCategory(selectedDate);
     
     // Display category name
     const displayName = displayNameMap[categoryKey] || formatCategoryName(categoryKey);
