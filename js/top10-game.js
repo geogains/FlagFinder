@@ -145,9 +145,24 @@ async function initGame() {
   const titleText = `NAME THE TOP 10 COUNTRIES RANKED BY: ${currentCategory.title.toUpperCase()}`;
   document.getElementById('categoryTitle').textContent = titleText;
   
-  // IMPORTANT: Mark challenge as "started" immediately in database
-  // This prevents users from refreshing to restart the timer
-  await markChallengeAsStarted();
+  // Try to restore saved game state from database
+  const savedState = await restoreGameState();
+  
+  if (savedState) {
+    // Restore the saved state
+    console.log('Restoring saved game state');
+    gameState.guessedCountries = new Set(savedState.guessedCountries);
+    gameState.incorrectGuesses = savedState.incorrectGuesses;
+    gameState.lives = savedState.lives;
+    gameState.timeRemaining = savedState.timeRemaining;
+    
+    // Update lives display
+    updateLives();
+  } else {
+    // Fresh start - mark challenge as started in database
+    console.log('Starting fresh game');
+    await markChallengeAsStarted();
+  }
   
   // Build ranking grid with new layout (rank number outside slot)
   const grid = document.getElementById('rankingsGrid');
@@ -165,8 +180,39 @@ async function initGame() {
     grid.appendChild(row);
   }
   
+  // If restoring state, fill in the correct slots
+  if (savedState && savedState.guessedCountries.length > 0) {
+    console.log('Restoring visual state for guessed countries');
+    savedState.guessedCountries.forEach(countryName => {
+      const country = currentCategory.countries.find(c => c.name === countryName);
+      if (country && country.rank >= 1 && country.rank <= 10) {
+        const slot = document.querySelector(`[data-rank="${country.rank}"]`);
+        if (slot) {
+          slot.classList.add('correct');
+          const formattedValue = formatValue(country.value, currentCategory.unit);
+          slot.innerHTML = `
+            <img src="${country.flag}" alt="${country.name}" class="rank-flag">
+            <span class="rank-data">${formattedValue}</span>
+          `;
+        }
+      }
+    });
+  }
+  
   // Build search dropdown
   buildSearchDropdown();
+  
+  // If restoring state, disable already-guessed countries in dropdown
+  if (savedState && savedState.guessedCountries.length > 0) {
+    console.log('Disabling already-guessed countries in dropdown');
+    const options = document.querySelectorAll('.country-option');
+    options.forEach(option => {
+      const countryName = option.querySelector('.country-name').textContent;
+      if (savedState.guessedCountries.includes(countryName)) {
+        option.classList.add('disabled');
+      }
+    });
+  }
   
   // Start timer
   startTimer();
@@ -174,8 +220,8 @@ async function initGame() {
   // Setup search functionality
   setupSearch();
   
-  // Add warning for page refresh/navigation during active game
-  setupPageLeaveWarning();
+  // Setup auto-save of game state (every time something changes)
+  setupAutoSave();
   
   console.log('Game initialized successfully');
 }
@@ -308,40 +354,25 @@ function setupSearch() {
   console.log('Search setup complete');
 }
 
-// Setup warning when user tries to leave page during active game
-function setupPageLeaveWarning() {
-  let gameActive = true;
+// Setup auto-save of game state to database
+function setupAutoSave() {
+  // Save state every 5 seconds
+  setInterval(async () => {
+    await saveGameState();
+  }, 5000);
   
-  // Disable warning when game ends
-  window.disableLeaveWarning = function() {
-    gameActive = false;
-  };
-  
-  // Browser's beforeunload event
-  window.addEventListener('beforeunload', (e) => {
-    // Only show warning if game is still active (not ended)
-    if (gameActive) {
-      e.preventDefault();
-      // Modern browsers require returnValue to be set
-      e.returnValue = 'Leaving this page will end your daily challenge attempt! Are you sure?';
-      return e.returnValue;
+  // Also save on visibility change (user switches tabs)
+  document.addEventListener('visibilitychange', async () => {
+    if (document.hidden) {
+      await saveGameState();
     }
   });
   
-  // Fallback: If user leaves despite warning, save their current progress
-  window.addEventListener('pagehide', async (e) => {
-    if (gameActive) {
-      console.log('User left page - saving emergency progress');
-      // Save current state as final score (they forfeit the rest)
-      await saveEmergencyProgress();
-    }
-  });
-  
-  console.log('Page leave warning enabled');
+  console.log('Auto-save enabled (saves every 5 seconds)');
 }
 
-// Save emergency progress if user leaves page during active game
-async function saveEmergencyProgress() {
+// Save current game state to database
+async function saveGameState() {
   try {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
@@ -350,34 +381,68 @@ async function saveEmergencyProgress() {
     const utcDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
     const todayString = utcDate.toISOString().split('T')[0];
     
-    const correctGuesses = gameState.guessedCountries.size;
-    
-    // Calculate partial score (no time bonus since they left early)
-    let partialScore = correctGuesses * 100; // Just correct answers
-    partialScore += gameState.lives * 50; // Lives bonus
-    
-    const emergencyData = {
-      score: partialScore,
-      correct_count: correctGuesses,
+    // Prepare game state data
+    const stateData = {
+      score: 0, // Will be calculated at end
+      correct_count: gameState.guessedCountries.size,
       wrong_count: gameState.incorrectGuesses.length,
       time_remaining: gameState.timeRemaining,
-      completed: false // Mark as incomplete since they left
+      completed: false,
+      // Store game state as JSON in a text field (if your DB supports it)
+      // Otherwise we'll restore from the counts
+      game_state_json: JSON.stringify({
+        guessedCountries: Array.from(gameState.guessedCountries),
+        incorrectGuesses: gameState.incorrectGuesses,
+        lives: gameState.lives,
+        timeRemaining: gameState.timeRemaining
+      })
     };
     
-    // Use sendBeacon for reliable last-second save
-    const url = `https://api.geo-ranks.com/rest/v1/top10_scores?user_id=eq.${session.user.id}&category_id=eq.${categoryId}&played_date=eq.${todayString}`;
-    
-    // Fallback to regular update if sendBeacon not available
     await supabase
       .from('top10_scores')
-      .update(emergencyData)
+      .update(stateData)
       .eq('user_id', session.user.id)
       .eq('category_id', categoryId)
       .eq('played_date', todayString);
     
-    console.log('Emergency progress saved:', emergencyData);
+    console.log('Game state auto-saved');
   } catch (err) {
-    console.error('Failed to save emergency progress:', err);
+    console.error('Failed to auto-save game state:', err);
+  }
+}
+
+// Restore game state from database (called during init)
+async function restoreGameState() {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return null;
+    
+    const today = new Date();
+    const utcDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+    const todayString = utcDate.toISOString().split('T')[0];
+    
+    const { data, error } = await supabase
+      .from('top10_scores')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .eq('category_id', categoryId)
+      .eq('played_date', todayString)
+      .maybeSingle();
+    
+    if (error) {
+      console.error('Error restoring game state:', error);
+      return null;
+    }
+    
+    if (data && data.game_state_json) {
+      console.log('Restoring saved game state:', data);
+      return JSON.parse(data.game_state_json);
+    }
+    
+    return null;
+  } catch (err) {
+    console.error('Exception restoring game state:', err);
+    return null;
   }
 }
 
@@ -548,11 +613,6 @@ async function endGame(won) {
   // Clear timer
   if (gameState.timerInterval) {
     clearInterval(gameState.timerInterval);
-  }
-  
-  // Disable the page leave warning since game is over
-  if (window.disableLeaveWarning) {
-    window.disableLeaveWarning();
   }
   
   // Calculate final stats
