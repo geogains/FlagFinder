@@ -519,7 +519,7 @@
       .from("top10_scores")
       .select("score, user_id")
       .eq("category_id", categoryId)
-      .eq("challenge_date", date)
+      .eq("played_date", date)
       .order("score", { ascending: false })
       .limit(20);
 
@@ -644,7 +644,7 @@
       .from("top10_scores")
       .select("score, user_id, users(username, avatar_url, is_premium)")
       .eq("category_id", categoryId)
-      .eq("challenge_date", date)
+      .eq("played_date", date)
       .order("score", { ascending: false })
       .limit(20);
 
