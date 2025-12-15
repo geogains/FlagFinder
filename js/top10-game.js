@@ -71,9 +71,15 @@ async function initGame() {
   const hasPlayedToday = await checkDailyPlayStatus();
   
   if (hasPlayedToday) {
-    // Redirect to leaderboard with message
-    alert('You have already completed today\'s challenge! Check the leaderboard to see your score.');
-    window.location.href = 'leaderboard.html';
+    // Show beautiful custom modal instead of alert
+    const modal = document.getElementById('alreadyPlayedModal');
+    const categoryDisplay = document.getElementById('alreadyPlayedCategory');
+    if (categoryDisplay) {
+      categoryDisplay.textContent = currentCategory.title;
+    }
+    if (modal) {
+      modal.style.display = 'flex';
+    }
     return;
   }
   
