@@ -215,7 +215,7 @@ function selectCountry(country) {
       <span class="rank-data">${formattedValue}</span>
     `;
     
-    gameState.score += 10;
+    // Score is calculated at the end of the game
     
     // Check for win
     if (gameState.guessedCountries.size === 10) {
@@ -307,6 +307,29 @@ function endGame(won) {
   // Calculate final stats
   const timeElapsed = 120 - gameState.timeRemaining;
   const correctGuesses = gameState.guessedCountries.size;
+  
+  // Calculate final score with balanced formula
+  // - Base: 100 points per correct answer (heavily reward accuracy)
+  // - Time bonus: 2 points per second remaining (max 240 points, rewards speed fairly)
+  // - Lives bonus: 50 points per life remaining (reward efficiency)
+  
+  let finalScore = 0;
+  
+  // Correct answers: 100 points each (main scoring component)
+  finalScore += correctGuesses * 100;
+  
+  // Time bonus: 2 points per second remaining (encourages speed)
+  // Only awarded if you got at least 5 correct to prevent gaming
+  if (correctGuesses >= 5) {
+    const timeBonus = gameState.timeRemaining * 2;
+    finalScore += timeBonus;
+  }
+  
+  // Lives bonus: 50 points per life remaining (rewards accuracy without guessing)
+  finalScore += gameState.lives * 50;
+  
+  // Update the final score
+  gameState.score = finalScore;
   
   // Show results overlay
   showResults(won, correctGuesses, timeElapsed);
@@ -412,4 +435,3 @@ Can you beat my score? Play at geo-ranks.com`;
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', initGame);
 console.log('Event listener added for DOMContentLoaded');
-
