@@ -514,8 +514,8 @@ async function selectCountryByName(countryName) {
       setTimeout(() => searchInput.focus(), 100);
     }
     
-    // Save state immediately after incorrect guess
-    await saveGameState();
+    // Save state immediately after incorrect guess (fire and forget)
+    saveGameState().catch(err => console.error('Failed to save state:', err));
     
     if (gameState.lives === 0) {
       setTimeout(() => endGame(false), 500);
@@ -524,7 +524,7 @@ async function selectCountryByName(countryName) {
   }
   
   // Country is in top 10 - pass to selectCountry
-  selectCountry(country);
+  await selectCountry(country);
 }
 
 async function selectCountry(country) {
@@ -557,8 +557,8 @@ async function selectCountry(country) {
     setTimeout(() => searchInput.focus(), 100);
   }
   
-  // Save state immediately after selection
-  await saveGameState();
+  // Save state immediately after selection (fire and forget)
+  saveGameState().catch(err => console.error('Failed to save state:', err));
   
   // Check if correct
   const isCorrect = country.rank >= 1 && country.rank <= 10;
