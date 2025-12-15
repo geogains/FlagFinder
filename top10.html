@@ -184,8 +184,8 @@
       flex: 1;
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 20px;
+      justify-content: space-evenly;
+      gap: 0px;
       padding: 16px 24px;
       background: rgba(13, 49, 90, 0.04);
       border: 2px solid rgba(13, 49, 90, 0.12);
@@ -199,9 +199,10 @@
       border-color: #059669;
       color: white;
       animation: slideIn 0.4s ease;
+      justify-content: space-evenly;
     }
 
-    /* Improved flag styling - much larger with proper aspect ratio */
+    /* Improved flag styling - NO border, NO container, pure flag image */
     .rank-flag {
       width: 90px !important;
       height: auto !important;
@@ -212,26 +213,39 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35) !important;
       flex-shrink: 0 !important;
       display: block !important;
-      background: transparent !important;
-      border: none !important;
+      background: none !important;
+      background-color: transparent !important;
+      border: 0 !important;
+      outline: 0 !important;
       padding: 0 !important;
       margin: 0 !important;
+      box-sizing: content-box !important;
+      vertical-align: middle !important;
+    }
+
+    /* Remove any wrapper or container effects */
+    .rank-slot.correct > img.rank-flag {
+      border: 0 !important;
+      outline: 0 !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35) !important;
     }
 
     /* Remove any box/container around flag */
     .rank-flag::before,
     .rank-flag::after {
       display: none !important;
+      content: none !important;
     }
 
-    /* Data value display - larger and more prominent */
+    /* Data value display - perfectly centered */
     .rank-data {
       font-weight: 700;
       font-size: 1.4rem;
-      flex: 1;
       color: white;
       letter-spacing: 0.5px;
       text-align: center;
+      flex-shrink: 0;
+      min-width: 90px;
     }
 
     .rank-empty {
