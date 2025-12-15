@@ -41,10 +41,10 @@ async function checkDailyPlayStatus() {
   const utcDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
   const todayString = utcDate.toISOString().split('T')[0]; // YYYY-MM-DD
   
-  // Check if user has a score for this category today
+  // Check if user has a score for this category today (started OR completed)
   const { data, error } = await supabase
     .from('top10_scores')
-    .select('id, score')
+    .select('id, score, completed')
     .eq('user_id', session.user.id)
     .eq('category_id', categoryId)
     .eq('played_date', todayString)
@@ -56,11 +56,53 @@ async function checkDailyPlayStatus() {
   }
   
   if (data) {
-    console.log('User already played today:', data);
-    return true; // Already played
+    console.log('User already started/completed today:', data);
+    return true; // Already started or completed
   }
   
   return false; // Haven't played yet
+}
+
+// Mark challenge as started (creates initial record in database)
+// This prevents users from refreshing to reset the timer
+async function markChallengeAsStarted() {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      console.log('Not logged in - not marking as started');
+      return;
+    }
+    
+    // Get today's date in UTC
+    const today = new Date();
+    const utcDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+    const todayString = utcDate.toISOString().split('T')[0]; // YYYY-MM-DD
+    
+    // Create initial record with 0 score (will be updated when game ends)
+    const { data, error } = await supabase
+      .from('top10_scores')
+      .insert({
+        user_id: session.user.id,
+        category_id: categoryId,
+        score: 0,
+        correct_count: 0,
+        wrong_count: 0,
+        time_remaining: 120,
+        played_date: todayString,
+        completed: false
+      })
+      .select()
+      .single();
+    
+    if (error) {
+      console.error('Error marking challenge as started:', error);
+    } else {
+      console.log('✅ Challenge marked as started:', data);
+    }
+  } catch (err) {
+    console.error('Exception marking challenge as started:', err);
+  }
 }
 
 // Initialize game
@@ -102,6 +144,10 @@ async function initGame() {
   // Set title
   const titleText = `NAME THE TOP 10 COUNTRIES RANKED BY: ${currentCategory.title.toUpperCase()}`;
   document.getElementById('categoryTitle').textContent = titleText;
+  
+  // IMPORTANT: Mark challenge as "started" immediately in database
+  // This prevents users from refreshing to restart the timer
+  await markChallengeAsStarted();
   
   // Build ranking grid with new layout (rank number outside slot)
   const grid = document.getElementById('rankingsGrid');
@@ -499,12 +545,13 @@ async function saveDailyScore(score, correctGuesses, timeElapsed) {
     
     console.log('Score data to save:', scoreData);
     
-    // Save to top10_scores table
+    // Update the existing record (created when challenge started)
     const { data, error } = await supabase
       .from('top10_scores')
-      .upsert(scoreData, {
-        onConflict: 'user_id,category_id,played_date'
-      })
+      .update(scoreData)
+      .eq('user_id', session.user.id)
+      .eq('category_id', categoryId)
+      .eq('played_date', todayString)
       .select()
       .single();
     
