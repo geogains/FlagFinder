@@ -67,7 +67,23 @@ async function checkDailyPlayStatus() {
 async function initGame() {
   console.log('Initializing game...');
   
-  // Check if already played today
+  // First check if user is logged in
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (!session) {
+    // Show sign-in modal for non-authenticated users
+    const modal = document.getElementById('signInRequiredModal');
+    const categoryDisplay = document.getElementById('signInCategoryName');
+    if (categoryDisplay) {
+      categoryDisplay.textContent = currentCategory.title;
+    }
+    if (modal) {
+      modal.style.display = 'flex';
+    }
+    return;
+  }
+  
+  // Check if already played today (only for logged-in users)
   const hasPlayedToday = await checkDailyPlayStatus();
   
   if (hasPlayedToday) {
