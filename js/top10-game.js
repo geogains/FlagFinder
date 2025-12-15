@@ -160,33 +160,74 @@ function setupSearch() {
     return;
   }
   
+  let selectedIndex = -1; // Track highlighted option
+  
   searchInput.addEventListener('input', (e) => {
     const searchTerm = e.target.value.toLowerCase().trim();
     console.log('Search term:', searchTerm);
     
     if (searchTerm === '') {
       dropdown.classList.remove('active');
+      selectedIndex = -1;
       return;
     }
     
     const options = dropdown.querySelectorAll('.country-option');
     let hasVisibleOptions = false;
     
-    options.forEach(option => {
+    options.forEach((option, index) => {
       const countryName = option.querySelector('.country-name').textContent.toLowerCase();
       const matches = countryName.includes(searchTerm);
       option.style.display = matches ? 'flex' : 'none';
+      option.classList.remove('highlighted'); // Remove previous highlights
       if (matches) hasVisibleOptions = true;
     });
     
     console.log('Has visible options:', hasVisibleOptions);
     dropdown.classList.toggle('active', hasVisibleOptions);
+    selectedIndex = -1; // Reset selection when typing
   });
+  
+  // Keyboard navigation (desktop)
+  searchInput.addEventListener('keydown', (e) => {
+    const visibleOptions = Array.from(dropdown.querySelectorAll('.country-option'))
+      .filter(opt => opt.style.display !== 'none' && !opt.classList.contains('disabled'));
+    
+    if (visibleOptions.length === 0) return;
+    
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      selectedIndex = Math.min(selectedIndex + 1, visibleOptions.length - 1);
+      updateHighlight(visibleOptions);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      selectedIndex = Math.max(selectedIndex - 1, -1);
+      updateHighlight(visibleOptions);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (selectedIndex >= 0 && visibleOptions[selectedIndex]) {
+        const countryName = visibleOptions[selectedIndex].querySelector('.country-name').textContent;
+        selectCountryByName(countryName);
+      }
+    }
+  });
+  
+  function updateHighlight(visibleOptions) {
+    // Remove all highlights
+    visibleOptions.forEach(opt => opt.classList.remove('highlighted'));
+    
+    // Add highlight to selected
+    if (selectedIndex >= 0 && visibleOptions[selectedIndex]) {
+      visibleOptions[selectedIndex].classList.add('highlighted');
+      visibleOptions[selectedIndex].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+  }
   
   // Close dropdown when clicking outside
   document.addEventListener('click', (e) => {
     if (!e.target.closest('.search-container')) {
       dropdown.classList.remove('active');
+      selectedIndex = -1;
     }
   });
   
@@ -208,9 +249,15 @@ function selectCountryByName(countryName) {
     gameState.incorrectGuesses.push(countryName);
     updateLives();
     
-    // Clear search
-    document.getElementById('searchInput').value = '';
+    // Clear search and close dropdown
+    const searchInput = document.getElementById('searchInput');
+    searchInput.value = '';
     document.getElementById('searchDropdown').classList.remove('active');
+    
+    // Auto-focus for desktop (check if device has keyboard)
+    if (window.innerWidth >= 768) {
+      setTimeout(() => searchInput.focus(), 100);
+    }
     
     if (gameState.lives === 0) {
       setTimeout(() => endGame(false), 500);
@@ -242,9 +289,15 @@ function selectCountry(country) {
     }
   });
   
-  // Clear search
-  document.getElementById('searchInput').value = '';
+  // Clear search and close dropdown
+  const searchInput = document.getElementById('searchInput');
+  searchInput.value = '';
   document.getElementById('searchDropdown').classList.remove('active');
+  
+  // Auto-focus for desktop (check if device has keyboard)
+  if (window.innerWidth >= 768) {
+    setTimeout(() => searchInput.focus(), 100);
+  }
   
   // Check if correct
   const isCorrect = country.rank >= 1 && country.rank <= 10;
