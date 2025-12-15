@@ -184,9 +184,9 @@
       flex: 1;
       display: flex;
       align-items: center;
-      justify-content: space-evenly;
-      gap: 0px;
-      padding: 16px 24px;
+      justify-content: center;
+      gap: 32px;
+      padding: 16px 32px;
       background: rgba(13, 49, 90, 0.04);
       border: 2px solid rgba(13, 49, 90, 0.12);
       border-radius: 12px;
@@ -199,10 +199,9 @@
       border-color: #059669;
       color: white;
       animation: slideIn 0.4s ease;
-      justify-content: space-evenly;
     }
 
-    /* Improved flag styling - NO border, NO container, pure flag image */
+    /* Improved flag styling - completely clean, no containers */
     .rank-flag {
       width: 90px !important;
       height: auto !important;
@@ -210,7 +209,7 @@
       min-width: 90px !important;
       object-fit: contain !important;
       border-radius: 8px !important;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35) !important;
+      box-shadow: none !important;
       flex-shrink: 0 !important;
       display: block !important;
       background: none !important;
@@ -221,13 +220,14 @@
       margin: 0 !important;
       box-sizing: content-box !important;
       vertical-align: middle !important;
+      filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.25)) !important;
     }
 
     /* Remove any wrapper or container effects */
     .rank-slot.correct > img.rank-flag {
       border: 0 !important;
       outline: 0 !important;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35) !important;
+      box-shadow: none !important;
     }
 
     /* Remove any box/container around flag */
