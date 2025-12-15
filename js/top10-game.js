@@ -1,6 +1,7 @@
 // js/top10-game.js
 import { top10Data, CATEGORY_ID_MAP } from './top10-data.js';
 import { allCountries } from './countries-list.js';
+import { supabase } from './supabase-client.js';
 
 console.log('Top10 game script loaded');
 console.log('Available categories:', Object.keys(top10Data));
@@ -10,6 +11,7 @@ console.log('Total countries available for search:', allCountries.length);
 const params = new URLSearchParams(window.location.search);
 const categoryKey = params.get('mode') || 'population';
 const currentCategory = top10Data[categoryKey] || top10Data.population;
+const categoryId = CATEGORY_ID_MAP[categoryKey];
 
 console.log('Current category:', categoryKey, currentCategory);
 
@@ -24,9 +26,55 @@ let gameState = {
   startTime: Date.now()
 };
 
+// Check if user already played today's challenge
+async function checkDailyPlayStatus() {
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (!session) {
+    console.log('No session - allowing play');
+    return false; // Not logged in, allow play
+  }
+  
+  // Get today's date in UTC
+  const today = new Date();
+  const utcDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+  const todayString = utcDate.toISOString().split('T')[0]; // YYYY-MM-DD
+  
+  // Check if user has a score for this category today
+  const { data, error } = await supabase
+    .from('top10_scores')
+    .select('id, score')
+    .eq('user_id', session.user.id)
+    .eq('category_id', categoryId)
+    .eq('played_date', todayString)
+    .single();
+  
+  if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
+    console.error('Error checking daily play status:', error);
+    return false; // On error, allow play
+  }
+  
+  if (data) {
+    console.log('User already played today:', data);
+    return true; // Already played
+  }
+  
+  return false; // Haven't played yet
+}
+
 // Initialize game
-function initGame() {
+async function initGame() {
   console.log('Initializing game...');
+  
+  // Check if already played today
+  const hasPlayedToday = await checkDailyPlayStatus();
+  
+  if (hasPlayedToday) {
+    // Redirect to leaderboard with message
+    alert('You have already completed today\'s challenge! Check the leaderboard to see your score.');
+    window.location.href = 'leaderboard.html';
+    return;
+  }
   
   // Set title
   const titleText = `NAME THE TOP 10 COUNTRIES RANKED BY: ${currentCategory.title.toUpperCase()}`;
@@ -298,7 +346,7 @@ function startTimer() {
   gameState.timerInterval = interval;
 }
 
-function endGame(won) {
+async function endGame(won) {
   // Clear timer
   if (gameState.timerInterval) {
     clearInterval(gameState.timerInterval);
@@ -331,8 +379,53 @@ function endGame(won) {
   // Update the final score
   gameState.score = finalScore;
   
+  // Save score to database (only if logged in)
+  await saveDailyScore(finalScore, correctGuesses, timeElapsed);
+  
   // Show results overlay
   showResults(won, correctGuesses, timeElapsed);
+}
+
+// Save daily challenge score to database
+async function saveDailyScore(score, correctGuesses, timeElapsed) {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      console.log('Not logged in - score not saved');
+      return;
+    }
+    
+    // Get today's date in UTC
+    const today = new Date();
+    const utcDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+    const todayString = utcDate.toISOString().split('T')[0]; // YYYY-MM-DD
+    
+    // Save to top10_scores table
+    const { data, error } = await supabase
+      .from('top10_scores')
+      .upsert({
+        user_id: session.user.id,
+        category_id: categoryId,
+        score: score,
+        correct_answers: correctGuesses,
+        time_taken: timeElapsed,
+        played_date: todayString,
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id,category_id,played_date'
+      })
+      .select()
+      .single();
+    
+    if (error) {
+      console.error('Error saving score:', error);
+    } else {
+      console.log('Score saved successfully:', data);
+    }
+  } catch (err) {
+    console.error('Exception saving score:', err);
+  }
 }
 
 function showResults(won, correctGuesses, timeElapsed) {
