@@ -14,6 +14,7 @@ const currentCategory = top10Data[categoryKey] || top10Data.population;
 const categoryId = CATEGORY_ID_MAP[categoryKey];
 
 console.log('Current category:', categoryKey, currentCategory);
+console.log('Category ID for database:', categoryId);
 
 // Game state
 let gameState = {
@@ -442,6 +443,8 @@ async function endGame(won) {
 // Save daily challenge score to database
 async function saveDailyScore(score, correctGuesses, timeElapsed) {
   try {
+    console.log('Attempting to save score...', { score, correctGuesses, timeElapsed });
+    
     const { data: { session } } = await supabase.auth.getSession();
     
     if (!session) {
@@ -449,35 +452,51 @@ async function saveDailyScore(score, correctGuesses, timeElapsed) {
       return;
     }
     
+    console.log('User ID:', session.user.id);
+    console.log('Category ID:', categoryId);
+    console.log('Category Key:', categoryKey);
+    
     // Get today's date in UTC
     const today = new Date();
     const utcDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
     const todayString = utcDate.toISOString().split('T')[0]; // YYYY-MM-DD
     
+    console.log('Playing date (UTC):', todayString);
+    
+    // Prepare the data object (using actual database column names)
+    const scoreData = {
+      user_id: session.user.id,
+      category_id: categoryId,
+      score: score,
+      correct_count: correctGuesses, // Database uses 'correct_count' not 'correct_answers'
+      wrong_count: gameState.incorrectGuesses.length, // Track incorrect guesses
+      time_remaining: gameState.timeRemaining, // Database uses 'time_remaining' not 'time_taken'
+      played_date: todayString,
+      completed: correctGuesses === 10 // Mark as completed if all 10 correct
+    };
+    
+    console.log('Score data to save:', scoreData);
+    
     // Save to top10_scores table
     const { data, error } = await supabase
       .from('top10_scores')
-      .upsert({
-        user_id: session.user.id,
-        category_id: categoryId,
-        score: score,
-        correct_answers: correctGuesses,
-        time_taken: timeElapsed,
-        played_date: todayString,
-        updated_at: new Date().toISOString()
-      }, {
+      .upsert(scoreData, {
         onConflict: 'user_id,category_id,played_date'
       })
       .select()
       .single();
     
     if (error) {
-      console.error('Error saving score:', error);
+      console.error('❌ Error saving score:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
+      // Show user-friendly error
+      alert('Failed to save your score. Please check your internet connection.');
     } else {
-      console.log('Score saved successfully:', data);
+      console.log('✅ Score saved successfully:', data);
     }
   } catch (err) {
-    console.error('Exception saving score:', err);
+    console.error('❌ Exception saving score:', err);
+    console.error('Exception details:', err.message, err.stack);
   }
 }
 
