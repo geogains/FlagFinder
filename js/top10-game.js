@@ -100,6 +100,13 @@ async function markChallengeAsStarted() {
     }
     
     // Create initial record with 0 score (will be updated when game ends)
+    const initialState = {
+      guessedCountries: [],
+      incorrectGuesses: [],
+      lives: 3,
+      timeRemaining: 120
+    };
+    
     const { data, error } = await supabase
       .from('top10_scores')
       .insert({
@@ -110,7 +117,8 @@ async function markChallengeAsStarted() {
         wrong_count: 0,
         time_remaining: 120,
         played_date: todayString,
-        completed: false
+        completed: false,
+        game_state_json: JSON.stringify(initialState)
       })
       .select()
       .single();
@@ -454,9 +462,26 @@ async function restoreGameState() {
       return null;
     }
     
-    if (data && data.game_state_json) {
-      console.log('Restoring saved game state:', data);
-      return JSON.parse(data.game_state_json);
+    if (data) {
+      // Try to restore from JSON first
+      if (data.game_state_json) {
+        console.log('Restoring saved game state from JSON:', data);
+        return JSON.parse(data.game_state_json);
+      } else {
+        // Fallback: reconstruct from database columns
+        // This happens if user refreshed before first auto-save
+        console.log('No JSON found, reconstructing from DB columns:', data);
+        
+        // Calculate lives from wrong_count (started with 3, lose 1 per wrong)
+        const lives = Math.max(0, 3 - data.wrong_count);
+        
+        return {
+          guessedCountries: [], // Can't restore this without JSON, but at least restore time/lives
+          incorrectGuesses: [],
+          lives: lives,
+          timeRemaining: data.time_remaining || 120
+        };
+      }
     }
     
     return null;
@@ -488,6 +513,9 @@ function selectCountryByName(countryName) {
     if (window.innerWidth >= 768) {
       setTimeout(() => searchInput.focus(), 100);
     }
+    
+    // Save state immediately after incorrect guess
+    await saveGameState();
     
     if (gameState.lives === 0) {
       setTimeout(() => endGame(false), 500);
@@ -528,6 +556,9 @@ function selectCountry(country) {
   if (window.innerWidth >= 768) {
     setTimeout(() => searchInput.focus(), 100);
   }
+  
+  // Save state immediately after selection
+  await saveGameState();
   
   // Check if correct
   const isCorrect = country.rank >= 1 && country.rank <= 10;
