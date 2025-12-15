@@ -174,6 +174,9 @@ async function initGame() {
   // Setup search functionality
   setupSearch();
   
+  // Add warning for page refresh/navigation during active game
+  setupPageLeaveWarning();
+  
   console.log('Game initialized successfully');
 }
 
@@ -303,6 +306,79 @@ function setupSearch() {
   // Focus on search input on load
   searchInput.focus();
   console.log('Search setup complete');
+}
+
+// Setup warning when user tries to leave page during active game
+function setupPageLeaveWarning() {
+  let gameActive = true;
+  
+  // Disable warning when game ends
+  window.disableLeaveWarning = function() {
+    gameActive = false;
+  };
+  
+  // Browser's beforeunload event
+  window.addEventListener('beforeunload', (e) => {
+    // Only show warning if game is still active (not ended)
+    if (gameActive) {
+      e.preventDefault();
+      // Modern browsers require returnValue to be set
+      e.returnValue = 'Leaving this page will end your daily challenge attempt! Are you sure?';
+      return e.returnValue;
+    }
+  });
+  
+  // Fallback: If user leaves despite warning, save their current progress
+  window.addEventListener('pagehide', async (e) => {
+    if (gameActive) {
+      console.log('User left page - saving emergency progress');
+      // Save current state as final score (they forfeit the rest)
+      await saveEmergencyProgress();
+    }
+  });
+  
+  console.log('Page leave warning enabled');
+}
+
+// Save emergency progress if user leaves page during active game
+async function saveEmergencyProgress() {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    
+    const today = new Date();
+    const utcDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+    const todayString = utcDate.toISOString().split('T')[0];
+    
+    const correctGuesses = gameState.guessedCountries.size;
+    
+    // Calculate partial score (no time bonus since they left early)
+    let partialScore = correctGuesses * 100; // Just correct answers
+    partialScore += gameState.lives * 50; // Lives bonus
+    
+    const emergencyData = {
+      score: partialScore,
+      correct_count: correctGuesses,
+      wrong_count: gameState.incorrectGuesses.length,
+      time_remaining: gameState.timeRemaining,
+      completed: false // Mark as incomplete since they left
+    };
+    
+    // Use sendBeacon for reliable last-second save
+    const url = `https://api.geo-ranks.com/rest/v1/top10_scores?user_id=eq.${session.user.id}&category_id=eq.${categoryId}&played_date=eq.${todayString}`;
+    
+    // Fallback to regular update if sendBeacon not available
+    await supabase
+      .from('top10_scores')
+      .update(emergencyData)
+      .eq('user_id', session.user.id)
+      .eq('category_id', categoryId)
+      .eq('played_date', todayString);
+    
+    console.log('Emergency progress saved:', emergencyData);
+  } catch (err) {
+    console.error('Failed to save emergency progress:', err);
+  }
 }
 
 function selectCountryByName(countryName) {
@@ -472,6 +548,11 @@ async function endGame(won) {
   // Clear timer
   if (gameState.timerInterval) {
     clearInterval(gameState.timerInterval);
+  }
+  
+  // Disable the page leave warning since game is over
+  if (window.disableLeaveWarning) {
+    window.disableLeaveWarning();
   }
   
   // Calculate final stats
