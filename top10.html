@@ -164,19 +164,22 @@
       gap: 12px;
     }
 
-    /* Match game.html rank number styling */
+    /* Match game.html rank number styling - but rectangular like a flag */
     .rank-number {
       font-weight: 700;
       font-size: 1.1rem;
-      min-width: 50px;
-      width: 50px;
+      min-width: 60px;
+      width: 60px;
+      height: 45px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       color: white;
       font-family: 'Rubik', sans-serif;
       background: linear-gradient(135deg, #ff9770, #ff6f61);
-      padding: 12px 0;
-      border-radius: 10px;
-      text-align: center;
-      box-shadow: 0 4px 10px rgba(255, 111, 97, 0.3);
+      padding: 0;
+      border-radius: 8px;
+      box-shadow: 0 3px 8px rgba(255, 111, 97, 0.3);
       flex-shrink: 0;
     }
 
@@ -185,13 +188,14 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 32px;
-      padding: 16px 32px;
+      gap: 18px;
+      padding: 0 24px;
       background: rgba(13, 49, 90, 0.04);
       border: 2px solid rgba(13, 49, 90, 0.12);
       border-radius: 12px;
       transition: all 0.3s;
-      min-height: 75px;
+      height: 45px;
+      min-height: 45px;
     }
 
     .rank-slot.correct {
@@ -203,12 +207,12 @@
 
     /* Improved flag styling - completely clean, no containers */
     .rank-flag {
-      width: 90px !important;
+      width: 70px !important;
       height: auto !important;
-      max-height: 60px !important;
-      min-width: 90px !important;
+      max-height: 40px !important;
+      min-width: 70px !important;
       object-fit: contain !important;
-      border-radius: 8px !important;
+      border-radius: 6px !important;
       box-shadow: none !important;
       flex-shrink: 0 !important;
       display: block !important;
@@ -220,7 +224,7 @@
       margin: 0 !important;
       box-sizing: content-box !important;
       vertical-align: middle !important;
-      filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.25)) !important;
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.25)) !important;
     }
 
     /* Remove any wrapper or container effects */
@@ -240,12 +244,12 @@
     /* Data value display - perfectly centered */
     .rank-data {
       font-weight: 700;
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       color: white;
       letter-spacing: 0.5px;
       text-align: center;
       flex-shrink: 0;
-      min-width: 90px;
+      min-width: 70px;
     }
 
     .rank-empty {
@@ -487,25 +491,28 @@
       }
 
       .rank-number {
-        min-width: 45px;
-        width: 45px;
+        min-width: 50px;
+        width: 50px;
+        height: 40px;
         font-size: 1rem;
-        padding: 10px 0;
       }
 
       .rank-slot {
-        padding: 12px 18px;
-        min-height: 65px;
-        gap: 16px;
+        padding: 0 18px;
+        height: 40px;
+        min-height: 40px;
+        gap: 14px;
       }
 
       .rank-flag {
-        width: 75px !important;
-        max-height: 50px !important;
+        width: 60px !important;
+        max-height: 35px !important;
+        min-width: 60px !important;
       }
 
       .rank-data {
-        font-size: 1.15rem;
+        font-size: 1.1rem;
+        min-width: 60px;
       }
 
       .results-card {
