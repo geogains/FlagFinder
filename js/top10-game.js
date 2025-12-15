@@ -48,9 +48,9 @@ async function checkDailyPlayStatus() {
     .eq('user_id', session.user.id)
     .eq('category_id', categoryId)
     .eq('played_date', todayString)
-    .single();
+    .maybeSingle(); // Use maybeSingle() instead of single() to avoid 406 error
   
-  if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
+  if (error) {
     console.error('Error checking daily play status:', error);
     return false; // On error, allow play
   }
