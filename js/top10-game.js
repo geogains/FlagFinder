@@ -179,10 +179,17 @@ async function initGame() {
   if (savedState) {
     // Restore the saved state
     console.log('Restoring saved game state');
+    console.log('Saved state data:', savedState);
     gameState.guessedCountries = new Set(savedState.guessedCountries);
     gameState.incorrectGuesses = savedState.incorrectGuesses;
     gameState.lives = savedState.lives;
     gameState.timeRemaining = savedState.timeRemaining;
+    
+    console.log('Game state after restoration:');
+    console.log('- Lives:', gameState.lives);
+    console.log('- Time remaining:', gameState.timeRemaining);
+    console.log('- Guessed countries:', Array.from(gameState.guessedCountries));
+    console.log('- Incorrect guesses:', gameState.incorrectGuesses);
     
     // Update lives display
     updateLives();
@@ -642,6 +649,13 @@ function updateLives() {
 
 function startTimer() {
   const timerDisplay = document.getElementById('timerDisplay');
+  
+  // Display the current time immediately (important for restored states)
+  const initialMinutes = Math.floor(gameState.timeRemaining / 60);
+  const initialSeconds = gameState.timeRemaining % 60;
+  timerDisplay.textContent = `${initialMinutes}:${initialSeconds.toString().padStart(2, '0')}`;
+  
+  console.log('Timer started with time remaining:', gameState.timeRemaining);
   
   const interval = setInterval(() => {
     gameState.timeRemaining--;
