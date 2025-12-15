@@ -85,6 +85,20 @@ async function markChallengeAsStarted() {
     const utcDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
     const todayString = utcDate.toISOString().split('T')[0]; // YYYY-MM-DD
     
+    // Check if record already exists (from a previous incomplete attempt)
+    const { data: existing } = await supabase
+      .from('top10_scores')
+      .select('id')
+      .eq('user_id', session.user.id)
+      .eq('category_id', categoryId)
+      .eq('played_date', todayString)
+      .maybeSingle();
+    
+    if (existing) {
+      console.log('Challenge record already exists (resuming) - skipping insert');
+      return; // Record already exists, don't create duplicate
+    }
+    
     // Create initial record with 0 score (will be updated when game ends)
     const { data, error } = await supabase
       .from('top10_scores')
