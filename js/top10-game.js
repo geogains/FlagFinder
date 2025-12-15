@@ -41,7 +41,7 @@ async function checkDailyPlayStatus() {
   const utcDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
   const todayString = utcDate.toISOString().split('T')[0]; // YYYY-MM-DD
   
-  // Check if user has a score for this category today (started OR completed)
+  // Check if user has a COMPLETED score for this category today
   const { data, error } = await supabase
     .from('top10_scores')
     .select('id, score, completed')
@@ -56,8 +56,14 @@ async function checkDailyPlayStatus() {
   }
   
   if (data) {
-    console.log('User already started/completed today:', data);
-    return true; // Already started or completed
+    // Check if the game was actually COMPLETED
+    if (data.completed === true) {
+      console.log('User already completed today:', data);
+      return true; // Already completed - block replay
+    } else {
+      console.log('User started but did not complete - allowing resume:', data);
+      return false; // Started but not completed - allow resume
+    }
   }
   
   return false; // Haven't played yet
@@ -681,7 +687,7 @@ async function saveDailyScore(score, correctGuesses, timeElapsed) {
       wrong_count: gameState.incorrectGuesses.length, // Track incorrect guesses
       time_remaining: gameState.timeRemaining, // Database uses 'time_remaining' not 'time_taken'
       played_date: todayString,
-      completed: correctGuesses === 10 // Mark as completed if all 10 correct
+      completed: true // Mark as completed when game ends
     };
     
     console.log('Score data to save:', scoreData);
