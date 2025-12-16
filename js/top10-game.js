@@ -493,8 +493,8 @@ function setupSearch() {
 
 // Setup auto-save of game state to database
 function setupAutoSave() {
-  // Save state every 5 seconds
-  setInterval(async () => {
+  // Save state every 5 seconds and store interval ID
+  window.autoSaveInterval = setInterval(async () => {
     await saveGameState();
   }, 5000);
   
@@ -524,9 +524,8 @@ async function saveGameState() {
     const utcDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
     const todayString = utcDate.toISOString().split('T')[0];
     
-    // Prepare game state data
+    // Prepare game state data (score is NOT saved here - only at game end)
     const stateData = {
-      score: 0, // Will be calculated at end
       correct_count: gameState.guessedCountries.size,
       wrong_count: gameState.incorrectGuesses.length,
       time_remaining: gameState.timeRemaining,
@@ -862,6 +861,12 @@ async function endGame(won) {
   // Clear timer
   if (gameState.timerInterval) {
     clearInterval(gameState.timerInterval);
+  }
+  
+  // Stop auto-save interval so it doesn't overwrite the final score
+  if (window.autoSaveInterval) {
+    clearInterval(window.autoSaveInterval);
+    console.log('Auto-save stopped');
   }
   
   // Calculate final stats
