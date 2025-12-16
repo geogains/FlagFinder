@@ -60,10 +60,18 @@ async function checkDailyPlayStatus() {
     if (data.completed === true) {
       console.log('User already completed today:', data);
       return true; // Already completed - block replay
-    } else {
-      console.log('User started but did not complete - allowing resume:', data);
-      return false; // Started but not completed - allow resume
     }
+    
+    // Also block if game ended but wasn't marked complete (0 lives or 0 time)
+    // Calculate lives from wrong_count
+    const remainingLives = Math.max(0, 3 - (data.wrong_count || 0));
+    if (remainingLives === 0 || (data.time_remaining || 0) <= 0) {
+      console.log('Game ended (0 lives or 0 time) but not marked complete - blocking:', data);
+      return true; // Game ended - block replay
+    }
+    
+    console.log('User started but did not complete - allowing resume:', data);
+    return false; // Started but not completed - allow resume
   }
   
   return false; // Haven't played yet
@@ -247,6 +255,31 @@ async function initGame() {
         option.classList.add('disabled');
       }
     });
+  }
+  
+  // Disable incorrect guesses too
+  if (savedState && savedState.incorrectGuesses.length > 0) {
+    console.log('Disabling already-guessed incorrect countries in dropdown');
+    const options = document.querySelectorAll('.country-option');
+    options.forEach(option => {
+      const countryName = option.querySelector('.country-name').textContent;
+      if (savedState.incorrectGuesses.includes(countryName)) {
+        option.classList.add('disabled');
+      }
+    });
+  }
+  
+  // Check if game already ended (0 lives or 0 time)
+  if (gameState.lives === 0) {
+    console.log('Game already ended (0 lives) - triggering endGame');
+    setTimeout(() => endGame(false), 500);
+    return;
+  }
+  
+  if (gameState.timeRemaining <= 0) {
+    console.log('Game already ended (0 time) - triggering endGame');
+    setTimeout(() => endGame(false), 500);
+    return;
   }
   
   // Start timer
@@ -562,9 +595,24 @@ async function selectCountryByName(countryName) {
   if (!country) {
     // Country not in top 10 - incorrect guess
     console.log('Country not in top 10 - incorrect guess');
+    
+    // Check if already guessed this incorrect country
+    if (gameState.incorrectGuesses.includes(countryName)) {
+      console.log('Already guessed this incorrect country');
+      return;
+    }
+    
     gameState.lives--;
     gameState.incorrectGuesses.push(countryName);
     updateLives();
+    
+    // Disable this country in the dropdown
+    const options = document.querySelectorAll('.country-option');
+    options.forEach(option => {
+      if (option.querySelector('.country-name').textContent === countryName) {
+        option.classList.add('disabled');
+      }
+    });
     
     // Clear search and close dropdown
     const searchInput = document.getElementById('searchInput');
@@ -806,13 +854,10 @@ async function saveDailyScore(score, correctGuesses, timeElapsed) {
     
     // Prepare the data object (using actual database column names)
     const scoreData = {
-      user_id: session.user.id,
-      category_id: categoryId,
       score: score,
       correct_count: correctGuesses, // Database uses 'correct_count' not 'correct_answers'
       wrong_count: gameState.incorrectGuesses.length, // Track incorrect guesses
       time_remaining: gameState.timeRemaining, // Database uses 'time_remaining' not 'time_taken'
-      played_date: todayString,
       completed: true // Mark as completed when game ends
     };
     
@@ -825,8 +870,7 @@ async function saveDailyScore(score, correctGuesses, timeElapsed) {
       .eq('user_id', session.user.id)
       .eq('category_id', categoryId)
       .eq('played_date', todayString)
-      .select()
-      .single();
+      .select();
     
     if (error) {
       console.error('❌ Error saving score:', error);
@@ -835,6 +879,9 @@ async function saveDailyScore(score, correctGuesses, timeElapsed) {
       alert('Failed to save your score. Please check your internet connection.');
     } else {
       console.log('✅ Score saved successfully:', data);
+      if (!data || data.length === 0) {
+        console.error('⚠️ Warning: Update returned no rows! RLS policy might be blocking UPDATE.');
+      }
     }
   } catch (err) {
     console.error('❌ Exception saving score:', err);
