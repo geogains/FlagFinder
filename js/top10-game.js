@@ -439,12 +439,26 @@ async function saveGameState() {
       })
     };
     
-    await supabase
+    console.log('Saving state to database:', {
+      lives: gameState.lives,
+      timeRemaining: gameState.timeRemaining,
+      guessedCount: gameState.guessedCountries.size,
+      wrongCount: gameState.incorrectGuesses.length
+    });
+    
+    const { data, error } = await supabase
       .from('top10_scores')
       .update(stateData)
       .eq('user_id', session.user.id)
       .eq('category_id', categoryId)
-      .eq('played_date', todayString);
+      .eq('played_date', todayString)
+      .select();
+    
+    if (error) {
+      console.error('❌ Database update error:', error);
+    } else {
+      console.log('✅ Database updated successfully:', data);
+    }
     
     console.log('Game state auto-saved');
   } catch (err) {
@@ -562,9 +576,14 @@ async function selectCountryByName(countryName) {
       setTimeout(() => searchInput.focus(), 100);
     }
     
-    // Save state immediately after incorrect guess (fire and forget)
+    // Save state immediately after incorrect guess - AWAIT to ensure it completes
     console.log('Triggering immediate save after incorrect guess');
-    saveGameState().catch(err => console.error('Failed to save state:', err));
+    try {
+      await saveGameState();
+      console.log('✅ Immediate save completed');
+    } catch(err) {
+      console.error('Failed to save state:', err);
+    }
     
     if (gameState.lives === 0) {
       setTimeout(() => endGame(false), 500);
@@ -606,9 +625,14 @@ async function selectCountry(country) {
     setTimeout(() => searchInput.focus(), 100);
   }
   
-  // Save state immediately after selection (fire and forget)
+  // Save state immediately after selection - AWAIT to ensure it completes
   console.log('Triggering immediate save after correct guess');
-  saveGameState().catch(err => console.error('Failed to save state:', err));
+  try {
+    await saveGameState();
+    console.log('✅ Immediate save completed');
+  } catch(err) {
+    console.error('Failed to save state:', err);
+  }
   
   // Check if correct
   const isCorrect = country.rank >= 1 && country.rank <= 10;
