@@ -1009,11 +1009,6 @@ function showResults(won, correctGuesses, timeElapsed) {
       .join('');
   }
   
-  // Setup play classic button
-  document.getElementById('playClassicBtn').onclick = () => {
-    window.location.href = `game.html?mode=${categoryKey}`;
-  };
-  
   overlay.classList.add('active');
 }
 
