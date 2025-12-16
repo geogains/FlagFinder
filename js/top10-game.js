@@ -85,10 +85,10 @@ async function showCompletedGameResults(gameData) {
   document.querySelector('.game-container').style.display = 'none';
   
   // Parse the game state to get what they guessed
-  let gameState = null;
+  let savedGameState = null;
   if (gameData.game_state_json) {
     try {
-      gameState = JSON.parse(gameData.game_state_json);
+      savedGameState = JSON.parse(gameData.game_state_json);
     } catch (e) {
       console.error('Failed to parse game state:', e);
     }
@@ -100,6 +100,15 @@ async function showCompletedGameResults(gameData) {
   const timeElapsed = 120 - (gameData.time_remaining || 0);
   const lives = Math.max(0, 3 - wrongCount);
   const won = correctCount === 10;
+  
+  // Update the GLOBAL gameState so buildResultsTable and shareResults work
+  if (savedGameState) {
+    gameState.guessedCountries = new Set(savedGameState.guessedCountries || []);
+    gameState.incorrectGuesses = savedGameState.incorrectGuesses || [];
+    gameState.lives = lives;
+    gameState.timeRemaining = gameData.time_remaining || 0;
+  }
+  gameState.score = gameData.score || 0; // Make sure score is set
   
   // Show results overlay with their data
   const overlay = document.getElementById('resultsOverlay');
@@ -139,11 +148,11 @@ async function showCompletedGameResults(gameData) {
   buildResultsTable();
   
   // Show incorrect guesses if any
-  if (gameState && gameState.incorrectGuesses && gameState.incorrectGuesses.length > 0) {
+  if (savedGameState && savedGameState.incorrectGuesses && savedGameState.incorrectGuesses.length > 0) {
     const incorrectSection = document.getElementById('incorrectSection');
     const incorrectList = document.getElementById('incorrectList');
     incorrectSection.style.display = 'block';
-    incorrectList.innerHTML = gameState.incorrectGuesses.map(name => 
+    incorrectList.innerHTML = savedGameState.incorrectGuesses.map(name => 
       `<span class="incorrect-country">${name}</span>`
     ).join('');
   }
@@ -1035,10 +1044,18 @@ function buildResultsTable() {
 
 // Share functionality
 window.shareResults = function() {
-  const correctCount = gameState.guessedCountries.size;
+  // Read from the DOM since gameState might not be populated when viewing completed results
+  const scoreElement = document.getElementById('finalScore');
+  const accuracyElement = document.getElementById('finalAccuracy');
+  const livesElement = document.getElementById('finalLives');
+  
+  const score = scoreElement ? scoreElement.textContent : '0';
+  const accuracy = accuracyElement ? accuracyElement.textContent : '0/10 correct';
+  const lives = livesElement ? livesElement.textContent : '❤️❤️❤️';
+  
   const text = `🌍 GeoRanks - ${currentCategory.title}
-Score: ${gameState.score} | ${correctCount}/10 correct
-Lives: ${'❤️'.repeat(gameState.lives)}
+Score: ${score} | ${accuracy}
+Lives: ${lives}
 
 Can you beat my score? Play at geo-ranks.com`;
   
