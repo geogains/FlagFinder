@@ -27,13 +27,14 @@ let gameState = {
   startTime: Date.now()
 };
 
-// Check if user already played today's challenge
-async function checkDailyPlayStatus() {
+// Check if user already completed today's challenge
+// Returns the completed game data if found, null otherwise
+async function checkIfCompleted() {
   const { data: { session } } = await supabase.auth.getSession();
   
   if (!session) {
     console.log('No session - allowing play');
-    return false; // Not logged in, allow play
+    return null;
   }
   
   // Get today's date in UTC
@@ -44,37 +45,111 @@ async function checkDailyPlayStatus() {
   // Check if user has a COMPLETED score for this category today
   const { data, error } = await supabase
     .from('top10_scores')
-    .select('id, score, completed')
+    .select('*')
     .eq('user_id', session.user.id)
     .eq('category_id', categoryId)
     .eq('played_date', todayString)
-    .maybeSingle(); // Use maybeSingle() instead of single() to avoid 406 error
+    .maybeSingle();
   
   if (error) {
-    console.error('Error checking daily play status:', error);
-    return false; // On error, allow play
+    console.error('Error checking completion status:', error);
+    return null;
   }
   
   if (data) {
     // Check if the game was actually COMPLETED
     if (data.completed === true) {
       console.log('User already completed today:', data);
-      return true; // Already completed - block replay
+      return data; // Return the completed game data
     }
     
-    // Also block if game ended but wasn't marked complete (0 lives or 0 time)
-    // Calculate lives from wrong_count
+    // Also check if game ended but wasn't marked complete (0 lives or 0 time)
     const remainingLives = Math.max(0, 3 - (data.wrong_count || 0));
     if (remainingLives === 0 || (data.time_remaining || 0) <= 0) {
-      console.log('Game ended (0 lives or 0 time) but not marked complete - blocking:', data);
-      return true; // Game ended - block replay
+      console.log('Game ended (0 lives or 0 time):', data);
+      return data; // Return the ended game data
     }
     
     console.log('User started but did not complete - allowing resume:', data);
-    return false; // Started but not completed - allow resume
+    return null; // Started but not completed - allow resume
   }
   
-  return false; // Haven't played yet
+  return null; // Haven't played yet
+}
+
+// Show results for a completed game (when user returns after finishing)
+async function showCompletedGameResults(gameData) {
+  console.log('Displaying completed game results');
+  
+  // Hide the game UI
+  document.querySelector('.game-container').style.display = 'none';
+  
+  // Parse the game state to get what they guessed
+  let gameState = null;
+  if (gameData.game_state_json) {
+    try {
+      gameState = JSON.parse(gameData.game_state_json);
+    } catch (e) {
+      console.error('Failed to parse game state:', e);
+    }
+  }
+  
+  // Calculate stats
+  const correctCount = gameData.correct_count || 0;
+  const wrongCount = gameData.wrong_count || 0;
+  const timeElapsed = 120 - (gameData.time_remaining || 0);
+  const lives = Math.max(0, 3 - wrongCount);
+  const won = correctCount === 10;
+  
+  // Show results overlay with their data
+  const overlay = document.getElementById('resultsOverlay');
+  const emoji = document.getElementById('resultsEmoji');
+  const title = document.getElementById('resultsTitle');
+  const category = document.getElementById('resultsCategory');
+  
+  // Set emoji and title based on performance
+  if (won) {
+    emoji.textContent = '🎉';
+    title.textContent = 'Perfect!';
+  } else if (correctCount >= 7) {
+    emoji.textContent = '🌟';
+    title.textContent = 'Great Job!';
+  } else if (correctCount >= 5) {
+    emoji.textContent = '👍';
+    title.textContent = 'Good Effort!';
+  } else {
+    emoji.textContent = '💪';
+    title.textContent = 'Keep Trying!';
+  }
+  
+  category.textContent = currentCategory.title;
+  
+  // Update stats
+  document.getElementById('finalScore').textContent = gameData.score || 0;
+  document.getElementById('finalLives').textContent = '❤️'.repeat(lives);
+  
+  const minutes = Math.floor(timeElapsed / 60);
+  const seconds = timeElapsed % 60;
+  document.getElementById('finalTime').textContent = 
+    `${minutes}:${seconds.toString().padStart(2, '0')} / 2:00`;
+  
+  document.getElementById('finalAccuracy').textContent = `${correctCount}/10 correct`;
+  
+  // Build results table
+  buildResultsTable();
+  
+  // Show incorrect guesses if any
+  if (gameState && gameState.incorrectGuesses && gameState.incorrectGuesses.length > 0) {
+    const incorrectSection = document.getElementById('incorrectSection');
+    const incorrectList = document.getElementById('incorrectList');
+    incorrectSection.style.display = 'block';
+    incorrectList.innerHTML = gameState.incorrectGuesses.map(name => 
+      `<span class="incorrect-country">${name}</span>`
+    ).join('');
+  }
+  
+  // Show the overlay
+  overlay.style.display = 'flex';
 }
 
 // Mark challenge as started (creates initial record in database)
@@ -161,19 +236,13 @@ async function initGame() {
     return;
   }
   
-  // Check if already played today (only for logged-in users)
-  const hasPlayedToday = await checkDailyPlayStatus();
+  // Check if game was completed - if so, show their results instead of blocking
+  const completedGameData = await checkIfCompleted();
   
-  if (hasPlayedToday) {
-    // Show beautiful custom modal instead of alert
-    const modal = document.getElementById('alreadyPlayedModal');
-    const categoryDisplay = document.getElementById('alreadyPlayedCategory');
-    if (categoryDisplay) {
-      categoryDisplay.textContent = currentCategory.title;
-    }
-    if (modal) {
-      modal.style.display = 'flex';
-    }
+  if (completedGameData) {
+    console.log('Game already completed - showing results:', completedGameData);
+    // Show the results from their completed game
+    showCompletedGameResults(completedGameData);
     return;
   }
   
