@@ -403,6 +403,12 @@ function setupAutoSave() {
     }
   });
   
+  // Critical: Save state when page is about to unload (refresh/close)
+  window.addEventListener('beforeunload', () => {
+    // Use synchronous method to save before page unloads
+    saveGameStateSync();
+  });
+  
   console.log('Auto-save enabled (saves every 5 seconds)');
 }
 
@@ -443,6 +449,41 @@ async function saveGameState() {
     console.log('Game state auto-saved');
   } catch (err) {
     console.error('Failed to auto-save game state:', err);
+  }
+}
+
+// Synchronous save for page unload (uses sendBeacon for reliability)
+function saveGameStateSync() {
+  try {
+    const session = JSON.parse(localStorage.getItem('sb-geo-ranks-auth-token'));
+    if (!session || !session.user) return;
+    
+    const today = new Date();
+    const utcDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+    const todayString = utcDate.toISOString().split('T')[0];
+    
+    const stateData = {
+      score: 0,
+      correct_count: gameState.guessedCountries.size,
+      wrong_count: gameState.incorrectGuesses.length,
+      time_remaining: gameState.timeRemaining,
+      completed: false,
+      game_state_json: JSON.stringify({
+        guessedCountries: Array.from(gameState.guessedCountries),
+        incorrectGuesses: gameState.incorrectGuesses,
+        lives: gameState.lives,
+        timeRemaining: gameState.timeRemaining
+      })
+    };
+    
+    // Use sendBeacon for reliable last-second save
+    const url = 'https://api.geo-ranks.com/rest/v1/top10_scores?user_id=eq.' + session.user.id + '&category_id=eq.' + categoryId + '&played_date=eq.' + todayString;
+    const blob = new Blob([JSON.stringify(stateData)], { type: 'application/json' });
+    navigator.sendBeacon(url, blob);
+    
+    console.log('Synchronous save on page unload');
+  } catch (err) {
+    console.error('Failed to save on unload:', err);
   }
 }
 
@@ -522,6 +563,7 @@ async function selectCountryByName(countryName) {
     }
     
     // Save state immediately after incorrect guess (fire and forget)
+    console.log('Triggering immediate save after incorrect guess');
     saveGameState().catch(err => console.error('Failed to save state:', err));
     
     if (gameState.lives === 0) {
@@ -565,6 +607,7 @@ async function selectCountry(country) {
   }
   
   // Save state immediately after selection (fire and forget)
+  console.log('Triggering immediate save after correct guess');
   saveGameState().catch(err => console.error('Failed to save state:', err));
   
   // Check if correct
