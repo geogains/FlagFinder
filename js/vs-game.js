@@ -29,7 +29,7 @@ let gameState = {
   timerInterval: null,
   isProcessing: false, // Prevent multiple clicks during transition
   countries: [], // Will be loaded from category file
-  usedPairs: [] // Track used country pairs to avoid repetition
+  recentCountries: [] // Track recently used countries to avoid repetition
 };
 
 // Load category data and initialize game
@@ -184,27 +184,39 @@ function loadNewRound() {
   console.log('Round loaded:', country1.name, 'vs', country2.name);
 }
 
-// Get two random unique countries that haven't been paired recently
+// Get two random unique countries with smart repetition avoidance
 function getTwoRandomCountries() {
   const available = [...gameState.countries];
   
-  // Shuffle array
-  for (let i = available.length - 1; i > 0; i--) {
+  // Track recently used countries (keep last 20 to avoid repetition in small sessions)
+  if (!gameState.recentCountries) {
+    gameState.recentCountries = [];
+  }
+  
+  // Filter out recently used countries if we have enough alternatives
+  let filtered = available.filter(c => !gameState.recentCountries.includes(c.name));
+  
+  // If we filtered out too many, just use all countries
+  if (filtered.length < 10) {
+    filtered = available;
+  }
+  
+  // Shuffle array using Fisher-Yates
+  for (let i = filtered.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [available[i], available[j]] = [available[j], available[i]];
+    [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
   }
   
   // Get first two unique countries
-  const country1 = available[0];
-  const country2 = available[1];
+  const country1 = filtered[0];
+  const country2 = filtered[1];
   
-  // Store this pair to avoid immediate repetition
-  const pairKey = [country1.name, country2.name].sort().join('|');
-  gameState.usedPairs.push(pairKey);
+  // Add to recent countries list
+  gameState.recentCountries.push(country1.name, country2.name);
   
-  // Keep only last 5 pairs to allow repetition after a while
-  if (gameState.usedPairs.length > 5) {
-    gameState.usedPairs.shift();
+  // Keep only last 20 countries (about 10 rounds)
+  if (gameState.recentCountries.length > 20) {
+    gameState.recentCountries = gameState.recentCountries.slice(-20);
   }
   
   return [country1, country2];
@@ -271,20 +283,20 @@ function handleSelection(optionNumber) {
     }
   }
   
-  // Wait 2 seconds, then fade out and load next round
+  // Wait 2 seconds, then fade out and load next round with smoother transitions
   setTimeout(() => {
     const battle = document.getElementById('vsBattle');
     battle.classList.add('fade-out');
     
     setTimeout(() => {
       battle.classList.remove('fade-out');
-      battle.classList.add('fade-in');
       loadNewRound();
+      battle.classList.add('fade-in');
       
       setTimeout(() => {
         battle.classList.remove('fade-in');
-      }, 500);
-    }, 500);
+      }, 300); // Match fade-in duration
+    }, 300); // Match fade-out duration
   }, 2000);
 }
 
@@ -421,6 +433,32 @@ async function saveScore() {
     console.error('Exception saving score:', err);
   }
 }
+
+// Share results function
+window.shareResults = function() {
+  const totalGuesses = gameState.correct + gameState.incorrect;
+  const accuracy = totalGuesses > 0 ? Math.round((gameState.correct / totalGuesses) * 100) : 0;
+  
+  const text = `🌍 GeoRanks - VS Mode: ${categoryConfig.title}
+Score: ${gameState.score} 🎯
+Correct: ${gameState.correct}/${totalGuesses} (${accuracy}%)
+
+Can you beat my score? Play at geo-ranks.com`;
+  
+  if (navigator.share) {
+    navigator.share({
+      title: 'GeoRanks VS Mode Result',
+      text: text
+    }).catch(() => {});
+  } else {
+    // Fallback: copy to clipboard
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Results copied to clipboard!');
+    }).catch(() => {
+      alert('Unable to share. Please try again.');
+    });
+  }
+};
 
 // Load category data and start game when DOM is ready
 document.addEventListener('DOMContentLoaded', loadCategoryData);

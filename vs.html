@@ -110,23 +110,18 @@
     
     .country-option.correct .country-flag {
       border-color: #10b981;
-      animation: correctPulse 0.6s ease;
+      animation: scaleUp 0.4s ease;
     }
     
     .country-option.incorrect .country-flag {
       border-color: #ef4444;
-      animation: shake 0.5s ease;
+      animation: scaleUp 0.4s ease;
     }
     
-    @keyframes correctPulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-    
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-8px); }
-      75% { transform: translateX(8px); }
+    @keyframes scaleUp {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+      100% { transform: scale(1); }
     }
     
     .country-name {
@@ -183,23 +178,23 @@
       font-family: 'Rubik', sans-serif;
     }
     
-    /* Fade transitions */
+    /* Fade transitions - smoother and cleaner */
     .fade-out {
-      animation: fadeOut 0.5s ease forwards;
+      animation: fadeOut 0.3s ease forwards;
     }
     
     .fade-in {
-      animation: fadeIn 0.5s ease forwards;
+      animation: fadeIn 0.3s ease forwards;
     }
     
     @keyframes fadeOut {
-      from { opacity: 1; }
-      to { opacity: 0; }
+      from { opacity: 1; transform: scale(1); }
+      to { opacity: 0; transform: scale(0.95); }
     }
     
     @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
     }
     
     /* Results Overlay */
@@ -281,10 +276,14 @@
     }
     
     .results-actions {
-      display: flex;
-      gap: 15px;
-      justify-content: center;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    
+    .results-actions .btn-primary {
+      grid-column: 1 / -1; /* Span full width */
     }
     
     .btn {
@@ -462,6 +461,7 @@
         <button class="btn btn-primary" onclick="location.reload()">Play Again</button>
         <button class="btn btn-secondary" onclick="window.location.href='index.html'">Home</button>
         <button class="btn btn-secondary" onclick="window.location.href='leaderboard.html'">Leaderboard</button>
+        <button class="btn btn-secondary" onclick="shareResults()">Share</button>
       </div>
     </div>
   </div>
