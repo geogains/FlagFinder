@@ -44,7 +44,7 @@ async function checkIfCompleted() {
   
   // Check if user has a COMPLETED score for this category today
   const { data, error } = await supabase
-    .from('top10_scores')
+    .from('daily_challenge_scores')
     .select('*')
     .eq('user_id', session.user.id)
     .eq('category_id', categoryId)
@@ -179,7 +179,7 @@ async function markChallengeAsStarted() {
     
     // Check if record already exists (from a previous incomplete attempt)
     const { data: existing } = await supabase
-      .from('top10_scores')
+      .from('daily_challenge_scores')
       .select('id')
       .eq('user_id', session.user.id)
       .eq('category_id', categoryId)
@@ -200,14 +200,13 @@ async function markChallengeAsStarted() {
     };
     
     const { data, error } = await supabase
-      .from('top10_scores')
+      .from('daily_challenge_scores')
       .insert({
         user_id: session.user.id,
         category_id: categoryId,
         score: 0,
         correct_count: 0,
-        wrong_count: 0,
-        time_remaining: 120,
+        time_taken: 0,
         played_date: todayString,
         completed: false,
         game_state_json: JSON.stringify(initialState)
@@ -533,11 +532,13 @@ async function saveGameState() {
     const utcDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
     const todayString = utcDate.toISOString().split('T')[0];
     
+    // Calculate time_taken (time elapsed, not remaining)
+    const timeTaken = 120 - gameState.timeRemaining;
+    
     // Prepare game state data (score is NOT saved here - only at game end)
     const stateData = {
       correct_count: gameState.guessedCountries.size,
-      wrong_count: gameState.incorrectGuesses.length,
-      time_remaining: gameState.timeRemaining,
+      time_taken: timeTaken,
       completed: false,
       // Store game state as JSON in a text field (if your DB supports it)
       // Otherwise we'll restore from the counts
@@ -557,7 +558,7 @@ async function saveGameState() {
     });
     
     const { data, error } = await supabase
-      .from('top10_scores')
+      .from('daily_challenge_scores')
       .update(stateData)
       .eq('user_id', session.user.id)
       .eq('category_id', categoryId)
@@ -622,7 +623,7 @@ async function restoreGameState() {
     const todayString = utcDate.toISOString().split('T')[0];
     
     const { data, error } = await supabase
-      .from('top10_scores')
+      .from('daily_challenge_scores')
       .select('*')
       .eq('user_id', session.user.id)
       .eq('category_id', categoryId)
@@ -644,14 +645,17 @@ async function restoreGameState() {
         // This happens if user refreshed before first auto-save
         console.log('No JSON found, reconstructing from DB columns:', data);
         
-        // Calculate lives from wrong_count (started with 3, lose 1 per wrong)
-        const lives = Math.max(0, 3 - data.wrong_count);
+        // Calculate time remaining from time_taken
+        const timeRemaining = Math.max(0, 120 - (data.time_taken || 0));
+        
+        // For lives, we can't know for sure, so assume they started with 3
+        const lives = 3;
         
         return {
           guessedCountries: [], // Can't restore this without JSON, but at least restore time/lives
           incorrectGuesses: [],
           lives: lives,
-          timeRemaining: data.time_remaining || 120
+          timeRemaining: timeRemaining
         };
       }
     }
@@ -935,37 +939,76 @@ async function saveDailyScore(score, correctGuesses, timeElapsed) {
     
     console.log('Playing date (UTC):', todayString);
     
-    // Prepare the data object (using actual database column names)
-    const scoreData = {
+    // ========================================
+    // 1. SAVE TO DAILY CHALLENGE SCORES
+    // ========================================
+    const dailyChallengeData = {
       score: score,
-      correct_count: correctGuesses, // Database uses 'correct_count' not 'correct_answers'
-      wrong_count: gameState.incorrectGuesses.length, // Track incorrect guesses
-      time_remaining: gameState.timeRemaining, // Database uses 'time_remaining' not 'time_taken'
-      completed: true // Mark as completed when game ends
+      correct_count: correctGuesses,
+      time_taken: timeElapsed,
+      completed: true
     };
     
-    console.log('Score data to save:', scoreData);
+    console.log('Daily Challenge data to save:', dailyChallengeData);
     
-    // Update the existing record (created when challenge started)
-    const { data, error } = await supabase
-      .from('top10_scores')
-      .update(scoreData)
+    const { data: dailyData, error: dailyError } = await supabase
+      .from('daily_challenge_scores')
+      .update(dailyChallengeData)
       .eq('user_id', session.user.id)
       .eq('category_id', categoryId)
       .eq('played_date', todayString)
       .select();
     
-    if (error) {
-      console.error('❌ Error saving score:', error);
-      console.error('Error details:', JSON.stringify(error, null, 2));
-      // Show user-friendly error
-      alert('Failed to save your score. Please check your internet connection.');
+    if (dailyError) {
+      console.error('❌ Error saving to daily_challenge_scores:', dailyError);
+      alert('Failed to save your daily challenge score.');
     } else {
-      console.log('✅ Score saved successfully:', data);
-      if (!data || data.length === 0) {
-        console.error('⚠️ Warning: Update returned no rows! RLS policy might be blocking UPDATE.');
-      }
+      console.log('✅ Daily Challenge score saved:', dailyData);
     }
+    
+    // ========================================
+    // 2. SAVE/UPDATE TO TOP10 BEST SCORES
+    // ========================================
+    // Check if user has existing best score for this category
+    const { data: existingBest } = await supabase
+      .from('top10_best_scores')
+      .select('score')
+      .eq('user_id', session.user.id)
+      .eq('category_id', categoryId)
+      .maybeSingle();
+    
+    // Only save if this is a new record OR beats existing score
+    if (!existingBest || score > existingBest.score) {
+      const top10BestData = {
+        user_id: session.user.id,
+        category_id: categoryId,
+        score: score,
+        correct_count: correctGuesses,
+        wrong_count: gameState.incorrectGuesses.length,
+        time_remaining: gameState.timeRemaining
+      };
+      
+      const { data: bestData, error: bestError } = await supabase
+        .from('top10_best_scores')
+        .upsert(top10BestData, {
+          onConflict: 'user_id,category_id'
+        })
+        .select();
+      
+      if (bestError) {
+        console.error('❌ Error saving to top10_best_scores:', bestError);
+      } else {
+        console.log('✅ Top 10 best score saved/updated:', bestData);
+        if (!existingBest) {
+          console.log('🎉 New personal best!');
+        } else {
+          console.log('🎉 Beat previous best of', existingBest.score);
+        }
+      }
+    } else {
+      console.log('ℹ️ Score did not beat existing best:', existingBest.score);
+    }
+    
   } catch (err) {
     console.error('❌ Exception saving score:', err);
     console.error('Exception details:', err.message, err.stack);
