@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GeoRanks — VS Mode</title>
+  <link rel="stylesheet" href="css/home.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* VS MODE SPECIFIC STYLES */
+    
+    .vs-container {
+      max-width: 900px;
+      margin: 120px auto 60px;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      padding: 40px 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Header with Timer and Lives */
+    .vs-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    .timer-display {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1f2937;
+      font-family: 'Rubik', sans-serif;
+    }
+    
+    .lives-display {
+      font-size: 2rem;
+    }
+    
+    /* Category Title */
+    .vs-title {
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 40px;
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    /* VS Battle Layout */
+    .vs-battle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+    
+    .country-option {
+      flex: 1;
+      max-width: 350px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      padding: 30px;
+      border-radius: 16px;
+      border: 4px solid transparent;
+      background: rgba(255, 255, 255, 0.5);
+    }
+    
+    .country-option:hover:not(.disabled) {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+      background: rgba(255, 255, 255, 0.8);
+    }
+    
+    .country-option.disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    
+    .country-option.correct {
+      border-color: #10b981;
+      background: rgba(16, 185, 129, 0.1);
+      animation: correctPulse 0.6s ease;
+    }
+    
+    .country-option.incorrect {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+      animation: shake 0.5s ease;
+    }
+    
+    @keyframes correctPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+    
+    .country-flag {
+      width: 200px;
+      height: auto;
+      max-height: 140px;
+      object-fit: contain;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      margin-bottom: 20px;
+    }
+    
+    .country-name {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #1f2937;
+      font-family: 'Poppins', sans-serif;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .country-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #3b82f6;
+      font-family: 'Rubik', sans-serif;
+      margin-top: 10px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .country-value.show {
+      opacity: 1;
+    }
+    
+    /* VS Divider */
+    .vs-divider {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #9ca3af;
+      font-family: 'Poppins', sans-serif;
+      text-transform: uppercase;
+    }
+    
+    /* Score Display */
+    .score-display {
+      position: fixed;
+      bottom: 40px;
+      right: 40px;
+      background: linear-gradient(135deg, #ff9770, #ff6f61);
+      color: white;
+      padding: 20px 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(255, 111, 97, 0.4);
+      font-family: 'Rubik', sans-serif;
+      z-index: 100;
+    }
+    
+    .score-label {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      margin-bottom: 5px;
+    }
+    
+    .score-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      animation: scoreUpdate 0.5s ease;
+    }
+    
+    @keyframes scoreUpdate {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+    
+    /* Fade transitions */
+    .fade-out {
+      animation: fadeOut 0.5s ease forwards;
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.5s ease forwards;
+    }
+    
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    /* Results Overlay */
+    .results-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .results-overlay.active {
+      display: flex;
+    }
+    
+    .results-card {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+    
+    .results-emoji {
+      font-size: 4rem;
+      margin-bottom: 20px;
+    }
+    
+    .results-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 10px;
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    .results-category {
+      font-size: 1.2rem;
+      color: #3b82f6;
+      margin-bottom: 30px;
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    .results-stats {
+      background: rgba(59, 130, 246, 0.1);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+    }
+    
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      font-family: 'Rubik', sans-serif;
+    }
+    
+    .stat-row:last-child {
+      border-bottom: none;
+    }
+    
+    .stat-label {
+      color: #6b7280;
+      font-size: 1rem;
+    }
+    
+    .stat-value {
+      color: #1f2937;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+    
+    .results-actions {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      border: none;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #ff9770, #ff6f61);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(255, 111, 97, 0.3);
+    }
+    
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #1f2937;
+    }
+    
+    .btn-secondary:hover {
+      background: #d1d5db;
+    }
+    
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .vs-container {
+        margin: 90px 16px 40px;
+        padding: 30px 20px;
+      }
+      
+      .vs-battle {
+        flex-direction: column;
+        gap: 20px;
+      }
+      
+      .vs-divider {
+        transform: rotate(90deg);
+        font-size: 2rem;
+      }
+      
+      .country-flag {
+        width: 150px;
+        max-height: 100px;
+      }
+      
+      .country-name {
+        font-size: 1.2rem;
+      }
+      
+      .vs-title {
+        font-size: 1.4rem;
+      }
+      
+      .timer-display, .lives-display {
+        font-size: 1.5rem;
+      }
+      
+      .score-display {
+        bottom: 20px;
+        right: 20px;
+        padding: 15px 20px;
+      }
+      
+      .score-value {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- GLASS HEADER -->
+  <header class="glass-header">
+    <a href="index.html" class="logo-link">
+      <div class="logo">
+        <img src="images/logo.svg" alt="GeoRanks Logo" class="logo-img">
+        <span class="logo-text">GeoRanks</span>
+      </div>
+    </a>
+    
+    <button class="menu-toggle" id="menuToggle" aria-label="Menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </header>
+
+  <!-- HAMBURGER MENU OVERLAY -->
+  <div class="menu-overlay" id="menuOverlay">
+    <button class="menu-close" id="closeMenu" aria-label="Close Menu">&times;</button>
+    
+    <nav class="menu-nav">
+      <a href="index.html" class="menu-link">🏠 Home</a>
+      <a href="categories.html" class="menu-link">🎮 Play</a>
+      <a href="leaderboard.html" class="menu-link">🏆 Leaderboard</a>
+      <a href="account.html" class="menu-link menu-btn-account">👤 Account</a>
+      <a href="auth.html" class="menu-link">🔐 Login</a>
+    </nav>
+  </div>
+
+  <!-- MAIN GAME CONTAINER -->
+  <div class="vs-container">
+    <!-- Header: Timer and Lives -->
+    <div class="vs-header">
+      <div class="timer-display" id="timerDisplay">2:00</div>
+      <div class="lives-display" id="livesDisplay">❤️❤️❤️</div>
+    </div>
+
+    <!-- Category Title -->
+    <h1 class="vs-title" id="categoryTitle">WHICH COUNTRY HAS THE LARGEST LANDMASS?</h1>
+
+    <!-- VS Battle -->
+    <div class="vs-battle" id="vsBattle">
+      <div class="country-option" id="option1" data-country="0">
+        <img src="" alt="" class="country-flag" id="flag1">
+        <div class="country-name" id="name1">Loading...</div>
+        <div class="country-value" id="value1"></div>
+      </div>
+
+      <div class="vs-divider">OR</div>
+
+      <div class="country-option" id="option2" data-country="1">
+        <img src="" alt="" class="country-flag" id="flag2">
+        <div class="country-name" id="name2">Loading...</div>
+        <div class="country-value" id="value2"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Score Display (Bottom Right) -->
+  <div class="score-display">
+    <div class="score-label">Score</div>
+    <div class="score-value" id="scoreValue">0</div>
+  </div>
+
+  <!-- RESULTS OVERLAY -->
+  <div class="results-overlay" id="resultsOverlay">
+    <div class="results-card">
+      <div class="results-emoji" id="resultsEmoji">🎉</div>
+      <div class="results-title" id="resultsTitle">Game Over!</div>
+      <div class="results-category" id="resultsCategory">Landmass</div>
+
+      <div class="results-stats">
+        <div class="stat-row">
+          <span class="stat-label">Final Score:</span>
+          <span class="stat-value" id="finalScore">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Correct Answers:</span>
+          <span class="stat-value" id="finalCorrect">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Accuracy:</span>
+          <span class="stat-value" id="finalAccuracy">0%</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Time Played:</span>
+          <span class="stat-value" id="finalTime">0:00</span>
+        </div>
+      </div>
+
+      <div class="results-actions">
+        <button class="btn btn-primary" onclick="location.reload()">Play Again</button>
+        <button class="btn btn-secondary" onclick="window.location.href='index.html'">Home</button>
+        <button class="btn btn-secondary" onclick="window.location.href='leaderboard.html'">Leaderboard</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script>
+    // Hamburger menu
+    const toggleBtn = document.getElementById("menuToggle");
+    const overlay = document.getElementById("menuOverlay");
+    const closeBtn = document.getElementById("closeMenu");
+
+    toggleBtn?.addEventListener("click", () => overlay.classList.add("active"));
+    closeBtn?.addEventListener("click", () => overlay.classList.remove("active"));
+
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) overlay.classList.remove("active");
+    });
+  </script>
+
+  <script type="module">
+    import { supabase } from './js/supabase-client.js';
+
+    // Hide Account button if not logged in
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session || !session.user) {
+      document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+    }
+  </script>
+
+  <script type="module" src="js/vs-game.js"></script>
+</body>
+</html>
