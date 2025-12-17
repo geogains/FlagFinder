@@ -168,16 +168,17 @@ export const top10Data = {
     emoji: "🛂",
     unit: "countries",
     countries: [
-      { name: "Singapore", rank: 1, code: "singapore", flag: "flags/singapore.png", value: 195 },
-      { name: "Japan", rank: 2, code: "japan", flag: "flags/japan.png", value: 193 },
-      { name: "South Korea", rank: 3, code: "south-korea", flag: "flags/south-korea.png", value: 192 },
-      { name: "Germany", rank: 4, code: "germany", flag: "flags/germany.png", value: 191 },
-      { name: "Italy", rank: 5, code: "italy", flag: "flags/italy.png", value: 191 },
-      { name: "Finland", rank: 6, code: "finland", flag: "flags/finland.png", value: 190 },
-      { name: "Spain", rank: 7, code: "spain", flag: "flags/spain.png", value: 190 },
-      { name: "Luxembourg", rank: 8, code: "luxembourg", flag: "flags/luxembourg.png", value: 190 },
-      { name: "Sweden", rank: 9, code: "sweden", flag: "flags/sweden.png", value: 189 },
-      { name: "France", rank: 10, code: "france", flag: "flags/france.png", value: 189 }
+
+      { name: "United Arab Emirates", rank: 1, code: "united-arab-emirates", flag: "flags/united-arab-emirates.png", value: 179 },
+      { name: "Singapore", rank: 2, code: "singapore", flag: "flags/singapore.png", value: 175 },
+      { name: "Spain", rank: 3, code: "spain", flag: "flags/spain.png", value: 175 },
+      { name: "Belgium", rank: 4, code: "belgium", flag: "flags/belgium.png", value: 174 },
+      { name: "France", rank: 5, code: "france", flag: "flags/france.png", value: 174 },
+      { name: "Sweden", rank: 6, code: "finland", flag: "flags/finland.png", value: 174 },
+      { name: "Netherlands", rank: 7, code: "spain", flag: "flags/spain.png", value: 174 },
+      { name: "Germany", rank: 8, code: "luxembourg", flag: "flags/luxembourg.png", value: 174 },
+      { name: "Finland", rank: 9, code: "sweden", flag: "flags/sweden.png", value: 174 },
+      { name: "Luxembourg", rank: 10, code: "luxembourg", flag: "flags/luxembourg.png", value: 174 }
     ]
   },
 
