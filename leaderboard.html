@@ -768,7 +768,7 @@
     const userIds = scores.map(s => s.user_id);
     const { data: users } = await supabase
       .from("users")
-      .select("id, username, avatar_url, is_premium, country_code")
+      .select("id, username, avatar_url, is_premium")
       .in("id", userIds);
 
     // Create a map for quick user lookup
