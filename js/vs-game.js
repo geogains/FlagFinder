@@ -259,15 +259,16 @@ function handleSelection(optionNumber) {
   }, 100);
   
   if (isCorrect) {
-    // Correct answer
+    // Correct answer - only animate and border the selected flag
     selectedOption.classList.add('correct');
     gameState.correct++;
     animateScoreCountUp(100); // Count-up animation!
     console.log('✅ Correct!');
   } else {
-    // Incorrect answer
+    // Incorrect answer - animate and border the selected flag in red
     selectedOption.classList.add('incorrect');
-    otherOption.classList.add('correct'); // Show which one was correct
+    // Show which one was correct with just a green border (no animation)
+    otherOption.querySelector('.country-flag').style.borderColor = '#10b981';
     gameState.incorrect++;
     gameState.lives--;
     updateLives();
@@ -283,19 +284,24 @@ function handleSelection(optionNumber) {
     }
   }
   
-  // Wait 2 seconds, then fade out and load next round with smoother transitions
+  // Wait 2 seconds, then fade out, load new round, then fade in
   setTimeout(() => {
     const battle = document.getElementById('vsBattle');
     battle.classList.add('fade-out');
     
     setTimeout(() => {
       battle.classList.remove('fade-out');
+      // Load new round BEFORE fading in (so new countries appear, not old ones)
       loadNewRound();
-      battle.classList.add('fade-in');
       
+      // Small delay to ensure DOM is updated before fade-in
       setTimeout(() => {
-        battle.classList.remove('fade-in');
-      }, 300); // Match fade-in duration
+        battle.classList.add('fade-in');
+        
+        setTimeout(() => {
+          battle.classList.remove('fade-in');
+        }, 300); // Match fade-in duration
+      }, 50); // Small delay for DOM update
     }, 300); // Match fade-out duration
   }, 2000);
 }
