@@ -658,11 +658,24 @@
 
   // Load Classic Mode Leaderboard
   async function loadClassicLeaderboard(categoryName) {
-    // Get scores from scores table (best score per user per category)
+    // First, get the category_id for this category name
+    const { data: categoryData, error: categoryError } = await supabase
+      .from("categories")
+      .select("id")
+      .eq("name", categoryName)
+      .single();
+
+    if (categoryError || !categoryData) {
+      console.error('Error loading category:', categoryError);
+      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Category not found</td></tr>`;
+      return;
+    }
+
+    // Get scores from category_scores table (best score per user per category)
     const { data: scores, error } = await supabase
-      .from("scores")
-      .select("score, correct_answers, incorrect_answers, user_id")
-      .eq("category", categoryName)
+      .from("category_scores")
+      .select("score, user_id")
+      .eq("category_id", categoryData.id)
       .order("score", { ascending: false })
       .limit(20);
 
