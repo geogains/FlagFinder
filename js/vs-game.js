@@ -112,17 +112,29 @@ function updateLives() {
   livesDisplay.innerHTML = '❤️'.repeat(gameState.lives);
 }
 
-// Update score display with animation
-function updateScore(points) {
-  gameState.score += points;
-  const scoreValue = document.getElementById('scoreValue');
-  scoreValue.textContent = gameState.score;
+// Animate score with count-up effect
+function animateScoreCountUp(points) {
+  const scoreValueElement = document.getElementById('scoreValue');
+  const startScore = gameState.score;
+  const endScore = startScore + points;
+  const duration = 400; // 400ms for count-up
+  const frameRate = 1000 / 60; // 60fps
+  const totalFrames = Math.round(duration / frameRate);
+  const increment = points / totalFrames;
   
-  // Trigger animation by removing and re-adding
-  scoreValue.style.animation = 'none';
-  setTimeout(() => {
-    scoreValue.style.animation = 'scoreUpdate 0.5s ease';
-  }, 10);
+  let currentFrame = 0;
+  
+  const counter = setInterval(() => {
+    currentFrame++;
+    gameState.score = Math.round(startScore + (increment * currentFrame));
+    scoreValueElement.textContent = gameState.score;
+    
+    if (currentFrame >= totalFrames) {
+      clearInterval(counter);
+      gameState.score = endScore; // Ensure exact final value
+      scoreValueElement.textContent = endScore;
+    }
+  }, frameRate);
 }
 
 // Load a new round with two random countries
@@ -136,34 +148,38 @@ function loadNewRound() {
   const [country1, country2] = getTwoRandomCountries();
   
   // Update option 1
-  document.getElementById('flag1').src = country1.flag;
-  document.getElementById('flag1').alt = country1.name;
+  const flag1 = document.getElementById('flag1');
+  flag1.src = country1.flag;
+  flag1.alt = country1.name;
   document.getElementById('name1').textContent = country1.name;
   document.getElementById('value1').textContent = '';
   document.getElementById('value1').classList.remove('show');
   
   // Update option 2
-  document.getElementById('flag2').src = country2.flag;
-  document.getElementById('flag2').alt = country2.name;
+  const flag2 = document.getElementById('flag2');
+  flag2.src = country2.flag;
+  flag2.alt = country2.name;
   document.getElementById('name2').textContent = country2.name;
   document.getElementById('value2').textContent = '';
   document.getElementById('value2').classList.remove('show');
   
-  // Store country data in elements
+  // Store country data in option elements
   document.getElementById('option1').dataset.value = country1.value;
   document.getElementById('option1').dataset.country = country1.name;
   document.getElementById('option2').dataset.value = country2.value;
   document.getElementById('option2').dataset.country = country2.name;
   
-  // Reset styles
+  // Get country options (not flags, but the wrapper divs)
   const option1 = document.getElementById('option1');
   const option2 = document.getElementById('option2');
+  
+  // Reset styles on options
   option1.classList.remove('correct', 'incorrect', 'disabled');
   option2.classList.remove('correct', 'incorrect', 'disabled');
   
-  // Add click handlers
-  option1.onclick = () => handleSelection(option1, option2);
-  option2.onclick = () => handleSelection(option2, option1);
+  // Add click handlers to options
+  option1.onclick = () => handleSelection(1);
+  option2.onclick = () => handleSelection(2);
   
   console.log('Round loaded:', country1.name, 'vs', country2.name);
 }
@@ -195,19 +211,23 @@ function getTwoRandomCountries() {
 }
 
 // Handle country selection
-function handleSelection(selected, other) {
+function handleSelection(optionNumber) {
   if (gameState.isProcessing) return; // Prevent multiple clicks
   gameState.isProcessing = true;
   
-  console.log('Selection made:', selected.dataset.country);
+  const selectedOption = document.getElementById(`option${optionNumber}`);
+  const otherNumber = optionNumber === 1 ? 2 : 1;
+  const otherOption = document.getElementById(`option${otherNumber}`);
+  
+  console.log('Selection made:', selectedOption.dataset.country);
   
   // Disable both options
-  selected.classList.add('disabled');
-  other.classList.add('disabled');
+  selectedOption.classList.add('disabled');
+  otherOption.classList.add('disabled');
   
   // Get values
-  const selectedValue = parseFloat(selected.dataset.value);
-  const otherValue = parseFloat(other.dataset.value);
+  const selectedValue = parseFloat(selectedOption.dataset.value);
+  const otherValue = parseFloat(otherOption.dataset.value);
   
   // Determine if correct
   const isCorrect = selectedValue >= otherValue;
@@ -228,14 +248,14 @@ function handleSelection(selected, other) {
   
   if (isCorrect) {
     // Correct answer
-    selected.classList.add('correct');
+    selectedOption.classList.add('correct');
     gameState.correct++;
-    updateScore(100); // 100 points per correct answer
+    animateScoreCountUp(100); // Count-up animation!
     console.log('✅ Correct!');
   } else {
     // Incorrect answer
-    selected.classList.add('incorrect');
-    other.classList.add('correct'); // Show which one was correct
+    selectedOption.classList.add('incorrect');
+    otherOption.classList.add('correct'); // Show which one was correct
     gameState.incorrect++;
     gameState.lives--;
     updateLives();
@@ -246,12 +266,12 @@ function handleSelection(selected, other) {
       setTimeout(() => {
         clearInterval(gameState.timerInterval);
         endGame();
-      }, 3000);
+      }, 2000);
       return;
     }
   }
   
-  // Wait 3 seconds, then fade out and load next round
+  // Wait 2 seconds, then fade out and load next round
   setTimeout(() => {
     const battle = document.getElementById('vsBattle');
     battle.classList.add('fade-out');
@@ -265,7 +285,7 @@ function handleSelection(selected, other) {
         battle.classList.remove('fade-in');
       }, 500);
     }, 500);
-  }, 3000);
+  }, 2000);
 }
 
 // Format value with proper units and commas

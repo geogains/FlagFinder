@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- Styles -->
+  <link rel="stylesheet" href="css/game-modes.css" />
   <link rel="stylesheet" href="css/home.css"/>
   
   <style>
@@ -74,37 +75,45 @@
       margin-bottom: 30px;
     }
     
-    /* Flag Container (only this gets border) */
-    .flag-container {
+    /* Country Option Wrapper */
+    .country-option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      cursor: pointer;
+    }
+    
+    /* Flag (border applied directly here) */
+    .country-flag {
       width: 180px;
       height: 120px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: white;
+      object-fit: cover;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       border: 4px solid transparent;
       transition: all 0.3s ease;
-      cursor: pointer;
     }
     
-    .flag-container:hover {
+    .country-option:hover .country-flag {
       transform: translateY(-4px);
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     }
     
-    .flag-container.disabled {
+    .country-option.disabled {
       cursor: not-allowed;
+    }
+    
+    .country-option.disabled .country-flag {
       opacity: 0.9;
     }
     
-    .flag-container.correct {
+    .country-option.correct .country-flag {
       border-color: #10b981;
       animation: correctPulse 0.6s ease;
     }
     
-    .flag-container.incorrect {
+    .country-option.incorrect .country-flag {
       border-color: #ef4444;
       animation: shake 0.5s ease;
     }
@@ -118,21 +127,6 @@
       0%, 100% { transform: translateX(0); }
       25% { transform: translateX(-8px); }
       75% { transform: translateX(8px); }
-    }
-    
-    .country-flag {
-      width: 90%;
-      height: 90%;
-      object-fit: contain;
-      border-radius: 8px;
-    }
-    
-    /* Country Option Wrapper */
-    .country-option {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 15px;
     }
     
     .country-name {
@@ -187,16 +181,6 @@
       font-weight: 700;
       color: #ff6f61;
       font-family: 'Rubik', sans-serif;
-    }
-    
-    .score-value.animate {
-      animation: scoreUpdate 0.5s ease;
-    }
-    
-    @keyframes scoreUpdate {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.15); }
-      100% { transform: scale(1); }
     }
     
     /* Fade transitions */
@@ -344,7 +328,7 @@
         gap: 15px;
       }
       
-      .flag-container {
+      .country-flag {
         width: 140px;
         height: 95px;
       }
@@ -376,74 +360,75 @@
   </style>
 </head>
 <body>
-  <!-- GLASS HEADER (copied from top10.html) -->
-  <header class="glass-header">
-    <a href="index.html" class="logo-link">
-      <div class="logo">
-        <img src="images/logo.svg" alt="GeoRanks Logo" class="logo-img">
-        <span class="logo-text">GeoRanks</span>
+  <!-- GLASS HEADER (from categories.html) -->
+  <header class="home-glass-header">
+    <div class="logo-header">
+      <a href="index.html" class="logo-link">
+        <img src="assets/logo.png" alt="GeoRanks Logo" />
+      </a>
+    </div>
+    <div class="hamburger-menu">
+      <div class="menu-icon" id="menuToggle">
+        <span></span>
+        <span></span>
+        <span></span>
       </div>
-    </a>
-    
-    <button class="menu-toggle" id="menuToggle" aria-label="Menu">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
+    </div>
   </header>
 
-  <!-- HAMBURGER MENU OVERLAY -->
-  <div class="menu-overlay" id="menuOverlay">
-    <button class="menu-close" id="closeMenu" aria-label="Close Menu">&times;</button>
-    
-    <nav class="menu-nav">
-      <a href="index.html" class="menu-link">🏠 Home</a>
-      <a href="categories.html" class="menu-link">🎮 Play</a>
-      <a href="leaderboard.html" class="menu-link">🏆 Leaderboard</a>
-      <a href="account.html" class="menu-link menu-btn-account">👤 Account</a>
-      <a href="auth.html" class="menu-link">🔐 Login</a>
-    </nav>
-  </div>
-
-  <!-- MAIN GAME CONTAINER -->
-  <div class="vs-container">
-    <!-- Header: Timer and Lives -->
-    <div class="vs-header">
-      <div class="timer-display" id="timerDisplay">2:00</div>
-      <div class="lives-display" id="livesDisplay">❤️❤️❤️</div>
+  <div class="home-wrapper">
+    <!-- Hamburger Overlay Menu -->
+    <div class="menu-overlay" id="menuOverlay">
+      <div class="menu-panel">
+        <h2>Menu</h2>
+        <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
+        <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
+        <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
+        <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
+        <button class="menu-btn" onclick="window.location.href='how-to-play.html'">💡 How to Play</button>
+        <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
+        <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
+        <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'">🔓 Unlock All Categories</button>
+        <button class="menu-btn menu-close" id="closeMenu">Close</button>
+      </div>
     </div>
 
-    <!-- Category Title -->
-    <h1 class="vs-title" id="categoryTitle">WHICH COUNTRY HAS THE LARGEST LANDMASS?</h1>
+    <!-- MAIN GAME CONTAINER -->
+    <div class="vs-container">
+      <!-- Header: Timer and Lives -->
+      <div class="vs-header">
+        <div class="timer-display" id="timerDisplay">2:00</div>
+        <div class="lives-display" id="livesDisplay">❤️❤️❤️</div>
+      </div>
 
-    <!-- VS Battle -->
-    <div class="vs-battle" id="vsBattle">
-      <!-- Option 1 -->
-      <div class="country-option" id="option1">
-        <div class="flag-container" data-option="1">
+      <!-- Category Title -->
+      <h1 class="vs-title" id="categoryTitle">WHICH COUNTRY HAS THE LARGEST LANDMASS?</h1>
+
+      <!-- VS Battle -->
+      <div class="vs-battle" id="vsBattle">
+        <!-- Option 1 -->
+        <div class="country-option" id="option1">
           <img src="" alt="" class="country-flag" id="flag1">
+          <div class="country-name" id="name1">Loading...</div>
+          <div class="country-value" id="value1"></div>
         </div>
-        <div class="country-name" id="name1">Loading...</div>
-        <div class="country-value" id="value1"></div>
-      </div>
 
-      <!-- Divider -->
-      <div class="vs-divider">OR</div>
+        <!-- Divider -->
+        <div class="vs-divider">OR</div>
 
-      <!-- Option 2 -->
-      <div class="country-option" id="option2">
-        <div class="flag-container" data-option="2">
+        <!-- Option 2 -->
+        <div class="country-option" id="option2">
           <img src="" alt="" class="country-flag" id="flag2">
+          <div class="country-name" id="name2">Loading...</div>
+          <div class="country-value" id="value2"></div>
         </div>
-        <div class="country-name" id="name2">Loading...</div>
-        <div class="country-value" id="value2"></div>
       </div>
-    </div>
 
-    <!-- Score Display (inside container) -->
-    <div class="score-display">
-      <div class="score-label">Score</div>
-      <div class="score-value" id="scoreValue">0</div>
+      <!-- Score Display (inside container) -->
+      <div class="score-display">
+        <div class="score-label">Score</div>
+        <div class="score-value" id="scoreValue">0</div>
+      </div>
     </div>
   </div>
 
@@ -482,27 +467,41 @@
   </div>
 
   <!-- SCRIPTS -->
+  <!-- Hamburger Menu Logic -->
   <script>
-    // Hamburger menu
-    const toggleBtn = document.getElementById("menuToggle");
-    const overlay = document.getElementById("menuOverlay");
-    const closeBtn = document.getElementById("closeMenu");
+  const toggleBtn = document.getElementById("menuToggle");
+  const overlay = document.getElementById("menuOverlay");
+  const closeBtn = document.getElementById("closeMenu");
 
-    toggleBtn?.addEventListener("click", () => overlay.classList.add("active"));
-    closeBtn?.addEventListener("click", () => overlay.classList.remove("active"));
+  toggleBtn?.addEventListener("click", () => overlay.classList.add("active"));
+  closeBtn?.addEventListener("click", () => overlay.classList.remove("active"));
 
-    overlay.addEventListener("click", (e) => {
-      if (e.target === overlay) overlay.classList.remove("active");
-    });
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) overlay.classList.remove("active");
+  });
   </script>
 
   <script type="module">
     import { supabase } from './js/supabase-client.js';
 
-    // Hide Account button if not logged in
     const { data: { session } } = await supabase.auth.getSession();
+
+    // Hide Account if user not logged in
     if (!session || !session.user) {
       document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+    }
+
+    // Hide Unlock All Categories if user is premium
+    if (session && session.user) {
+      const { data: profile } = await supabase
+        .from('users')
+        .select('is_premium')
+        .eq('id', session.user.id)
+        .single();
+
+      if (profile?.is_premium) {
+        document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+      }
     }
   </script>
 
