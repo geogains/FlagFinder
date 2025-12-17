@@ -177,7 +177,7 @@ export const top10Data = {
       { name: "Sweden", rank: 6, code: "sweden", flag: "flags/sweden.png", value: 174 },
       { name: "Netherlands", rank: 7, code: "netherlands", flag: "flags/netherlands.png", value: 174 },
       { name: "Germany", rank: 8, code: "germany", flag: "flags/germany.png", value: 174 },
-      { name: "Finland", rank: 9, code: "finland", flag: "flags/finlsnd.png", value: 174 },
+      { name: "Finland", rank: 9, code: "finland", flag: "flags/finland.png", value: 174 },
       { name: "Luxembourg", rank: 10, code: "luxembourg", flag: "flags/luxembourg.png", value: 174 }
     ]
   },
