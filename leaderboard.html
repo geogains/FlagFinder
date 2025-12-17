@@ -235,12 +235,15 @@
   }
 
   .mode-toggle {
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 8px;
   }
 
   .mode-btn {
     width: 100%;
+    font-size: 0.85rem;
+    padding: 10px 8px;
   }
 
   .leaderboard-table {
@@ -309,23 +312,25 @@
 <main class="leaderboard-container fade-in">
   <h1 class="leaderboard-title">🏆 Leaderboard</h1>
 
-  <!-- Mode Toggle -->
+  <!-- Mode Toggle (4 tabs) -->
   <div class="mode-toggle">
     <button class="mode-btn active" id="classicModeBtn">Classic</button>
+    <button class="mode-btn" id="dailyChallengeModeBtn">Daily Challenge</button>
     <button class="mode-btn" id="top10ModeBtn">Top 10</button>
+    <button class="mode-btn" id="vsModeBtn">VS</button>
   </div>
 
-  <!-- Date Selector (only for Top 10) -->
+  <!-- Date Selector (only for Daily Challenge) -->
   <div class="date-selector" id="dateSelector">
     <select id="dateDropdown">
       <option value="">Select Date...</option>
     </select>
   </div>
 
-  <!-- Category Display (for Top 10 mode) -->
-  <div id="top10CategoryDisplay" style="display: none; text-align: center; margin: 15px 0;">
+  <!-- Category Display (for Daily Challenge mode) -->
+  <div id="dailyChallengeCategoryDisplay" style="display: none; text-align: center; margin: 15px 0;">
     <p style="font-size: 1.1rem; color: #6b7280; font-weight: 500;">
-      Category: <strong id="top10CategoryName" style="color: #0d315a;"></strong>
+      Category: <strong id="dailyChallengeCategoryName" style="color: #0d315a;"></strong>
     </p>
   </div>
 
@@ -390,14 +395,16 @@
 
   const leaderboardBody = document.getElementById("leaderboardBody");
   const classicModeBtn = document.getElementById("classicModeBtn");
+  const dailyChallengeModeBtn = document.getElementById("dailyChallengeModeBtn");
   const top10ModeBtn = document.getElementById("top10ModeBtn");
+  const vsModeBtn = document.getElementById("vsModeBtn");
   const dateSelector = document.getElementById("dateSelector");
   const dateDropdown = document.getElementById("dateDropdown");
   const categorySearchWrapper = document.getElementById("categorySearchWrapper");
-  const top10CategoryDisplay = document.getElementById("top10CategoryDisplay");
-  const top10CategoryName = document.getElementById("top10CategoryName");
+  const dailyChallengeCategoryDisplay = document.getElementById("dailyChallengeCategoryDisplay");
+  const dailyChallengeCategoryName = document.getElementById("dailyChallengeCategoryName");
 
-  let currentMode = 'classic'; // 'classic' or 'top10'
+  let currentMode = 'classic'; // 'classic', 'daily-challenge', 'top10', or 'vs'
   let currentCategory = null;
   let currentDate = null;
 
@@ -432,43 +439,73 @@
   };
 
   // Mode toggle handlers
+  // Classic Mode
   classicModeBtn.addEventListener('click', () => {
     currentMode = 'classic';
     classicModeBtn.classList.add('active');
+    dailyChallengeModeBtn.classList.remove('active');
     top10ModeBtn.classList.remove('active');
+    vsModeBtn.classList.remove('active');
     dateSelector.classList.remove('active');
-    
-    // Reset search wrapper display
     categorySearchWrapper.style.display = 'block';
-    categorySearchWrapper.style.width = '';
-    categorySearchWrapper.style.maxWidth = '';
-    
-    top10CategoryDisplay.style.display = 'none';
+    dailyChallengeCategoryDisplay.style.display = 'none';
     
     if (currentCategory) loadLeaderboard(currentCategory);
   });
 
+  // Daily Challenge Mode (formerly Top 10)
+  dailyChallengeModeBtn.addEventListener('click', () => {
+    currentMode = 'daily-challenge';
+    dailyChallengeModeBtn.classList.add('active');
+    classicModeBtn.classList.remove('active');
+    top10ModeBtn.classList.remove('active');
+    vsModeBtn.classList.remove('active');
+    dateSelector.classList.add('active');
+    categorySearchWrapper.style.display = 'none';
+    dailyChallengeCategoryDisplay.style.display = 'block';
+    populateDateDropdown();
+    if (currentDate) loadDailyChallengeLeaderboardForDate(currentDate);
+  });
+
+  // Top 10 Mode (NEW - best scores per category)
   top10ModeBtn.addEventListener('click', () => {
     currentMode = 'top10';
     top10ModeBtn.classList.add('active');
     classicModeBtn.classList.remove('active');
-    dateSelector.classList.add('active');
-    categorySearchWrapper.style.display = 'none';
-    top10CategoryDisplay.style.display = 'block';
-    populateDateDropdown();
-    if (currentDate) loadTop10LeaderboardForDate(currentDate);
+    dailyChallengeModeBtn.classList.remove('active');
+    vsModeBtn.classList.remove('active');
+    dateSelector.classList.remove('active');
+    categorySearchWrapper.style.display = 'block';
+    dailyChallengeCategoryDisplay.style.display = 'none';
+    
+    if (currentCategory) loadLeaderboard(currentCategory);
+  });
+
+  // VS Mode (NEW - best scores per category)
+  vsModeBtn.addEventListener('click', () => {
+    currentMode = 'vs';
+    vsModeBtn.classList.add('active');
+    classicModeBtn.classList.remove('active');
+    dailyChallengeModeBtn.classList.remove('active');
+    top10ModeBtn.classList.remove('active');
+    dateSelector.classList.remove('active');
+    categorySearchWrapper.style.display = 'block';
+    dailyChallengeCategoryDisplay.style.display = 'none';
+    
+    if (currentCategory) loadLeaderboard(currentCategory);
   });
 
   // Date dropdown handler
   dateDropdown.addEventListener('change', (e) => {
     currentDate = e.target.value;
     if (currentDate) {
-      loadTop10LeaderboardForDate(currentDate);
+      loadDailyChallengeLeaderboardForDate(currentDate);
     }
   });
 
   // Load Top 10 for selected date (determines category automatically)
-  async function loadTop10LeaderboardForDate(date) {
+  // Load Daily Challenge Leaderboard for selected date
+  async function loadDailyChallengeLeaderboardForDate(date) {
     leaderboardBody.innerHTML = `<tr><td colspan="4">Loading...</td></tr>`;
 
     // Calculate which category was active on this date
@@ -500,7 +537,7 @@
     
     // Display category name
     const displayName = displayNameMap[categoryKey] || formatCategoryName(categoryKey);
-    top10CategoryName.textContent = displayName;
+    dailyChallengeCategoryName.textContent = displayName;
     
     // Import the correct category ID mapping from top10-data.js
     const { CATEGORY_ID_MAP } = await import('./js/top10-data.js');
@@ -512,11 +549,11 @@
       return;
     }
 
-    console.log('Loading Top 10 for:', { date, categoryKey, categoryId });
+    console.log('Loading Daily Challenge for:', { date, categoryKey, categoryId });
 
-    // Get scores WITHOUT nested user data
+    // Get scores from daily_challenge_scores table (renamed from top10_scores)
     const { data: scores, error } = await supabase
-      .from("top10_scores")
+      .from("daily_challenge_scores")
       .select("score, user_id")
       .eq("category_id", categoryId)
       .eq("played_date", date)
@@ -524,7 +561,7 @@
       .limit(20);
 
     if (error) {
-      console.error('Error loading Top 10 scores:', error);
+      console.error('Error loading Daily Challenge scores:', error);
       leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Error loading scores: ${error.message}</td></tr>`;
       return;
     }
@@ -593,46 +630,55 @@
     const initial = selectedParam || categories[0].name;
     currentCategory = initial;
     
-    if (currentMode === 'classic') {
+    // Initialize based on current mode
+    if (currentMode === 'classic' || currentMode === 'top10' || currentMode === 'vs') {
       loadLeaderboard(initial);
-    } else {
+    } else if (currentMode === 'daily-challenge') {
       populateDateDropdown();
-      loadTop10Leaderboard(initial, currentDate);
+      if (currentDate) loadDailyChallengeLeaderboardForDate(currentDate);
     }
     
     const displayName = displayNameMap[initial.toLowerCase()] || formatCategoryName(initial);
     document.getElementById("categorySearchInput").value = "🔍 " + displayName;
   }
 
-  // Load Classic Mode Leaderboard
+  // Main Leaderboard Loading Function (handles Classic, Top 10, VS)
   async function loadLeaderboard(categoryName) {
     leaderboardBody.innerHTML = `<tr><td colspan="4">Loading...</td></tr>`;
+    currentCategory = categoryName;
 
-    const { data: catData } = await supabase
-      .from("categories")
-      .select("id")
-      .eq("name", categoryName)
-      .single();
-
-    if (!catData) {
-      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Category not found</td></tr>`;
-      return;
+    if (currentMode === 'classic') {
+      await loadClassicLeaderboard(categoryName);
+    } else if (currentMode === 'top10') {
+      await loadTop10BestLeaderboard(categoryName);
+    } else if (currentMode === 'vs') {
+      await loadVSLeaderboard(categoryName);
     }
+  }
 
-    const { data: scores } = await supabase
-      .from("category_scores")
-      .select("score, user_id, users(username, avatar_url, is_premium)")
-      .eq("category_id", catData.id)
+  // Load Classic Mode Leaderboard
+  async function loadClassicLeaderboard(categoryName) {
+    // Get scores from scores table (best score per user per category)
+    const { data: scores, error } = await supabase
+      .from("scores")
+      .select("score, correct_answers, incorrect_answers, user_id")
+      .eq("category", categoryName)
       .order("score", { ascending: false })
       .limit(20);
 
-    renderLeaderboard(scores);
+    if (error) {
+      console.error('Error loading Classic scores:', error);
+      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Error loading scores</td></tr>`;
+      return;
+    }
+
+    await renderLeaderboardWithUsers(scores);
   }
 
-  // Load Top 10 Mode Leaderboard
-  async function loadTop10Leaderboard(categoryName, date) {
-    leaderboardBody.innerHTML = `<tr><td colspan="4">Loading...</td></tr>`;
-
+  // Load Top 10 Best Scores Leaderboard (NEW)
+  async function loadTop10BestLeaderboard(categoryName) {
+    // Get category ID from CATEGORY_ID_MAP
+    const { CATEGORY_ID_MAP } = await import('./js/top10-data.js');
     const categoryId = CATEGORY_ID_MAP[categoryName.toLowerCase()];
     
     if (!categoryId) {
@@ -640,15 +686,91 @@
       return;
     }
 
-    const { data: scores } = await supabase
-      .from("top10_scores")
-      .select("score, user_id, users(username, avatar_url, is_premium)")
+    // Get best scores from top10_best_scores table
+    const { data: scores, error } = await supabase
+      .from("top10_best_scores")
+      .select("score, correct_count, wrong_count, user_id")
       .eq("category_id", categoryId)
-      .eq("played_date", date)
       .order("score", { ascending: false })
       .limit(20);
 
-    renderLeaderboard(scores);
+    if (error) {
+      console.error('Error loading Top 10 best scores:', error);
+      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Error loading scores</td></tr>`;
+      return;
+    }
+
+    await renderLeaderboardWithUsers(scores);
+  }
+
+  // Load VS Best Scores Leaderboard (NEW)
+  async function loadVSLeaderboard(categoryName) {
+    // Get category ID from CATEGORY_ID_MAP
+    const { CATEGORY_ID_MAP } = await import('./js/top10-data.js');
+    const categoryId = CATEGORY_ID_MAP[categoryName.toLowerCase()];
+    
+    if (!categoryId) {
+      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Category not available for VS</td></tr>`;
+      return;
+    }
+
+    // Get best scores per user from vs_scores table
+    // Use a subquery to get only the highest score per user
+    const { data: scores, error } = await supabase
+      .from("vs_scores")
+      .select("score, correct_count, accuracy, user_id, category_id")
+      .eq("category_id", categoryId)
+      .order("score", { ascending: false });
+
+    if (error) {
+      console.error('Error loading VS scores:', error);
+      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Error loading scores</td></tr>`;
+      return;
+    }
+
+    // Filter to show only best score per user
+    const bestScoresMap = new Map();
+    scores?.forEach(score => {
+      const existing = bestScoresMap.get(score.user_id);
+      if (!existing || score.score > existing.score) {
+        bestScoresMap.set(score.user_id, score);
+      }
+    });
+
+    const bestScores = Array.from(bestScoresMap.values())
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 20);
+
+    await renderLeaderboardWithUsers(bestScores);
+  }
+
+  // Helper: Fetch user data and render leaderboard
+  async function renderLeaderboardWithUsers(scores) {
+    if (!scores || scores.length === 0) {
+      leaderboardBody.innerHTML = `<tr><td colspan="4">👤 No scores yet for this category</td></tr>`;
+      return;
+    }
+
+    // Fetch user data separately
+    const userIds = scores.map(s => s.user_id);
+    const { data: users } = await supabase
+      .from("users")
+      .select("id, username, avatar_url, is_premium, country_code")
+      .in("id", userIds);
+
+    // Create a map for quick user lookup
+    const userMap = new Map();
+    users?.forEach(user => {
+      userMap.set(user.id, user);
+    });
+
+    // Attach user data to scores
+    const scoresWithUsers = scores.map(score => ({
+      ...score,
+      users: userMap.get(score.user_id)
+    }));
+
+    renderLeaderboard(scoresWithUsers);
   }
 
   // Render leaderboard table
@@ -656,7 +778,7 @@
     leaderboardBody.innerHTML = "";
 
     if (!scores || scores.length === 0) {
-      leaderboardBody.innerHTML = `<tr><td colspan="4">👤 No scores yet for this ${currentMode === 'top10' ? 'challenge' : 'category'}</td></tr>`;
+      leaderboardBody.innerHTML = `<tr><td colspan="4">👤 No scores yet for this category</td></tr>`;
       return;
     }
 
@@ -691,7 +813,7 @@
 
   // Make functions globally accessible
   window.loadLeaderboard = loadLeaderboard;
-  window.loadTop10LeaderboardForDate = loadTop10LeaderboardForDate;
+  window.loadDailyChallengeLeaderboardForDate = loadDailyChallengeLeaderboardForDate;
   window.currentMode = currentMode;
   window.currentDate = currentDate;
   window.currentCategory = currentCategory;
@@ -760,10 +882,11 @@
           newUrl.searchParams.set('mode', cat.name);
           window.history.pushState({}, '', newUrl);
 
-          if (window.currentMode === 'classic') {
+          // Handle all modes: classic, daily-challenge, top10, vs
+          if (window.currentMode === 'classic' || window.currentMode === 'top10' || window.currentMode === 'vs') {
             window.loadLeaderboard(cat.name);
-          } else if (window.currentMode === 'top10' && window.currentDate) {
-            window.loadTop10Leaderboard(cat.name, window.currentDate);
+          } else if (window.currentMode === 'daily-challenge' && window.currentDate) {
+            window.loadDailyChallengeLeaderboardForDate(window.currentDate);
           }
 
           categorySearchModal.classList.add('hidden');
