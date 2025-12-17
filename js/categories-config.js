@@ -15,7 +15,7 @@ export const categoriesConfig = {
   population: {
     title: "Population",
     emoji: "👥",
-    unit: "M",
+    unit: "",
     dataFile: "population",
     dataKey: "populationData",
     valueField: "population",
