@@ -229,12 +229,13 @@
   const dailyTitle = document.getElementById("dailyChallengeTitle");
   const dailyBtn = document.getElementById("dailyChallengeBtn");
 
+  // Calculate display text
+  const modeText = modeDisplayNames[todaysChallenge.mode].toUpperCase();
+  const categoryText = categoryDisplayNames[todaysChallenge.category].toUpperCase();
+  const emoji = categoryEmojis[todaysChallenge.category];
+
   if (dailyTitle && dailyBtn) {
     // Display: "MODE: CATEGORY" (e.g., "VS MODE: LANDMASS 🗺️")
-    const modeText = modeDisplayNames[todaysChallenge.mode].toUpperCase();
-    const categoryText = categoryDisplayNames[todaysChallenge.category].toUpperCase();
-    const emoji = categoryEmojis[todaysChallenge.category];
-    
     dailyTitle.textContent = `${modeText}: ${categoryText} ${emoji}`;
     
     // Redirect to new daily challenge page (handles mode selection)
