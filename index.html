@@ -212,47 +212,16 @@
 
 <!-- DAILY CHALLENGE SCRIPT -->
 <script type="module">
-  import { top10Data } from './js/top10-data.js';
+  import { 
+    getTodaysDailyChallenge,
+    modeDisplayNames,
+    categoryDisplayNames,
+    categoryEmojis
+  } from './js/daily-challenge.js';
 
-  // Top 10 categories (13 total for daily rotation)
-  const top10Categories = [
-    { key: "population", title: "POPULATION 👥", emoji: "👥" },
-    { key: "gdp", title: "GDP PER CAPITA 💵", emoji: "💵" },
-    { key: "altitude", title: "HIGHEST ALTITUDE 🏔️", emoji: "🏔️" },
-    { key: "forest", title: "FOREST COVER 🌲", emoji: "🌲" },
-    { key: "coastline", title: "LONGEST COASTLINE 🌊", emoji: "🌊" },
-    { key: "olympic", title: "OLYMPIC MEDALS 🥇", emoji: "🥇" },
-    { key: "landmass", title: "LAND MASS 🌍", emoji: "🌍" },
-    { key: "passport", title: "PASSPORT STRENGTH 🛂", emoji: "🛂" },
-    { key: "beer", title: "BEER CONSUMPTION 🍺", emoji: "🍺" },
-    { key: "nobelprize", title: "NOBEL PRIZE WINNERS 🕊️", emoji: "🕊️" },
-    { key: "worldcup", title: "WORLD CUP TROPHIES ⚽", emoji: "⚽" },
-    { key: "temperature", title: "HIGHEST TEMPERATURE ☀️", emoji: "☀️" },
-    { key: "precipitation", title: "HIGHEST RAINFALL 🌧️", emoji: "🌧️" }
-  ];
-
-  // Calculate today's category using seeded random (stays same all day UTC)
-  function getDailyChallengeCategory() {
-    const now = new Date();
-    const year = now.getUTCFullYear();
-    const month = now.getUTCMonth() + 1;
-    const day = now.getUTCDate();
-    
-    // Create a seed from the date (YYYYMMDD format)
-    const seed = year * 10000 + month * 100 + day;
-    
-    // Simple seeded random function (same seed = same result)
-    const seededRandom = (seed) => {
-      const x = Math.sin(seed) * 10000;
-      return x - Math.floor(x);
-    };
-    
-    // Get random index based on today's seed
-    const randomIndex = Math.floor(seededRandom(seed) * top10Categories.length);
-    return top10Categories[randomIndex];
-  }
-  
-  const todayCategory = getDailyChallengeCategory();
+  // Get today's challenge (mode + category)
+  const todaysChallenge = getTodaysDailyChallenge();
+  console.log('Today\'s Daily Challenge:', todaysChallenge);
 
   // Update daily challenge card
   const dailyCard = document.getElementById("dailyChallengeCard");
@@ -260,12 +229,18 @@
   const dailyBtn = document.getElementById("dailyChallengeBtn");
 
   if (dailyTitle && dailyBtn) {
-    dailyTitle.textContent = todayCategory.title;
+    // Display: "MODE: CATEGORY" (e.g., "VS MODE: LANDMASS 🗺️")
+    const modeText = modeDisplayNames[todaysChallenge.mode].toUpperCase();
+    const categoryText = categoryDisplayNames[todaysChallenge.category].toUpperCase();
+    const emoji = categoryEmojis[todaysChallenge.category];
+    
+    dailyTitle.textContent = `${modeText}: ${categoryText} ${emoji}`;
+    
     // Redirect to new daily challenge page (handles mode selection)
     dailyBtn.href = `daily-challenge.html`;
   }
 
-  // Set background image
+  // Set background image based on category
   if (dailyCard) {
     const bgMap = {
       population: "population.jpg",
@@ -281,16 +256,19 @@
       worldcup: "worldcup.jpg",
       temperature: "hightemp.jpg",
       precipitation: "rainfall.jpg",
+      crimerate: "crimerate.jpg",
+      happiness: "happiness.jpg",
+      cuisine: "cuisine.jpg"
     };
 
-    const img = bgMap[todayCategory.key];
+    const img = bgMap[todaysChallenge.category];
     if (img) {
       dailyCard.style.backgroundImage = `url('images/categories/${img}')`;
       dailyCard.classList.add("has-photo");
     }
   }
 
-  console.log(`📅 Today's Top 10: ${todayCategory.title}`);
+  console.log(`📅 Today's Daily Challenge: ${modeText} - ${categoryText}`);
 </script>
 
 <!-- LOCKED CATEGORY LOGIC -->
