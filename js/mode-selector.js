@@ -38,7 +38,7 @@ export function createModeSelectorModal() {
         
         <!-- Header -->
         <div class="mode-selector-header">
-          <h2 class="mode-selector-title">Select Game Mode</h2>
+          <h2 class="mode-selector-title">Choose Your Mode</h2>
           <p class="mode-selector-category" id="modeSelectorCategory">
             <span id="modeSelectorCategoryName">Population</span> 
             <span id="modeSelectorCategoryEmoji">👥</span>
@@ -97,6 +97,32 @@ export function openModeSelector(categoryKey, categoryDisplayName, categoryEmoji
   // Update category display
   document.getElementById('modeSelectorCategoryName').textContent = categoryDisplayName;
   document.getElementById('modeSelectorCategoryEmoji').textContent = categoryEmoji;
+
+  // Set background image based on category
+  const modal = document.querySelector('.mode-selector-modal');
+  const bgMap = {
+    population: "population.jpg",
+    gdp: "gdp.jpg",
+    altitude: "altitude.jpg",
+    forest: "forest.jpg",
+    coastline: "coastline.jpg",
+    olympic: "olympic.jpg",
+    landmass: "landmass.jpg",
+    passport: "passport.jpg",
+    beer: "beer.jpg",
+    nobelprize: "nobelprize.jpg",
+    worldcup: "worldcup.jpg",
+    temperature: "hightemp.jpg",
+    precipitation: "rainfall.jpg",
+    crimerate: "crimerate.jpg",
+    happiness: "happiness.jpg",
+    cuisine: "cuisine.jpg"
+  };
+
+  const bgImage = bgMap[categoryKey];
+  if (bgImage && modal) {
+    modal.style.backgroundImage = `url('images/categories/${bgImage}')`;
+  }
 
   // Generate mode cards
   const cardsGrid = document.getElementById('modeCardsGrid');
