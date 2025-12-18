@@ -1,152 +1,473 @@
-// js/daily-challenge.js v1.0
-// Daily Challenge Router - Selects random mode + category and redirects
-
-import { supabase } from './supabase-client.js';
-
-console.log('Daily Challenge system loaded');
-
-// All available categories
-const allCategories = [
-  'population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
-  'olympic', 'worldcup', 'passport', 'beer', 'nobelprize', 
-  'temperature', 'precipitation', 'crimerate', 'happiness', 'cuisine'
-];
-
-// Categories with at least 10 countries (valid for Top 10 mode)
-const top10ValidCategories = [
-  'population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
-  'passport', 'beer', 'nobelprize', 'temperature', 'precipitation',
-  'crimerate', 'happiness'
-];
-
-// All categories valid for Classic and VS (no minimum requirement)
-const classicVsCategories = [...allCategories];
-
-// Game modes
-const gameModes = ['classic', 'top10', 'vs'];
-
-// Seeded random function (same seed = same result)
-function seededRandom(seed) {
-  const x = Math.sin(seed) * 10000;
-  return x - Math.floor(x);
-}
-
-// Get daily seed based on current UTC date
-function getDailySeed() {
-  const today = new Date();
-  const year = today.getUTCFullYear();
-  const month = today.getUTCMonth() + 1; // 0-indexed, so add 1
-  const day = today.getUTCDate();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Daily Challenge | GeoRanks</title>
+  <link rel="icon" href="assets/favicon.png" type="image/png">
   
-  // Create seed: YYYYMMDD format (e.g., 20251217)
-  const seed = year * 10000 + month * 100 + day;
-  console.log('Daily seed:', seed);
-  return seed;
-}
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/game-modes.css" />
+  <link rel="stylesheet" href="css/home.css"/>
+  
+  <style>
+    body {
+      background: linear-gradient(135deg, #a7f3d0 0%, #38bdf8 100%);
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+    
+    .daily-container {
+      max-width: 600px;
+      margin: 120px auto 60px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      padding: 50px 40px;
+      border-radius: 24px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      text-align: center;
+    }
+    
+    .daily-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #ff9770, #ff6f61);
+      color: white;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .daily-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #0d315a;
+      margin-bottom: 15px;
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    .daily-subtitle {
+      font-size: 1.1rem;
+      color: #6b7280;
+      margin-bottom: 40px;
+    }
+    
+    .challenge-card {
+      position: relative;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      padding: 0;
+      border-radius: 20px;
+      margin-bottom: 30px;
+      overflow: hidden;
+      min-height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .challenge-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 1;
+    }
+    
+    .challenge-content {
+      position: relative;
+      z-index: 2;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      padding: 40px 30px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      text-align: center;
+      max-width: 90%;
+    }
+    
+    .challenge-emoji {
+      font-size: 4rem;
+      margin-bottom: 15px;
+    }
+    
+    .challenge-mode {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    .challenge-category {
+      font-size: 1.3rem;
+      font-weight: 500;
+      opacity: 0.95;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    }
+    
+    .challenge-date {
+      margin-top: 15px;
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+    
+    .play-button {
+      background: linear-gradient(135deg, #ff9770, #ff6f61);
+      color: white;
+      border: none;
+      padding: 18px 50px;
+      border-radius: 50px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 20px rgba(255, 111, 97, 0.3);
+      font-family: 'Poppins', sans-serif;
+      margin-bottom: 20px;
+    }
+    
+    .play-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(255, 111, 97, 0.4);
+    }
+    
+    .play-button:active {
+      transform: translateY(0);
+    }
+    
+    .completed-badge {
+      background: #10b981;
+      color: white;
+      padding: 15px 30px;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    
+    .back-button {
+      background: #e5e7eb;
+      color: #1f2937;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    .back-button:hover {
+      background: #d1d5db;
+    }
+    
+    .loading {
+      font-size: 1.2rem;
+      color: #6b7280;
+      margin: 40px 0;
+    }
+    
+    .error {
+      background: #fee2e2;
+      color: #dc2626;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+    
+    /* Mobile */
+    @media (max-width: 768px) {
+      .daily-container {
+        margin: 90px 16px 40px;
+        padding: 40px 25px;
+      }
+      
+      .daily-title {
+        font-size: 2rem;
+      }
+      
+      .challenge-card {
+        min-height: 250px;
+      }
+      
+      .challenge-content {
+        padding: 30px 20px;
+        max-width: 95%;
+      }
+      
+      .challenge-emoji {
+        font-size: 3rem;
+      }
+      
+      .challenge-mode {
+        font-size: 1.5rem;
+      }
+      
+      .challenge-category {
+        font-size: 1.1rem;
+      }
+      
+      .play-button {
+        padding: 15px 40px;
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- GLASS HEADER -->
+  <header class="home-glass-header">
+    <div class="logo-header">
+      <a href="index.html" class="logo-link">
+        <img src="assets/logo.png" alt="GeoRanks Logo" />
+      </a>
+    </div>
+    <div class="hamburger-menu">
+      <div class="menu-icon" id="menuToggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </header>
 
-// Get today's daily challenge (mode + category)
-export function getTodaysDailyChallenge() {
-  const seed = getDailySeed();
-  
-  // Pick random game mode (use seed directly)
-  const modeIndex = Math.floor(seededRandom(seed) * gameModes.length);
-  const selectedMode = gameModes[modeIndex];
-  
-  console.log('Selected mode:', selectedMode);
-  
-  // Pick random category (use seed + offset for different randomness)
-  let validCategories;
-  
-  if (selectedMode === 'top10') {
-    validCategories = top10ValidCategories;
-  } else {
-    validCategories = classicVsCategories;
-  }
-  
-  const categoryIndex = Math.floor(seededRandom(seed + 1000) * validCategories.length);
-  const selectedCategory = validCategories[categoryIndex];
-  
-  console.log('Selected category:', selectedCategory);
-  console.log('Valid categories for this mode:', validCategories.length);
-  
-  return {
-    mode: selectedMode,
-    category: selectedCategory,
-    date: new Date().toISOString().split('T')[0]
-  };
-}
+  <div class="home-wrapper">
+    <!-- Hamburger Overlay Menu -->
+    <div class="menu-overlay" id="menuOverlay">
+      <div class="menu-panel">
+        <h2>Menu</h2>
+        <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
+        <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
+        <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
+        <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
+        <button class="menu-btn" onclick="window.location.href='how-to-play.html'">💡 How to Play</button>
+        <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
+        <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
+        <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'">🔓 Unlock All Categories</button>
+        <button class="menu-btn menu-close" id="closeMenu">Close</button>
+      </div>
+    </div>
 
-// Check if user has completed today's daily challenge
-export async function hasCompletedTodaysChallenge() {
-  const { data: { session } } = await supabase.auth.getSession();
-  
-  if (!session) {
-    console.log('Not logged in - allowing play');
-    return false;
-  }
-  
-  const todayString = new Date().toISOString().split('T')[0];
-  
-  const { data, error } = await supabase
-    .from('daily_challenge_scores')
-    .select('id, completed')
-    .eq('user_id', session.user.id)
-    .eq('played_date', todayString)
-    .eq('completed', true)
-    .maybeSingle();
-  
-  if (error) {
-    console.error('Error checking completion:', error);
-    return false;
-  }
-  
-  return !!data; // Returns true if completed record exists
-}
+    <!-- MAIN DAILY CHALLENGE CONTAINER -->
+    <div class="daily-container">
+      <div class="daily-badge">Daily Challenge</div>
+      <h1 class="daily-title">Today's Challenge</h1>
+      <p class="daily-subtitle" id="dateDisplay">Loading...</p>
 
-// Get display names for modes and categories
-export const modeDisplayNames = {
-  classic: 'Classic',
-  top10: 'Top 10',
-  vs: 'VS Mode'
-};
+      <!-- Loading State -->
+      <div id="loadingState" class="loading">
+        <p>Preparing your daily challenge...</p>
+      </div>
 
-export const categoryDisplayNames = {
-  population: 'Population',
-  gdp: 'GDP Per Capita',
-  landmass: 'Landmass',
-  altitude: 'Highest Altitude',
-  forest: 'Forest Coverage',
-  coastline: 'Coastline Length',
-  olympic: 'Olympic Medals',
-  worldcup: 'World Cup Wins',
-  passport: 'Passport Power',
-  beer: 'Beer Consumption',
-  nobelprize: 'Nobel Prizes',
-  temperature: 'Temperature',
-  precipitation: 'Precipitation',
-  crimerate: 'Crime Rate',
-  happiness: 'Happiness Index',
-  cuisine: 'Cuisine Popularity'
-};
+      <!-- Challenge Card (Hidden until loaded) -->
+      <div id="challengeCard" style="display: none;">
+        <div class="challenge-card" id="challengeCardBg">
+          <div class="challenge-content">
+            <div class="challenge-emoji" id="challengeEmoji">🌍</div>
+            <div class="challenge-mode" id="challengeMode">CLASSIC MODE</div>
+            <div class="challenge-category" id="challengeCategory">Population</div>
+            <div class="challenge-date" id="challengeDate">December 17, 2025</div>
+          </div>
+        </div>
 
-// Get emoji for each category
-export const categoryEmojis = {
-  population: '👥',
-  gdp: '💵',
-  landmass: '🗺️',
-  altitude: '🏔️',
-  forest: '🌲',
-  coastline: '🏖️',
-  olympic: '🥇',
-  worldcup: '⚽',
-  passport: '🛂',
-  beer: '🍺',
-  nobelprize: '🏆',
-  temperature: '🌡️',
-  precipitation: '🌧️',
-  crimerate: '🚨',
-  happiness: '😊',
-  cuisine: '🍽️'
-};
+        <button class="play-button" id="playButton">
+          🎮 Start Challenge
+        </button>
 
-console.log('Daily Challenge utilities ready');
+        <button class="back-button" onclick="window.location.href='index.html'">
+          ← Back to Home
+        </button>
+      </div>
+
+      <!-- Completed State (Hidden until checked) -->
+      <div id="completedState" style="display: none;">
+        <div class="completed-badge">
+          ✅ Challenge Completed!
+        </div>
+        <p style="color: #6b7280; margin-bottom: 30px;">
+          Come back tomorrow for a new challenge!
+        </p>
+        
+        <button class="back-button" onclick="window.location.href='leaderboard.html'" style="margin-right: 10px;">
+          🏆 View Leaderboard
+        </button>
+        <button class="back-button" onclick="window.location.href='index.html'">
+          🏠 Home
+        </button>
+      </div>
+
+      <!-- Error State (Hidden unless error) -->
+      <div id="errorState" class="error" style="display: none;">
+        <p><strong>⚠️ Error loading challenge</strong></p>
+        <p id="errorMessage">Please try again later.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <!-- Hamburger Menu Logic -->
+  <script>
+  const toggleBtn = document.getElementById("menuToggle");
+  const overlay = document.getElementById("menuOverlay");
+  const closeBtn = document.getElementById("closeMenu");
+
+  toggleBtn?.addEventListener("click", () => overlay.classList.add("active"));
+  closeBtn?.addEventListener("click", () => overlay.classList.remove("active"));
+
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) overlay.classList.remove("active");
+  });
+  </script>
+
+  <script type="module">
+    import { supabase } from './js/supabase-client.js';
+
+    const { data: { session } } = await supabase.auth.getSession();
+
+    // Hide Account if user not logged in
+    if (!session || !session.user) {
+      document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+    }
+
+    // Hide Unlock All Categories if user is premium
+    if (session && session.user) {
+      const { data: profile } = await supabase
+        .from('users')
+        .select('is_premium')
+        .eq('id', session.user.id)
+        .single();
+
+      if (profile?.is_premium) {
+        document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+      }
+    }
+  </script>
+
+  <!-- Daily Challenge Logic -->
+  <script type="module">
+    import { 
+      getTodaysDailyChallenge, 
+      hasCompletedTodaysChallenge,
+      modeDisplayNames,
+      categoryDisplayNames,
+      categoryEmojis
+    } from './js/daily-challenge.js';
+
+    // Elements
+    const loadingState = document.getElementById('loadingState');
+    const challengeCard = document.getElementById('challengeCard');
+    const completedState = document.getElementById('completedState');
+    const errorState = document.getElementById('errorState');
+    const dateDisplay = document.getElementById('dateDisplay');
+    const playButton = document.getElementById('playButton');
+
+    // Format today's date
+    const today = new Date();
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    dateDisplay.textContent = today.toLocaleDateString('en-US', options);
+
+    // Initialize
+    async function init() {
+      try {
+        // Check if user completed today's challenge
+        const completed = await hasCompletedTodaysChallenge();
+        
+        if (completed) {
+          loadingState.style.display = 'none';
+          completedState.style.display = 'block';
+          return;
+        }
+
+        // Get today's challenge
+        const challenge = getTodaysDailyChallenge();
+        console.log('Today\'s challenge:', challenge);
+
+        // Update UI
+        const modeElement = document.getElementById('challengeMode');
+        const categoryElement = document.getElementById('challengeCategory');
+        const emojiElement = document.getElementById('challengeEmoji');
+        const dateElement = document.getElementById('challengeDate');
+        const cardBg = document.getElementById('challengeCardBg');
+
+        modeElement.textContent = modeDisplayNames[challenge.mode] || challenge.mode;
+        categoryElement.textContent = categoryDisplayNames[challenge.category] || challenge.category;
+        emojiElement.textContent = categoryEmojis[challenge.category] || '🌍';
+        dateElement.textContent = today.toLocaleDateString('en-US', options);
+
+        // Set background image based on category
+        const bgMap = {
+          population: "population.jpg",
+          gdp: "gdp.jpg",
+          altitude: "altitude.jpg",
+          forest: "forest.jpg",
+          coastline: "coastline.jpg",
+          olympic: "olympic.jpg",
+          landmass: "landmass.jpg",
+          passport: "passport.jpg",
+          beer: "beer.jpg",
+          nobelprize: "nobelprize.jpg",
+          worldcup: "worldcup.jpg",
+          temperature: "hightemp.jpg",
+          precipitation: "rainfall.jpg",
+          crimerate: "crimerate.jpg",
+          happiness: "happiness.jpg",
+          cuisine: "cuisine.jpg"
+        };
+
+        const bgImage = bgMap[challenge.category];
+        if (bgImage && cardBg) {
+          cardBg.style.backgroundImage = `url('images/categories/${bgImage}')`;
+        }
+
+        // Set up play button
+        playButton.onclick = () => {
+          // Determine which game file to load
+          let gameFile;
+          if (challenge.mode === 'classic') {
+            gameFile = 'game.html';
+          } else if (challenge.mode === 'top10') {
+            gameFile = 'top10.html';
+          } else if (challenge.mode === 'vs') {
+            gameFile = 'vs.html';
+          }
+
+          // Redirect with daily flag
+          window.location.href = `${gameFile}?mode=${challenge.category}&daily=true`;
+        };
+
+        // Show challenge card
+        loadingState.style.display = 'none';
+        challengeCard.style.display = 'block';
+
+      } catch (error) {
+        console.error('Error initializing daily challenge:', error);
+        loadingState.style.display = 'none';
+        errorState.style.display = 'block';
+        document.getElementById('errorMessage').textContent = error.message || 'Unknown error occurred';
+      }
+    }
+
+    // Run initialization
+    init();
+  </script>
+</body>
+</html>

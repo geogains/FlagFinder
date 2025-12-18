@@ -62,23 +62,49 @@
     }
     
     .challenge-card {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 40px 30px;
+      position: relative;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      padding: 0;
       border-radius: 20px;
       margin-bottom: 30px;
+      overflow: hidden;
+      min-height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .challenge-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 1;
+    }
+    
+    .challenge-content {
+      position: relative;
+      z-index: 2;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      padding: 40px 30px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
       color: white;
-      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+      text-align: center;
+      max-width: 90%;
     }
     
     .challenge-emoji {
       font-size: 4rem;
       margin-bottom: 15px;
-      animation: bounce 2s infinite;
-    }
-    
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
     }
     
     .challenge-mode {
@@ -87,12 +113,14 @@
       margin-bottom: 10px;
       text-transform: uppercase;
       letter-spacing: 2px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     }
     
     .challenge-category {
       font-size: 1.3rem;
       font-weight: 500;
-      opacity: 0.9;
+      opacity: 0.95;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
     }
     
     .challenge-date {
@@ -178,7 +206,12 @@
       }
       
       .challenge-card {
+        min-height: 250px;
+      }
+      
+      .challenge-content {
         padding: 30px 20px;
+        max-width: 95%;
       }
       
       .challenge-emoji {
@@ -247,11 +280,13 @@
 
       <!-- Challenge Card (Hidden until loaded) -->
       <div id="challengeCard" style="display: none;">
-        <div class="challenge-card">
-          <div class="challenge-emoji" id="challengeEmoji">🌍</div>
-          <div class="challenge-mode" id="challengeMode">CLASSIC MODE</div>
-          <div class="challenge-category" id="challengeCategory">Population</div>
-          <div class="challenge-date" id="challengeDate">December 17, 2025</div>
+        <div class="challenge-card" id="challengeCardBg">
+          <div class="challenge-content">
+            <div class="challenge-emoji" id="challengeEmoji">🌍</div>
+            <div class="challenge-mode" id="challengeMode">CLASSIC MODE</div>
+            <div class="challenge-category" id="challengeCategory">Population</div>
+            <div class="challenge-date" id="challengeDate">December 17, 2025</div>
+          </div>
         </div>
 
         <button class="play-button" id="playButton">
@@ -371,11 +406,37 @@
         const categoryElement = document.getElementById('challengeCategory');
         const emojiElement = document.getElementById('challengeEmoji');
         const dateElement = document.getElementById('challengeDate');
+        const cardBg = document.getElementById('challengeCardBg');
 
         modeElement.textContent = modeDisplayNames[challenge.mode] || challenge.mode;
         categoryElement.textContent = categoryDisplayNames[challenge.category] || challenge.category;
         emojiElement.textContent = categoryEmojis[challenge.category] || '🌍';
         dateElement.textContent = today.toLocaleDateString('en-US', options);
+
+        // Set background image based on category
+        const bgMap = {
+          population: "population.jpg",
+          gdp: "gdp.jpg",
+          altitude: "altitude.jpg",
+          forest: "forest.jpg",
+          coastline: "coastline.jpg",
+          olympic: "olympic.jpg",
+          landmass: "landmass.jpg",
+          passport: "passport.jpg",
+          beer: "beer.jpg",
+          nobelprize: "nobelprize.jpg",
+          worldcup: "worldcup.jpg",
+          temperature: "hightemp.jpg",
+          precipitation: "rainfall.jpg",
+          crimerate: "crimerate.jpg",
+          happiness: "happiness.jpg",
+          cuisine: "cuisine.jpg"
+        };
+
+        const bgImage = bgMap[challenge.category];
+        if (bgImage && cardBg) {
+          cardBg.style.backgroundImage = `url('images/categories/${bgImage}')`;
+        }
 
         // Set up play button
         playButton.onclick = () => {
