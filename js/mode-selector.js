@@ -97,8 +97,12 @@ function setupModalListeners() {
 }
 
 // Open modal for a specific category
-export function openModeSelector(categoryKey, categoryDisplayName, categoryEmoji) {
+export function openModeSelector(categoryKey, categoryDisplayName, categoryEmoji, source = null) {
   console.log('Opening mode selector for:', categoryKey);
+  console.log('Opened from:', source);
+
+  // Store the source for close handling
+  window.modeSelectorSource = source;
 
   // Update category display
   document.getElementById('modeSelectorCategoryName').textContent = categoryDisplayName;
@@ -187,6 +191,21 @@ export function openModeSelector(categoryKey, categoryDisplayName, categoryEmoji
 function closeModal() {
   document.getElementById('modeSelectorOverlay').classList.remove('active');
   document.body.style.overflow = '';
+  
+  // If modal was opened from search, scroll back to search bar
+  if (window.modeSelectorSource === 'search') {
+    const searchInput = document.getElementById('categorySearchInput');
+    if (searchInput) {
+      setTimeout(() => {
+        searchInput.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        });
+      }, 300); // Wait for modal close animation
+    }
+    // Clear the source
+    window.modeSelectorSource = null;
+  }
 }
 
 // Handle mode selection

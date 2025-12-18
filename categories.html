@@ -407,7 +407,7 @@ overlay.addEventListener("click", (e) => {
             // Find the category emoji from the category cards
             const categoryCard = document.querySelector(`[data-category="${cat.slug}"]`);
             const emoji = categoryCard ? categoryCard.dataset.emoji : '🎮';
-            window.openModeSelector(cat.slug, cat.name, emoji);
+            window.openModeSelector(cat.slug, cat.name, emoji, 'search'); // Pass 'search' as source
           }, 300); // Small delay to let search modal close
         };
         item.innerHTML = `
