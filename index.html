@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/game-modes.css" />
   <link rel="stylesheet" href="css/home.css" />
+  <link rel="stylesheet" href="css/mode-selector.css" />
 </head>
 
 <body>
@@ -80,70 +81,70 @@
     <div class="categories-grid" id="categoriesGrid" style="pointer-events: none;"> 
 
       <!-- FREE CATEGORIES -->
-      <a href="game.html?mode=population" class="category-card"
+      <div class="category-card" data-category="population" data-display="Population" data-emoji="👥"
          style="background-image:url('images/categories/population.jpg');">
         <div class="category-info">
           <span class="emoji">👥</span>
           <h3>Population</h3>
         </div>
-      </a>
+      </div>
 
-      <a href="game.html?mode=gdp" class="category-card"
+      <div class="category-card" data-category="gdp" data-display="GDP Per Capita" data-emoji="💵"
          style="background-image:url('images/categories/gdp.jpg');">
         <div class="category-info">
           <span class="emoji">💵</span>
           <h3>GDP Per Capita</h3>
         </div>
-      </a>
+      </div>
 
-      <a href="game.html?mode=altitude" class="category-card"
+      <div class="category-card" data-category="altitude" data-display="Highest Altitude" data-emoji="🏔️"
          style="background-image:url('images/categories/altitude.jpg');">
         <div class="category-info">
           <span class="emoji">🏔️</span>
           <h3>Highest Altitude</h3>
         </div>
-      </a>
+      </div>
 
-      <a href="game.html?mode=forest" class="category-card"
+      <div class="category-card" data-category="forest" data-display="Forest Cover" data-emoji="🌲"
          style="background-image:url('images/categories/forest.jpg');">
         <div class="category-info">
           <span class="emoji">🌲</span>
           <h3>Forest Cover</h3>
         </div>
-      </a>
+      </div>
 
       <!-- PREMIUM CATEGORIES -->
-      <a href="game.html?mode=olympic" class="category-card" data-premium="true"
+      <div class="category-card" data-premium="true" data-category="olympic" data-display="Olympic Medals" data-emoji="🥇"
          style="background-image:url('images/categories/olympic.jpg');">
         <div class="category-info">
           <span class="emoji">🥇</span>
           <h3>Olympic Medals</h3>
         </div>
-      </a>
+      </div>
 
-      <a href="game.html?mode=landmass" class="category-card" data-premium="true"
+      <div class="category-card" data-premium="true" data-category="landmass" data-display="Land Mass" data-emoji="🌍"
          style="background-image:url('images/categories/landmass.jpg');">
         <div class="category-info">
           <span class="emoji">🌍</span>
           <h3>Land Mass</h3>
         </div>
-      </a>
+      </div>
 
-      <a href="game.html?mode=passport" class="category-card" data-premium="true"
+      <div class="category-card" data-premium="true" data-category="passport" data-display="Passport Strength" data-emoji="🛂"
          style="background-image:url('images/categories/passport.jpg');">
         <div class="category-info">
           <span class="emoji">🛂</span>
           <h3>Passport Strength</h3>
         </div>
-      </a>
+      </div>
 
-      <a href="game.html?mode=beer" class="category-card" data-premium="true"
+      <div class="category-card" data-premium="true" data-category="beer" data-display="Beer Consumption" data-emoji="🍺"
          style="background-image:url('images/categories/beer.jpg');">
         <div class="category-info">
           <span class="emoji">🍺</span>
           <h3>Beer Consumption</h3>
         </div>
-      </a>
+      </div>
 
     </div>
   </section>
@@ -467,6 +468,40 @@ overlay.addEventListener("click", (e) => {
   if (!session || !session.user) {
     document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
   }
+</script>
+
+<!-- Mode Selector Modal Integration -->
+<script type="module">
+  import { openModeSelector } from './js/mode-selector.js';
+  
+  // Make openModeSelector globally accessible
+  window.openModeSelector = openModeSelector;
+
+  // Add click handlers to all category cards
+  document.addEventListener('DOMContentLoaded', () => {
+    const categoryCards = document.querySelectorAll('.category-card');
+    
+    categoryCards.forEach(card => {
+      card.addEventListener('click', (e) => {
+        // Don't open modal if card is locked (premium)
+        if (card.classList.contains('locked')) {
+          return; // Let the existing lock modal handle it
+        }
+
+        const category = card.dataset.category;
+        const displayName = card.dataset.display;
+        const emoji = card.dataset.emoji;
+
+        // Open mode selector modal
+        openModeSelector(category, displayName, emoji);
+      });
+
+      // Add cursor pointer style
+      if (!card.classList.contains('locked')) {
+        card.style.cursor = 'pointer';
+      }
+    });
+  });
 </script>
 
 </body>

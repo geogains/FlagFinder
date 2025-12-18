@@ -1,0 +1,156 @@
+// js/mode-selector.js
+// Modal for selecting game mode when clicking a category
+
+console.log('Mode Selector loaded');
+
+// Categories that have less than 10 countries (Top 10 not available)
+const SMALL_CATEGORIES = ['olympic', 'worldcup', 'cuisine'];
+
+// Mode configurations
+const MODES = {
+  classic: {
+    icon: '🎮',
+    name: 'CLASSIC',
+    description: 'Rank 10 randomly assigned countries',
+    gameFile: 'game.html'
+  },
+  top10: {
+    icon: '🎯',
+    name: 'TOP 10',
+    description: 'Name the top 10 countries in under 2 minutes',
+    gameFile: 'top10.html'
+  },
+  vs: {
+    icon: '⚔️',
+    name: 'VS MODE',
+    description: 'Which country ranks higher? Unlimited rounds',
+    gameFile: 'vs.html'
+  }
+};
+
+// Create modal HTML
+export function createModeSelectorModal() {
+  const modalHTML = `
+    <div class="mode-selector-overlay" id="modeSelectorOverlay">
+      <div class="mode-selector-modal">
+        <!-- Close Button -->
+        <button class="mode-selector-close" id="modeSelectorClose">×</button>
+        
+        <!-- Header -->
+        <div class="mode-selector-header">
+          <h2 class="mode-selector-title">Choose Your Mode</h2>
+          <p class="mode-selector-category" id="modeSelectorCategory">
+            <span id="modeSelectorCategoryName">Population</span> 
+            <span id="modeSelectorCategoryEmoji">👥</span>
+          </p>
+        </div>
+
+        <!-- Mode Cards -->
+        <div class="mode-cards-grid" id="modeCardsGrid">
+          <!-- Cards will be inserted here -->
+        </div>
+
+        <!-- Cancel Button -->
+        <button class="mode-cancel-btn" id="modeCancelBtn">Cancel</button>
+      </div>
+    </div>
+  `;
+
+  // Insert modal into body
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+  // Set up event listeners
+  setupModalListeners();
+}
+
+// Set up event listeners
+function setupModalListeners() {
+  const overlay = document.getElementById('modeSelectorOverlay');
+  const closeBtn = document.getElementById('modeSelectorClose');
+  const cancelBtn = document.getElementById('modeCancelBtn');
+
+  // Close on overlay click
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      closeModal();
+    }
+  });
+
+  // Close on X button
+  closeBtn.addEventListener('click', closeModal);
+
+  // Close on Cancel button
+  cancelBtn.addEventListener('click', closeModal);
+
+  // Close on ESC key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlay.classList.contains('active')) {
+      closeModal();
+    }
+  });
+}
+
+// Open modal for a specific category
+export function openModeSelector(categoryKey, categoryDisplayName, categoryEmoji) {
+  console.log('Opening mode selector for:', categoryKey);
+
+  // Update category display
+  document.getElementById('modeSelectorCategoryName').textContent = categoryDisplayName;
+  document.getElementById('modeSelectorCategoryEmoji').textContent = categoryEmoji;
+
+  // Generate mode cards
+  const cardsGrid = document.getElementById('modeCardsGrid');
+  cardsGrid.innerHTML = '';
+
+  Object.keys(MODES).forEach(modeKey => {
+    const mode = MODES[modeKey];
+    
+    // Check if Top 10 should be disabled for this category
+    const isDisabled = modeKey === 'top10' && SMALL_CATEGORIES.includes(categoryKey);
+
+    const card = document.createElement('div');
+    card.className = `mode-card ${isDisabled ? 'disabled' : ''}`;
+    
+    if (!isDisabled) {
+      card.onclick = () => selectMode(modeKey, categoryKey);
+    }
+
+    card.innerHTML = `
+      <span class="mode-icon">${mode.icon}</span>
+      <div class="mode-name">${mode.name}</div>
+      <div class="mode-description">${mode.description}</div>
+    `;
+
+    cardsGrid.appendChild(card);
+  });
+
+  // Show modal
+  document.getElementById('modeSelectorOverlay').classList.add('active');
+  
+  // Prevent body scroll
+  document.body.style.overflow = 'hidden';
+}
+
+// Close modal
+function closeModal() {
+  document.getElementById('modeSelectorOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// Handle mode selection
+function selectMode(modeKey, categoryKey) {
+  const mode = MODES[modeKey];
+  console.log('Selected:', modeKey, 'for category:', categoryKey);
+
+  // Redirect to game
+  window.location.href = `${mode.gameFile}?mode=${categoryKey}`;
+}
+
+// Auto-initialize modal when script loads
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', createModeSelectorModal);
+} else {
+  createModeSelectorModal();
+}
+
+console.log('Mode Selector ready');
