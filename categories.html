@@ -400,7 +400,16 @@ overlay.addEventListener("click", (e) => {
       .forEach(cat => {
         const item = document.createElement("div");
         item.className = "search-item";
-        item.onclick = () => window.location.href = `game.html?mode=${cat.slug}`;
+        // Close search modal and open mode selector
+        item.onclick = () => {
+          closeModal(); // Close search modal first
+          setTimeout(() => {
+            // Find the category emoji from the category cards
+            const categoryCard = document.querySelector(`[data-category="${cat.slug}"]`);
+            const emoji = categoryCard ? categoryCard.dataset.emoji : '🎮';
+            window.openModeSelector(cat.slug, cat.name, emoji);
+          }, 300); // Small delay to let search modal close
+        };
         item.innerHTML = `
           <img src="images/categories/${cat.slug}.jpg" alt="${cat.name}" />
           <div class="info">${cat.name}</div>
