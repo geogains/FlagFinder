@@ -44,11 +44,11 @@ export function createModeSelectorModal() {
         
         <!-- Header -->
         <div class="mode-selector-header">
-          <h2 class="mode-selector-title">Select Game Mode</h2>
-          <h2 class="mode-selector-category" id="modeSelectorCategory">
+          <h2 class="mode-selector-title">Choose Your Mode</h2>
+          <p class="mode-selector-category" id="modeSelectorCategory">
             <span id="modeSelectorCategoryName">Population</span> 
             <span id="modeSelectorCategoryEmoji">👥</span>
-          </h2>
+          </p>
         </div>
 
         <!-- Mode Cards -->
@@ -159,8 +159,28 @@ export function openModeSelector(categoryKey, categoryDisplayName, categoryEmoji
   // Show modal
   document.getElementById('modeSelectorOverlay').classList.add('active');
   
-  // Prevent body scroll
-  document.body.style.overflow = 'hidden';
+  // Auto-scroll page to center modal vertically in viewport
+  setTimeout(() => {
+    const modal = document.querySelector('.mode-selector-modal');
+    if (modal) {
+      const modalRect = modal.getBoundingClientRect();
+      const modalCenter = modalRect.top + modalRect.height / 2;
+      const viewportCenter = window.innerHeight / 2;
+      const scrollOffset = modalCenter - viewportCenter;
+      
+      if (Math.abs(scrollOffset) > 10) { // Only scroll if modal is not already centered
+        window.scrollBy({
+          top: scrollOffset,
+          behavior: 'smooth'
+        });
+      }
+    }
+  }, 50); // Small delay to ensure modal is rendered
+  
+  // Prevent body scroll after centering
+  setTimeout(() => {
+    document.body.style.overflow = 'hidden';
+  }, 100);
 }
 
 // Close modal
