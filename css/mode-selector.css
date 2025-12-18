@@ -52,9 +52,9 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.199);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.154);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   z-index: 0;
   border-radius: 24px;
 }
@@ -209,8 +209,8 @@
 /* Cancel Button */
 .mode-cancel-btn {
   width: 100%;
-  background: #e5e7eb;
-  color: #1f2937;
+  background: linear-gradient(135deg, #ff9770, #ff6f61);
+  color: #eeeeee;
   border: none;
   padding: 14px 30px;
   border-radius: 12px;
@@ -222,7 +222,7 @@
 }
 
 .mode-cancel-btn:hover {
-  background: #d1d5db;
+  background: linear-gradient(135deg, #f99d7b, #f8796d);
 }
 
 /* Mobile Responsive */
