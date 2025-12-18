@@ -29,6 +29,9 @@
 /* Modal Container */
 .mode-selector-modal {
   background: rgba(255, 255, 255, 0.95);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-radius: 24px;
@@ -38,6 +41,28 @@
   width: 90%;
   position: relative;
   animation: slideUp 0.4s ease;
+  overflow: hidden;
+}
+
+/* Background image overlay for better text readability */
+.mode-selector-modal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 0;
+  border-radius: 24px;
+}
+
+/* Ensure content is above the overlay */
+.mode-selector-modal > * {
+  position: relative;
+  z-index: 1;
 }
 
 @keyframes slideUp {
