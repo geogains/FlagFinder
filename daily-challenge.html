@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Daily Challenge | GeoRanks</title>
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/game-modes.css" />
+  <link rel="stylesheet" href="css/home.css"/>
+  
+  <style>
+    body {
+      background: linear-gradient(135deg, #a7f3d0 0%, #38bdf8 100%);
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+    
+    .daily-container {
+      max-width: 600px;
+      margin: 120px auto 60px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      padding: 50px 40px;
+      border-radius: 24px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      text-align: center;
+    }
+    
+    .daily-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #ff9770, #ff6f61);
+      color: white;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .daily-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #0d315a;
+      margin-bottom: 15px;
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    .daily-subtitle {
+      font-size: 1.1rem;
+      color: #6b7280;
+      margin-bottom: 40px;
+    }
+    
+    .challenge-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 40px 30px;
+      border-radius: 20px;
+      margin-bottom: 30px;
+      color: white;
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+    
+    .challenge-emoji {
+      font-size: 4rem;
+      margin-bottom: 15px;
+      animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    .challenge-mode {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    
+    .challenge-category {
+      font-size: 1.3rem;
+      font-weight: 500;
+      opacity: 0.9;
+    }
+    
+    .challenge-date {
+      margin-top: 15px;
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+    
+    .play-button {
+      background: linear-gradient(135deg, #ff9770, #ff6f61);
+      color: white;
+      border: none;
+      padding: 18px 50px;
+      border-radius: 50px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 20px rgba(255, 111, 97, 0.3);
+      font-family: 'Poppins', sans-serif;
+      margin-bottom: 20px;
+    }
+    
+    .play-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(255, 111, 97, 0.4);
+    }
+    
+    .play-button:active {
+      transform: translateY(0);
+    }
+    
+    .completed-badge {
+      background: #10b981;
+      color: white;
+      padding: 15px 30px;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    
+    .back-button {
+      background: #e5e7eb;
+      color: #1f2937;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    .back-button:hover {
+      background: #d1d5db;
+    }
+    
+    .loading {
+      font-size: 1.2rem;
+      color: #6b7280;
+      margin: 40px 0;
+    }
+    
+    .error {
+      background: #fee2e2;
+      color: #dc2626;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+    
+    /* Mobile */
+    @media (max-width: 768px) {
+      .daily-container {
+        margin: 90px 16px 40px;
+        padding: 40px 25px;
+      }
+      
+      .daily-title {
+        font-size: 2rem;
+      }
+      
+      .challenge-card {
+        padding: 30px 20px;
+      }
+      
+      .challenge-emoji {
+        font-size: 3rem;
+      }
+      
+      .challenge-mode {
+        font-size: 1.5rem;
+      }
+      
+      .challenge-category {
+        font-size: 1.1rem;
+      }
+      
+      .play-button {
+        padding: 15px 40px;
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- GLASS HEADER -->
+  <header class="home-glass-header">
+    <div class="logo-header">
+      <a href="index.html" class="logo-link">
+        <img src="assets/logo.png" alt="GeoRanks Logo" />
+      </a>
+    </div>
+    <div class="hamburger-menu">
+      <div class="menu-icon" id="menuToggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </header>
+
+  <div class="home-wrapper">
+    <!-- Hamburger Overlay Menu -->
+    <div class="menu-overlay" id="menuOverlay">
+      <div class="menu-panel">
+        <h2>Menu</h2>
+        <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
+        <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
+        <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
+        <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
+        <button class="menu-btn" onclick="window.location.href='how-to-play.html'">💡 How to Play</button>
+        <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
+        <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
+        <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'">🔓 Unlock All Categories</button>
+        <button class="menu-btn menu-close" id="closeMenu">Close</button>
+      </div>
+    </div>
+
+    <!-- MAIN DAILY CHALLENGE CONTAINER -->
+    <div class="daily-container">
+      <div class="daily-badge">Daily Challenge</div>
+      <h1 class="daily-title">Today's Challenge</h1>
+      <p class="daily-subtitle" id="dateDisplay">Loading...</p>
+
+      <!-- Loading State -->
+      <div id="loadingState" class="loading">
+        <p>Preparing your daily challenge...</p>
+      </div>
+
+      <!-- Challenge Card (Hidden until loaded) -->
+      <div id="challengeCard" style="display: none;">
+        <div class="challenge-card">
+          <div class="challenge-emoji" id="challengeEmoji">🌍</div>
+          <div class="challenge-mode" id="challengeMode">CLASSIC MODE</div>
+          <div class="challenge-category" id="challengeCategory">Population</div>
+          <div class="challenge-date" id="challengeDate">December 17, 2025</div>
+        </div>
+
+        <button class="play-button" id="playButton">
+          🎮 Start Challenge
+        </button>
+
+        <button class="back-button" onclick="window.location.href='index.html'">
+          ← Back to Home
+        </button>
+      </div>
+
+      <!-- Completed State (Hidden until checked) -->
+      <div id="completedState" style="display: none;">
+        <div class="completed-badge">
+          ✅ Challenge Completed!
+        </div>
+        <p style="color: #6b7280; margin-bottom: 30px;">
+          Come back tomorrow for a new challenge!
+        </p>
+        
+        <button class="back-button" onclick="window.location.href='leaderboard.html'" style="margin-right: 10px;">
+          🏆 View Leaderboard
+        </button>
+        <button class="back-button" onclick="window.location.href='index.html'">
+          🏠 Home
+        </button>
+      </div>
+
+      <!-- Error State (Hidden unless error) -->
+      <div id="errorState" class="error" style="display: none;">
+        <p><strong>⚠️ Error loading challenge</strong></p>
+        <p id="errorMessage">Please try again later.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <!-- Hamburger Menu Logic -->
+  <script>
+  const toggleBtn = document.getElementById("menuToggle");
+  const overlay = document.getElementById("menuOverlay");
+  const closeBtn = document.getElementById("closeMenu");
+
+  toggleBtn?.addEventListener("click", () => overlay.classList.add("active"));
+  closeBtn?.addEventListener("click", () => overlay.classList.remove("active"));
+
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) overlay.classList.remove("active");
+  });
+  </script>
+
+  <script type="module">
+    import { supabase } from './js/supabase-client.js';
+
+    const { data: { session } } = await supabase.auth.getSession();
+
+    // Hide Account if user not logged in
+    if (!session || !session.user) {
+      document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+    }
+
+    // Hide Unlock All Categories if user is premium
+    if (session && session.user) {
+      const { data: profile } = await supabase
+        .from('users')
+        .select('is_premium')
+        .eq('id', session.user.id)
+        .single();
+
+      if (profile?.is_premium) {
+        document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+      }
+    }
+  </script>
+
+  <!-- Daily Challenge Logic -->
+  <script type="module">
+    import { 
+      getTodaysDailyChallenge, 
+      hasCompletedTodaysChallenge,
+      modeDisplayNames,
+      categoryDisplayNames,
+      categoryEmojis
+    } from './js/daily-challenge.js';
+
+    // Elements
+    const loadingState = document.getElementById('loadingState');
+    const challengeCard = document.getElementById('challengeCard');
+    const completedState = document.getElementById('completedState');
+    const errorState = document.getElementById('errorState');
+    const dateDisplay = document.getElementById('dateDisplay');
+    const playButton = document.getElementById('playButton');
+
+    // Format today's date
+    const today = new Date();
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    dateDisplay.textContent = today.toLocaleDateString('en-US', options);
+
+    // Initialize
+    async function init() {
+      try {
+        // Check if user completed today's challenge
+        const completed = await hasCompletedTodaysChallenge();
+        
+        if (completed) {
+          loadingState.style.display = 'none';
+          completedState.style.display = 'block';
+          return;
+        }
+
+        // Get today's challenge
+        const challenge = getTodaysDailyChallenge();
+        console.log('Today\'s challenge:', challenge);
+
+        // Update UI
+        const modeElement = document.getElementById('challengeMode');
+        const categoryElement = document.getElementById('challengeCategory');
+        const emojiElement = document.getElementById('challengeEmoji');
+        const dateElement = document.getElementById('challengeDate');
+
+        modeElement.textContent = modeDisplayNames[challenge.mode] || challenge.mode;
+        categoryElement.textContent = categoryDisplayNames[challenge.category] || challenge.category;
+        emojiElement.textContent = categoryEmojis[challenge.category] || '🌍';
+        dateElement.textContent = today.toLocaleDateString('en-US', options);
+
+        // Set up play button
+        playButton.onclick = () => {
+          // Determine which game file to load
+          let gameFile;
+          if (challenge.mode === 'classic') {
+            gameFile = 'game.html';
+          } else if (challenge.mode === 'top10') {
+            gameFile = 'top10.html';
+          } else if (challenge.mode === 'vs') {
+            gameFile = 'vs.html';
+          }
+
+          // Redirect with daily flag
+          window.location.href = `${gameFile}?mode=${challenge.category}&daily=true`;
+        };
+
+        // Show challenge card
+        loadingState.style.display = 'none';
+        challengeCard.style.display = 'block';
+
+      } catch (error) {
+        console.error('Error initializing daily challenge:', error);
+        loadingState.style.display = 'none';
+        errorState.style.display = 'block';
+        document.getElementById('errorMessage').textContent = error.message || 'Unknown error occurred';
+      }
+    }
+
+    // Run initialization
+    init();
+  </script>
+</body>
+</html>

@@ -64,10 +64,10 @@
     </div>
   </div>
 
-  <!-- DAILY TOP 10 CHALLENGE -->
+  <!-- DAILY CHALLENGE -->
   <section class="daily-challenge-card fade-in" id="dailyChallengeCard">
     <div class="daily-info">
-      <h2>📅 DAILY CHALLENGE: TOP 10 </h2>
+      <h2>📅 DAILY CHALLENGE</h2>
       <h3 id="dailyChallengeTitle">Loading...</h3>
       <a href="#" id="dailyChallengeBtn" class="btn-primary glow">Play Now</a>
     </div>
@@ -210,7 +210,7 @@
   })();
 </script>
 
-<!-- DAILY TOP 10 CHALLENGE SCRIPT -->
+<!-- DAILY CHALLENGE SCRIPT -->
 <script type="module">
   import { top10Data } from './js/top10-data.js';
 
@@ -261,7 +261,8 @@
 
   if (dailyTitle && dailyBtn) {
     dailyTitle.textContent = todayCategory.title;
-    dailyBtn.href = `top10.html?mode=${todayCategory.key}`;
+    // Redirect to new daily challenge page (handles mode selection)
+    dailyBtn.href = `daily-challenge.html`;
   }
 
   // Set background image
