@@ -25,6 +25,12 @@ const MODES = {
     name: 'VS MODE',
     description: 'Which country ranks higher? Unlimited rounds',
     gameFile: 'vs.html'
+  },
+  random: {
+    icon: '🎲',
+    name: 'RANDOM',
+    description: 'Surprise me! Pick a random mode',
+    gameFile: null // Special handling
   }
 };
 
@@ -168,7 +174,25 @@ function selectMode(modeKey, categoryKey) {
   const mode = MODES[modeKey];
   console.log('Selected:', modeKey, 'for category:', categoryKey);
 
-  // Redirect to game
+  // Handle Random mode - pick a random available mode
+  if (modeKey === 'random') {
+    const availableModes = ['classic', 'vs'];
+    
+    // Add Top 10 only if category supports it
+    if (!SMALL_CATEGORIES.includes(categoryKey)) {
+      availableModes.push('top10');
+    }
+    
+    // Pick random mode
+    const randomMode = availableModes[Math.floor(Math.random() * availableModes.length)];
+    console.log('Random mode selected:', randomMode);
+    
+    // Redirect to random mode
+    window.location.href = `${MODES[randomMode].gameFile}?mode=${categoryKey}`;
+    return;
+  }
+
+  // Redirect to selected game
   window.location.href = `${mode.gameFile}?mode=${categoryKey}`;
 }
 
