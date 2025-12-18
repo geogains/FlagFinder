@@ -10,11 +10,13 @@ console.log('Total countries available for search:', allCountries.length);
 // Get category from URL or default to population
 const params = new URLSearchParams(window.location.search);
 const categoryKey = params.get('mode') || 'population';
+const isDailyChallenge = params.get('daily') === 'true'; // Check if it's Daily Challenge mode
 const currentCategory = top10Data[categoryKey] || top10Data.population;
 const categoryId = CATEGORY_ID_MAP[categoryKey];
 
 console.log('Current category:', categoryKey, currentCategory);
 console.log('Category ID for database:', categoryId);
+console.log('Is Daily Challenge:', isDailyChallenge);
 
 // Game state
 let gameState = {
@@ -228,11 +230,12 @@ async function markChallengeAsStarted() {
 async function initGame() {
   console.log('Initializing game...');
   
-  // First check if user is logged in
+  // Check if user is logged in
   const { data: { session } } = await supabase.auth.getSession();
   
-  if (!session) {
-    // Show sign-in modal for non-authenticated users
+  // Only require sign-in for Daily Challenge mode
+  if (isDailyChallenge && !session) {
+    // Show sign-in modal for Daily Challenge without auth
     const modal = document.getElementById('signInRequiredModal');
     const categoryDisplay = document.getElementById('signInCategoryName');
     if (categoryDisplay) {
@@ -244,44 +247,49 @@ async function initGame() {
     return;
   }
   
-  // Check if game was completed - if so, show their results instead of blocking
-  const completedGameData = await checkIfCompleted();
-  
-  if (completedGameData) {
-    console.log('Game already completed - showing results:', completedGameData);
-    // Show the results from their completed game
-    showCompletedGameResults(completedGameData);
-    return;
+  // If logged in and Daily Challenge, check if already completed
+  if (isDailyChallenge && session) {
+    const completedGameData = await checkIfCompleted();
+    
+    if (completedGameData) {
+      console.log('Daily Challenge already completed - showing results:', completedGameData);
+      showCompletedGameResults(completedGameData);
+      return;
+    }
   }
   
   // Set title
   const titleText = `NAME THE TOP 10 COUNTRIES RANKED BY: ${currentCategory.title.toUpperCase()}`;
   document.getElementById('categoryTitle').textContent = titleText;
   
-  // Try to restore saved game state from database
-  const savedState = await restoreGameState();
-  
-  if (savedState) {
-    // Restore the saved state
-    console.log('Restoring saved game state');
-    console.log('Saved state data:', savedState);
-    gameState.guessedCountries = new Set(savedState.guessedCountries);
-    gameState.incorrectGuesses = savedState.incorrectGuesses;
-    gameState.lives = savedState.lives;
-    gameState.timeRemaining = savedState.timeRemaining;
+  // Try to restore saved game state (only works for logged-in users in Daily Challenge)
+  if (session && isDailyChallenge) {
+    const savedState = await restoreGameState();
     
-    console.log('Game state after restoration:');
-    console.log('- Lives:', gameState.lives);
-    console.log('- Time remaining:', gameState.timeRemaining);
-    console.log('- Guessed countries:', Array.from(gameState.guessedCountries));
-    console.log('- Incorrect guesses:', gameState.incorrectGuesses);
-    
-    // Update lives display
-    updateLives();
+    if (savedState) {
+      // Restore the saved state
+      console.log('Restoring saved game state');
+      console.log('Saved state data:', savedState);
+      gameState.guessedCountries = new Set(savedState.guessedCountries);
+      gameState.incorrectGuesses = savedState.incorrectGuesses;
+      gameState.lives = savedState.lives;
+      gameState.timeRemaining = savedState.timeRemaining;
+      
+      console.log('Game state after restoration:');
+      console.log('- Lives:', gameState.lives);
+      console.log('- Time remaining:', gameState.timeRemaining);
+      console.log('- Guessed countries:', Array.from(gameState.guessedCountries));
+      console.log('- Incorrect guesses:', gameState.incorrectGuesses);
+      
+      // Update lives display
+      updateLives();
+    } else {
+      // Fresh start - mark challenge as started in database
+      console.log('Starting fresh Daily Challenge');
+      await markChallengeAsStarted();
+    }
   } else {
-    // Fresh start - mark challenge as started in database
-    console.log('Starting fresh game');
-    await markChallengeAsStarted();
+    console.log('Starting standalone Top 10 game (no save/restore)');
   }
   
   // Build ranking grid with new layout (rank number outside slot)

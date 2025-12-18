@@ -44,11 +44,11 @@ export function createModeSelectorModal() {
         
         <!-- Header -->
         <div class="mode-selector-header">
-          <h2 class="mode-selector-title">Choose Your Mode</h2>
-          <p class="mode-selector-category" id="modeSelectorCategory">
+          <h2 class="mode-selector-title">Select Game Mode</h2>
+          <h2 class="mode-selector-category" id="modeSelectorCategory">
             <span id="modeSelectorCategoryName">Population</span> 
             <span id="modeSelectorCategoryEmoji">👥</span>
-          </p>
+          </h2>
         </div>
 
         <!-- Mode Cards -->
