@@ -9,13 +9,13 @@ console.log('Daily Challenge system loaded');
 const allCategories = [
   'population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
   'olympic', 'worldcup', 'passport', 'beer', 'nobelprize', 
-  'temperature', 'precipitation', 'crimerate', 'happiness', 'cuisine'
+  'hightemp', 'rainfall', 'crimerate', 'happiness', 'cuisine'
 ];
 
 // Categories with at least 10 countries (valid for Top 10 mode)
 const top10ValidCategories = [
   'population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
-  'passport', 'beer', 'nobelprize', 'temperature', 'precipitation',
+  'passport', 'beer', 'nobelprize', 'hightemp', 'rainfall',
   'crimerate', 'happiness'
 ];
 
@@ -122,8 +122,8 @@ export const categoryDisplayNames = {
   passport: 'Passport Power',
   beer: 'Beer Consumption',
   nobelprize: 'Nobel Prizes',
-  temperature: 'Temperature',
-  precipitation: 'Precipitation',
+  hightemp: 'Highest Temperature',
+  rainfall: 'Annual Rainfall',
   crimerate: 'Crime Rate',
   happiness: 'Happiness Index',
   cuisine: 'Cuisine Popularity'
@@ -142,8 +142,8 @@ export const categoryEmojis = {
   passport: '🛂',
   beer: '🍺',
   nobelprize: '🏆',
-  temperature: '🌡️',
-  precipitation: '🌧️',
+  hightemp: '🌡️',
+  rainfall: '🌧️',
   crimerate: '🚨',
   happiness: '😊',
   cuisine: '🍽️'

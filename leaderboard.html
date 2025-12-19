@@ -329,6 +329,9 @@
 
   <!-- Category Display (for Daily Challenge mode) -->
   <div id="dailyChallengeCategoryDisplay" style="display: none; text-align: center; margin: 15px 0;">
+    <p style="font-size: 1.2rem; margin: 5px 0;">
+      <strong id="dailyChallengeModeDisplay" style="color: #ff6f61;"></strong>
+    </p>
     <p style="font-size: 1.1rem; color: #6b7280; font-weight: 500;">
       Category: <strong id="dailyChallengeCategoryName" style="color: #0d315a;"></strong>
     </p>
@@ -403,6 +406,7 @@
   const categorySearchWrapper = document.getElementById("categorySearchWrapper");
   const dailyChallengeCategoryDisplay = document.getElementById("dailyChallengeCategoryDisplay");
   const dailyChallengeCategoryName = document.getElementById("dailyChallengeCategoryName");
+  const dailyChallengeModeDisplay = document.getElementById("dailyChallengeModeDisplay");
 
   let currentMode = 'classic'; // 'classic', 'daily-challenge', 'top10', or 'vs'
   let currentCategory = null;
@@ -508,36 +512,61 @@
   async function loadDailyChallengeLeaderboardForDate(date) {
     leaderboardBody.innerHTML = `<tr><td colspan="4">Loading...</td></tr>`;
 
-    // Calculate which category was active on this date
-    const selectedDate = new Date(date + 'T00:00:00Z');
-    const startOfEpoch = new Date(Date.UTC(2025, 0, 1));
-    // Get daily category using seeded random (same logic as index.html)
-    function getDailyChallengeCategory(date) {
+    // Import daily challenge utilities
+    const { getTodaysDailyChallenge, modeDisplayNames, categoryDisplayNames } = await import('./js/daily-challenge.js');
+    
+    // Get the daily challenge for this date
+    // Note: This uses today's seed, but for historical dates we need a custom function
+    function getDailyChallengeForDate(dateString) {
+      const date = new Date(dateString + 'T00:00:00Z');
       const year = date.getUTCFullYear();
       const month = date.getUTCMonth() + 1;
       const day = date.getUTCDate();
       
-      // Create a seed from the date (YYYYMMDD format)
       const seed = year * 10000 + month * 100 + day;
       
-      // Simple seeded random function (same seed = same result)
-      const seededRandom = (seed) => {
-        const x = Math.sin(seed) * 10000;
+      // Seeded random
+      const seededRandom = (s) => {
+        const x = Math.sin(s) * 10000;
         return x - Math.floor(x);
       };
       
-      const top10Categories = ['population', 'gdp', 'altitude', 'forest', 'coastline', 'olympic', 'landmass', 'passport', 'beer', 'nobelprize', 'worldcup', 'temperature', 'precipitation'];
+      // Game modes
+      const gameModes = ['classic', 'top10', 'vs'];
+      const modeIndex = Math.floor(seededRandom(seed) * gameModes.length);
+      const selectedMode = gameModes[modeIndex];
       
-      // Get random index based on date's seed
-      const randomIndex = Math.floor(seededRandom(seed) * top10Categories.length);
-      return top10Categories[randomIndex];
+      // Categories (use same list as daily-challenge.js)
+      const allCategories = [
+        'population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
+        'olympic', 'worldcup', 'passport', 'beer', 'nobelprize', 
+        'hightemp', 'rainfall', 'crimerate', 'happiness', 'cuisine'
+      ];
+      
+      const top10ValidCategories = [
+        'population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
+        'passport', 'beer', 'nobelprize', 'hightemp', 'rainfall',
+        'crimerate', 'happiness'
+      ];
+      
+      let validCategories = selectedMode === 'top10' ? top10ValidCategories : allCategories;
+      
+      const categoryIndex = Math.floor(seededRandom(seed + 1000) * validCategories.length);
+      const selectedCategory = validCategories[categoryIndex];
+      
+      return {
+        mode: selectedMode,
+        category: selectedCategory
+      };
     }
     
-    const categoryKey = getDailyChallengeCategory(selectedDate);
+    const dailyChallenge = getDailyChallengeForDate(date);
+    const categoryKey = dailyChallenge.category;
+    const modeKey = dailyChallenge.mode;
     
-    // Display category name
-    const displayName = displayNameMap[categoryKey] || formatCategoryName(categoryKey);
-    dailyChallengeCategoryName.textContent = displayName;
+    // Display mode and category name
+    dailyChallengeModeDisplay.textContent = modeDisplayNames[modeKey] || modeKey;
+    dailyChallengeCategoryName.textContent = categoryDisplayNames[categoryKey] || categoryKey;
     
     // Import the correct category ID mapping from top10-data.js
     const { CATEGORY_ID_MAP } = await import('./js/top10-data.js');

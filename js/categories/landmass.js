@@ -9,7 +9,7 @@ export const landmassData = [
   { name: "Argentina", code: "argentina", landmassRank: 8, landmass: 2780400 },
   { name: "Kazakhstan", code: "kazakhstan", landmassRank: 9, landmass: 2724900 },
   { name: "Algeria", code: "algeria", landmassRank: 10, landmass: 2381741 },
-  { name: 'DR Congo', code: 'democratic-republic-of-the-congo', landmassRank: 11, landmass: 2344858 },
+  { name: 'DR Congo', code: 'CD', landmassRank: 11, landmass: 2344858 },
   { name: "Greenland", code: "greenland", landmassRank: 12, landmass: 2166086 },
   { name: "Saudi Arabia", code: "saudi-arabia", landmassRank: 13, landmass: 2149690 },
   { name: "Mexico", code: "mexico", landmassRank: 14, landmass: 1964375 },
