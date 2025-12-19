@@ -2,6 +2,10 @@
 
 const urlParams = new URLSearchParams(window.location.search);
 const currentCategory = urlParams.get("mode") || "population";
+const isDailyChallenge = urlParams.get("daily") === "true";
+
+console.log("Current category:", currentCategory);
+console.log("Is Daily Challenge:", isDailyChallenge);
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js';
   const SUPABASE_URL = 'https://api.geo-ranks.com';
@@ -446,6 +450,29 @@ function endGame() {
     } else {
       console.log("✅ High score upserted:", totalScore);
     }
+    
+    // Step 3: If daily challenge, also save to daily_challenge_scores
+    if (isDailyChallenge) {
+      const today = new Date().toISOString().split('T')[0];
+      
+      const { error: dailyError } = await supabase
+        .from('daily_challenge_scores')
+        .upsert({
+          user_id: session.user.id,
+          category_id: catData.id,
+          played_date: today,
+          score: totalScore,
+          completed: true
+        }, {
+          onConflict: 'user_id,played_date'
+        });
+      
+      if (dailyError) {
+        console.error("❌ Error saving daily challenge score:", dailyError);
+      } else {
+        console.log("✅ Daily challenge score saved!");
+      }
+    }
   } else {
     console.warn("⚠️ No active session found.");
   }
@@ -513,4 +540,3 @@ export function setupRankButtons() {
 }
 
 window.addEventListener("DOMContentLoaded", setupRankButtons);
-

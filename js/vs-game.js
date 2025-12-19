@@ -7,6 +7,7 @@ console.log('VS game script loaded');
 // Get category from URL
 const params = new URLSearchParams(window.location.search);
 const categoryKey = params.get('mode') || 'landmass';
+const isDailyChallenge = params.get('daily') === 'true';
 const categoryConfig = categoriesConfig[categoryKey];
 
 if (!categoryConfig) {
@@ -18,6 +19,7 @@ if (!categoryConfig) {
 const categoryId = CATEGORY_ID_MAP[categoryKey];
 
 console.log('VS Mode - Category:', categoryKey, categoryConfig);
+console.log('Is Daily Challenge:', isDailyChallenge);
 
 // Game state
 let gameState = {
@@ -438,8 +440,47 @@ async function saveScore() {
     } else {
       console.log('Score saved successfully:', data);
     }
+    
+    // If daily challenge, also save to daily_challenge_scores
+    if (isDailyChallenge) {
+      await saveDailyChallengeScore();
+    }
   } catch (err) {
     console.error('Exception saving score:', err);
+  }
+}
+
+// Save daily challenge score
+async function saveDailyChallengeScore() {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      console.log('Not logged in - daily challenge score not saved');
+      return;
+    }
+    
+    const today = new Date().toISOString().split('T')[0];
+    
+    const { error } = await supabase
+      .from('daily_challenge_scores')
+      .upsert({
+        user_id: session.user.id,
+        category_id: categoryId,
+        played_date: today,
+        score: gameState.score,
+        completed: true
+      }, {
+        onConflict: 'user_id,played_date'
+      });
+    
+    if (error) {
+      console.error('Error saving daily challenge score:', error);
+    } else {
+      console.log('✅ Daily challenge score saved!');
+    }
+  } catch (err) {
+    console.error('Exception saving daily challenge score:', err);
   }
 }
 
