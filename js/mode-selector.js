@@ -122,8 +122,8 @@ export function openModeSelector(categoryKey, categoryDisplayName, categoryEmoji
     beer: "beer.jpg",
     nobelprize: "nobelprize.jpg",
     worldcup: "worldcup.jpg",
-    temperature: "hightemp.jpg",
-    precipitation: "rainfall.jpg",
+    hightemp: "hightemp.jpg",      // Fixed: was "temperature"
+    rainfall: "rainfall.jpg",      // Fixed: was "precipitation"
     crimerate: "crimerate.jpg",
     happiness: "happiness.jpg",
     cuisine: "cuisine.jpg"
