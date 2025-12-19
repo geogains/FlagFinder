@@ -230,6 +230,9 @@ async function markChallengeAsStarted() {
 async function initGame() {
   console.log('Initializing game...');
   
+  // Declare savedState at function level
+  let savedState = null;
+  
   // Check if user is logged in
   const { data: { session } } = await supabase.auth.getSession();
   
@@ -264,7 +267,7 @@ async function initGame() {
   
   // Try to restore saved game state (only works for logged-in users in Daily Challenge)
   if (session && isDailyChallenge) {
-    const savedState = await restoreGameState();
+    savedState = await restoreGameState(); // Assign to function-level variable
     
     if (savedState) {
       // Restore the saved state
