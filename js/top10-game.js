@@ -992,6 +992,8 @@ async function saveDailyScore(score, correctGuesses, timeElapsed) {
         category_id: categoryId,
         played_date: todayString,
         ...dailyChallengeData
+        }, {
+    onConflict: 'user_id,category_id,played_date'
       })
       .select();
     
