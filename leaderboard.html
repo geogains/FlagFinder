@@ -394,7 +394,7 @@
 <!-- 🌐 Main Leaderboard Logic -->
 <script type="module">
   import { supabase } from './js/supabase-client.js';
-  import { CATEGORY_ID_MAP } from './js/top10-data.js';
+  import { CATEGORY_ID_MAP } from './js/top10-categories-loader.js';
 
   const leaderboardBody = document.getElementById("leaderboardBody");
   const classicModeBtn = document.getElementById("classicModeBtn");
@@ -568,8 +568,8 @@
     dailyChallengeModeDisplay.textContent = modeDisplayNames[modeKey] || modeKey;
     dailyChallengeCategoryName.textContent = categoryDisplayNames[categoryKey] || categoryKey;
     
-    // Import the correct category ID mapping from top10-data.js
-    const { CATEGORY_ID_MAP } = await import('./js/top10-data.js');
+    // Import the correct category ID mapping from top10-categories-loader.js
+    const { CATEGORY_ID_MAP } = await import('./js/top10-categories-loader.js');
     const categoryId = CATEGORY_ID_MAP[categoryKey];
     
     if (!categoryId) {
@@ -720,7 +720,7 @@
   // Load Top 10 Best Scores Leaderboard (NEW)
   async function loadTop10BestLeaderboard(categoryName) {
     // Get category ID from CATEGORY_ID_MAP
-    const { CATEGORY_ID_MAP } = await import('./js/top10-data.js');
+    const { CATEGORY_ID_MAP } = await import('./js/top10-categories-loader.js');
     const categoryId = CATEGORY_ID_MAP[categoryName.toLowerCase()];
     
     if (!categoryId) {
@@ -748,7 +748,7 @@
   // Load VS Best Scores Leaderboard (NEW)
   async function loadVSLeaderboard(categoryName) {
     // Get category ID from CATEGORY_ID_MAP
-    const { CATEGORY_ID_MAP } = await import('./js/top10-data.js');
+    const { CATEGORY_ID_MAP } = await import('./js/top10-categories-loader.js');
     const categoryId = CATEGORY_ID_MAP[categoryName.toLowerCase()];
     
     if (!categoryId) {
