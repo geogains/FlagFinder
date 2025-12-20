@@ -1,7 +1,25 @@
 // js/top10-categories-loader.js
 // Unified data loader for Top 10 mode - uses categories/*.js files
 
-import { CATEGORY_ID_MAP } from './top10-data.js'; // Keep category IDs
+// Category ID mapping (moved from top10-data.js)
+export const CATEGORY_ID_MAP = {
+  population: 1,
+  altitude: 2,
+  gdp: 3,
+  happiness: 4,
+  forest: 5,
+  coastline: 6,
+  cuisine: 7,
+  olympic: 8,
+  worldcup: 9,
+  landmass: 10,
+  crimerate: 11,
+  passport: 12,
+  beer: 13,
+  nobelprize: 14,
+  temperature: 15,
+  rainfall: 16
+};
 
 // Category configurations for Top 10 mode
 const top10Config = {
@@ -176,8 +194,5 @@ export async function loadTop10CategoryData(categoryKey) {
     throw error;
   }
 }
-
-// Export CATEGORY_ID_MAP for database operations
-export { CATEGORY_ID_MAP };
 
 console.log('Top 10 categories loader ready');
