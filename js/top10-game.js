@@ -1,33 +1,56 @@
 // js/top10-game.js
-import { top10Data, CATEGORY_ID_MAP } from './top10-data.js';
+import { loadTop10CategoryData, CATEGORY_ID_MAP } from './top10-categories-loader.js';
 import { allCountries } from './countries-list.js';
 import { supabase } from './supabase-client.js';
 
 console.log('Top10 game script loaded');
-console.log('Available categories:', Object.keys(top10Data));
-console.log('Total countries available for search:', allCountries.length);
 
 // Get category from URL or default to population
 const params = new URLSearchParams(window.location.search);
 const categoryKey = params.get('mode') || 'population';
 const isDailyChallenge = params.get('daily') === 'true'; // Check if it's Daily Challenge mode
-const currentCategory = top10Data[categoryKey] || top10Data.population;
 const categoryId = CATEGORY_ID_MAP[categoryKey];
 
-console.log('Current category:', categoryKey, currentCategory);
+console.log('Current category:', categoryKey);
 console.log('Category ID for database:', categoryId);
 console.log('Is Daily Challenge:', isDailyChallenge);
 
-// Game state
-let gameState = {
-  countries: [...currentCategory.countries],
-  guessedCountries: new Set(), // Stores country names that have been guessed
-  lives: 3,
-  score: 0,
-  timeRemaining: 120, // 2 minutes
-  incorrectGuesses: [],
-  startTime: Date.now()
-};
+// Load category data asynchronously
+let currentCategory = null;
+let gameState = null;
+
+async function initializeGame() {
+  try {
+    // Load category data from categories/*.js
+    currentCategory = await loadTop10CategoryData(categoryKey);
+    console.log('Category data loaded:', currentCategory);
+    console.log('Top 10 countries:', currentCategory.countries);
+    
+    // Initialize game state
+    gameState = {
+      countries: [...currentCategory.countries],
+      guessedCountries: new Set(), // Stores country names that have been guessed
+      lives: 3,
+      score: 0,
+      timeRemaining: 120, // 2 minutes
+      incorrectGuesses: [],
+      startTime: Date.now()
+    };
+    
+    // Continue with game initialization
+    await continueGameInit();
+    
+  } catch (error) {
+    console.error('Error loading category data:', error);
+    alert('Failed to load category data. Please try again.');
+    window.location.href = 'index.html';
+  }
+}
+
+async function continueGameInit() {
+  // After loading category data, run the main game initialization
+  await initGame();
+}
 
 // Check if user already completed today's challenge
 // Returns the completed game data if found, null otherwise
@@ -964,10 +987,12 @@ async function saveDailyScore(score, correctGuesses, timeElapsed) {
     
     const { data: dailyData, error: dailyError } = await supabase
       .from('daily_challenge_scores')
-      .update(dailyChallengeData)
-      .eq('user_id', session.user.id)
-      .eq('category_id', categoryId)
-      .eq('played_date', todayString)
+      .upsert({
+        user_id: session.user.id,
+        category_id: categoryId,
+        played_date: todayString,
+        ...dailyChallengeData
+      })
       .select();
     
     if (dailyError) {
@@ -1127,5 +1152,5 @@ Can you beat my score? Play at geo-ranks.com`;
 };
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', initGame);
+document.addEventListener('DOMContentLoaded', initializeGame);
 console.log('Event listener added for DOMContentLoaded');
