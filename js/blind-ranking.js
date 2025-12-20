@@ -455,7 +455,7 @@ function endGame() {
     if (isDailyChallenge) {
       const today = new Date().toISOString().split('T')[0];
       
-      const { error: dailyError } = await supabase
+      const { data: dailyData, error: dailyError } = await supabase
         .from('daily_challenge_scores')
         .upsert({
           user_id: session.user.id,
@@ -463,14 +463,13 @@ function endGame() {
           played_date: today,
           score: totalScore,
           completed: true
-        }, {
-          onConflict: 'user_id,played_date'
-        });
+        })
+        .select();
       
       if (dailyError) {
         console.error("❌ Error saving daily challenge score:", dailyError);
       } else {
-        console.log("✅ Daily challenge score saved!");
+        console.log("✅ Daily challenge score saved:", dailyData);
       }
     }
   } else {
