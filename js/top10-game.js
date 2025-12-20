@@ -428,8 +428,8 @@ function buildSearchDropdown() {
     option.className = 'country-option';
     option.dataset.countryCode = country.code;
     
-    // Convert country code to lowercase flag filename
-    const flagFilename = `flags/${country.name.toLowerCase().replace(/\s+/g, '-')}.png`;
+        // Use ISO country code for flag filename
+    const flagFilename = `flags/${country.code}.png`;
     
     option.innerHTML = `
       <img src="${flagFilename}" alt="${country.name}" class="country-flag" onerror="this.style.display='none'">
