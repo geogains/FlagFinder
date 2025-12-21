@@ -122,15 +122,15 @@ export const categoriesConfig = {
     questionText: "WHICH COUNTRY HAS A HIGHER AVERAGE TEMPERATURE?"
   },
   
-  rainfall: {
-    title: "Annual Rainfall",
-    emoji: "🌧️",
-    unit: "mm",
-    dataFile: "rainfall",
-    dataKey: "rainfallData",
-    valueField: "rainfall",
-    questionText: "WHICH COUNTRY HAS MORE ANNUAL RAINFALL?"
-  },
+ rainfall: {
+  title: "Annual Rainfall",
+  emoji: "🌧️",
+  unit: "mm",
+  dataFile: "rainfall",
+  dataKey: "precipitationData",
+  valueField: "rainfall",
+  questionText: "WHICH COUNTRY HAS MORE ANNUAL RAINFALL?"
+},
   
   crimerate: {
     title: "Crime Rate",

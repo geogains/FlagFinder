@@ -121,7 +121,16 @@ const top10Config = {
     dataFile: "rainfall",
     dataKey: "precipitationData",
     valueField: "rainfall",
-    rankField: "precipitationRank"
+    rankField: "precipitationRank",
+},
+  temperature: {
+    title: "Hottest Countries",
+    emoji: "🌡️",
+    unit: "°C",
+    dataFile: "temperature",
+    dataKey: "temperatureData",
+    valueField: "temperature",
+    rankField: "temperatureRank"
   },
   crimerate: {
     title: "Crime Rate",
