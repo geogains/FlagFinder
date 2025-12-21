@@ -189,32 +189,47 @@ export async function loadTop10CategoryData(categoryKey) {
     }
     
     // Transform to Top 10 format - get top 10 by rank
-    const top10 = data
+    let top10 = data
       .filter(country => country[config.rankField] <= 10)
       .sort((a, b) => a[config.rankField] - b[config.rankField])
-      .slice(0, 10)
-      .map(country => {
-        let value = country[config.valueField];
-        
-        // Convert population to millions if needed
-        if (config.convertToMillions) {
-          value = parseFloat((value / 1000000).toFixed(2));
-        }
-        
-        return {
-          name: country.name,
-          rank: country[config.rankField],
-          code: country.code, // Now uses 2-letter ISO codes!
-          flag: `flags/${country.code}.png`, // Correct flag path
-          value: value
-        };
-      });
+      .slice(0, 10);
+    
+    // Filter out zero values if specified (for World Cup)
+    if (config.filterZeroValues) {
+      top10 = top10.filter(country => country[config.valueField] > 0);
+    }
+    
+    const countries = top10.map(country => {
+      let value = country[config.valueField];
+      
+      // Convert population to millions if needed
+      if (config.convertToMillions) {
+        value = parseFloat((value / 1000000).toFixed(2));
+      }
+      
+      return {
+        name: country.name,
+        rank: country[config.rankField],
+        code: country.code,
+        flag: `flags/${country.code}.png`,
+        value: value
+      };
+    });
+    
+    // Calculate which slots should be locked (if fewer than 10 countries)
+    const lockedSlots = [];
+    if (countries.length < 10) {
+      for (let i = countries.length + 1; i <= 10; i++) {
+        lockedSlots.push(i);
+      }
+    }
     
     return {
       title: config.title,
       emoji: config.emoji,
       unit: config.unit,
-      countries: top10
+      countries: countries,
+      lockedSlots: lockedSlots  // ✅ NEW: [9, 10] for World Cup
     };
     
   } catch (error) {
