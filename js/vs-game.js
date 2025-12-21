@@ -209,9 +209,22 @@ function getTwoRandomCountries() {
     [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
   }
   
-  // Get first two unique countries
-  const country1 = filtered[0];
-  const country2 = filtered[1];
+ // Get first two countries with DIFFERENT values (no ties)
+let country1 = filtered[0];
+let country2 = null;
+
+// Find a second country with a different value than country1
+for (let i = 1; i < filtered.length; i++) {
+  if (filtered[i].value !== country1.value) {
+    country2 = filtered[i];
+    break;
+  }
+}
+
+// Fallback: if all remaining have same value, just use the second one
+if (!country2) {
+  country2 = filtered[1];
+}
   
   // Add to recent countries list
   gameState.recentCountries.push(country1.name, country2.name);
