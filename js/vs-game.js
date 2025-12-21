@@ -366,7 +366,7 @@ function formatValue(value, unit) {
       formatted = value.toLocaleString('en-US', { maximumFractionDigits: 1 }) + '°C';
       break;
     case '/100k':
-      formatted = value.toLocaleString('en-US', { maximumFractionDigits: 2 }) + '/100k';
+      formatted = value.toLocaleString('en-US', { maximumFractionDigits: 2 });
       break;
     case '/10':
       formatted = value.toLocaleString('en-US', { maximumFractionDigits: 1 }) + '/10';
