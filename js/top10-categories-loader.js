@@ -118,7 +118,7 @@ const top10Config = {
   rainfall: {
     title: "Annual Rainfall",
     emoji: "🌧️",
-    unit: "mm",
+    unit: "mm/year",
     dataFile: "rainfall",
     dataKey: "precipitationData",
     valueField: "rainfall",
@@ -127,7 +127,7 @@ const top10Config = {
  precipitation: { 
     title: "Annual Rainfall",
     emoji: "🌧️",
-    unit: "mm",
+    unit: "mm/year",
     dataFile: "rainfall",
     dataKey: "precipitationData",
     valueField: "rainfall",
