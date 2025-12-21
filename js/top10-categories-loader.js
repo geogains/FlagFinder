@@ -140,6 +140,33 @@ const top10Config = {
     dataKey: "happinessData",
     valueField: "happiness",
     rankField: "happinessRank"
+  },
+  olympic: {
+    title: "Olympic Medals",
+    emoji: "🥇",
+    unit: "medals",
+    dataFile: "olympic",
+    dataKey: "olympicData",
+    valueField: "olympic",
+    rankField: "olympicRank"
+  },
+  cuisine: {
+    title: "Cuisine Quality",
+    emoji: "🍽️",
+    unit: "score",
+    dataFile: "cuisine",
+    dataKey: "cuisineData",
+    valueField: "cuisine",
+    rankField: "cuisineRank"
+  },
+  worldcup: {
+    title: "World Cup Wins",
+    emoji: "🏆",
+    unit: "titles",
+    dataFile: "worldcup",
+    dataKey: "worldcupData",
+    valueField: "worldcup",
+    rankField: "worldcupRank"
   }
 };
 

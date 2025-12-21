@@ -4,7 +4,7 @@
 console.log('Mode Selector loaded');
 
 // Categories that have less than 10 countries (Top 10 not available)
-const SMALL_CATEGORIES = ['olympic', 'worldcup', 'cuisine'];
+const SMALL_CATEGORIES = ['worldcup',];
 
 // Mode configurations
 const MODES = {
