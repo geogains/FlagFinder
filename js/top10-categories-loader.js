@@ -124,6 +124,15 @@ const top10Config = {
     valueField: "rainfall",
     rankField: "precipitationRank",
 },
+ precipitation: { 
+    title: "Annual Rainfall",
+    emoji: "🌧️",
+    unit: "mm",
+    dataFile: "rainfall",
+    dataKey: "precipitationData",
+    valueField: "rainfall",
+    rankField: "precipitationRank"
+  },
   temperature: {
     title: "Hottest Countries",
     emoji: "🌡️",
