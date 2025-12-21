@@ -88,7 +88,7 @@ export const categoriesConfig = {
     unit: "countries",
     dataFile: "passport",
     dataKey: "passportData",
-    valueField: "passport",
+    valueField: "passportstrength",
     questionText: "WHICH COUNTRY HAS THE MOST POWERFUL PASSPORT?"
   },
   

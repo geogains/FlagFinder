@@ -84,7 +84,7 @@ const top10Config = {
     unit: "countries",
     dataFile: "passport",
     dataKey: "passportData",
-    valueField: "passport",
+    valueField: "passportstrength",
     rankField: "passportRank"
   },
   beer: {
