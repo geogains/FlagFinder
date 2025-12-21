@@ -18,7 +18,8 @@ export const CATEGORY_ID_MAP = {
   beer: 13,
   nobelprize: 14,
   temperature: 15,
-  rainfall: 16
+  rainfall: 16,
+  precipitation: 16 
 };
 
 // Category configurations for Top 10 mode
