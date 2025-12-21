@@ -328,15 +328,15 @@ function formatValue(value, unit) {
     case 'mm': // rainfall
       formatted = value.toLocaleString('en-US') + ' ' + unit;
       break;
-    case 'hectares':
-  if (value >= 1000000) {
-    formatted = (value / 1000000).toFixed(1) + 'M hectares';
-  } else if (value >= 1000) {
-    formatted = (value / 1000).toFixed(1) + 'K hectares';
-  } else {
-    formatted = value.toLocaleString('en-US') + ' hectares';
-  }
-  break;
+    case 'hectares':  // ← aligned with other cases
+      if (value >= 1000000) {  // ← properly indented
+        formatted = (value / 1000000).toFixed(1) + 'M hectares';
+      } else if (value >= 1000) {
+        formatted = (value / 1000).toFixed(1) + 'K hectares';
+      } else {
+        formatted = value.toLocaleString('en-US') + ' hectares';
+      }
+      break;
     case '%':
       formatted = value.toLocaleString('en-US', { maximumFractionDigits: 1 }) + '%';
       break;
