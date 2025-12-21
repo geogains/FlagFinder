@@ -45,7 +45,7 @@ export const categoriesConfig = {
   forest: {
     title: "Forest Coverage",
     emoji: "🌲",
-    unit: "%",
+    unit: "Hectares",
     dataFile: "forest",
     dataKey: "forestData",
     valueField: "forest",

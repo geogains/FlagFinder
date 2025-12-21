@@ -846,6 +846,13 @@ function formatValue(value, unit) {
       return `${value.toLocaleString()} km`;
     case 'm':
       return `${value.toLocaleString()} m`;
+    case 'hectares':
+      if (value >= 1000000) {
+        return `${(value / 1000000).toFixed(1)}M hectares`;
+      } else if (value >= 1000) {
+        return `${(value / 1000).toFixed(1)}K hectares`;
+      }
+      return `${value.toLocaleString()} hectares`;
     case 'L':
       return `${value} L`;
     case '°C':
@@ -866,7 +873,7 @@ function formatValue(value, unit) {
       return `${value}`;
     case 'rating':
       return `${value}/5`;
-    default:
+    default:  // 
       return `${value}`;
   }
 }
