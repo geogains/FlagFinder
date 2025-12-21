@@ -49,7 +49,7 @@ export const categoriesConfig = {
     dataFile: "forest",
     dataKey: "forestData",
     valueField: "forest",
-    questionText: "WHICH COUNTRY HAS MORE FOREST COVERAGE?"
+    questionText: "WHICH COUNTRY HAS MORE HECTARES OF FOREST COVERAGE?"
   },
   
   coastline: {
@@ -69,7 +69,7 @@ export const categoriesConfig = {
     dataFile: "olympic",
     dataKey: "olympicData",
     valueField: "olympic",
-    questionText: "WHICH COUNTRY HAS MORE OLYMPIC MEDALS?"
+    questionText: "WHICH COUNTRY HAS THE MOST OLYMPIC MEDALS?"
   },
   
   worldcup: {
@@ -79,7 +79,7 @@ export const categoriesConfig = {
     dataFile: "worldcup",
     dataKey: "worldcupData",
     valueField: "worldcup",
-    questionText: "WHICH COUNTRY HAS MORE WORLD CUP TROPHIES?"
+    questionText: "WHICH COUNTRY HAS THE MOST WORLD CUP TROPHIES?"
   },
   
   passport: {
@@ -99,7 +99,7 @@ export const categoriesConfig = {
     dataFile: "beer",
     dataKey: "beerData",
     valueField: "beer",
-    questionText: "WHICH COUNTRY CONSUMES MORE BEER?"
+    questionText: "WHICH COUNTRY ANUALLY CONSUMES MORE BEER PER CAPITA?"
   },
   
   nobelprize: {
@@ -109,7 +109,7 @@ export const categoriesConfig = {
     dataFile: "nobelprize",
     dataKey: "nobelprizeData",
     valueField: "nobelprize",
-    questionText: "WHICH COUNTRY HAS MORE NOBEL PRIZES?"
+    questionText: "WHICH COUNTRY HAS WON MORE NOBEL PRIZES?"
   },
   
   temperature: {
