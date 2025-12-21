@@ -318,19 +318,38 @@ async function initGame() {
     console.log('Starting standalone Top 10 game (no save/restore)');
   }
   
-  // Build ranking grid with new layout (rank number outside slot)
+    // Build ranking grid with new layout (rank number outside slot)
   const grid = document.getElementById('rankingsGrid');
   grid.innerHTML = '';
+  
+  // Get locked slots from category data (for categories with < 10 items)
+  const lockedSlots = currentCategory.lockedSlots || [];
   
   for (let i = 1; i <= 10; i++) {
     const row = document.createElement('div');
     row.className = 'ranking-row';
-    row.innerHTML = `
-      <div class="rank-number">${i}</div>
-      <div class="rank-slot" data-rank="${i}">
-        <span class="rank-empty">---</span>
-      </div>
-    `;
+    
+    // Check if this slot should be locked
+    const isLocked = lockedSlots.includes(i);
+    
+    if (isLocked) {
+      // Locked slot - grayed out and unavailable
+      row.innerHTML = `
+        <div class="rank-number locked">${i}</div>
+        <div class="rank-slot locked" data-rank="${i}">
+          <span class="rank-locked">🔒 Unavailable</span>
+        </div>
+      `;
+    } else {
+      // Normal slot
+      row.innerHTML = `
+        <div class="rank-number">${i}</div>
+        <div class="rank-slot" data-rank="${i}">
+          <span class="rank-empty">---</span>
+        </div>
+      `;
+    }
+    
     grid.appendChild(row);
   }
   
@@ -816,8 +835,8 @@ async function selectCountry(country) {
     
     // Score is calculated at the end of the game
     
-    // Check for win
-    if (gameState.guessedCountries.size === 10) {
+     // Check for win (consider only available countries, not locked slots)
+    if (gameState.guessedCountries.size === currentCategory.countries.length) {
       setTimeout(() => endGame(true), 500);
     }
   } else {
