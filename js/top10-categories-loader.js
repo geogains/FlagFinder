@@ -166,7 +166,8 @@ const top10Config = {
     dataFile: "worldcup",
     dataKey: "worldcupData",
     valueField: "worldcup",
-    rankField: "worldcupRank"
+    rankField: "worldcupRank",
+    filterZeroValues: true
   }
 };
 

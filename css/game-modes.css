@@ -650,3 +650,29 @@ html {
     transform: scale(1);
   }
 }
+
+/* Locked slot styles for World Cup Top 10 */
+.rank-slot.locked {
+  background: linear-gradient(135deg, #333 0%, #444 100%);
+  border: 2px solid #555;
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.rank-slot.locked .rank-locked {
+  color: #888;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.rank-number.locked {
+  opacity: 0.5;
+  color: #666;
+}
+
+/* Prevent hover effects on locked slots */
+.rank-slot.locked:hover {
+  transform: none;
+  box-shadow: none;
+}
