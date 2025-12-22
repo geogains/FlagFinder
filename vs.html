@@ -503,8 +503,60 @@
 
   <script type="module">
     import { supabase } from './js/supabase-client.js';
+    
+    // ========================================
+    // 🔒 PREMIUM VALIDATION GUARD
+    // ========================================
+    
+    // Define which categories require premium
+    const PREMIUM_CATEGORIES = [
+      'coastline',
+      'cuisine',
+      'olympic',
+      'worldcup',
+      'landmass',
+      'crimerate',
+      'happiness',
+      'passport',
+      'beer',
+      'nobelprize',
+      'temperature',
+      'precipitation',
+      'rainfall'
+    ];
 
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get('mode') || 'landmass';
+
+    // Get user session ONCE at the top
     const { data: { session } } = await supabase.auth.getSession();
+
+    // Check if this mode requires premium
+    const requiresPremium = PREMIUM_CATEGORIES.includes(mode);
+
+    if (requiresPremium) {
+      let isPremium = false;
+      
+      if (session && session.user) {
+        const { data: profile } = await supabase
+          .from('users')
+          .select('is_premium')
+          .eq('id', session.user.id)
+          .single();
+        
+        isPremium = profile?.is_premium === true;
+      }
+      
+      // If user is not premium, redirect to premium page
+      if (!isPremium) {
+        window.location.href = 'premium.html';
+        // Stop execution here
+        throw new Error('Premium required');
+      }
+    }
+    
+    // Remove loading overlay after validation
+    document.getElementById('authLoadingOverlay').style.display = 'none';
 
     // Hide Account if user not logged in
     if (!session || !session.user) {
