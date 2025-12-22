@@ -769,13 +769,13 @@
   const params = new URLSearchParams(window.location.search);
   const mode = params.get('mode') || 'population';
 
+  // Get user session ONCE at the top
+  const { data: { session } } = await supabase.auth.getSession();
+
   // Check if this mode requires premium
   const requiresPremium = PREMIUM_CATEGORIES.includes(mode);
 
   if (requiresPremium) {
-    // Get user session and premium status
-    const { data: { session } } = await supabase.auth.getSession();
-    
     let isPremium = false;
     
     if (session && session.user) {
@@ -799,12 +799,24 @@
   // Remove loading overlay after validation
   document.getElementById('authLoadingOverlay').style.display = 'none';
 
-    // Hide Account button if not logged in
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session || !session.user) {
-      document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+  // Hide Account button if not logged in
+  if (!session || !session.user) {
+    document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+  }
+
+  // Hide Unlock All Categories if user is premium
+  if (session && session.user) {
+    const { data: profile } = await supabase
+      .from('users')
+      .select('is_premium')
+      .eq('id', session.user.id)
+      .single();
+
+    if (profile?.is_premium) {
+      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
     }
-  </script>
+  }
+</script>
 
   <script type="module" src="js/top10-game.js"></script>
 </body>
