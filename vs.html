@@ -14,6 +14,40 @@
   <link rel="stylesheet" href="css/home.css"/>
   
   <style>
+/* Loading overlay to prevent access during auth check */
+#authLoadingOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(to bottom right, #a7f3d0, #38bdf8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  color: #0d315a;
+}
+
+#authLoadingOverlay h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #0d315a;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
     body {
       background: linear-gradient(135deg, #a7f3d0 0%, #38bdf8 100%);
       font-family: 'Poppins', sans-serif;
@@ -342,6 +376,12 @@
   </style>
 </head>
 <body>
+<!-- Auth Loading Overlay -->
+<div id="authLoadingOverlay">
+  <h2>Verifying access...</h2>
+  <div class="spinner"></div>
+</div>
+
   <!-- GLASS HEADER (from categories.html) -->
   <header class="home-glass-header">
     <div class="logo-header">

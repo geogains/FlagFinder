@@ -14,6 +14,41 @@
   <link rel="stylesheet" href="css/home.css" />
   
   <style>
+
+/* Loading overlay to prevent access during auth check */
+#authLoadingOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(to bottom right, #a7f3d0, #38bdf8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  color: #0d315a;
+}
+
+#authLoadingOverlay h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #0d315a;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
     body {
       background: linear-gradient(135deg, #a7f3d0 0%, #38bdf8 100%);
       font-family: 'Poppins', sans-serif;
@@ -533,6 +568,12 @@
 </head>
 <body>
 
+  <!-- Auth Loading Overlay -->
+<div id="authLoadingOverlay">
+  <h2>Verifying access...</h2>
+  <div class="spinner"></div>
+</div>
+
   <!-- HEADER -->
   <header class="home-glass-header">
     <div class="logo-header">
@@ -702,7 +743,61 @@
   </script>
 
   <script type="module">
-    import { supabase } from './js/supabase-client.js';
+  import { supabase } from './js/supabase-client.js';
+  
+  // ========================================
+  // 🔒 PREMIUM VALIDATION GUARD
+  // ========================================
+  
+  // Define which categories require premium
+  const PREMIUM_CATEGORIES = [
+    'coastline',
+    'cuisine',
+    'olympic',
+    'worldcup',
+    'landmass',
+    'crimerate',
+    'happiness',
+    'passport',
+    'beer',
+    'nobelprize',
+    'temperature',
+    'precipitation',
+    'rainfall'
+  ];
+
+  const params = new URLSearchParams(window.location.search);
+  const mode = params.get('mode') || 'population';
+
+  // Check if this mode requires premium
+  const requiresPremium = PREMIUM_CATEGORIES.includes(mode);
+
+  if (requiresPremium) {
+    // Get user session and premium status
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    let isPremium = false;
+    
+    if (session && session.user) {
+      const { data: profile } = await supabase
+        .from('users')
+        .select('is_premium')
+        .eq('id', session.user.id)
+        .single();
+      
+      isPremium = profile?.is_premium === true;
+    }
+    
+    // If user is not premium, redirect to premium page
+    if (!isPremium) {
+      window.location.href = 'premium.html';
+      // Stop execution here
+      throw new Error('Premium required');
+    }
+  }
+  
+  // Remove loading overlay after validation
+  document.getElementById('authLoadingOverlay').style.display = 'none';
 
     // Hide Account button if not logged in
     const { data: { session } } = await supabase.auth.getSession();
