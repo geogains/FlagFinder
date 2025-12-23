@@ -233,9 +233,100 @@
         font-size: 1.1rem;
       }
     }
+
+    /* Login Required Modal */
+.auth-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-modal.active {
+  display: flex;
+}
+
+.auth-window {
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  max-width: 450px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.auth-window h2 {
+  font-size: 2rem;
+  color: #0d315a;
+  margin-bottom: 15px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.auth-window p {
+  font-size: 1.1rem;
+  color: #6b7280;
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+.auth-window .lock {
+  font-size: 2rem;
+  margin-left: 8px;
+}
+
+.auth-btn {
+  padding: 14px 30px;
+  border: none;
+  border-radius: 50px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.3s ease;
+  margin: 8px;
+}
+
+.auth-btn.login {
+  background: linear-gradient(135deg, #ff9770, #ff6f61);
+  color: white;
+  box-shadow: 0 6px 20px rgba(255, 111, 97, 0.3);
+}
+
+.auth-btn.login:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 111, 97, 0.4);
+}
+
+.auth-btn.cancel {
+  background: #e5e7eb;
+  color: #1f2937;
+}
+
+.auth-btn.cancel:hover {
+  background: #d1d5db;
+}
   </style>
 </head>
 <body>
+<!-- Login Required Modal -->
+<div id="authModal" class="auth-modal">
+  <div class="auth-window">
+    <h2>Login Required <span class="lock">🔒</span></h2>
+    <p>You need to be signed in to play the Daily Challenge!</p>
+    <p style="font-size: 0.95rem; color: #9ca3af;">Create a free account to compete on the leaderboard and track your progress.</p>
+
+    <button id="goLoginBtn" class="auth-btn login">Sign In / Sign Up</button>
+    <button id="cancelLoginBtn" class="auth-btn cancel">Cancel</button>
+  </div>
+</div>
+
   <!-- GLASS HEADER -->
   <header class="home-glass-header">
     <div class="logo-header">
@@ -389,84 +480,106 @@
 
     // Initialize
     async function init() {
-      try {
-        // Check if user completed today's challenge
-        const completed = await hasCompletedTodaysChallenge();
-        
-        if (completed) {
-          loadingState.style.display = 'none';
-          completedState.style.display = 'block';
-          return;
-        }
-
-        // Get today's challenge
-        const challenge = getTodaysDailyChallenge();
-        console.log('Today\'s challenge:', challenge);
-
-        // Update UI
-        const modeElement = document.getElementById('challengeMode');
-        const categoryElement = document.getElementById('challengeCategory');
-        const emojiElement = document.getElementById('challengeEmoji');
-        const dateElement = document.getElementById('challengeDate');
-        const cardBg = document.getElementById('challengeCardBg');
-
-        modeElement.textContent = modeDisplayNames[challenge.mode] || challenge.mode;
-        categoryElement.textContent = categoryDisplayNames[challenge.category] || challenge.category;
-        emojiElement.textContent = categoryEmojis[challenge.category] || '🌍';
-        dateElement.textContent = today.toLocaleDateString('en-US', options);
-
-        // Set background image based on category
-        const bgMap = {
-          population: "population.jpg",
-          gdp: "gdp.jpg",
-          altitude: "altitude.jpg",
-          forest: "forest.jpg",
-          coastline: "coastline.jpg",
-          olympic: "olympic.jpg",
-          landmass: "landmass.jpg",
-          passport: "passport.jpg",
-          beer: "beer.jpg",
-          nobelprize: "nobelprize.jpg",
-          worldcup: "worldcup.jpg",
-          hightemp: "hightemp.jpg",
-          rainfall: "rainfall.jpg",
-          crimerate: "crimerate.jpg",
-          happiness: "happiness.jpg",
-          cuisine: "cuisine.jpg"
-        };
-
-        const bgImage = bgMap[challenge.category];
-        if (bgImage && cardBg) {
-          cardBg.style.backgroundImage = `url('images/categories/${bgImage}')`;
-        }
-
-        // Set up play button
-        playButton.onclick = () => {
-          // Determine which game file to load
-          let gameFile;
-          if (challenge.mode === 'classic') {
-            gameFile = 'game.html';
-          } else if (challenge.mode === 'top10') {
-            gameFile = 'top10.html';
-          } else if (challenge.mode === 'vs') {
-            gameFile = 'vs.html';
-          }
-
-          // Redirect with daily flag
-          window.location.href = `${gameFile}?mode=${challenge.category}&daily=true`;
-        };
-
-        // Show challenge card
-        loadingState.style.display = 'none';
-        challengeCard.style.display = 'block';
-
-      } catch (error) {
-        console.error('Error initializing daily challenge:', error);
-        loadingState.style.display = 'none';
-        errorState.style.display = 'block';
-        document.getElementById('errorMessage').textContent = error.message || 'Unknown error occurred';
-      }
+  try {
+    // Check if user completed today's challenge
+    const status = await hasCompletedTodaysChallenge();
+    
+    console.log('Challenge status:', status);
+    
+    // Check if user is logged in
+    if (!status.loggedIn) {
+      // Show login required modal
+      loadingState.style.display = 'none';
+      const authModal = document.getElementById('authModal');
+      authModal.classList.add('active');
+      
+      // Setup modal buttons
+      document.getElementById('goLoginBtn').onclick = () => {
+        window.location.href = 'login.html';
+      };
+      
+      document.getElementById('cancelLoginBtn').onclick = () => {
+        window.location.href = 'index.html';
+      };
+      
+      return;
     }
+    
+    // Check if already completed
+    if (status.completed) {
+      loadingState.style.display = 'none';
+      completedState.style.display = 'block';
+      return;
+    }
+
+    // Get today's challenge
+    const challenge = getTodaysDailyChallenge();
+    console.log('Today\'s challenge:', challenge);
+
+    // Update UI
+    const modeElement = document.getElementById('challengeMode');
+    const categoryElement = document.getElementById('challengeCategory');
+    const emojiElement = document.getElementById('challengeEmoji');
+    const dateElement = document.getElementById('challengeDate');
+    const cardBg = document.getElementById('challengeCardBg');
+
+    modeElement.textContent = modeDisplayNames[challenge.mode] || challenge.mode;
+    categoryElement.textContent = categoryDisplayNames[challenge.category] || challenge.category;
+    emojiElement.textContent = categoryEmojis[challenge.category] || '🌍';
+    dateElement.textContent = today.toLocaleDateString('en-US', options);
+
+    // Set background image based on category
+    const bgMap = {
+      population: "population.jpg",
+      gdp: "gdp.jpg",
+      altitude: "altitude.jpg",
+      forest: "forest.jpg",
+      coastline: "coastline.jpg",
+      olympic: "olympic.jpg",
+      landmass: "landmass.jpg",
+      passport: "passport.jpg",
+      beer: "beer.jpg",
+      nobelprize: "nobelprize.jpg",
+      worldcup: "worldcup.jpg",
+      hightemp: "hightemp.jpg",
+      rainfall: "rainfall.jpg",
+      crimerate: "crimerate.jpg",
+      happiness: "happiness.jpg",
+      cuisine: "cuisine.jpg"
+    };
+
+    const bgImage = bgMap[challenge.category];
+    if (bgImage && cardBg) {
+      cardBg.style.backgroundImage = `url('images/categories/${bgImage}')`;
+    }
+
+    // Set up play button
+    playButton.onclick = () => {
+      // Determine which game file to load
+      let gameFile;
+      if (challenge.mode === 'classic') {
+        gameFile = 'game.html';
+      } else if (challenge.mode === 'top10') {
+        gameFile = 'top10.html';
+      } else if (challenge.mode === 'vs') {
+        gameFile = 'vs.html';
+      }
+
+      // Redirect with daily flag
+      window.location.href = `${gameFile}?mode=${challenge.category}&daily=true`;
+    };
+
+    // Show challenge card
+    loadingState.style.display = 'none';
+    challengeCard.style.display = 'block';
+
+  } catch (error) {
+    console.error('Error initializing daily challenge:', error);
+    loadingState.style.display = 'none';
+    errorState.style.display = 'block';
+    document.getElementById('errorMessage').textContent = error.message || 'Unknown error occurred';
+  }
+}
 
     // Run initialization
     init();

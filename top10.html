@@ -768,13 +768,14 @@
   ];
 
   const params = new URLSearchParams(window.location.search);
-  const mode = params.get('mode') || 'population';
+const mode = params.get('mode') || 'population';
+const isDaily = params.get('daily') === 'true';  // ✅ ADD THIS
 
-  // Get user session ONCE at the top
-  const { data: { session } } = await supabase.auth.getSession();
+// Get user session ONCE at the top
+const { data: { session } } = await supabase.auth.getSession();
 
-  // Check if this mode requires premium
-  const requiresPremium = PREMIUM_CATEGORIES.includes(mode);
+// Check if this mode requires premium (skip if daily challenge)
+const requiresPremium = PREMIUM_CATEGORIES.includes(mode) && !isDaily;  // ✅ CHANGE THIS
 
   if (requiresPremium) {
     let isPremium = false;

@@ -81,8 +81,8 @@ export async function hasCompletedTodaysChallenge() {
   const { data: { session } } = await supabase.auth.getSession();
   
   if (!session) {
-    console.log('Not logged in - allowing play');
-    return false;
+    console.log('Not logged in - returning not-logged-in status');
+    return { loggedIn: false, completed: false };  // ✅ Return object
   }
   
   const todayString = new Date().toISOString().split('T')[0];
@@ -97,10 +97,10 @@ export async function hasCompletedTodaysChallenge() {
   
   if (error) {
     console.error('Error checking completion:', error);
-    return false;
+    return { loggedIn: true, completed: false };
   }
   
-  return !!data; // Returns true if completed record exists
+  return { loggedIn: true, completed: !!data };  // ✅ Return object
 }
 
 // Get display names for modes and categories

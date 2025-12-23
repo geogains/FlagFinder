@@ -186,12 +186,13 @@
   ];
 
   const params = new URLSearchParams(window.location.search);
-  const mode = params.get('mode') || 'population';
+const mode = params.get('mode') || 'population';
+const isDaily = params.get('daily') === 'true';  // ✅ ADD THIS LINE
 
-  // Check if this mode requires premium
-  const requiresPremium = PREMIUM_MODES.includes(mode);
+// Check if this mode requires premium (skip if daily challenge)
+const requiresPremium = PREMIUM_MODES.includes(mode) && !isDaily;  // ✅ ADD && !isDaily
 
-  if (requiresPremium) {
+if (requiresPremium) {
     // Get user session and premium status
     const { data: { session } } = await supabase.auth.getSession();
     
