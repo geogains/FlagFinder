@@ -630,17 +630,24 @@ async function saveGameState() {
   }
 }
 
-// Synchronous save for page unload (uses sendBeacon for reliability)
+// Synchronous save for page unload (uses fetch with keepalive for reliability)
 function saveGameStateSync() {
   try {
-    const session = JSON.parse(localStorage.getItem('sb-geo-ranks-auth-token'));
-    if (!session || !session.user) return;
+    // Use the correct Supabase localStorage key format
+    const sessionData = localStorage.getItem('sb-ajwxgdaninuzcpfwawug-auth-token');
+    if (!sessionData) return;
+    
+    const session = JSON.parse(sessionData);
+    if (!session?.access_token || !session?.user?.id) return;
     
     const today = new Date();
     const utcDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
     const todayString = utcDate.toISOString().split('T')[0];
     
     const stateData = {
+      user_id: session.user.id,
+      category_id: categoryId,
+      played_date: todayString,
       score: 0,
       correct_count: gameState.guessedCountries.size,
       wrong_count: gameState.incorrectGuesses.length,
@@ -654,10 +661,20 @@ function saveGameStateSync() {
       })
     };
     
-    // Use sendBeacon for reliable last-second save
-    const url = 'https://api.geo-ranks.com/rest/v1/top10_scores?user_id=eq.' + session.user.id + '&category_id=eq.' + categoryId + '&played_date=eq.' + todayString;
-    const blob = new Blob([JSON.stringify(stateData)], { type: 'application/json' });
-    navigator.sendBeacon(url, blob);
+    // Use fetch with keepalive (works like sendBeacon but supports headers)
+    const url = 'https://api.geo-ranks.com/rest/v1/daily_challenge_scores';
+    
+    fetch(url, {
+      method: 'POST',
+      keepalive: true, // Allows request to outlive the page
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI',
+        'Authorization': 'Bearer ' + session.access_token,
+        'Prefer': 'resolution=merge-duplicates' // Upsert behavior
+      },
+      body: JSON.stringify(stateData)
+    });
     
     console.log('Synchronous save on page unload');
   } catch (err) {

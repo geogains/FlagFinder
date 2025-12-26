@@ -5,13 +5,16 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2023-10-16",
 });
 
+// Allowed origin for CORS
+const ALLOWED_ORIGIN = "https://www.geo-ranks.com";
+
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, {
       status: 204,
       headers: {
-        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
         "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
       },
@@ -23,7 +26,7 @@ Deno.serve(async (req) => {
     if (req.method !== "POST") {
       return new Response("Method not allowed", { 
         status: 405, 
-        headers: { "Access-Control-Allow-Origin": "*" } 
+        headers: { "Access-Control-Allow-Origin": ALLOWED_ORIGIN } 
       });
     }
 
@@ -39,7 +42,7 @@ Deno.serve(async (req) => {
           status: 400, 
           headers: { 
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
           } 
         }
       );
@@ -68,7 +71,7 @@ Deno.serve(async (req) => {
       status: 200,
       headers: { 
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
       },
     });
 
@@ -83,7 +86,7 @@ Deno.serve(async (req) => {
                 status: 400, 
                 headers: { 
                     "Content-Type": "application/json",
-                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
                 } 
             }
         );
@@ -96,7 +99,7 @@ Deno.serve(async (req) => {
         status: 500, 
         headers: { 
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
         } 
       }
     );
