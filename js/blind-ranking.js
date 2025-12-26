@@ -7,19 +7,8 @@ const isDailyChallenge = urlParams.get("daily") === "true";
 console.log("Current category:", currentCategory);
 console.log("Is Daily Challenge:", isDailyChallenge);
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js';
-  const SUPABASE_URL = 'https://api.geo-ranks.com';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI';
-
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true
-    }
-  });
-
-  window.supabase = window.supabase || supabase;
+// Use the shared Supabase client instead of creating a duplicate
+import { supabase } from './supabase-client.js';
 
 function getCountries() {
   return window.countries && window.countries.length ? window.countries : [];
@@ -442,7 +431,8 @@ function endGame() {
     // Step 2: Call the stored procedure (function)
     const { error: rpcError } = await supabase.rpc('upsert_high_score', {
       category_id_input: catData.id,
-      new_score: totalScore
+      new_score: totalScore,
+      is_daily_challenge: isDailyChallenge  // Pass daily challenge flag for premium bypass
     });
 
     if (rpcError) {

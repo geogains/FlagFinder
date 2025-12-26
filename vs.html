@@ -503,6 +503,7 @@
 
   <script type="module">
     import { supabase } from './js/supabase-client.js';
+    import { isValidDailyChallenge } from './js/daily-challenge.js';
     
     // ========================================
     // 🔒 PREMIUM VALIDATION GUARD
@@ -525,15 +526,22 @@
       'rainfall'
     ];
 
- const params = new URLSearchParams(window.location.search);
-const mode = params.get('mode') || 'landmass';
-const isDaily = params.get('daily') === 'true';  // ✅ ADD THIS
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get('mode') || 'landmass';
+    const isDailyParam = params.get('daily') === 'true';
 
-// Get user session ONCE at the top
-const { data: { session } } = await supabase.auth.getSession();
+    // SECURITY FIX: Validate that this is actually today's daily challenge
+    const isValidDaily = isDailyParam && isValidDailyChallenge('vs', mode);
+    
+    if (isDailyParam && !isValidDaily) {
+      console.warn('⚠️ Invalid daily challenge attempt detected - mode/category mismatch');
+    }
 
-// Check if this mode requires premium (skip if daily challenge)
-const requiresPremium = PREMIUM_CATEGORIES.includes(mode) && !isDaily;  // ✅ CHANGE THIS
+    // Get user session ONCE at the top
+    const { data: { session } } = await supabase.auth.getSession();
+
+    // Check if this mode requires premium (only bypass if VALID daily challenge)
+    const requiresPremium = PREMIUM_CATEGORIES.includes(mode) && !isValidDaily;
 
     if (requiresPremium) {
       let isPremium = false;

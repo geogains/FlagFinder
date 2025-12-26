@@ -76,6 +76,33 @@ export function getTodaysDailyChallenge() {
   };
 }
 
+// Validate that a given mode/category is actually today's daily challenge
+// This prevents users from manually adding ?daily=true to bypass premium
+export function isValidDailyChallenge(mode, category) {
+  const todayChallenge = getTodaysDailyChallenge();
+  
+  // Map mode names (URL uses 'classic', daily challenge might use different names)
+  const modeMap = {
+    'game': 'classic',
+    'classic': 'classic',
+    'top10': 'top10',
+    'vs': 'vs'
+  };
+  
+  const normalizedMode = modeMap[mode] || mode;
+  
+  const isValid = todayChallenge.mode === normalizedMode && 
+                  todayChallenge.category === category;
+  
+  console.log('Daily challenge validation:', {
+    provided: { mode: normalizedMode, category },
+    expected: { mode: todayChallenge.mode, category: todayChallenge.category },
+    isValid
+  });
+  
+  return isValid;
+}
+
 // Check if user has completed today's daily challenge
 export async function hasCompletedTodaysChallenge() {
   const { data: { session } } = await supabase.auth.getSession();

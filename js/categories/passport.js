@@ -157,7 +157,7 @@ export const passportData = [
   { name: 'Togo', code: 'TG', passportRank: 156, passportstrength: 67, tieGroup: 72 },
   { name: 'Burkina Faso', code: 'BF', passportRank: 157, passportstrength: 66, tieGroup: 73 },
   { name: 'Equatorial Guinea', code: 'GQ', passportRank: 158, passportstrength: 66, tieGroup: 73 },
-  { name: 'Ivory Coast', code: 'ivory-coast', passportRank: 159, passportstrength: 65, tieGroup: 74 },
+  { name: 'Ivory Coast', code: 'CI', passportRank: 159, passportstrength: 65, tieGroup: 74 },
   { name: 'Egypt', code: 'EG', passportRank: 160, passportstrength: 65, tieGroup: 74 },
   { name: 'Jordan', code: 'JO', passportRank: 161, passportstrength: 65, tieGroup: 74 },
   { name: 'Turkmenistan', code: 'TM', passportRank: 162, passportstrength: 65, tieGroup: 74 },

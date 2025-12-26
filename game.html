@@ -165,6 +165,8 @@
 
 <script type="module">
   import { supabase } from './js/supabase-client.js';
+  import { isValidDailyChallenge } from './js/daily-challenge.js';
+  
   // ========================================
   // 🔒 PREMIUM VALIDATION GUARD
   // ========================================
@@ -186,13 +188,21 @@
   ];
 
   const params = new URLSearchParams(window.location.search);
-const mode = params.get('mode') || 'population';
-const isDaily = params.get('daily') === 'true';  // ✅ ADD THIS LINE
+  const mode = params.get('mode') || 'population';
+  const isDailyParam = params.get('daily') === 'true';
 
-// Check if this mode requires premium (skip if daily challenge)
-const requiresPremium = PREMIUM_MODES.includes(mode) && !isDaily;  // ✅ ADD && !isDaily
+  // SECURITY FIX: Validate that this is actually today's daily challenge
+  // This prevents users from manually adding ?daily=true to bypass premium
+  const isValidDaily = isDailyParam && isValidDailyChallenge('classic', mode);
+  
+  if (isDailyParam && !isValidDaily) {
+    console.warn('⚠️ Invalid daily challenge attempt detected - mode/category mismatch');
+  }
 
-if (requiresPremium) {
+  // Check if this mode requires premium (only bypass if VALID daily challenge)
+  const requiresPremium = PREMIUM_MODES.includes(mode) && !isValidDaily;
+
+  if (requiresPremium) {
     // Get user session and premium status
     const { data: { session } } = await supabase.auth.getSession();
     
@@ -223,8 +233,7 @@ if (requiresPremium) {
   // 🎮 GAME INITIALIZATION (only if validated)
   // ========================================
 
-  
-import { CATEGORY_ID_MAP } from './js/top10-categories-loader.js';
+  import { CATEGORY_ID_MAP } from './js/top10-categories-loader.js';
 
   const selected = datasets[mode] || datasets.population;
 

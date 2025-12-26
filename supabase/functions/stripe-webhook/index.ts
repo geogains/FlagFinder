@@ -40,32 +40,60 @@ serve(async (req) => {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
-    let customerEmail = session.customer_details?.email;
+    
+    // Try multiple ways to identify the user
+    const customerEmail = session.customer_details?.email || session.customer_email;
+    const userId = session.client_reference_id || session.metadata?.userId;
 
-    if (!customerEmail) {
-      console.log("⚠️ No customer email in event → using test override");
-      customerEmail = "kieronjcrooks@outlook.com";
-    }
+    console.log("📧 Customer email:", customerEmail);
+    console.log("👤 User ID:", userId);
 
-    console.log("📧 Email to use:", customerEmail);
+    // Prefer updating by user ID (more reliable), fall back to email
+    let updateError = null;
+    let updateMethod = "";
 
-    const { error } = await supabase
-      .from("users")
-      .update({ is_premium: true })
-      .eq("email", customerEmail);
-
-    if (error) {
-      console.error("❌ Supabase update error:", error.message);
+    if (userId) {
+      // Primary method: Update by user ID
+      const { error } = await supabase
+        .from("users")
+        .update({ is_premium: true })
+        .eq("id", userId);
+      
+      updateError = error;
+      updateMethod = "user_id";
+    } else if (customerEmail) {
+      // Fallback method: Update by email
+      const { error } = await supabase
+        .from("users")
+        .update({ is_premium: true })
+        .eq("email", customerEmail);
+      
+      updateError = error;
+      updateMethod = "email";
     } else {
-      console.log(`✅ User ${customerEmail} upgraded to premium`);
+      // No identifier available - this is a critical error
+      console.error("❌ CRITICAL: No user identifier in checkout session!", {
+        session_id: session.id,
+        customer_details: session.customer_details,
+        metadata: session.metadata
+      });
+      return new Response("Missing user identifier - cannot process upgrade", { status: 400 });
     }
 
-  try {
-  const emailResponse = await resend.emails.send({
-    from: "GeoRanks <support@geo-ranks.com>",
-    to: customerEmail,
-    subject: "🎉 Welcome to GeoRanks Premium!",
-    html: `
+    if (updateError) {
+      console.error(`❌ Supabase update error (via ${updateMethod}):`, updateError.message);
+    } else {
+      console.log(`✅ User upgraded to premium via ${updateMethod}:`, userId || customerEmail);
+    }
+
+    // Only send confirmation email if we have an email address
+    if (customerEmail) {
+      try {
+        const emailResponse = await resend.emails.send({
+          from: "GeoRanks <support@geo-ranks.com>",
+          to: customerEmail,
+          subject: "🎉 Welcome to GeoRanks Premium!",
+          html: `
 <!DOCTYPE html>
 <html lang="en" style="font-family: 'Poppins', sans-serif;">
   <head>
@@ -111,14 +139,16 @@ serve(async (req) => {
   </body>
 </html>
 `
-  });
+        });
 
-  console.log("✅ Email sent! Response:", emailResponse);
+        console.log("✅ Email sent! Response:", emailResponse);
 
-} catch (emailErr) {
-  console.error("❌ Email send failed:", emailErr);
-}
-
+      } catch (emailErr) {
+        console.error("❌ Email send failed:", emailErr);
+      }
+    } else {
+      console.log("⚠️ No email address available - skipping confirmation email");
+    }
 
     return new Response("Success", { status: 200 });
   }
