@@ -418,9 +418,6 @@ async function initGame() {
   // Setup search functionality
   setupSearch();
   
-  // Setup auto-save of game state (every time something changes)
-  setupAutoSave();
-  
   console.log('Game initialized successfully');
 }
 
@@ -552,136 +549,6 @@ function setupSearch() {
   console.log('Search setup complete');
 }
 
-// Setup auto-save of game state to database
-function setupAutoSave() {
-  // Save state every 5 seconds and store interval ID
-  window.autoSaveInterval = setInterval(async () => {
-    await saveGameState();
-  }, 5000);
-  
-  // Also save on visibility change (user switches tabs)
-  document.addEventListener('visibilitychange', async () => {
-    if (document.hidden) {
-      await saveGameState();
-    }
-  });
-  
-  // Critical: Save state when page is about to unload (refresh/close)
-  window.addEventListener('beforeunload', () => {
-    // Use synchronous method to save before page unloads
-    saveGameStateSync();
-  });
-  
-  console.log('Auto-save enabled (saves every 5 seconds)');
-}
-
-// Save current game state to database
-async function saveGameState() {
-  try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    
-    const today = new Date();
-    const utcDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
-    const todayString = utcDate.toISOString().split('T')[0];
-    
-    // Calculate time_taken (time elapsed, not remaining)
-    const timeTaken = 120 - gameState.timeRemaining;
-    
-    // Prepare game state data (score is NOT saved here - only at game end)
-    const stateData = {
-      correct_count: gameState.guessedCountries.size,
-      time_taken: timeTaken,
-      completed: false,
-      // Store game state as JSON in a text field (if your DB supports it)
-      // Otherwise we'll restore from the counts
-      game_state_json: JSON.stringify({
-        guessedCountries: Array.from(gameState.guessedCountries),
-        incorrectGuesses: gameState.incorrectGuesses,
-        lives: gameState.lives,
-        timeRemaining: gameState.timeRemaining
-      })
-    };
-    
-    console.log('Saving state to database:', {
-      lives: gameState.lives,
-      timeRemaining: gameState.timeRemaining,
-      guessedCount: gameState.guessedCountries.size,
-      wrongCount: gameState.incorrectGuesses.length
-    });
-    
-    const { data, error } = await supabase
-      .from('daily_challenge_scores')
-      .update(stateData)
-      .eq('user_id', session.user.id)
-      .eq('category_id', categoryId)
-      .eq('played_date', todayString)
-      .select();
-    
-    if (error) {
-      console.error('❌ Database update error:', error);
-    } else {
-      console.log('✅ Database updated successfully:', data);
-    }
-    
-    console.log('Game state auto-saved');
-  } catch (err) {
-    console.error('Failed to auto-save game state:', err);
-  }
-}
-
-// Synchronous save for page unload (uses fetch with keepalive for reliability)
-function saveGameStateSync() {
-  try {
-    // Use the correct Supabase localStorage key format
-    const sessionData = localStorage.getItem('sb-ajwxgdaninuzcpfwawug-auth-token');
-    if (!sessionData) return;
-    
-    const session = JSON.parse(sessionData);
-    if (!session?.access_token || !session?.user?.id) return;
-    
-    const today = new Date();
-    const utcDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
-    const todayString = utcDate.toISOString().split('T')[0];
-    
-    const stateData = {
-      user_id: session.user.id,
-      category_id: categoryId,
-      played_date: todayString,
-      score: 0,
-      correct_count: gameState.guessedCountries.size,
-      wrong_count: gameState.incorrectGuesses.length,
-      time_remaining: gameState.timeRemaining,
-      completed: false,
-      game_state_json: JSON.stringify({
-        guessedCountries: Array.from(gameState.guessedCountries),
-        incorrectGuesses: gameState.incorrectGuesses,
-        lives: gameState.lives,
-        timeRemaining: gameState.timeRemaining
-      })
-    };
-    
-    // Use fetch with keepalive (works like sendBeacon but supports headers)
-    const url = 'https://api.geo-ranks.com/rest/v1/daily_challenge_scores';
-    
-    fetch(url, {
-      method: 'POST',
-      keepalive: true, // Allows request to outlive the page
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI',
-        'Authorization': 'Bearer ' + session.access_token,
-        'Prefer': 'resolution=merge-duplicates' // Upsert behavior
-      },
-      body: JSON.stringify(stateData)
-    });
-    
-    console.log('Synchronous save on page unload');
-  } catch (err) {
-    console.error('Failed to save on unload:', err);
-  }
-}
-
 // Restore game state from database (called during init)
 async function restoreGameState() {
   try {
@@ -775,15 +642,6 @@ async function selectCountryByName(countryName) {
       setTimeout(() => searchInput.focus(), 100);
     }
     
-    // Save state immediately after incorrect guess - AWAIT to ensure it completes
-    console.log('Triggering immediate save after incorrect guess');
-    try {
-      await saveGameState();
-      console.log('✅ Immediate save completed');
-    } catch(err) {
-      console.error('Failed to save state:', err);
-    }
-    
     if (gameState.lives === 0) {
       setTimeout(() => endGame(false), 500);
     }
@@ -822,15 +680,6 @@ async function selectCountry(country) {
   // Auto-focus for desktop (check if device has keyboard)
   if (window.innerWidth >= 768) {
     setTimeout(() => searchInput.focus(), 100);
-  }
-  
-  // Save state immediately after selection - AWAIT to ensure it completes
-  console.log('Triggering immediate save after correct guess');
-  try {
-    await saveGameState();
-    console.log('✅ Immediate save completed');
-  } catch(err) {
-    console.error('Failed to save state:', err);
   }
   
   // Check if correct
@@ -951,12 +800,6 @@ async function endGame(won) {
   // Clear timer
   if (gameState.timerInterval) {
     clearInterval(gameState.timerInterval);
-  }
-  
-  // Stop auto-save interval so it doesn't overwrite the final score
-  if (window.autoSaveInterval) {
-    clearInterval(window.autoSaveInterval);
-    console.log('Auto-save stopped');
   }
   
   // Calculate final stats
