@@ -758,7 +758,7 @@ function formatValue(value, unit) {
       return `${value}`;
     case 'rating':
       return `${value}/5`;
-    case 'M tourists':
+    case 'M Tourists':
       return `${value.toFixed(1)}M tourists`;
     default:  // 
       return `${value}`;

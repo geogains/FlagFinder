@@ -266,7 +266,7 @@ function handleRankClick(event) {
 function formatMetric(num) {
   if (metricKey === "temperature") return `${num}°C`;
   if (metricKey === "beerConsumption") return `${num} Litres`;
-  if (metricKey === "touristArrivals") return `${num}M tourists`;  // ← ADD THIS
+  if (metricKey === "touristArrivals") return `${num}M Tourists`;  // ← ADD THIS
   
   // Special handling for altitude: always show full number with commas
   if (metricKey === "highestPoint") {

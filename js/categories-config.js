@@ -174,7 +174,7 @@ export const categoriesConfig = {
   tourism: {
   title: "Tourist Visits",
   emoji: "✈️",
-  unit: "M tourists",
+  unit: "M Tourists",
   dataFile: "tourism",
   dataKey: "tourismData",
   valueField: "touristArrivals",

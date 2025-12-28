@@ -192,7 +192,7 @@ const top10Config = {
 tourism: {
   title: "Most Visited Countries",
   emoji: "✈️",
-  unit: "M tourists",
+  unit: "M Tourists",
   dataFile: "tourism",
   dataKey: "tourismData",
   valueField: "touristArrivals",
