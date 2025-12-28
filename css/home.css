@@ -294,13 +294,12 @@ h1, h2, h3, .tagline {
 
 .categories-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  justify-content: center;
-  justify-items: center;
-  align-items: center;
+  grid-template-columns: repeat(2, 1fr);  /* Changed from minmax */
   gap: 1.2rem;
   width: 100%;
+  max-width: 100%;  /* Added */
   margin: 0 auto;
+  padding: 0 1rem;  /* Added padding */
   box-sizing: border-box;
 }
 
@@ -308,11 +307,11 @@ h1, h2, h3, .tagline {
   position: relative;
   background-size: cover;
   background-position: center;
-  border-radius: 22px;
-  overflow: hidden;
-  width: 100%;
-  max-width: 180px;
-  min-height: 190px;
+  border-radius: 16px;
+  width: 100%;          /* Added */
+  min-width: 0;         /* Added - prevents grid blowout */
+  max-width: 280px;     /* Added - prevents too wide cards */
+  min-height: 180px;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   cursor: pointer;
@@ -630,7 +629,14 @@ html, body {
   }
 
   .categories-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr);  /* 2 columns on mobile */
+    gap: 1rem;
+    padding: 0 0.5rem;
+  }
+  
+  .category-card {
+    max-width: 100%;
+    min-height: 160px;
   }
 }
 
@@ -643,10 +649,11 @@ html, body {
   .categories-grid {
     grid-template-columns: repeat(4, 1fr);
     gap: 1.5rem;
+    max-width: 1200px;
   }
 
   .category-card {
-    max-width: 210px;
+    max-width: 280px;
     min-height: 200px;
   }
 
