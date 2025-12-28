@@ -169,7 +169,17 @@ export const categoriesConfig = {
     dataKey: "cuisineData",
     valueField: "cuisine",
     questionText: "WHICH COUNTRY HAS A HIGHER CUISINE SCORE?"
-  }
+  },
+
+  tourism: {
+  title: "Tourist Visits",
+  emoji: "✈️",
+  unit: "M tourists",
+  dataFile: "tourism",
+  dataKey: "tourismData",
+  valueField: "touristArrivals",
+  questionText: "WHICH COUNTRY RECEIVES MORE TOURISTS?"
+},
 };
 
 export const CATEGORY_ID_MAP = {
@@ -188,5 +198,6 @@ export const CATEGORY_ID_MAP = {
   beer: 13,
   nobelprize: 14,
   temperature: 15,
-  rainfall: 16
+  rainfall: 16,
+  tourism: 17
 };

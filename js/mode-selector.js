@@ -126,7 +126,8 @@ export function openModeSelector(categoryKey, categoryDisplayName, categoryEmoji
     rainfall: "rainfall.jpg",      // Fixed: was "precipitation"
     crimerate: "crimerate.jpg",
     happiness: "happiness.jpg",
-    cuisine: "cuisine.jpg"
+    cuisine: "cuisine.jpg",
+    tourism: "tourism.jpg"
   };
 
   const bgImage = bgMap[categoryKey];

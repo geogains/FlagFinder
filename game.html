@@ -142,6 +142,7 @@
   import { nobelprizeData } from './js/categories/nobelprize.js';
   import { temperatureData } from './js/categories/temperature.js';
   import { precipitationData } from './js/categories/rainfall.js';
+  import { tourismData } from './js/categories/tourism.js';
 
   window.datasets = {
     population: { title: 'RANK COUNTRIES FROM LARGEST TO SMALLEST POPULATION 👥', data: populationData },
@@ -160,6 +161,7 @@
     nobelprize: { title: 'RANK THESE COUNTRIES BY MOST NOBEL PRIZE WINNERS 🕊️', data: nobelprizeData },
     temperature: { title: 'RANK THESE COUNTRIES BY HIGHEST AVERAGE TEMPERATURE ☀️', data: temperatureData },
     precipitation: { title: 'RANK THESE COUNTRIES BY HIGHEST AVERAGE PERCIPITATION 🌧️', data: precipitationData },
+    tourism: { title: 'RANK COUNTRIES BY NUMBER OF TOURIST VISITS ✈️', data: tourismData },
   };
 </script>
 
@@ -184,7 +186,8 @@
     'beer',
     'nobelprize',
     'temperature',
-    'precipitation'
+    'precipitation',
+    'tourism'
   ];
 
   const params = new URLSearchParams(window.location.search);

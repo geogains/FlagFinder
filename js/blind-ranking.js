@@ -42,6 +42,7 @@ function detectMetricKey(data) {
     "nobelPrizes",
     "temperature",
     "precipitation",
+    "touristArrivals"
   ];
   return possibleKeys.find((k) => keys.includes(k)) || null;
 }
@@ -265,6 +266,7 @@ function handleRankClick(event) {
 function formatMetric(num) {
   if (metricKey === "temperature") return `${num}°C`;
   if (metricKey === "beerConsumption") return `${num} Litres`;
+  if (metricKey === "touristArrivals") return `${num}M tourists`;  // ← ADD THIS
   
   // Special handling for altitude: always show full number with commas
   if (metricKey === "highestPoint") {

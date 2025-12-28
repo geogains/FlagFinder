@@ -9,14 +9,14 @@ console.log('Daily Challenge system loaded');
 const allCategories = [
   'population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
   'olympic', 'worldcup', 'passport', 'beer', 'nobelprize', 
-  'hightemp', 'rainfall', 'crimerate', 'happiness', 'cuisine'
+  'hightemp', 'rainfall', 'crimerate', 'happiness', 'cuisine','tourism'
 ];
 
 // Categories with at least 10 countries (valid for Top 10 mode)
 const top10ValidCategories = [
   'population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
   'passport', 'beer', 'nobelprize', 'hightemp', 'rainfall',
-  'crimerate', 'happiness'
+  'crimerate', 'happiness','tourism'
 ];
 
 // All categories valid for Classic and VS (no minimum requirement)
@@ -153,7 +153,8 @@ export const categoryDisplayNames = {
   rainfall: 'Annual Rainfall',
   crimerate: 'Crime Rate',
   happiness: 'Happiness Index',
-  cuisine: 'Cuisine Popularity'
+  cuisine: 'Cuisine Popularity',
+  tourism: 'Tourist Visits'
 };
 
 // Get emoji for each category
@@ -173,7 +174,8 @@ export const categoryEmojis = {
   rainfall: '🌧️',
   crimerate: '🚨',
   happiness: '😊',
-  cuisine: '🍽️'
+  cuisine: '🍽️',
+  tourism: '✈️' 
 };
 
 console.log('Daily Challenge utilities ready');

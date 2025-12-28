@@ -19,7 +19,8 @@ export const CATEGORY_ID_MAP = {
   nobelprize: 14,
   temperature: 15,
   rainfall: 16,
-  precipitation: 16 
+  precipitation: 16,
+  tourism: 17
 };
 
 // Category configurations for Top 10 mode
@@ -187,7 +188,16 @@ const top10Config = {
     valueField: "worldcup",
     rankField: "worldcupRank",
     filterZeroValues: true
-  }
+  },
+tourism: {
+  title: "Most Visited Countries",
+  emoji: "✈️",
+  unit: "M tourists",
+  dataFile: "tourism",
+  dataKey: "tourismData",
+  valueField: "touristArrivals",
+  rankField: "touristRank"
+},
 };
 
 // Load category data from categories/*.js files

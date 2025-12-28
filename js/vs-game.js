@@ -374,6 +374,9 @@ function formatValue(value, unit) {
     case 'score':
       formatted = value.toLocaleString('en-US') + ' pts';
       break;
+    case 'M tourists':
+      formatted = value.toLocaleString('en-US', { maximumFractionDigits: 1 }) + 'M tourists';
+      break;
     default:
       formatted = value.toLocaleString('en-US');
   }
