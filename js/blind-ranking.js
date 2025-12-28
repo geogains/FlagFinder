@@ -42,7 +42,10 @@ function detectMetricKey(data) {
     "nobelPrizes",
     "temperature",
     "precipitation",
-    "touristArrivals"
+    "touristArrivals",
+    "michelinTotal",
+    "bigMacPrice",
+    "lifeExpectancy" ,
   ];
   return possibleKeys.find((k) => keys.includes(k)) || null;
 }
@@ -266,7 +269,10 @@ function handleRankClick(event) {
 function formatMetric(num) {
   if (metricKey === "temperature") return `${num}°C`;
   if (metricKey === "beerConsumption") return `${num} Litres`;
-  if (metricKey === "touristArrivals") return `${num}M Tourists`;  // ← ADD THIS
+  if (metricKey === "touristArrivals") return `${num}M Tourists`;
+  if (metricKey === "michelinTotal") return `${num.toLocaleString()} restaurants`;
+  if (metricKey === "bigMacPrice") return `$${num.toFixed(2)}`; 
+  if (metricKey === "lifeExpectancy") return `${num.toFixed(1)} years`;
   
   // Special handling for altitude: always show full number with commas
   if (metricKey === "highestPoint") {

@@ -375,7 +375,16 @@ function formatValue(value, unit) {
       formatted = value.toLocaleString('en-US') + ' pts';
       break;
     case 'M Tourists':
-      formatted = value.toLocaleString('en-US', { maximumFractionDigits: 1 }) + 'M tourists';
+      formatted = value.toLocaleString('en-US', { maximumFractionDigits: 1 }) + 'M Tourists';
+      break;
+    case 'restaurants':
+      formatted = value.toLocaleString('en-US') + ' Restaurants';
+      break;
+    case 'USD':
+      formatted = '$' + value.toFixed(2);
+      break;
+    case 'years':
+      formatted = value.toFixed(1) + ' Years';
       break;
     default:
       formatted = value.toLocaleString('en-US');

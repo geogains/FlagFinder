@@ -143,6 +143,9 @@
   import { temperatureData } from './js/categories/temperature.js';
   import { precipitationData } from './js/categories/rainfall.js';
   import { tourismData } from './js/categories/tourism.js';
+  import { michelinData } from './js/categories/michelin.js';
+  import { bigmacData } from './js/categories/bigmac.js';
+  import { lifeexpectancyData } from './js/categories/lifeexpectancy.js';
 
   window.datasets = {
     population: { title: 'RANK COUNTRIES FROM LARGEST TO SMALLEST POPULATION 👥', data: populationData },
@@ -162,6 +165,9 @@
     temperature: { title: 'RANK THESE COUNTRIES BY HIGHEST AVERAGE TEMPERATURE ☀️', data: temperatureData },
     precipitation: { title: 'RANK THESE COUNTRIES BY HIGHEST AVERAGE PERCIPITATION 🌧️', data: precipitationData },
     tourism: { title: 'RANK COUNTRIES BY NUMBER OF TOURIST VISITS ✈️', data: tourismData },
+    michelin: { title: 'RANK COUNTRIES BY MICHELIN STARRED RESTAURANTS ⭐', data: michelinData },
+    bigmac: { title: 'RANK COUNTRIES BY BIG MAC PRICE 🍔', data: bigmacData },
+    lifeexpectancy: { title: 'RANK COUNTRIES BY LIFE EXPECTANCY 🏥', data: lifeexpectancyData },
   };
 </script>
 
@@ -187,7 +193,10 @@
     'nobelprize',
     'temperature',
     'precipitation',
-    'tourism'
+    'tourism',
+    'michelin',
+    'bigmac',
+    'lifeexpectancy',
   ];
 
   const params = new URLSearchParams(window.location.search);

@@ -759,8 +759,14 @@ function formatValue(value, unit) {
     case 'rating':
       return `${value}/5`;
     case 'M Tourists':
-      return `${value.toFixed(1)}M tourists`;
-    default:  // 
+      return `${value.toFixed(1)}M Tourists`;
+     case 'restaurants':
+      return `${value.toLocaleString()} Restaurants`;
+    case 'USD':
+      return `$${value.toFixed(2)}`;  // ← UPDATE to use .toFixed(2)
+    case 'years':
+      return `${value.toFixed(1)} Years`;
+    default:
       return `${value}`;
   }
 }

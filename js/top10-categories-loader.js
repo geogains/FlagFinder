@@ -20,7 +20,10 @@ export const CATEGORY_ID_MAP = {
   temperature: 15,
   rainfall: 16,
   precipitation: 16,
-  tourism: 17
+  tourism: 17,
+  michelin: 18,
+  bigmac: 19,
+  lifeexpectancy: 20,
 };
 
 // Category configurations for Top 10 mode
@@ -189,7 +192,7 @@ const top10Config = {
     rankField: "worldcupRank",
     filterZeroValues: true
   },
-tourism: {
+  tourism: {
   title: "Most Visited Countries",
   emoji: "✈️",
   unit: "M Tourists",
@@ -198,6 +201,33 @@ tourism: {
   valueField: "touristArrivals",
   rankField: "touristRank"
 },
+michelin: {
+  title: "Most Michelin Restaurants",
+  emoji: "⭐",
+  unit: "Restaurants",
+  dataFile: "michelin",
+  dataKey: "michelinData",
+  valueField: "michelinTotal",
+  rankField: "michelinRank"
+},
+bigmac: {
+  title: "Most Expensive Big Mac",
+  emoji: "🍔",
+  unit: "USD",
+  dataFile: "bigmac",
+  dataKey: "bigmacData",
+  valueField: "bigMacPrice",
+  rankField: "bigMacRank"
+},
+lifeexpectancy: {
+  title: "Highest Life Expectancy",
+  emoji: "🏥",
+  unit: "Years",
+  dataFile: "lifeexpectancy",
+  dataKey: "lifeexpectancyData",
+  valueField: "lifeExpectancy",
+  rankField: "lifeExpectancyRank"
+}
 };
 
 // Load category data from categories/*.js files

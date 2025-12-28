@@ -180,6 +180,34 @@ export const categoriesConfig = {
   valueField: "touristArrivals",
   questionText: "WHICH COUNTRY RECEIVES MORE TOURISTS?"
 },
+
+michelin: {
+  title: "Michelin Restaurants",
+  emoji: "⭐",
+  unit: "Restaurants",
+  dataFile: "michelin",
+  dataKey: "michelinData",
+  valueField: "michelinTotal",
+  questionText: "WHICH COUNTRY HAS MORE MICHELIN STARRED RESTAURANTS?"
+},
+bigmac: {
+  title: "BigMac Price",
+  emoji: "🍔",
+  unit: "USD",
+  dataFile: "bigmac",
+  dataKey: "bigmacData",
+  valueField: "bigMacPrice",
+  questionText: "WHICH COUNTRY HAS A MORE EXPENSIVE BIG MAC?"
+},
+lifeexpectancy: {
+  title: "Life Expectancy",
+  emoji: "🏥",
+  unit: "Years",
+  dataFile: "lifeexpectancy",
+  dataKey: "lifeexpectancyData",
+  valueField: "lifeExpectancy",
+  questionText: "WHICH COUNTRY HAS HIGHER LIFE EXPECTANCY?"
+}
 };
 
 export const CATEGORY_ID_MAP = {
@@ -199,5 +227,8 @@ export const CATEGORY_ID_MAP = {
   nobelprize: 14,
   temperature: 15,
   rainfall: 16,
-  tourism: 17
+  tourism: 17,
+  michelin: 18,
+  bigmac: 19,
+  lifeexpectancy: 20,
 };

@@ -9,14 +9,14 @@ console.log('Daily Challenge system loaded');
 const allCategories = [
   'population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
   'olympic', 'worldcup', 'passport', 'beer', 'nobelprize', 
-  'hightemp', 'rainfall', 'crimerate', 'happiness', 'cuisine','tourism'
+  'hightemp', 'rainfall', 'crimerate', 'happiness', 'cuisine','tourism', 'michelin', 'bigmac', 'lifeexpectancy'
 ];
 
 // Categories with at least 10 countries (valid for Top 10 mode)
 const top10ValidCategories = [
   'population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
   'passport', 'beer', 'nobelprize', 'hightemp', 'rainfall',
-  'crimerate', 'happiness','tourism'
+  'crimerate', 'happiness','tourism', 'michelin', 'bigmac', 'lifeexpectancy'
 ];
 
 // All categories valid for Classic and VS (no minimum requirement)
@@ -154,7 +154,10 @@ export const categoryDisplayNames = {
   crimerate: 'Crime Rate',
   happiness: 'Happiness Index',
   cuisine: 'Cuisine Popularity',
-  tourism: 'Tourist Visits'
+  tourism: 'Tourist Visits',
+  michelin: 'Michelin Restaurants',
+  bigmac: 'BigMac Index',
+  lifeexpectancy: 'Life Expectancy',
 };
 
 // Get emoji for each category
@@ -175,7 +178,10 @@ export const categoryEmojis = {
   crimerate: '🚨',
   happiness: '😊',
   cuisine: '🍽️',
-  tourism: '✈️' 
+  tourism: '✈️',
+  michelin: '⭐',
+  bigmac: '🍔',
+  lifeexpectancy: '🏥',
 };
 
 console.log('Daily Challenge utilities ready');

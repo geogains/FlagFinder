@@ -122,12 +122,15 @@ export function openModeSelector(categoryKey, categoryDisplayName, categoryEmoji
     beer: "beer.jpg",
     nobelprize: "nobelprize.jpg",
     worldcup: "worldcup.jpg",
-    hightemp: "hightemp.jpg",      // Fixed: was "temperature"
-    rainfall: "rainfall.jpg",      // Fixed: was "precipitation"
+    hightemp: "hightemp.jpg",
+    rainfall: "rainfall.jpg",
     crimerate: "crimerate.jpg",
     happiness: "happiness.jpg",
     cuisine: "cuisine.jpg",
-    tourism: "tourism.jpg"
+    tourism: "tourism.jpg",
+    michelin: "michelin.jpg",
+    bigmac: "bigmac.jpg",
+    lifeexpectancy: "lifeexpectancy.jpg",
   };
 
   const bgImage = bgMap[categoryKey];

@@ -1141,3 +1141,6 @@ html, body {
 .category-card:nth-child(15) { animation-delay: 1.5s; }
 .category-card:nth-child(16) { animation-delay: 1.6s; }
 .category-card:nth-child(17) { animation-delay: 1.7s; }
+.category-card:nth-child(18) { animation-delay: 1.8s; }
+.category-card:nth-child(19) { animation-delay: 1.9s; }
+.category-card:nth-child(20) { animation-delay: 2.0s; }
