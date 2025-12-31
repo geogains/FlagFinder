@@ -9,6 +9,7 @@ console.log("Is Daily Challenge:", isDailyChallenge);
 
 // Use the shared Supabase client instead of creating a duplicate
 import { supabase } from './supabase-client.js';
+import { CATEGORY_ID_MAP } from './top10-categories-loader.js';
 
 function getCountries() {
   return window.countries && window.countries.length ? window.countries : [];
@@ -430,21 +431,20 @@ function endGame() {
   if (session?.user) {
     const currentCategory = new URLSearchParams(window.location.search).get("mode");
 
-    // Step 1: get category_id from name
-    const { data: catData, error: catErr } = await supabase
-      .from('categories')
-      .select('id')
-      .eq('name', currentCategory)
-      .single();
+    // Step 1: Get category_id from CATEGORY_ID_MAP instead of database query
+    const categoryId = CATEGORY_ID_MAP[currentCategory];
 
-    if (catErr || !catData) {
-      console.error("❌ Could not find category ID:", catErr);
+    if (!categoryId) {
+      console.error("❌ Could not find category ID for:", currentCategory);
+      console.log("Available categories:", Object.keys(CATEGORY_ID_MAP));
       return;
     }
 
+    console.log("✅ Found category ID:", categoryId, "for category:", currentCategory);
+
     // Step 2: Call the stored procedure (function)
     const { error: rpcError } = await supabase.rpc('upsert_high_score', {
-      category_id_input: catData.id,
+      category_id_input: categoryId,
       new_score: totalScore,
       is_daily_challenge: isDailyChallenge  // Pass daily challenge flag for premium bypass
     });
@@ -463,7 +463,7 @@ function endGame() {
         .from('daily_challenge_scores')
         .upsert({
           user_id: session.user.id,
-          category_id: catData.id,
+          category_id: categoryId,
           played_date: today,
           score: totalScore,
           completed: true
