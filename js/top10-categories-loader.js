@@ -18,6 +18,7 @@ export const CATEGORY_ID_MAP = {
   beer: 13,
   nobelprize: 14,
   temperature: 15,
+  hightemp: 15,
   rainfall: 16,
   precipitation: 16,
   tourism: 17,
