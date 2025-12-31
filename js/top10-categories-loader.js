@@ -193,7 +193,7 @@ const top10Config = {
     filterZeroValues: true
   },
   tourism: {
-  title: "Most Visited Countries",
+  title: "Most Visited Countries in 2025",
   emoji: "✈️",
   unit: "M Tourists",
   dataFile: "tourism",
