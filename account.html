@@ -255,7 +255,7 @@ body {
       const profilePreview = document.getElementById('profilePreview');
 
       if (profile.avatar_url) {
-        profilePreview.src = profile.avatar_url;
+        profilePreview.src = `${profile.avatar_url}?t=${Date.now()}`;
       }
 
       uploadAvatarBtn?.addEventListener('click', () => {
@@ -294,7 +294,7 @@ body {
           .eq('id', currentUser.id);
 
         if (!updateError) {
-          profilePreview.src = publicUrl;
+          profilePreview.src = `${publicUrl}?t=${Date.now()}`;
           avatarMsg.textContent = '✅ Avatar updated!';
         } else {
           avatarMsg.textContent = '❌ Failed to update profile';
