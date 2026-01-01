@@ -90,6 +90,13 @@ body {
     font-size: 0.9rem;
     font-weight: 500;
   }
+
+  .message {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
 </style>
 
 </head>
@@ -430,7 +437,7 @@ body {
         }
       });
     }
-    
+
     changeUsernameBtn?.addEventListener('click', async () => {
       const newUsername = newUsernameInput.value.trim();
       if (!newUsername) return;
