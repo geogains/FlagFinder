@@ -254,6 +254,7 @@ body {
       const avatarMsg = document.getElementById('avatarMsg');
       const profilePreview = document.getElementById('profilePreview');
 
+      // Load existing avatar with cache buster
       if (profile.avatar_url) {
         profilePreview.src = `${profile.avatar_url}?t=${Date.now()}`;
       }
@@ -262,66 +263,174 @@ body {
         avatarUpload.click();
       });
 
+      // ✨ IMAGE COMPRESSION FUNCTION
+      async function compressImage(file, maxWidth = 400, maxHeight = 400, quality = 0.85) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              let width = img.width;
+              let height = img.height;
+
+              // Calculate new dimensions while maintaining aspect ratio
+              if (width > height) {
+                if (width > maxWidth) {
+                  height *= maxWidth / width;
+                  width = maxWidth;
+                }
+              } else {
+                if (height > maxHeight) {
+                  width *= maxHeight / height;
+                  height = maxHeight;
+                }
+              }
+
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, width, height);
+
+              canvas.toBlob((blob) => {
+                if (blob) {
+                  resolve(new File([blob], file.name, {
+                    type: 'image/jpeg',
+                    lastModified: Date.now()
+                  }));
+                } else {
+                  reject(new Error('Compression failed'));
+                }
+              }, 'image/jpeg', quality);
+            };
+            img.onerror = () => reject(new Error('Failed to load image'));
+            img.src = e.target.result;
+          };
+          reader.onerror = () => reject(new Error('Failed to read file'));
+          reader.readAsDataURL(file);
+        });
+      }
+
       avatarUpload?.addEventListener('change', async () => {
         const file = avatarUpload.files[0];
         if (!file || !currentUser) return;
 
-        const fileExt = file.name.split('.').pop();
-        const filePath = `${currentUser.id}.${fileExt}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('avatars')
-          .upload(filePath, file, {
-            upsert: true,
-            contentType: file.type
-          });
-
-        if (uploadError) {
-          console.error(uploadError);
-          avatarMsg.textContent = '❌ Upload failed';
+        // ✅ VALIDATE FILE SIZE (5MB max before compression)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+          avatarMsg.textContent = '❌ File too large. Max 5MB.';
+          avatarMsg.style.color = '#ef4444';
+          avatarUpload.value = ''; // Clear input
           return;
         }
 
-        const { data } = supabase.storage
-          .from('avatars')
-          .getPublicUrl(filePath);
+        // ✅ VALIDATE FILE TYPE
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+        if (!validTypes.includes(file.type)) {
+          avatarMsg.textContent = '❌ Invalid file type. Use JPG, PNG, or WebP.';
+          avatarMsg.style.color = '#ef4444';
+          avatarUpload.value = '';
+          return;
+        }
 
-        const publicUrl = data.publicUrl;
+        // Show loading state
+        avatarMsg.textContent = '⏳ Processing...';
+        avatarMsg.style.color = '#6366f1';
+        uploadAvatarBtn.disabled = true;
 
-        const { error: updateError } = await supabase
-          .from('users')
-          .update({ avatar_url: publicUrl })
-          .eq('id', currentUser.id);
+        try {
+          // ✅ COMPRESS IMAGE
+          console.log('Original file size:', (file.size / 1024).toFixed(2), 'KB');
+          const compressedFile = await compressImage(file, 400, 400, 0.85);
+          console.log('Compressed file size:', (compressedFile.size / 1024).toFixed(2), 'KB');
+          console.log('Compression ratio:', ((1 - compressedFile.size / file.size) * 100).toFixed(1) + '%');
 
-        if (!updateError) {
-          profilePreview.src = `${publicUrl}?t=${Date.now()}`;
-          avatarMsg.textContent = '✅ Avatar updated!';
-        } else {
-          avatarMsg.textContent = '❌ Failed to update profile';
+          // Always save as .jpg after compression
+          const filePath = `${currentUser.id}.jpg`;
+
+          // Show uploading state
+          avatarMsg.textContent = '⏳ Uploading...';
+
+          const { error: uploadError } = await supabase.storage
+            .from('avatars')
+            .upload(filePath, compressedFile, {
+              upsert: true,
+              contentType: 'image/jpeg',
+              cacheControl: '3600' // Cache for 1 hour
+            });
+
+          if (uploadError) {
+            console.error('Upload error:', uploadError);
+            avatarMsg.textContent = '❌ Upload failed';
+            avatarMsg.style.color = '#ef4444';
+            uploadAvatarBtn.disabled = false;
+            return;
+          }
+
+          const { data } = supabase.storage
+            .from('avatars')
+            .getPublicUrl(filePath);
+
+          // Store clean URL in database (without cache buster)
+          const publicUrl = data.publicUrl;
+
+          const { error: updateError } = await supabase
+            .from('users')
+            .update({ avatar_url: publicUrl })
+            .eq('id', currentUser.id);
+
+          if (!updateError) {
+            // Display with cache buster for immediate update
+            profilePreview.src = `${publicUrl}?t=${Date.now()}`;
+            avatarMsg.textContent = '✅ Avatar updated!';
+            avatarMsg.style.color = '#22c55e';
+          } else {
+            console.error('Database update error:', updateError);
+            avatarMsg.textContent = '❌ Failed to update profile';
+            avatarMsg.style.color = '#ef4444';
+          }
+        } catch (error) {
+          console.error('Processing error:', error);
+          avatarMsg.textContent = '❌ Failed to process image';
+          avatarMsg.style.color = '#ef4444';
+        } finally {
+          uploadAvatarBtn.disabled = false;
         }
       });
 
       deleteAvatarBtn?.addEventListener('click', async () => {
         if (!currentUser) return;
 
-        await supabase.storage
-          .from('avatars')
-          .remove([`${currentUser.id}.jpg`, `${currentUser.id}.png`, `${currentUser.id}.jpeg`]);
+        avatarMsg.textContent = '⏳ Removing...';
+        avatarMsg.style.color = '#6366f1';
+        deleteAvatarBtn.disabled = true;
 
-        const { error } = await supabase
-          .from('users')
-          .update({ avatar_url: null })
-          .eq('id', currentUser.id);
+        try {
+          // Remove all possible extensions
+          await supabase.storage
+            .from('avatars')
+            .remove([`${currentUser.id}.jpg`, `${currentUser.id}.png`, `${currentUser.id}.jpeg`]);
 
-        if (!error) {
-          profilePreview.src = 'assets/profile-icon.jpg';
-          avatarMsg.textContent = '✅ Reverted to default avatar';
-        } else {
-          avatarMsg.textContent = '❌ Failed to delete avatar';
+          const { error } = await supabase
+            .from('users')
+            .update({ avatar_url: null })
+            .eq('id', currentUser.id);
+
+          if (!error) {
+            profilePreview.src = `assets/profile-icon.jpg?t=${Date.now()}`;
+            avatarMsg.textContent = '✅ Reverted to default avatar';
+            avatarMsg.style.color = '#22c55e';
+          } else {
+            console.error('Delete error:', error);
+            avatarMsg.textContent = '❌ Failed to delete avatar';
+            avatarMsg.style.color = '#ef4444';
+          }
+        } finally {
+          deleteAvatarBtn.disabled = false;
         }
       });
     }
-
+    
     changeUsernameBtn?.addEventListener('click', async () => {
       const newUsername = newUsernameInput.value.trim();
       if (!newUsername) return;
