@@ -1,9 +1,25 @@
 // js/top10-game.js
+// Import sound manager
+import soundManager from './sound-manager.js';
 import { loadTop10CategoryData, CATEGORY_ID_MAP } from './top10-categories-loader.js';
 import { allCountries } from './countries-list.js';
 import { supabase } from './supabase-client.js';
 
 console.log('Top10 game script loaded');
+
+console.log('Top10 game script loaded');
+
+// Initialize sound manager with sounds
+const SOUND_MAP = {
+  'wrong': '../sounds/wrong.mp3',
+  'correct': '../sounds/correct.mp3'
+};
+
+soundManager.init(SOUND_MAP).then(() => {
+  console.log('✅ Sounds loaded for Top 10 mode');
+}).catch(err => {
+  console.error('❌ Failed to load sounds:', err);
+});
 
 // Get category from URL or default to population
 const params = new URLSearchParams(window.location.search);
@@ -622,6 +638,7 @@ async function selectCountryByName(countryName) {
     
     gameState.lives--;
     gameState.incorrectGuesses.push(countryName);
+    soundManager.play('wrong');
     updateLives();
     
     // Disable this country in the dropdown
@@ -687,6 +704,7 @@ async function selectCountry(country) {
   
   if (isCorrect) {
     console.log('Correct guess! Rank:', country.rank);
+    soundManager.play('correct');
     // Place in correct slot with flag and data value
     const slot = document.querySelector(`[data-rank="${country.rank}"]`);
     slot.classList.add('correct');
@@ -710,6 +728,7 @@ async function selectCountry(country) {
     // Incorrect guess - lose a life
     gameState.lives--;
     gameState.incorrectGuesses.push(country.name);
+    soundManager.play('wrong');
     updateLives();
     
     if (gameState.lives === 0) {
@@ -775,6 +794,14 @@ function updateLives() {
   const livesDisplay = document.getElementById('livesDisplay');
   const hearts = '❤️'.repeat(gameState.lives);
   livesDisplay.innerHTML = hearts;
+  
+  // Trigger shake animation
+  livesDisplay.classList.add('shake');
+  
+  // Remove shake class after animation completes
+  setTimeout(() => {
+    livesDisplay.classList.remove('shake');
+  }, 500); // Match animation duration
 }
 
 function startTimer() {
