@@ -470,19 +470,19 @@
   // Toggle logic
   const signInToggle = document.getElementById("signInToggle");
   const signUpToggle = document.getElementById("signUpToggle");
-  const signInForm = document.getElementById("signInForm");
-  const signUpForm = document.getElementById("signUpForm");
+  const signInFormElement = document.getElementById("signInForm");
+  const signUpFormElement = document.getElementById("signUpForm");
 
   signInToggle.addEventListener("click", () => {
-    signInForm.classList.add("active");
-    signUpForm.classList.remove("active");
+    signInFormElement.classList.add("active");
+    signUpFormElement.classList.remove("active");
     signInToggle.classList.add("active");
     signUpToggle.classList.remove("active");
   });
 
   signUpToggle.addEventListener("click", () => {
-    signUpForm.classList.add("active");
-    signInForm.classList.remove("active");
+    signUpFormElement.classList.add("active");
+    signInFormElement.classList.remove("active");
     signUpToggle.classList.add("active");
     signInToggle.classList.remove("active");
   });
