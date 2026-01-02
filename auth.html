@@ -474,15 +474,15 @@
   const signUpFormElement = document.getElementById("signUpForm");
 
   signInToggle.addEventListener("click", () => {
-    signInForm.classList.add("active");
-    signUpForm.classList.remove("active");
+    signInFormElement.classList.add("active");
+    signUpFormElement.classList.remove("active");
     signInToggle.classList.add("active");
     signUpToggle.classList.remove("active");
   });
 
   signUpToggle.addEventListener("click", () => {
-    signUpForm.classList.add("active");
-    signInForm.classList.remove("active");
+    signUpFormElement.classList.add("active");
+    signInFormElement.classList.remove("active");
     signUpToggle.classList.add("active");
     signInToggle.classList.remove("active");
   });
@@ -525,7 +525,7 @@ document.querySelectorAll('.toggle-password').forEach(button => {
       
       const submitBtn = signInForm.querySelector('button[type="submit"]');
       const email = signInForm.querySelector('input[type="email"]').value;
-      const password = signInForm.querySelector('input[type="password"]').value;
+      const password = document.getElementById('signInPassword').value;
 
       submitBtn.disabled = true;
       submitBtn.textContent = 'Signing in...';
@@ -556,7 +556,7 @@ document.querySelectorAll('.toggle-password').forEach(button => {
       const submitBtn = signUpForm.querySelector('button[type="submit"]');
       const username = signUpForm.querySelector('input[type="text"]').value.trim();
       const email = signUpForm.querySelector('input[type="email"]').value.trim();
-      const password = signUpForm.querySelector('input[type="password"]').value;
+      const password = document.getElementById('signUpPassword').value;
 
       // Basic validation
       if (!username || !email || !password) {
