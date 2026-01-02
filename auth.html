@@ -474,15 +474,15 @@
   const signUpFormElement = document.getElementById("signUpForm");
 
   signInToggle.addEventListener("click", () => {
-    signInFormElement.classList.add("active");
-    signUpFormElement.classList.remove("active");
+    signInForm.classList.add("active");
+    signUpForm.classList.remove("active");
     signInToggle.classList.add("active");
     signUpToggle.classList.remove("active");
   });
 
   signUpToggle.addEventListener("click", () => {
-    signUpFormElement.classList.add("active");
-    signInFormElement.classList.remove("active");
+    signUpForm.classList.add("active");
+    signInForm.classList.remove("active");
     signUpToggle.classList.add("active");
     signInToggle.classList.remove("active");
   });
