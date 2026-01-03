@@ -1,6 +1,17 @@
 // js/vs-game.js
+import soundManager from './sound-manager.js';
 import { categoriesConfig, CATEGORY_ID_MAP } from './categories-config.js';
 import { supabase } from './supabase-client.js';
+
+// Initialize sound manager
+const SOUND_MAP = {
+  'correct': '../sounds/correct.mp3',
+  'wrong': '../sounds/wrong.mp3'
+};
+
+soundManager.init(SOUND_MAP).then(() => {
+  console.log('✅ Sounds loaded for VS mode');
+});
 
 console.log('VS game script loaded');
 
@@ -112,6 +123,12 @@ function startTimer() {
 function updateLives() {
   const livesDisplay = document.getElementById('livesDisplay');
   livesDisplay.innerHTML = '❤️'.repeat(gameState.lives);
+  
+  // Trigger shake animation
+  livesDisplay.classList.add('shake');
+  setTimeout(() => {
+    livesDisplay.classList.remove('shake');
+  }, 500);
 }
 
 // Animate score with count-up effect
@@ -276,6 +293,7 @@ function handleSelection(optionNumber) {
   if (isCorrect) {
     // Correct answer - only animate and border the selected flag
     selectedOption.classList.add('correct');
+    soundManager.play('correct');
     gameState.correct++;
     animateScoreCountUp(100); // Count-up animation!
     console.log('✅ Correct!');
@@ -283,6 +301,7 @@ function handleSelection(optionNumber) {
     // Incorrect answer - only animate and border the selected flag in red
     // DO NOT show which one was correct - no green border on other flag
     selectedOption.classList.add('incorrect');
+    soundManager.play('wrong');
     gameState.incorrect++;
     gameState.lives--;
     updateLives();

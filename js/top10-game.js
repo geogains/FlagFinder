@@ -12,7 +12,9 @@ console.log('Top10 game script loaded');
 // Initialize sound manager with sounds
 const SOUND_MAP = {
   'wrong': '../sounds/wrong.mp3',
-  'correct': '../sounds/correct.mp3'
+  'correct': '../sounds/correct.mp3',
+  'perfect': '../sounds/perfect.mp3',
+  'pop': '../sounds/pop.mp3'
 };
 
 soundManager.init(SOUND_MAP).then(() => {
@@ -704,7 +706,7 @@ async function selectCountry(country) {
   
   if (isCorrect) {
     console.log('Correct guess! Rank:', country.rank);
-    soundManager.play('correct');
+    soundManager.play('pop');
     // Place in correct slot with flag and data value
     const slot = document.querySelector(`[data-rank="${country.rank}"]`);
     slot.classList.add('correct');
@@ -984,6 +986,7 @@ function showResults(won, correctGuesses, timeElapsed) {
   if (won) {
     emoji.textContent = '🎉';
     title.textContent = 'Perfect!';
+    soundManager.play('perfect');
   } else if (correctGuesses >= 7) {
     emoji.textContent = '🌟';
     title.textContent = 'Great Job!';
