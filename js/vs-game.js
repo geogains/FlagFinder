@@ -6,7 +6,10 @@ import { supabase } from './supabase-client.js';
 // Initialize sound manager
 const SOUND_MAP = {
   'correct': '../sounds/correct.mp3',
-  'wrong': '../sounds/wrong.mp3'
+  'wrong': '../sounds/wrong.mp3',
+   'perfect': '../sounds/perfect.mp3',
+  'tryagain': '../sounds/tryagain.mp3',
+  'pop': '../sounds/pop.mp3'
 };
 
 soundManager.init(SOUND_MAP).then(() => {
@@ -437,19 +440,23 @@ async function endGame() {
   const title = document.getElementById('resultsTitle');
   
   // Set emoji based on performance
-  if (gameState.lives === 0) {
-    emoji.textContent = '💪';
-    title.textContent = 'Game Over!';
-  } else if (gameState.correct >= 20) {
-    emoji.textContent = '🏆';
-    title.textContent = 'Amazing!';
-  } else if (gameState.correct >= 10) {
-    emoji.textContent = '🌟';
-    title.textContent = 'Great Job!';
-  } else {
-    emoji.textContent = '👍';
-    title.textContent = 'Good Try!';
-  }
+if (gameState.correct >= 20) {
+  emoji.textContent = '🏆';
+  title.textContent = 'Amazing!';
+  soundManager.play('perfect');
+} else if (gameState.correct >= 10) {
+  emoji.textContent = '🌟';
+  title.textContent = 'Great Job!';
+  soundManager.play('pop');
+} else if (gameState.lives === 0) {
+  emoji.textContent = '💪';
+  title.textContent = 'Game Over!';
+  soundManager.play('tryagain');
+} else {
+  emoji.textContent = '👍';
+  title.textContent = 'Good Try!';
+  soundManager.play('tryagain');
+}
   
   document.getElementById('resultsCategory').textContent = categoryConfig.title;
   document.getElementById('finalScore').textContent = gameState.score;

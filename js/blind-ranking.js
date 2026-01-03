@@ -9,7 +9,19 @@ console.log("Is Daily Challenge:", isDailyChallenge);
 
 // Use the shared Supabase client instead of creating a duplicate
 import { supabase } from './supabase-client.js';
+import soundManager from './sound-manager.js';
 import { CATEGORY_ID_MAP } from './top10-categories-loader.js';
+
+// Initialize sound manager
+const SOUND_MAP = {
+  'pop': '../sounds/pop.mp3'
+};
+
+soundManager.init(SOUND_MAP).then(() => {
+  console.log('✅ Sounds loaded for Classic mode');
+}).catch(err => {
+  console.error('❌ Failed to load sounds:', err);
+});
 
 function getCountries() {
   return window.countries && window.countries.length ? window.countries : [];
@@ -213,6 +225,7 @@ function handleRankClick(event) {
   }
 
   slot.innerHTML = `<img src="flags/${country.code}.png" alt="${country.name}" /> ${country.name}`;
+  soundManager.play('pop');
   slot.classList.remove("empty-slot");
   slot.classList.add("stomp");
 

@@ -14,6 +14,7 @@ const SOUND_MAP = {
   'wrong': '../sounds/wrong.mp3',
   'correct': '../sounds/correct.mp3',
   'perfect': '../sounds/perfect.mp3',
+  'tryagain': '../sounds/tryagain.mp3',
   'pop': '../sounds/pop.mp3'
 };
 
@@ -990,12 +991,15 @@ function showResults(won, correctGuesses, timeElapsed) {
   } else if (correctGuesses >= 7) {
     emoji.textContent = '🌟';
     title.textContent = 'Great Job!';
+    soundManager.play('pop');
   } else if (correctGuesses >= 5) {
     emoji.textContent = '👍';
     title.textContent = 'Good Effort!';
+    soundManager.play('pop');
   } else {
     emoji.textContent = '💪';
-    title.textContent = 'Keep Trying!';
+    title.textContent = 'Try Again!';
+    soundManager.play('tryagain');
   }
   
   category.textContent = currentCategory.title;
