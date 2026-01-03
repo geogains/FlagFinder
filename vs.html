@@ -146,14 +146,16 @@
     }
     
     .country-option.correct .country-flag {
-      box-shadow: 0 0 0 4px #10b981, 0 4px 12px rgba(0, 0, 0, 0.1);
-      animation: scaleUp 0.4s ease;
-    }
-    
-    .country-option.incorrect .country-flag {
-      box-shadow: 0 0 0 4px #ef4444, 0 4px 12px rgba(0, 0, 0, 0.1);
-      animation: scaleUp 0.4s ease;
-    }
+  box-shadow: 0 0 0 4px #10b981, 0 4px 12px rgba(0, 0, 0, 0.1);
+  animation: scaleUp 0.4s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.country-option.incorrect .country-flag {
+  box-shadow: 0 0 0 4px #ef4444, 0 4px 12px rgba(0, 0, 0, 0.1);
+  animation: scaleUp 0.4s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
     
     @keyframes scaleUp {
       0% { transform: scale(1); }
@@ -162,13 +164,18 @@
     }
     
     .country-name {
-      font-size: 1.3rem;
-      font-weight: 600;
-      color: #1f2937;
-      font-family: 'Poppins', sans-serif;
-      text-align: center;
-      min-height: 35px;
-    }
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1f2937;
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+  min-height: 50px; 
+  max-width: 220px; 
+  line-height: 0.8;      
+  display: flex;        
+  align-items: center;     
+  justify-content: center;  
+}
     
     .country-value {
       font-size: 1.5rem;
@@ -206,24 +213,19 @@
       font-family: 'Rubik', sans-serif;
     }
     
-    /* Fade transitions - smoother and cleaner */
-    .fade-out {
-      animation: fadeOut 0.3s ease forwards;
-    }
-    
-    .fade-in {
-      animation: fadeIn 0.3s ease forwards;
-    }
-    
-    @keyframes fadeOut {
-      from { opacity: 1; transform: scale(1); }
-      to { opacity: 0; transform: scale(0.95); }
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
+ /* Fade transitions - simple opacity based */
+.vs-battle {
+  transition: opacity 0.3s ease;
+}
+
+.vs-battle.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.vs-battle.fade-in {
+  opacity: 1;
+}
     
     /* Results Overlay */
     .results-overlay {

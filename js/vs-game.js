@@ -195,10 +195,6 @@ function loadNewRound() {
   const option1 = document.getElementById('option1');
   const option2 = document.getElementById('option2');
   
-  // Reset styles on options
-  option1.classList.remove('correct', 'incorrect', 'disabled');
-  option2.classList.remove('correct', 'incorrect', 'disabled');
-  
   // Add click handlers to options
   option1.onclick = () => handleSelection(1);
   option2.onclick = () => handleSelection(2);
@@ -320,30 +316,29 @@ function handleSelection(optionNumber) {
     }
   }
   
-  // Wait 2 seconds, then fade out, load new round while invisible, then fade in
+  // Show result for 1.5 seconds, then clean transition
+setTimeout(() => {
+  const battle = document.getElementById('vsBattle');
+  const option1 = document.getElementById('option1');
+  const option2 = document.getElementById('option2');
+  
+  // Fade entire container to black
+  battle.style.transition = 'opacity 0.25s ease';
+  battle.style.opacity = '0';
+  
+  // After fade, clean up
   setTimeout(() => {
-    const battle = document.getElementById('vsBattle');
-    battle.classList.add('fade-out');
+    option1.classList.remove('correct', 'incorrect', 'disabled');
+    option2.classList.remove('correct', 'incorrect', 'disabled');
     
+    loadNewRound();
+    
+    // Fade back in
     setTimeout(() => {
-      // Keep invisible during load
-      battle.style.visibility = 'hidden';
-      battle.classList.remove('fade-out');
-      
-      // Load new round while invisible
-      loadNewRound();
-      
-      // Make visible again and fade in
-      setTimeout(() => {
-        battle.style.visibility = 'visible';
-        battle.classList.add('fade-in');
-        
-        setTimeout(() => {
-          battle.classList.remove('fade-in');
-        }, 300);
-      }, 100); // Give DOM time to update
-    }, 300); // Wait for fade-out to complete
-  }, 2000);
+      battle.style.opacity = '1';
+    }, 50);
+  }, 250);
+}, 1500);
 }
 
 // Format value with proper units and commas
