@@ -12,15 +12,17 @@ export const categoriesConfig = {
     questionText: "WHICH COUNTRY HAS THE LARGEST LANDMASS?"
   },
   
+
   population: {
-    title: "Population",
-    emoji: "👥",
-    unit: "",
-    dataFile: "population",
-    dataKey: "populationData",
-    valueField: "population",
-    questionText: "WHICH COUNTRY HAS THE LARGEST POPULATION?"
-  },
+  title: "Population",
+  emoji: "👥",
+  unit: "M",
+  dataFile: "population",
+  dataKey: "populationData",
+  valueField: "population",
+  questionText: "WHICH COUNTRY HAS THE LARGEST POPULATION?",
+  convertToMillions: true
+},
   
   gdp: {
     title: "GDP per Capita",

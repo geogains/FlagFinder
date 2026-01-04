@@ -62,14 +62,23 @@ async function loadCategoryData() {
     }
     
     console.log('Category data loaded:', data.length, 'countries');
-    
+ 
     // Transform data to include flag path and extract value
-    gameState.countries = data.map(country => ({
-      name: country.name,
-      code: country.code,
-      flag: `flags/${country.code}.png`,
-      value: country[categoryConfig.valueField]
-    }));
+gameState.countries = data.map(country => {
+  let value = country[categoryConfig.valueField];
+  
+  // Convert population to millions if needed
+  if (categoryConfig.convertToMillions && value > 1000000) {
+    value = parseFloat((value / 1000000).toFixed(2));
+  }
+  
+  return {
+    name: country.name,
+    code: country.code,
+    flag: `flags/${country.code}.png`,
+    value: value
+  };
+});
     
     console.log('Transformed countries:', gameState.countries.slice(0, 3));
     
@@ -346,9 +355,23 @@ function formatValue(value, unit) {
   let formatted;
   
   switch (unit) {
-    case 'M': // Million
-      formatted = value.toLocaleString('en-US', { maximumFractionDigits: 1 }) + 'M';
-      break;
+    case 'M': // Population (already in millions)
+      if (value >= 1000) {
+        // Billions (1B+)
+        formatted = (value / 1000).toFixed(1) + 'B';
+      } else if (value >= 1) {
+        // Millions (1M+)
+        formatted = value.toFixed(1) + 'M';
+      } else if (value >= 0.001) {
+        // Thousands (1K+)
+        const thousands = (value * 1000).toFixed(1);
+        formatted = thousands + 'K';
+      } else {
+        // Less than 1000 - show raw number
+        const raw = Math.round(value * 1000000);
+        formatted = raw.toString();
+      }
+      break;           
     case 'USD':
       formatted = '$' + value.toLocaleString('en-US');
       break;

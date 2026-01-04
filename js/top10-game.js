@@ -743,8 +743,17 @@ async function selectCountry(country) {
 function formatValue(value, unit) {
   // Format numbers based on unit type
   switch(unit) {
-    case 'M': // Million
-      return `${value.toFixed(1)}M`;
+    case 'M': // Million (with B/M/K support)
+  if (value >= 1000) {
+    // Billions
+    return `${(value / 1000).toFixed(1)}B`;
+  } else if (value >= 1) {
+    // Millions
+    return `${value.toFixed(1)}M`;
+  } else {
+    // Thousands
+    return `${(value * 1000).toFixed(1)}K`;
+  }
     case 'USD':
       return `$${value.toLocaleString()}`;
     case 'km²':
