@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Terms of Service - GeoRanks</title>
+  <link rel="stylesheet" href="css/home.css"/>
+  <link rel="stylesheet" href="css/game-modes.css"/>
+
+  <style>
+    html, body { height: 100%; margin: 0; }
+    body { display: flex; flex-direction: column; min-height: 100vh; }
+
+    .legal-wrapper{
+      max-width: 860px;
+      margin: 120px auto 60px;
+      padding: 40px;
+      background: rgba(255, 255, 255, 0.82);
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .legal-wrapper h1{
+      font-size: 2rem;
+      margin: 0 0 8px;
+      color: #222;
+      text-align: center;
+    }
+
+    .legal-sub{
+      text-align: center;
+      color: #444;
+      margin: 0 0 24px;
+      font-size: 0.95rem;
+      opacity: 0.85;
+    }
+
+    .legal-wrapper h2{
+      margin-top: 26px;
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+      color: #222;
+    }
+
+    .legal-wrapper p, .legal-wrapper li{
+      color: #333;
+      line-height: 1.6;
+      font-size: 1rem;
+    }
+
+    .legal-wrapper ul{
+      padding-left: 20px;
+      margin-top: 10px;
+    }
+
+    .pill{
+      display:inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.06);
+      font-size: 0.85rem;
+      margin: 10px 0 0;
+    }
+
+    @media (max-width: 700px){
+      .legal-wrapper{
+        margin: 100px 16px 40px;
+        padding: 24px;
+      }
+    }
+
+    @keyframes fadeInUp{
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- Header and Menu -->
+<header class="home-glass-header">
+  <div class="logo-header">
+    <a href="index.html" class="logo-link">
+      <img src="assets/logo.png" alt="GeoRanks Logo" />
+    </a>
+  </div>
+  <div class="hamburger-menu">
+    <div class="menu-icon" id="menuToggle">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</header>
+
+<!-- Menu Overlay -->
+<div class="menu-overlay" id="menuOverlay">
+  <div class="menu-panel">
+    <h2>Menu</h2>
+    <button class="menu-btn" onclick="location.href='index.html'">🏠 Home</button>
+    <button class="menu-btn menu-btn-account" onclick="location.href='account.html'">👤 Account</button>
+    <button class="menu-btn" onclick="location.href='categories.html'">🎮 Categories</button>
+    <button class="menu-btn" onclick="location.href='leaderboard.html'">🏆 Leaderboard</button>
+    <button class="menu-btn" onclick="location.href='stats.html'">📊 My Stats</button>
+    <button class="menu-btn" onclick="location.href='how-to-play.html'">💡 How to Play</button>
+    <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
+    <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'">🔓 Unlock All Categories</button>
+    <button class="menu-btn menu-close" id="closeMenu">Close</button>
+  </div>
+</div>
+
+<main class="legal-wrapper">
+  <h1>Terms of Service</h1>
+  <p class="legal-sub">Effective date: <strong>January 2026</strong></p>
+
+  <p>
+    These Terms of Service (“Terms”) govern your access to and use of GeoRanks (“we”, “us”, “our”),
+    including the GeoRanks Battle Royale experience and related leaderboards (“Service”).
+    By using the Service, you agree to these Terms.
+  </p>
+
+  <h2>1) Eligibility</h2>
+  <p>
+    You must be able to legally use the Service in your location. If you are under the legal age required
+    to consent in your country, you must not use the Service.
+  </p>
+
+  <h2>2) Accounts & Sign-in</h2>
+  <p>
+    You may sign in via TikTok (and later other supported platforms). When you sign in, we may receive basic profile
+    information required to create your player profile (such as a unique identifier, display name, and avatar).
+  </p>
+
+  <h2>3) The Battle Royale & Results</h2>
+  <p>
+    The Service runs community matches and displays results on leaderboards. Match outcomes may include:
+    placement, and optionally stats such as kills, damage dealt/taken, or survival time.
+  </p>
+  <p class="pill">
+    Note: Results are entertainment-based and may include randomized elements depending on game mode.
+  </p>
+
+  <h2>4) User Conduct</h2>
+  <p>You agree not to:</p>
+  <ul>
+    <li>Impersonate others, create fraudulent accounts, or attempt to bypass verification systems.</li>
+    <li>Abuse the Service (spam, harassment, hateful content, or disruptive behavior).</li>
+    <li>Exploit bugs, automate participation, scrape data, or reverse engineer the Service.</li>
+    <li>Upload or use content you don’t have the rights to (including avatars/images).</li>
+  </ul>
+
+  <h2>5) Intellectual Property</h2>
+  <p>
+    The Service, including branding, UI, code, and game mechanics are owned by GeoRanks or its licensors.
+    You may not copy or distribute any part of the Service without written permission.
+  </p>
+
+  <h2>6) Third-Party Services</h2>
+  <p>
+    The Service may integrate with third parties (for example TikTok sign-in). Your use of third-party services is subject
+    to their terms and policies. We are not responsible for third-party services.
+  </p>
+
+  <h2>7) Disclaimer</h2>
+  <p>
+    The Service is provided “as is” and “as available”. We do not guarantee uninterrupted operation, error-free performance,
+    or that the Service will meet your expectations.
+  </p>
+
+  <h2>8) Limitation of Liability</h2>
+  <p>
+    To the maximum extent permitted by law, GeoRanks will not be liable for indirect, incidental, special, consequential, or
+    punitive damages, or any loss of data, profits, or goodwill arising from your use of the Service.
+  </p>
+
+  <h2>9) Termination</h2>
+  <p>
+    We may suspend or terminate access if we reasonably believe you violated these Terms or abused the Service.
+    You may stop using the Service at any time.
+  </p>
+
+  <h2>10) Changes to These Terms</h2>
+  <p>
+    We may update these Terms from time to time. If changes are significant, we’ll post the updated version on this page with a
+    new effective date.
+  </p>
+
+  <h2>11) Contact</h2>
+  <p>
+    If you have questions about these Terms, contact us at:
+    <a href="mailto:support@geo-ranks.com">support@geo-ranks.com</a>
+  </p>
+</main>
+
+<footer style="text-align:center; padding: 20px; color:#777; font-size:0.9rem;">
+  © 2026 GeoRanks. All rights reserved.
+</footer>
+
+<script>
+  document.getElementById('menuToggle')?.addEventListener('click', () => {
+    document.getElementById('menuOverlay')?.classList.add('active');
+  });
+  document.getElementById('closeMenu')?.addEventListener('click', () => {
+    document.getElementById('menuOverlay')?.classList.remove('active');
+  });
+  document.getElementById('menuOverlay')?.addEventListener('click', (e) => {
+    if (e.target === document.getElementById('menuOverlay')) {
+      document.getElementById('menuOverlay')?.classList.remove('active');
+    }
+  });
+</script>
+
+<script type="module">
+  import { supabase } from './js/supabase-client.js';
+
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if (!session || !session.user) {
+    document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+  }
+
+  if (session && session.user) {
+    const { data: profile } = await supabase
+      .from('users')
+      .select('is_premium')
+      .eq('id', session.user.id)
+      .single();
+
+    if (profile?.is_premium) {
+      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+    }
+  }
+</script>
+
+</body>
+</html>
