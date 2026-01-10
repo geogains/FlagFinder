@@ -342,12 +342,10 @@
           </button>
 
           <!-- TikTok -->
-          <a
-  href="https://auth.geo-ranks.com/api/tiktok/start?return=https%3A%2F%2Fgeo-ranks.com%2Fupload.html"
-  class="signup-btn tiktok">
-  <img class="provider-icon" src="assets/tik-tok.png" alt="TikTok"/>
-  TikTok
-</a>
+          <button class="provider-btn" id="btnTikTok" type="button">
+            <img class="provider-icon" src="assets/tik-tok.png" alt="TikTok"/>
+            TikTok
+          </button>
 
           <!-- Email -->
           <button class="provider-btn primary" id="btnEmail" type="button">
@@ -485,16 +483,10 @@
     });
 
     btnTikTok.addEventListener("click", () => {
-  const code = document.getElementById("entryCode").value.trim();
-  if (!code) {
-    alert("Enter today’s code first (e.g. PINEAPPLE).");
-    return;
-  }
-
-  const next = window.location.href.split("?")[0]; // return to this page
-  const authUrl = `http://localhost:3000/auth/tiktok/start?entry_code=${encodeURIComponent(code)}&next=${encodeURIComponent(next)}`;
-  window.location.href = authUrl;
-});
+      // Redirect to TikTok OAuth
+      const returnUrl = encodeURIComponent('https://geo-ranks.com/upload.html');
+      window.location.href = `https://auth.geo-ranks.com/api/tiktok/start?return=${returnUrl}`;
+    });
 
     btnEmail.addEventListener("click", () => {
       // Later: magic link / OTP flow
