@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Upload — Battle Royale</title>
+  <title>Arena Upload — GeoRanks Battle Royale</title>
 
-  <!-- Keep your existing global styles -->
+  <!-- Global styles -->
   <link rel="stylesheet" href="css/home.css"/>
   <link rel="stylesheet" href="css/game-modes.css"/>
 
@@ -20,7 +20,6 @@
       font-family: 'Poppins', sans-serif;
     }
 
-    /* Wrapper matches your glass-card pages */
     .upload-wrapper {
       max-width: 720px;
       margin: 120px auto 60px;
@@ -49,7 +48,7 @@
       color: rgba(0,0,0,0.6);
     }
 
-    /* Toggle (same pattern as auth.html) */
+    /* Toggle buttons */
     .toggle-buttons {
       display: flex;
       margin: 1rem auto 1.25rem;
@@ -68,6 +67,8 @@
       transition: background 0.25s ease, transform 0.1s ease;
       background: rgba(0,0,0,0.05);
       color: rgba(0,0,0,0.75);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem;
     }
 
     .toggle-buttons button:active { transform: scale(0.99); }
@@ -84,23 +85,24 @@
       background: rgba(255,255,255,0.85);
       border: 1px solid rgba(0,0,0,0.08);
       border-radius: 16px;
-      padding: 1.25rem;
+      padding: 1.5rem;
       box-shadow: 0 6px 20px rgba(0,0,0,0.08);
     }
 
     .section-title {
-      margin: 0 0 0.25rem;
-      font-size: 1.2rem;
+      margin: 0 0 0.5rem;
+      font-size: 1.3rem;
       font-weight: 800;
       color: #111;
       text-align: center;
     }
 
     .section-sub {
-      margin: 0 0 1rem;
-      font-size: 0.9rem;
+      margin: 0 0 1.5rem;
+      font-size: 0.95rem;
       color: rgba(0,0,0,0.60);
       text-align: center;
+      line-height: 1.5;
     }
 
     .signin-label {
@@ -108,10 +110,12 @@
       font-size: 0.85rem;
       font-weight: 700;
       color: rgba(0,0,0,0.6);
-      margin: 0.75rem 0 0.75rem;
+      margin: 0 0 1rem;
       letter-spacing: 0.4px;
+      text-transform: uppercase;
     }
 
+    /* Provider buttons */
     .provider-buttons {
       display: grid;
       grid-template-columns: 1fr;
@@ -125,103 +129,36 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      padding: 12px 14px;
+      padding: 14px 16px;
       border-radius: 12px;
       border: 1px solid rgba(0,0,0,0.12);
       background: white;
       cursor: pointer;
       font-weight: 800;
+      font-size: 1rem;
+      font-family: 'Poppins', sans-serif;
       transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
       user-select: none;
+      color: #111;
     }
 
     .provider-btn:hover {
-      transform: scale(1.01);
-      box-shadow: 0 10px 24px rgba(0,0,0,0.10);
+      transform: scale(1.02);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
     }
 
-    .provider-btn:active { opacity: 0.9; }
+    .provider-btn:active { 
+      opacity: 0.9;
+      transform: scale(0.99);
+    }
 
     .provider-icon {
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       display: inline-block;
     }
 
-    .provider-btn.primary {
-      background: linear-gradient(135deg, #ff9770, #ff6f61);
-      color: white;
-      border: none;
-    }
-
-    .fineprint {
-      text-align: center;
-      font-size: 0.8rem;
-      color: rgba(0,0,0,0.55);
-      margin-top: 0.9rem;
-      line-height: 1.35;
-    }
-
-    .divider {
-      height: 1px;
-      background: rgba(0,0,0,0.10);
-      margin: 1.25rem 0;
-    }
-
-    /* Minimal fallback form (super quick) */
-    .fallback-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      max-width: 420px;
-      margin: 0 auto;
-    }
-
-    label {
-      display: grid;
-      gap: 6px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: rgba(0,0,0,0.65);
-    }
-
-    input, select {
-      padding: 11px 12px;
-      border-radius: 12px;
-      border: 1px solid rgba(0,0,0,0.15);
-      outline: none;
-      background: white;
-      font-size: 0.95rem;
-    }
-
-    input:focus, select:focus {
-      box-shadow: 0 0 0 3px rgba(0,0,0,0.08);
-      border-color: rgba(0,0,0,0.22);
-    }
-
-    .btn-submit {
-      margin-top: 6px;
-      padding: 12px 14px;
-      border-radius: 12px;
-      border: none;
-      background: #111;
-      color: #fff;
-      font-weight: 800;
-      cursor: pointer;
-      transition: transform 0.15s ease, opacity 0.15s ease;
-    }
-
-    .btn-submit:hover { transform: scale(1.01); }
-    .btn-submit:active { opacity: 0.9; }
-
-    .status {
-      text-align: center;
-      margin-top: 10px;
-      font-size: 0.9rem;
-      color: rgba(0,0,0,0.65);
-    }
-
-    /* Leaderboard basic */
+    /* Leaderboard */
     .leaderboard-list {
       max-width: 520px;
       margin: 0.5rem auto 0;
@@ -273,18 +210,25 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    @media (max-width: 600px) {
-      .upload-wrapper {
-        margin: 100px 16px 40px;
-        padding: 1rem;
-      }
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: rgba(0,0,0,0.5);
+      font-size: 0.9rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #777;
+      font-size: 0.9rem;
     }
   </style>
 </head>
 
 <body>
-
-  <!-- Header + Hamburger menu (matches your other pages) -->
+  <!-- Header -->
   <header class="home-glass-header">
     <div class="logo-header">
       <a href="index.html" class="logo-link">
@@ -302,12 +246,12 @@
   <div class="menu-overlay" id="menuOverlay">
     <div class="menu-panel">
       <h2>Menu</h2>
-      <button class="menu-btn" onclick="location.href='index.html'">🏠 Home</button>
-      <button class="menu-btn menu-btn-account" onclick="location.href='account.html'">👤 Account</button>
-      <button class="menu-btn" onclick="location.href='categories.html'">🎮 Categories</button>
-      <button class="menu-btn" onclick="location.href='leaderboard.html'">🏆 Leaderboard</button>
-      <button class="menu-btn" onclick="location.href='stats.html'">📊 My Stats</button>
-      <button class="menu-btn" onclick="location.href='how-to-play.html'">💡 How to Play</button>
+      <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
+      <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
+      <button class="menu-btn" onclick="window.location.href='categories.html'">🎮 Categories</button>
+      <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
+      <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
+      <button class="menu-btn" onclick="window.location.href='how-to-play.html'">💡 How to Play</button>
       <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
       <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
       <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'">🔓 Unlock All Categories</button>
@@ -316,8 +260,8 @@
   </div>
 
   <main class="upload-wrapper">
-    <h1 class="page-title">Arena Upload</h1>
-    <p class="page-sub">Fast sign-ups + easy leaderboard view (same page).</p>
+    <h1 class="page-title">Welcome to the Arena!</h1>
+    <p class="page-sub">Sign up for daily battles or check your stats in the Leaderboard.</p>
 
     <!-- Toggle -->
     <div class="toggle-buttons">
@@ -329,74 +273,24 @@
     <section id="panelSignup" class="panel active">
       <div class="card">
         <h2 class="section-title">Join the Battle</h2>
-        <p class="section-sub">One tap is the goal. Zero friction.</p>
+        <p class="section-sub">Sign up once to participate in all future battles and win daily prizes</p>
 
-        <div class="signin-label">Sign in with</div>
+        <div class="signin-label">Sign up with</div>
 
         <!-- Provider buttons -->
         <div class="provider-buttons">
           <!-- Instagram -->
           <button class="provider-btn" id="btnInstagram" type="button">
             <img class="provider-icon" src="assets/instagram.png" alt="Instagram"/>
-            Instagram
+            Sign in with Instagram
           </button>
 
           <!-- TikTok -->
           <button class="provider-btn" id="btnTikTok" type="button">
             <img class="provider-icon" src="assets/tik-tok.png" alt="TikTok"/>
-            TikTok
-          </button>
-
-          <!-- Email -->
-          <button class="provider-btn primary" id="btnEmail" type="button">
-            <!-- simple inline email icon -->
-            <svg class="provider-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M4 6h16v12H4V6z" stroke="white" stroke-width="2" />
-              <path d="M4 7l8 6 8-6" stroke="white" stroke-width="2" />
-            </svg>
-            Email
+            Sign in with TikTok
           </button>
         </div>
-
-        <p class="fineprint">
-          Instagram/TikTok buttons can be wired to OAuth later. For now, use the instant fallback below.
-        </p>
-
-        <div class="divider"></div>
-
-        <!-- Fallback quick capture (works today, still frictionless) -->
-        <h3 class="section-title" style="font-size: 1.05rem;">Instant sign-up (works now)</h3>
-        <p class="section-sub">Drop your handle + photo. Done.</p>
-
-        <form id="signupForm" class="fallback-grid">
-          <label>
-            Platform
-            <select id="platform" required>
-              <option value="tiktok">TikTok</option>
-              <option value="instagram">Instagram</option>
-              <option value="email">Email</option>
-            </select>
-          </label>
-
-          <label>
-            Username / Handle
-            <input id="handle" type="text" placeholder="@username" required />
-          </label>
-
-          <label>
-            Photo (upload)
-            <input id="photo" type="file" accept="image/*" required />
-          </label>
-
-          <label>
-            Email (optional)
-            <input id="email" type="email" placeholder="you@email.com" />
-          </label>
-
-          <button class="btn-submit" type="submit">Submit</button>
-
-          <div class="status" id="status"></div>
-        </form>
       </div>
     </section>
 
@@ -404,33 +298,41 @@
     <section id="panelLeaderboard" class="panel">
       <div class="card">
         <h2 class="section-title">Leaderboard</h2>
-        <p class="section-sub">Top players. (Hook this to your battle table later.)</p>
+        <p class="section-sub">Top players in the arena.</p>
 
         <ul class="leaderboard-list" id="leaderboardList">
+          <!-- Placeholder data - replace with real data -->
           <li class="leaderboard-item">
             <div class="lb-left">
               <div class="lb-rank">#1</div>
-              <div class="lb-name">ExamplePlayer</div>
+              <div class="lb-name">GeoMaster</div>
             </div>
-            <div class="lb-score">120</div>
+            <div class="lb-score">2,450</div>
           </li>
           <li class="leaderboard-item">
             <div class="lb-left">
               <div class="lb-rank">#2</div>
-              <div class="lb-name">RunnerUp</div>
+              <div class="lb-name">MapExplorer</div>
             </div>
-            <div class="lb-score">98</div>
+            <div class="lb-score">2,180</div>
+          </li>
+          <li class="leaderboard-item">
+            <div class="lb-left">
+              <div class="lb-rank">#3</div>
+              <div class="lb-name">WorldTraveler</div>
+            </div>
+            <div class="lb-score">1,965</div>
           </li>
         </ul>
       </div>
     </section>
   </main>
 
-  <footer style="text-align: center; padding: 20px; color: #777; font-size: 0.9rem;">
+  <footer>
     © 2026 GeoRanks. All rights reserved.
   </footer>
 
-  <!-- Hamburger menu logic (same as your pages) -->
+  <!-- Hamburger menu logic -->
   <script>
     const toggleBtn = document.getElementById("menuToggle");
     const overlay = document.getElementById("menuOverlay");
@@ -469,17 +371,17 @@
     tabLeaderboard.addEventListener("click", showLeaderboard);
   </script>
 
-  <!-- Provider button behavior (placeholder today) -->
+  <!-- OAuth button handlers -->
   <script>
     const btnInstagram = document.getElementById("btnInstagram");
     const btnTikTok = document.getElementById("btnTikTok");
-    const btnEmail = document.getElementById("btnEmail");
 
     btnInstagram.addEventListener("click", () => {
-      // Later: redirect to IG OAuth
-      // For now: switch the platform selector so user can submit instantly.
-      document.getElementById("platform").value = "instagram";
-      document.getElementById("handle").focus();
+      // TODO: Redirect to Instagram OAuth when ready
+      // const returnUrl = encodeURIComponent('https://geo-ranks.com/upload.html');
+      // window.location.href = `https://auth.geo-ranks.com/api/instagram/start?return=${returnUrl}`;
+      
+      alert("Instagram OAuth coming soon! Use TikTok for now.");
     });
 
     btnTikTok.addEventListener("click", () => {
@@ -487,69 +389,7 @@
       const returnUrl = encodeURIComponent('https://geo-ranks.com/upload.html');
       window.location.href = `https://auth.geo-ranks.com/api/tiktok/start?return=${returnUrl}`;
     });
-
-    btnEmail.addEventListener("click", () => {
-      // Later: magic link / OTP flow
-      document.getElementById("platform").value = "email";
-      document.getElementById("email").focus();
-    });
   </script>
-
-  <!-- OPTIONAL: Supabase save (uncomment when ready)
-       This matches how your other pages import supabase-client.js :contentReference[oaicite:5]{index=5}
-  -->
-  <!--
-  <script type="module">
-    import { supabase } from './js/supabase-client.js';
-
-    const form = document.getElementById("signupForm");
-    const statusEl = document.getElementById("status");
-
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      statusEl.textContent = "Uploading…";
-
-      const platform = document.getElementById("platform").value;
-      const handle = document.getElementById("handle").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const file = document.getElementById("photo").files?.[0];
-
-      if (!handle || !file) {
-        statusEl.textContent = "Please add a handle + photo.";
-        return;
-      }
-
-      try {
-        // 1) Upload to storage (create bucket: battle-avatars)
-        const ext = file.name.split(".").pop() || "jpg";
-        const filePath = `${platform}/${handle.replace("@","")}-${Date.now()}.${ext}`;
-
-        const { error: upErr } = await supabase
-          .storage
-          .from("battle-avatars")
-          .upload(filePath, file, { upsert: true, cacheControl: "3600" });
-
-        if (upErr) throw upErr;
-
-        // 2) Public URL
-        const { data: pub } = supabase.storage.from("battle-avatars").getPublicUrl(filePath);
-
-        // 3) Insert row (create table: battle_signups)
-        const { error: insErr } = await supabase
-          .from("battle_signups")
-          .insert([{ platform, handle, email: email || null, photo_url: pub.publicUrl }]);
-
-        if (insErr) throw insErr;
-
-        statusEl.textContent = "✅ You’re in!";
-        form.reset();
-      } catch (err) {
-        console.error(err);
-        statusEl.textContent = "Something went wrong. Try again.";
-      }
-    });
-  </script>
-  -->
 
 </body>
 </html>
