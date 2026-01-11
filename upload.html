@@ -224,6 +224,189 @@
       color: #777;
       font-size: 0.9rem;
     }
+
+    /* Instagram Manual Form - NEW */
+    .instagram-form {
+      display: none;
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 16px;
+      border: 2px solid #e6683c;
+      text-align: left;
+      animation: slideDown 0.3s ease;
+    }
+
+    .instagram-form.active {
+      display: block;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .form-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .form-header h3 {
+      margin: 0;
+      color: #111;
+      font-size: 1.2rem;
+    }
+
+    .close-form {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #666;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background 0.2s;
+    }
+
+    .close-form:hover {
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: bold;
+      color: #111;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .form-group input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-family: 'Poppins', sans-serif;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input[type="text"]:focus {
+      outline: none;
+      border-color: #e6683c;
+    }
+
+    .image-upload {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .upload-area {
+      border: 2px dashed #ddd;
+      border-radius: 10px;
+      padding: 2rem;
+      text-align: center;
+      transition: all 0.2s;
+      background: white;
+    }
+
+    .upload-area:hover {
+      border-color: #e6683c;
+      background: #fff5f3;
+    }
+
+    .upload-area.has-image {
+      padding: 0;
+      border: 2px solid #e6683c;
+    }
+
+    .upload-icon {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .upload-text {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .image-preview {
+      display: none;
+      width: 100%;
+      border-radius: 8px;
+      object-fit: cover;
+      max-height: 200px;
+    }
+
+    .image-preview.active {
+      display: block;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #ff9770, #ff6f61);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .submit-btn:hover {
+      opacity: 0.9;
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .success-message,
+    .error-message {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 10px;
+      font-weight: 600;
+      display: none;
+    }
+
+    .success-message {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .error-message {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .success-message.active,
+    .error-message.active {
+      display: block;
+    }
   </style>
 </head>
 
@@ -290,6 +473,58 @@
             <img class="provider-icon" src="assets/tik-tok.png" alt="TikTok"/>
             Sign in with TikTok
           </button>
+        </div>
+
+        <!-- Instagram Manual Form -->
+        <div class="instagram-form" id="instagramForm">
+          <div class="form-header">
+            <h3>📸 Instagram Signup</h3>
+            <button class="close-form" id="closeForm" type="button">×</button>
+          </div>
+
+          <form id="manualSignupForm">
+            <div class="form-group">
+              <label for="username">Instagram Username</label>
+              <input 
+                type="text" 
+                id="username" 
+                name="username" 
+                placeholder="@yourhandle" 
+                required 
+                maxlength="30"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Profile Picture</label>
+              <div class="image-upload" id="imageUpload">
+                <input 
+                  type="file" 
+                  id="imageInput" 
+                  name="image" 
+                  accept="image/*" 
+                  style="display: none;" 
+                  required
+                />
+                <div class="upload-area" id="uploadArea">
+                  <div class="upload-icon">📷</div>
+                  <div class="upload-text">Click to upload your photo</div>
+                </div>
+                <img id="imagePreview" class="image-preview" alt="Preview" />
+              </div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+              Join Battle Royale
+            </button>
+          </form>
+
+          <div class="success-message" id="successMessage">
+            ✅ Successfully signed up! Welcome to the battle!
+          </div>
+          <div class="error-message" id="errorMessage">
+            ❌ Error: Please try again
+          </div>
         </div>
       </div>
     </section>
@@ -375,19 +610,106 @@
   <script>
     const btnInstagram = document.getElementById("btnInstagram");
     const btnTikTok = document.getElementById("btnTikTok");
+    const instagramForm = document.getElementById("instagramForm");
+    const closeForm = document.getElementById("closeForm");
 
+    // Instagram button - show form
     btnInstagram.addEventListener("click", () => {
-      // TODO: Redirect to Instagram OAuth when ready
-      // const returnUrl = encodeURIComponent('https://geo-ranks.com/upload.html');
-      // window.location.href = `https://auth.geo-ranks.com/api/instagram/start?return=${returnUrl}`;
-      
-      alert("Instagram OAuth coming soon! Use TikTok for now.");
+      instagramForm.classList.add("active");
     });
 
+    // Close form button
+    closeForm.addEventListener("click", () => {
+      instagramForm.classList.remove("active");
+    });
+
+    // TikTok OAuth (unchanged)
     btnTikTok.addEventListener("click", () => {
       // Redirect to TikTok OAuth
       const returnUrl = encodeURIComponent('https://geo-ranks.com/upload.html');
       window.location.href = `https://auth.geo-ranks.com/api/tiktok/start?return=${returnUrl}`;
+    });
+  </script>
+
+  <!-- Instagram form handlers -->
+  <script>
+    // Image upload
+    const imageUpload = document.getElementById("imageUpload");
+    const imageInput = document.getElementById("imageInput");
+    const uploadArea = document.getElementById("uploadArea");
+    const imagePreview = document.getElementById("imagePreview");
+
+    imageUpload.addEventListener("click", () => {
+      imageInput.click();
+    });
+
+    imageInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          imagePreview.src = e.target.result;
+          imagePreview.classList.add("active");
+          uploadArea.classList.add("has-image");
+          uploadArea.innerHTML = "";
+          uploadArea.appendChild(imagePreview);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Form submission
+    const manualSignupForm = document.getElementById("manualSignupForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const successMessage = document.getElementById("successMessage");
+    const errorMessage = document.getElementById("errorMessage");
+
+    manualSignupForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      // Reset messages
+      successMessage.classList.remove("active");
+      errorMessage.classList.remove("active");
+
+      // Disable button
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Joining...";
+
+      try {
+        const formData = new FormData(manualSignupForm);
+
+        const response = await fetch("https://auth.geo-ranks.com/api/instagram/manual-signup", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          successMessage.textContent = `✅ Welcome ${data.user.username}! You're in the battle!`;
+          successMessage.classList.add("active");
+          manualSignupForm.reset();
+          imagePreview.classList.remove("active");
+          uploadArea.classList.remove("has-image");
+          uploadArea.innerHTML = `
+            <div class="upload-icon">📷</div>
+            <div class="upload-text">Click to upload your photo</div>
+          `;
+
+          // Close form after 2 seconds
+          setTimeout(() => {
+            instagramForm.classList.remove("active");
+          }, 2000);
+        } else {
+          throw new Error(data.error || "Signup failed");
+        }
+      } catch (err) {
+        errorMessage.textContent = `❌ ${err.message}`;
+        errorMessage.classList.add("active");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Join Battle Royale";
+      }
     });
   </script>
 
