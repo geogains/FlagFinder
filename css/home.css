@@ -599,7 +599,25 @@ h1, h2, h3, .tagline {
   }
 }
 
+.footer-links {
+  margin-top: 10px;
+  font-size: 14px;
+}
 
+.footer-links a {
+  color: #888;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.footer-links a:hover {
+  color: #fff;
+}
+
+.footer-links .divider {
+  margin: 0 10px;
+  color: #666;
+}
 
 /* -----------------------------------
    Responsive Layout
