@@ -363,13 +363,13 @@ function formatValue(value, unit) {
         // Millions (1M+)
         formatted = value.toFixed(1) + 'M';
       } else if (value >= 0.001) {
-        // Thousands (1K+)
+        // Thousands (1K+) - value is in millions, so multiply by 1000 to get thousands
         const thousands = (value * 1000).toFixed(1);
         formatted = thousands + 'K';
       } else {
-        // Less than 1000 - show raw number
+        // Less than 1000 people - show raw number
         const raw = Math.round(value * 1000000);
-        formatted = raw.toString();
+        formatted = raw.toLocaleString();
       }
       break;           
     case 'USD':
