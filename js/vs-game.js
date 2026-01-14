@@ -330,6 +330,8 @@ setTimeout(() => {
   const battle = document.getElementById('vsBattle');
   const option1 = document.getElementById('option1');
   const option2 = document.getElementById('option2');
+  const flag1 = document.getElementById('flag1');
+  const flag2 = document.getElementById('flag2');
   
   // Fade entire container to black
   battle.style.transition = 'opacity 0.25s ease';
@@ -337,15 +339,37 @@ setTimeout(() => {
   
   // After fade, clean up
   setTimeout(() => {
+    // CRITICAL FIX: Clear image sources FIRST to prevent flash
+    flag1.src = '';
+    flag2.src = '';
+    
     option1.classList.remove('correct', 'incorrect', 'disabled');
     option2.classList.remove('correct', 'incorrect', 'disabled');
     
     loadNewRound();
     
-    // Fade back in
-    setTimeout(() => {
-      battle.style.opacity = '1';
-    }, 50);
+    // Wait for images to load before fading back in
+    const img1 = new Image();
+    const img2 = new Image();
+    let loadedCount = 0;
+    
+    const checkBothLoaded = () => {
+      loadedCount++;
+      if (loadedCount === 2) {
+        // Both images loaded, now fade in
+        setTimeout(() => {
+          battle.style.opacity = '1';
+        }, 50);
+      }
+    };
+    
+    img1.onload = checkBothLoaded;
+    img2.onload = checkBothLoaded;
+    img1.onerror = checkBothLoaded; // Handle errors gracefully
+    img2.onerror = checkBothLoaded;
+    
+    img1.src = flag1.src;
+    img2.src = flag2.src;
   }, 250);
 }, 1500);
 }
