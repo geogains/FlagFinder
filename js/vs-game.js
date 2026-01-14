@@ -67,9 +67,9 @@ async function loadCategoryData() {
 gameState.countries = data.map(country => {
   let value = country[categoryConfig.valueField];
   
-  // Convert population to millions if needed
-  if (categoryConfig.convertToMillions && value > 1000000) {
-    value = parseFloat((value / 1000000).toFixed(2));
+  // Convert population to millions if needed - ALWAYS convert, not just for large numbers
+  if (categoryConfig.convertToMillions) {
+    value = parseFloat((value / 1000000).toFixed(3)); // Use 3 decimals for better precision on small countries
   }
   
   return {
