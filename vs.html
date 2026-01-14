@@ -185,6 +185,8 @@
       opacity: 0;
       transition: opacity 0.3s ease;
       text-align: center;
+      min-height: 2.1rem; /* Reserve space even when hidden to prevent container yo-yo */
+      display: block; /* Ensure it always takes up space in layout */
     }
     
     .country-value.show {
@@ -372,6 +374,7 @@
       
       .country-value {
         font-size: 1.2rem;
+        min-height: 1.8rem; /* Reserve space for mobile too */
       }
       
       .vs-title {
