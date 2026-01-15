@@ -614,7 +614,7 @@
         <div class="metric-toggle-container">
           <div class="metric-toggle-buttons">
             <button id="metricPlacement" class="metric-btn active" data-metric="placement">
-              Placement
+              Survival Time
             </button>
             <button id="metricKills" class="metric-btn" data-metric="kills">
               Kills
@@ -766,8 +766,8 @@
         // Sort based on current metric
         leaderboard = leaderboard.sort((a, b) => {
           if (currentMetric === 'placement') {
-            // For placement, lower is better, but we'll show total_points
-            return (b.total_points || 0) - (a.total_points || 0);
+            // For survival time, longer is better
+            return (b.avg_survival_time || 0) - (a.avg_survival_time || 0);
           } else if (currentMetric === 'kills') {
             return (b.total_kills || 0) - (a.total_kills || 0);
           } else if (currentMetric === 'damage') {
@@ -791,8 +791,14 @@
           
           // Get the score based on current metric
           let score;
+          let scoreLabel = '';
           if (currentMetric === 'placement') {
-            score = player.total_points || 0;
+            // Show average survival time in MM:SS format
+            const avgSeconds = player.avg_survival_time || 0;
+            const minutes = Math.floor(avgSeconds / 60);
+            const seconds = Math.floor(avgSeconds % 60);
+            score = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            scoreLabel = ' min';
           } else if (currentMetric === 'kills') {
             score = player.total_kills || 0;
           } else if (currentMetric === 'damage') {
@@ -804,7 +810,7 @@
               <div class="lb-rank">${rankDisplay}</div>
               <div class="lb-name">${escapeHtml(player.username)}</div>
             </div>
-            <div class="lb-score">${score}</div>
+            <div class="lb-score">${score}${scoreLabel}</div>
           `;
           
           listEl.appendChild(item);
