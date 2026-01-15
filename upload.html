@@ -168,6 +168,75 @@
       gap: 10px;
     }
 
+    /* Metric Toggle */
+    .metric-toggle-container {
+      margin: 1.25rem auto;
+      max-width: 520px;
+    }
+
+    .metric-toggle-buttons {
+      display: flex;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.12);
+      background: rgba(0,0,0,0.05);
+    }
+
+    .metric-btn {
+      flex: 1;
+      padding: 0.7rem;
+      border: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      background: transparent;
+      color: rgba(0,0,0,0.6);
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .metric-btn:hover {
+      background: rgba(0,0,0,0.08);
+      color: rgba(0,0,0,0.8);
+    }
+
+    .metric-btn.active {
+      background: linear-gradient(135deg, #ff9770, #ff6f61);
+      color: white;
+      box-shadow: 0 2px 8px rgba(255, 111, 97, 0.3);
+    }
+
+    /* Date Selector */
+    .date-selector-container {
+      margin: 1rem auto 1.25rem;
+      max-width: 520px;
+    }
+
+    .date-selector {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 10px;
+      background: white;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #111;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .date-selector:hover {
+      border-color: rgba(0,0,0,0.2);
+      background: rgba(0,0,0,0.02);
+    }
+
+    .date-selector:focus {
+      outline: none;
+      border-color: #ff6f61;
+      box-shadow: 0 0 0 3px rgba(255, 111, 97, 0.1);
+    }
+
     .leaderboard-item {
       display: flex;
       align-items: center;
@@ -541,6 +610,32 @@
         <h2 class="section-title">Leaderboard</h2>
         <p class="section-sub">Top players in the arena.</p>
 
+        <!-- Metric Toggle Buttons -->
+        <div class="metric-toggle-container">
+          <div class="metric-toggle-buttons">
+            <button id="metricPlacement" class="metric-btn active" data-metric="placement">
+              Placement
+            </button>
+            <button id="metricKills" class="metric-btn" data-metric="kills">
+              Kills
+            </button>
+            <button id="metricDamage" class="metric-btn" data-metric="damage">
+              Damage
+            </button>
+          </div>
+        </div>
+
+        <!-- Date Selector -->
+        <div class="date-selector-container">
+          <label for="dateSelector" style="font-size: 0.9rem; font-weight: 600; color: #111; margin-bottom: 0.5rem; display: block;">
+            Select Date:
+          </label>
+          <select id="dateSelector" class="date-selector">
+            <option value="all">All Time</option>
+            <!-- Will be populated with dates dynamically -->
+          </select>
+        </div>
+
         <ul class="leaderboard-list" id="leaderboardList">
           <!-- Loading state - will be replaced with real data -->
           <li style="padding: 2rem; text-align: center; color: #666;">
@@ -591,12 +686,40 @@
       
       // Load leaderboard data when tab is shown
       loadLeaderboardData();
+      
+      // Populate date selector if not already done
+      const dateSelector = document.getElementById('dateSelector');
+      if (dateSelector.options.length === 1) { // Only "All Time" option
+        populateDateSelector();
+      }
     }
 
     tabSignup.addEventListener("click", showSignup);
     tabLeaderboard.addEventListener("click", showLeaderboard);
 
+    // Metric toggle buttons
+    document.querySelectorAll('.metric-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Update active state
+        document.querySelectorAll('.metric-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // Update current metric and reload
+        currentMetric = btn.dataset.metric;
+        loadLeaderboardData();
+      });
+    });
+
+    // Date selector change
+    document.getElementById('dateSelector')?.addEventListener('change', (e) => {
+      currentDate = e.target.value;
+      loadLeaderboardData();
+    });
+
     // Function to load leaderboard data from API
+    let currentMetric = 'placement'; // Default metric
+    let currentDate = 'all'; // Default to all time
+
     async function loadLeaderboardData() {
       const listEl = document.getElementById("leaderboardList");
       const API_URL = 'https://auth.geo-ranks.com/api/leaderboard';
@@ -605,14 +728,26 @@
         // Show loading state
         listEl.innerHTML = '<li style="padding: 2rem; text-align: center; color: #666;">Loading leaderboard...</li>';
         
+        // Build API URL with filters
+        let url = API_URL;
+        const params = new URLSearchParams();
+        
+        if (currentDate !== 'all') {
+          params.append('date', currentDate);
+        }
+        
+        if (params.toString()) {
+          url += '?' + params.toString();
+        }
+        
         // Fetch data from API
-        const response = await fetch(API_URL);
+        const response = await fetch(url);
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
         }
         
         const data = await response.json();
-        const leaderboard = data.leaderboard || [];
+        let leaderboard = data.leaderboard || [];
         
         // Handle empty leaderboard
         if (leaderboard.length === 0) {
@@ -628,6 +763,19 @@
           return;
         }
         
+        // Sort based on current metric
+        leaderboard = leaderboard.sort((a, b) => {
+          if (currentMetric === 'placement') {
+            // For placement, lower is better, but we'll show total_points
+            return (b.total_points || 0) - (a.total_points || 0);
+          } else if (currentMetric === 'kills') {
+            return (b.total_kills || 0) - (a.total_kills || 0);
+          } else if (currentMetric === 'damage') {
+            return (b.total_damage || 0) - (a.total_damage || 0);
+          }
+          return 0;
+        });
+        
         // Clear list and populate with real data
         listEl.innerHTML = '';
         
@@ -641,12 +789,22 @@
           else if (index === 1) rankDisplay = '🥈';
           else if (index === 2) rankDisplay = '🥉';
           
+          // Get the score based on current metric
+          let score;
+          if (currentMetric === 'placement') {
+            score = player.total_points || 0;
+          } else if (currentMetric === 'kills') {
+            score = player.total_kills || 0;
+          } else if (currentMetric === 'damage') {
+            score = player.total_damage || 0;
+          }
+          
           item.innerHTML = `
             <div class="lb-left">
               <div class="lb-rank">${rankDisplay}</div>
               <div class="lb-name">${escapeHtml(player.username)}</div>
             </div>
-            <div class="lb-score">${player.total_points || 0}</div>
+            <div class="lb-score">${score}</div>
           `;
           
           listEl.appendChild(item);
@@ -661,6 +819,37 @@
             <div style="font-size: 0.85rem; margin-top: 0.5rem;">${escapeHtml(err.message)}</div>
           </li>
         `;
+      }
+    }
+
+    // Populate date selector with available dates
+    async function populateDateSelector() {
+      const dateSelector = document.getElementById('dateSelector');
+      
+      try {
+        // Fetch available dates from API (you'll need to add this endpoint)
+        // For now, we'll generate the last 30 days
+        const today = new Date();
+        
+        for (let i = 0; i < 30; i++) {
+          const date = new Date(today);
+          date.setDate(date.getDate() - i);
+          
+          const dateStr = date.toISOString().split('T')[0];
+          const displayDate = date.toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric',
+            year: 'numeric'
+          });
+          
+          const option = document.createElement('option');
+          option.value = dateStr;
+          option.textContent = displayDate;
+          
+          dateSelector.appendChild(option);
+        }
+      } catch (err) {
+        console.error('Failed to populate dates:', err);
       }
     }
 
