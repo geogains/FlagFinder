@@ -542,27 +542,9 @@
         <p class="section-sub">Top players in the arena.</p>
 
         <ul class="leaderboard-list" id="leaderboardList">
-          <!-- Placeholder data - replace with real data -->
-          <li class="leaderboard-item">
-            <div class="lb-left">
-              <div class="lb-rank">#1</div>
-              <div class="lb-name">GeoMaster</div>
-            </div>
-            <div class="lb-score">2,450</div>
-          </li>
-          <li class="leaderboard-item">
-            <div class="lb-left">
-              <div class="lb-rank">#2</div>
-              <div class="lb-name">MapExplorer</div>
-            </div>
-            <div class="lb-score">2,180</div>
-          </li>
-          <li class="leaderboard-item">
-            <div class="lb-left">
-              <div class="lb-rank">#3</div>
-              <div class="lb-name">WorldTraveler</div>
-            </div>
-            <div class="lb-score">1,965</div>
+          <!-- Loading state - will be replaced with real data -->
+          <li style="padding: 2rem; text-align: center; color: #666;">
+            Loading leaderboard...
           </li>
         </ul>
       </div>
@@ -606,10 +588,88 @@
       tabSignup.classList.remove("active");
       panelLeaderboard.classList.add("active");
       panelSignup.classList.remove("active");
+      
+      // Load leaderboard data when tab is shown
+      loadLeaderboardData();
     }
 
     tabSignup.addEventListener("click", showSignup);
     tabLeaderboard.addEventListener("click", showLeaderboard);
+
+    // Function to load leaderboard data from API
+    async function loadLeaderboardData() {
+      const listEl = document.getElementById("leaderboardList");
+      const API_URL = 'https://www.geo-ranks.com/api/battle-leaderboard';
+      
+      try {
+        // Show loading state
+        listEl.innerHTML = '<li style="padding: 2rem; text-align: center; color: #666;">Loading leaderboard...</li>';
+        
+        // Fetch data from API
+        const response = await fetch(API_URL);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        
+        const data = await response.json();
+        const leaderboard = data.leaderboard || [];
+        
+        // Handle empty leaderboard
+        if (leaderboard.length === 0) {
+          listEl.innerHTML = `
+            <li style="padding: 2rem; text-align: center; color: #666;">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎮</div>
+              <div>No battles yet!</div>
+              <div style="font-size: 0.85rem; color: #999; margin-top: 0.5rem;">
+                Be the first to compete in the arena
+              </div>
+            </li>
+          `;
+          return;
+        }
+        
+        // Clear list and populate with real data
+        listEl.innerHTML = '';
+        
+        leaderboard.forEach((player, index) => {
+          const item = document.createElement('li');
+          item.className = 'leaderboard-item';
+          
+          // Medal or rank number
+          let rankDisplay = `#${index + 1}`;
+          if (index === 0) rankDisplay = '🥇';
+          else if (index === 1) rankDisplay = '🥈';
+          else if (index === 2) rankDisplay = '🥉';
+          
+          item.innerHTML = `
+            <div class="lb-left">
+              <div class="lb-rank">${rankDisplay}</div>
+              <div class="lb-name">${escapeHtml(player.username)}</div>
+            </div>
+            <div class="lb-score">${player.total_points || 0}</div>
+          `;
+          
+          listEl.appendChild(item);
+        });
+        
+      } catch (err) {
+        console.error('Failed to load leaderboard:', err);
+        listEl.innerHTML = `
+          <li style="padding: 2rem; text-align: center; color: #ef4444;">
+            <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">⚠️</div>
+            <div>Failed to load leaderboard</div>
+            <div style="font-size: 0.85rem; margin-top: 0.5rem;">${escapeHtml(err.message)}</div>
+          </li>
+        `;
+      }
+    }
+
+    // Helper function to escape HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
   </script>
 
   <!-- OAuth button handlers -->
