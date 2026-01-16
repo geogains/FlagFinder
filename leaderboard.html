@@ -533,7 +533,7 @@
     // Update title with mode and category name
     const modeNames = { classic: 'Classic', top10: 'Top 10', vs: 'VS' };
     const displayName = displayNameMap[categoryKey] || formatCategoryName(categoryKey);
-    dailyChallengeTitle.textContent = `Daily Challenge: ${modeNames[modeKey]} - ${displayName}`;
+    dailyChallengeTitle.textContent = `${modeNames[modeKey]} - ${displayName}`;
 
     console.log('Loading Daily Challenge for:', { date, categoryKey, categoryId, mode: modeKey });
 
