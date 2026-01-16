@@ -349,10 +349,13 @@
     <select id="dateDropdown"></select>
   </div>
 
-  <!-- Category Search Bar -->
-  <div class="search-bar-wrapper">
+  <!-- Category Search Bar (hidden for Daily Challenge) -->
+  <div class="search-bar-wrapper" id="categorySearchWrapper">
     <input type="text" id="categorySearchInput" placeholder="🔍 Search Categories..." readonly />
   </div>
+
+  <!-- Daily Challenge Title (shown only for Daily Challenge) -->
+  <h3 id="dailyChallengeTitle" style="display: none; margin: 20px 0; font-size: 1.3rem;"></h3>
 
   <table class="leaderboard-table">
     <thead>
@@ -390,6 +393,8 @@
   const leaderboardBody = document.getElementById("leaderboardBody");
   const dateDropdown = document.getElementById("dateDropdown");
   const dateSelector = document.getElementById("dateSelector");
+  const categorySearchWrapper = document.getElementById("categorySearchWrapper");
+  const dailyChallengeTitle = document.getElementById("dailyChallengeTitle");
   
   let currentMode = 'classic'; // Track current mode
   let currentDate = null; // Track current date for daily challenge
@@ -434,13 +439,17 @@
       
       currentMode = btn.dataset.mode;
       
-      // Show/hide date selector for daily challenge
+      // Show/hide elements based on mode
       if (currentMode === 'daily-challenge') {
         dateSelector.classList.add('active');
+        categorySearchWrapper.style.display = 'none';
+        dailyChallengeTitle.style.display = 'block';
         populateDateDropdown();
         if (currentDate) loadDailyChallengeLeaderboardForDate(currentDate);
       } else {
         dateSelector.classList.remove('active');
+        categorySearchWrapper.style.display = 'block';
+        dailyChallengeTitle.style.display = 'none';
         if (currentCategory) {
           loadLeaderboard(currentCategory);
         }
@@ -463,21 +472,34 @@
       return;
     }
 
-    // Get category ID from the current selected category
-    const categoryKey = currentCategory ? currentCategory.toLowerCase() : null;
-    
-    if (!categoryKey) {
-      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Please select a category first</td></tr>`;
+    // Get the daily challenge for this date
+    const { data: dailyChallenge, error: challengeError } = await supabase
+      .from('daily_challenges')
+      .select('category_id')
+      .eq('challenge_date', date)
+      .single();
+
+    if (challengeError || !dailyChallenge) {
+      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ No daily challenge found for this date</td></tr>`;
+      dailyChallengeTitle.textContent = '';
       return;
     }
 
+    const categoryId = dailyChallenge.category_id;
+
+    // Get category name from CATEGORY_ID_MAP
     const { CATEGORY_ID_MAP } = await import('./js/top10-categories-loader.js');
-    const categoryId = CATEGORY_ID_MAP[categoryKey];
+    const categoryKey = Object.keys(CATEGORY_ID_MAP).find(key => CATEGORY_ID_MAP[key] === categoryId);
     
-    if (!categoryId) {
-      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Category not available for Daily Challenge</td></tr>`;
+    if (!categoryKey) {
+      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Category not found</td></tr>`;
+      dailyChallengeTitle.textContent = '';
       return;
     }
+
+    // Update title with category name
+    const displayName = displayNameMap[categoryKey] || formatCategoryName(categoryKey);
+    dailyChallengeTitle.textContent = `Daily Challenge: ${displayName}`;
 
     console.log('Loading Daily Challenge for:', { date, categoryKey, categoryId });
 
