@@ -631,8 +631,7 @@
             Select Date:
           </label>
           <select id="dateSelector" class="date-selector">
-            <option value="all">All Time</option>
-            <!-- Will be populated with dates dynamically -->
+            <!-- Will be populated with dates dynamically (today + last 30 days) -->
           </select>
         </div>
 
@@ -684,13 +683,15 @@
       panelLeaderboard.classList.add("active");
       panelSignup.classList.remove("active");
       
-      // Load leaderboard data when tab is shown
-      loadLeaderboardData();
-      
       // Populate date selector if not already done
       const dateSelector = document.getElementById('dateSelector');
-      if (dateSelector.options.length === 1) { // Only "All Time" option
+      if (dateSelector.options.length === 0) {
         populateDateSelector();
+        // Load leaderboard after dates are populated
+        setTimeout(() => loadLeaderboardData(), 100);
+      } else {
+        // Load leaderboard data when tab is shown
+        loadLeaderboardData();
       }
     }
 
@@ -718,7 +719,7 @@
 
     // Function to load leaderboard data from API
     let currentMetric = 'placement'; // Default metric
-    let currentDate = 'all'; // Default to all time
+    let currentDate = ''; // Will be set to today's date
 
     async function loadLeaderboardData() {
       const listEl = document.getElementById("leaderboardList");
@@ -728,17 +729,16 @@
         // Show loading state
         listEl.innerHTML = '<li style="padding: 2rem; text-align: center; color: #666;">Loading leaderboard...</li>';
         
-        // Build API URL with filters
+        // Build API URL with filters (date is always required now)
         let url = API_URL;
         const params = new URLSearchParams();
         
-        if (currentDate !== 'all') {
-          params.append('date', currentDate);
-        }
+        // Always include date filter
+        params.append('date', currentDate);
         
-        if (params.toString()) {
-          url += '?' + params.toString();
-        }
+        url += '?' + params.toString();
+        
+        console.log('🔍 Fetching from:', url);
         
         // Fetch data from API
         const response = await fetch(url);
@@ -833,11 +833,10 @@
       const dateSelector = document.getElementById('dateSelector');
       
       try {
-        // Fetch available dates from API (you'll need to add this endpoint)
-        // For now, we'll generate the last 30 days
+        // Generate today + last 30 days
         const today = new Date();
         
-        for (let i = 0; i < 30; i++) {
+        for (let i = 0; i < 31; i++) {
           const date = new Date(today);
           date.setDate(date.getDate() - i);
           
@@ -850,7 +849,13 @@
           
           const option = document.createElement('option');
           option.value = dateStr;
-          option.textContent = displayDate;
+          option.textContent = i === 0 ? 'Today' : displayDate;
+          
+          // Select today by default
+          if (i === 0) {
+            option.selected = true;
+            currentDate = dateStr;
+          }
           
           dateSelector.appendChild(option);
         }
