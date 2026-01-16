@@ -400,24 +400,24 @@
   let currentDate = null; // Track current date for daily challenge
   let currentCategory = null; // Track current category
 
-  // Display name mapping
+  // Display name mapping (matching daily-challenge.js)
   const displayNameMap = {
-    'temperature': 'Highest Temperature',
-    'precipitation': 'Rainfall',
+    'hightemp': 'Highest Temperature',
+    'rainfall': 'Annual Rainfall',
     'altitude': 'Highest Altitude',
     'gdp': 'GDP Per Capita',
     'population': 'Population',
-    'forest': 'Forest Cover',
-    'coastline': 'Longest Coastline',
+    'forest': 'Forest Coverage',
+    'coastline': 'Coastline Length',
     'olympic': 'Olympic Medals',
-    'cuisine': 'Cuisine',
-    'worldcup': 'World Cup Trophies',
-    'landmass': 'Land Mass',
+    'cuisine': 'Cuisine Popularity',
+    'worldcup': 'World Cup Wins',
+    'landmass': 'Landmass',
     'crimerate': 'Crime Rate',
-    'happiness': 'Happiness',
-    'passport': 'Passport Strength',
+    'happiness': 'Happiness Index',
+    'passport': 'Passport Power',
     'beer': 'Beer Consumption',
-    'nobelprize': 'Nobel Prize Winners',
+    'nobelprize': 'Nobel Prizes',
     'michelin': 'Michelin Restaurants',
     'bigmac': 'BigMac Index',
     'lifeexpectancy': 'Life Expectancy',
@@ -463,6 +463,49 @@
     loadDailyChallengeLeaderboardForDate(currentDate);
   });
 
+  // Seeded random function (same as daily-challenge.js)
+  function seededRandom(seed) {
+    const x = Math.sin(seed) * 10000;
+    return x - Math.floor(x);
+  }
+
+  // Get daily challenge for a specific date
+  function getDailyChallengeForDate(dateString) {
+    const date = new Date(dateString + 'T00:00:00Z'); // Parse as UTC
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth() + 1;
+    const day = date.getUTCDate();
+    
+    const seed = year * 10000 + month * 100 + day;
+    
+    // Game modes
+    const gameModes = ['classic', 'top10', 'vs'];
+    
+    // Categories
+    const top10ValidCategories = [
+      'population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
+      'passport', 'beer', 'nobelprize', 'hightemp', 'rainfall',
+      'crimerate', 'happiness','tourism', 'michelin', 'bigmac', 'lifeexpectancy'
+    ];
+    
+    const allCategories = [
+      'population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
+      'olympic', 'worldcup', 'passport', 'beer', 'nobelprize', 
+      'hightemp', 'rainfall', 'crimerate', 'happiness', 'cuisine','tourism', 'michelin', 'bigmac', 'lifeexpectancy'
+    ];
+    
+    // Pick mode
+    const modeIndex = Math.floor(seededRandom(seed) * gameModes.length);
+    const selectedMode = gameModes[modeIndex];
+    
+    // Pick category
+    const validCategories = selectedMode === 'top10' ? top10ValidCategories : allCategories;
+    const categoryIndex = Math.floor(seededRandom(seed + 1000) * validCategories.length);
+    const selectedCategory = validCategories[categoryIndex];
+    
+    return { mode: selectedMode, category: selectedCategory };
+  }
+
   // Load Daily Challenge Leaderboard for a specific date
   async function loadDailyChallengeLeaderboardForDate(date) {
     leaderboardBody.innerHTML = `<tr><td colspan="4">Loading...</td></tr>`;
@@ -472,36 +515,27 @@
       return;
     }
 
-    // Get the daily challenge for this date
-    const { data: dailyChallenge, error: challengeError } = await supabase
-      .from('daily_challenges')
-      .select('category_id')
-      .eq('challenge_date', date)
-      .single();
+    // Get the daily challenge for this date using deterministic algorithm
+    const dailyChallenge = getDailyChallengeForDate(date);
+    const categoryKey = dailyChallenge.category;
+    const modeKey = dailyChallenge.mode;
 
-    if (challengeError || !dailyChallenge) {
-      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ No daily challenge found for this date</td></tr>`;
-      dailyChallengeTitle.textContent = '';
-      return;
-    }
-
-    const categoryId = dailyChallenge.category_id;
-
-    // Get category name from CATEGORY_ID_MAP
+    // Get category ID from CATEGORY_ID_MAP
     const { CATEGORY_ID_MAP } = await import('./js/top10-categories-loader.js');
-    const categoryKey = Object.keys(CATEGORY_ID_MAP).find(key => CATEGORY_ID_MAP[key] === categoryId);
+    const categoryId = CATEGORY_ID_MAP[categoryKey];
     
-    if (!categoryKey) {
+    if (!categoryId) {
       leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Category not found</td></tr>`;
       dailyChallengeTitle.textContent = '';
       return;
     }
 
-    // Update title with category name
+    // Update title with mode and category name
+    const modeNames = { classic: 'Classic', top10: 'Top 10', vs: 'VS' };
     const displayName = displayNameMap[categoryKey] || formatCategoryName(categoryKey);
-    dailyChallengeTitle.textContent = `Daily Challenge: ${displayName}`;
+    dailyChallengeTitle.textContent = `Daily Challenge: ${modeNames[modeKey]} - ${displayName}`;
 
-    console.log('Loading Daily Challenge for:', { date, categoryKey, categoryId });
+    console.log('Loading Daily Challenge for:', { date, categoryKey, categoryId, mode: modeKey });
 
     // ✅ OPTIMIZED: Join users table in one query (explicit foreign key)
     const { data: scores, error } = await supabase
