@@ -11,6 +11,59 @@
   <link rel="stylesheet" href="css/game-modes.css" />
   <link rel="stylesheet" href="css/home.css" />
   <link rel="stylesheet" href="css/mode-selector.css" />
+  <style>
+    /* Pagination Styles */
+    .pagination-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin: 30px 0;
+      padding: 20px;
+    }
+
+    .pagination-btn {
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      color: white;
+      font-family: 'Rubik', sans-serif;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .pagination-btn:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .pagination-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .pagination-btn.active {
+      background: rgba(74, 144, 226, 0.6);
+      border-color: rgba(74, 144, 226, 0.8);
+    }
+
+    .page-number {
+      min-width: 45px;
+      padding: 10px 15px;
+    }
+
+    .page-info {
+      color: rgba(255, 255, 255, 0.8);
+      font-family: 'Rubik', sans-serif;
+      font-size: 14px;
+      margin: 0 10px;
+    }
+  </style>
 </head>
 
 <body>
@@ -69,247 +122,208 @@
 </div>
 
     <div class="categories-grid" id="categoriesGrid" style="pointer-events: none; opacity: 0.6;">
-
-      <!-- FREE CATEGORIES -->
-      <div class="category-card" data-category="population" data-display="Population" data-emoji="👥"
-         style="background-image:url('images/categories/population.jpg');">
-        <div class="category-info">
-          <span class="emoji">👥</span>
-          <h3>Population</h3>
-        </div>
-      </div>
-
-      <div class="category-card" data-category="gdp" data-display="GDP Per Capita" data-emoji="💵"
-         style="background-image:url('images/categories/gdp.jpg');">
-        <div class="category-info">
-          <span class="emoji">💵</span>
-          <h3>GDP Per Capita</h3>
-        </div>
-      </div>
-
-      <div class="category-card" data-category="altitude" data-display="Highest Altitude" data-emoji="🏔️"
-         style="background-image:url('images/categories/altitude.jpg');">
-        <div class="category-info">
-          <span class="emoji">🏔️</span>
-          <h3>Highest Altitude</h3>
-        </div>
-      </div>
-
-      <div class="category-card" data-category="forest" data-display="Forest Cover" data-emoji="🌲"
-         style="background-image:url('images/categories/forest.jpg');">
-        <div class="category-info">
-          <span class="emoji">🌲</span>
-          <h3>Forest Cover</h3>
-        </div>
-      </div>
-
-      <!-- PREMIUM CATEGORIES -->
-   <div class="category-card" data-premium="true" data-category="coastline" data-display="Longest Coastline" data-emoji="🌊"
-         style="background-image:url('images/categories/coastline.jpg');">
-        <div class="category-info">
-          <span class="emoji">🌊</span>
-          <h3>Longest Coastline</h3>
-        </div>
-      </div>
-
-      <div class="category-card" data-premium="true" data-category="olympic" data-display="Olympic Medals" data-emoji="🥇"
-         style="background-image:url('images/categories/olympic.jpg');">
-        <div class="category-info">
-          <span class="emoji">🥇</span>
-          <h3>Olympic Medals</h3>
-        </div>
-      </div>
-
-
-      <div class="category-card" data-premium="true" data-category="cuisine" data-display="Cuisine" data-emoji="🍽️"
-         style="background-image:url('images/categories/cuisine.jpg');">
-        <div class="category-info">
-          <span class="emoji">🍽️</span>
-          <h3>Cuisine</h3>
-        </div>
-      </div>
-
-      <div class="category-card" data-premium="true" data-category="worldcup" data-display="World Cup Trophies" data-emoji="⚽"
-         style="background-image:url('images/categories/worldcup.jpg');">
-        <div class="category-info">
-          <span class="emoji">⚽️</span>
-          <h3>World Cup Trophies</h3>
-        </div>
-      </div>
-
-      <div class="category-card" data-premium="true" data-category="landmass" data-display="Land Mass" data-emoji="🌍"
-         style="background-image:url('images/categories/landmass.jpg');">
-        <div class="category-info">
-          <span class="emoji">🌍</span>
-          <h3>Land Mass</h3>
-        </div>
-      </div>
-
-      <div class="category-card" data-premium="true" data-category="crimerate" data-display="Crime Rate" data-emoji="🚨"
-         style="background-image:url('images/categories/crimerate.jpg');">
-        <div class="category-info">
-          <span class="emoji">🚨</span>
-          <h3>Crime Rate</h3>
-        </div>
-      </div>
-
-      <div class="category-card" data-premium="true" data-category="happiness" data-display="Happiness" data-emoji="😊"
-         style="background-image:url('images/categories/happiness.jpg');">
-        <div class="category-info">
-          <span class="emoji">☺️</span>
-          <h3>Happiness</h3>
-        </div>
-      </div>
-
-      <div class="category-card" data-premium="true" data-category="passport" data-display="Passport Strength" data-emoji="🛂"
-         style="background-image:url('images/categories/passport.jpg');">
-        <div class="category-info">
-          <span class="emoji">🛂</span>
-          <h3>Passport Strength</h3>
-        </div>
-      </div>
-
-      <div class="category-card" data-premium="true" data-category="beer" data-display="Beer Consumption" data-emoji="🍺"
-         style="background-image:url('images/categories/beer.jpg');">
-        <div class="category-info">
-          <span class="emoji">🍺</span>
-          <h3>Beer Consumption</h3>
-        </div>
-      </div>
-
-      <div class="category-card" data-premium="true" data-category="nobelprize" data-display="Nobel Prize Winners" data-emoji="🏆"
-         style="background-image:url('images/categories/nobelprize.jpg');">
-        <div class="category-info">
-          <span class="emoji">🕊️</span>
-          <h3>Noble Prize Winners</h3>
-        </div>
-      </div>
-
-      <div class="category-card" data-premium="true" data-category="temperature" data-display="Highest Temperature" data-emoji="🌡️"
-         style="background-image:url('images/categories/hightemp.jpg');">
-        <div class="category-info">
-          <span class="emoji">☀️</span>
-          <h3>Highest Temperature</h3>
-        </div>
-      </div>
-
-      <div class="category-card" data-premium="true" data-category="precipitation" data-display="Rainfall" data-emoji="🌧️"
-         style="background-image:url('images/categories/rainfall.jpg');">
-        <div class="category-info">
-          <span class="emoji">🌧️</span>
-          <h3>Rainfall</h3>
-        </div>
-      </div>
-
-    <div class="category-card" data-premium="true" data-category="tourism" data-display="Tourist Visits" data-emoji="✈️"
-     style="background-image:url('images/categories/tourism.jpg');">
-  <div class="category-info">
-    <span class="emoji">✈️</span>
-    <h3>Tourist Visits</h3>
-  </div>
-</div>
-
-  <div class="category-card" data-premium="true" data-category="michelin" data-display="Michelin Restaurants" data-emoji="⭐"
-     style="background-image:url('images/categories/michelin.jpg');">
-  <div class="category-info">
-    <span class="emoji">⭐</span>
-    <h3>Michelin Restaurants</h3>
-  </div>
-</div>
-
-<div class="category-card" data-premium="true" data-category="bigmac" data-display="BigMac Index" data-emoji="🍔"
-     style="background-image:url('images/categories/bigmac.jpg');">
-  <div class="category-info">
-    <span class="emoji">🍔</span>
-    <h3>BigMac Index</h3>
-  </div>
-</div>
-
-<div class="category-card" data-premium="true" data-category="lifeexpectancy" data-display="Life Expectancy" data-emoji="🏥"
-     style="background-image:url('images/categories/lifeexpectancy.jpg');">
-  <div class="category-info">
-    <span class="emoji">🏥</span>
-    <h3>Life Expectancy</h3>
-  </div>
-</div>
-</div>
-
+      <!-- Categories will be dynamically rendered here -->
     </div>
+
+    <!-- Pagination Controls -->
+    <div class="pagination-container" id="paginationContainer">
+      <button class="pagination-btn" id="prevBtn">← Previous</button>
+      <span class="page-info" id="pageInfo">Page 1 of 2</span>
+      <button class="pagination-btn page-number" data-page="1">1</button>
+      <button class="pagination-btn page-number" data-page="2">2</button>
+      <button class="pagination-btn" id="nextBtn">Next →</button>
+    </div>
+
   </section>
-
-  <footer class="home-footer">
-  <div class="footer-socials">
-    <div class="icon-row">
-      <a href="https://www.instagram.com/geo_ranks/" target="_blank" rel="noopener">
-        <img src="assets/instagram.png" alt="Instagram" />
-      </a>
-      <div class="divider"></div>
-      <a href="https://www.tiktok.com/@georanks" target="_blank" rel="noopener">
-        <img src="assets/tik-tok.png" alt="TikTok" />
-      </a>
-      <div class="divider"></div>
-      <a href="https://www.youtube.com/channel/UC8jrsBpCn09u0mHQle_O3Rw" target="_blank" rel="noopener">
-        <img src="assets/youtube.png" alt="YouTube" />
-      </a>
-      <div class="divider"></div>
-      <a href="https://x.com/Kieroncroo66687" target="_blank" rel="noopener">
-        <img src="assets/x.png" alt="X" />
-      </a>
-    </div>
-    <p>© 2025 GeoRanks</p>
-  </div>
-</footer>
-
 </div>
 
-<!-- ============================= -->
-<!-- ========== SCRIPTS ========== -->
-<!-- ============================= -->
+<script>
+// All categories data (Page 1 + Page 2 placeholders)
+const allCategoriesData = [
+  // PAGE 1 - Original 20 categories
+  { category: "population", display: "Population", emoji: "👥", premium: false, image: "population.jpg" },
+  { category: "gdp", display: "GDP Per Capita", emoji: "💵", premium: false, image: "gdp.jpg" },
+  { category: "altitude", display: "Highest Altitude", emoji: "🏔️", premium: false, image: "altitude.jpg" },
+  { category: "forest", display: "Forest Cover", emoji: "🌲", premium: false, image: "forest.jpg" },
+  { category: "coastline", display: "Longest Coastline", emoji: "🌊", premium: true, image: "coastline.jpg" },
+  { category: "olympic", display: "Olympic Medals", emoji: "🥇", premium: true, image: "olympic.jpg" },
+  { category: "cuisine", display: "Cuisine", emoji: "🍽️", premium: true, image: "cuisine.jpg" },
+  { category: "worldcup", display: "World Cup Trophies", emoji: "⚽", premium: true, image: "worldcup.jpg" },
+  { category: "landmass", display: "Land Mass", emoji: "🌍", premium: true, image: "landmass.jpg" },
+  { category: "crimerate", display: "Crime Rate", emoji: "🚨", premium: true, image: "crimerate.jpg" },
+  { category: "happiness", display: "Happiness", emoji: "😊", premium: true, image: "happiness.jpg" },
+  { category: "passport", display: "Passport Strength", emoji: "🛂", premium: true, image: "passport.jpg" },
+  { category: "beer", display: "Beer Consumption", emoji: "🍺", premium: true, image: "beer.jpg" },
+  { category: "nobelprize", display: "Nobel Prize Winners", emoji: "🏆", premium: true, image: "nobelprize.jpg" },
+  { category: "temperature", display: "Highest Temperature", emoji: "🌡️", premium: true, image: "hightemp.jpg" },
+  { category: "precipitation", display: "Rainfall", emoji: "🌧️", premium: true, image: "rainfall.jpg" },
+  { category: "tourism", display: "Tourist Visits", emoji: "✈️", premium: true, image: "tourism.jpg" },
+  { category: "michelin", display: "Michelin Restaurants", emoji: "⭐", premium: true, image: "michelin.jpg" },
+  { category: "bigmac", display: "BigMac Index", emoji: "🍔", premium: true, image: "bigmac.jpg" },
+  { category: "lifeexpectancy", display: "Life Expectancy", emoji: "💚", premium: true, image: "lifeexpectancy.jpg" },
+  
+  // PAGE 2 - Placeholder categories (you can update these later)
+  { category: "placeholder1", display: "Internet Speed", emoji: "🌐", premium: true, image: "population.jpg" },
+  { category: "placeholder2", display: "Coffee Consumption", emoji: "☕", premium: true, image: "gdp.jpg" },
+  { category: "placeholder3", display: "Renewable Energy", emoji: "♻️", premium: true, image: "altitude.jpg" },
+  { category: "placeholder4", display: "Education Index", emoji: "📚", premium: true, image: "forest.jpg" },
+  { category: "placeholder5", display: "Healthcare Quality", emoji: "🏥", premium: true, image: "coastline.jpg" },
+  { category: "placeholder6", display: "Military Strength", emoji: "🪖", premium: true, image: "olympic.jpg" },
+  { category: "placeholder7", display: "Space Launches", emoji: "🚀", premium: true, image: "cuisine.jpg" },
+  { category: "placeholder8", display: "Nuclear Power", emoji: "⚛️", premium: true, image: "worldcup.jpg" },
+  { category: "placeholder9", display: "Wine Production", emoji: "🍷", premium: true, image: "landmass.jpg" },
+  { category: "placeholder10", display: "UNESCO Sites", emoji: "🏛️", premium: true, image: "crimerate.jpg" },
+  { category: "placeholder11", display: "Car Production", emoji: "🚗", premium: true, image: "happiness.jpg" },
+  { category: "placeholder12", display: "Democracy Index", emoji: "🗳️", premium: true, image: "passport.jpg" },
+  { category: "placeholder13", display: "Tech Startups", emoji: "💻", premium: true, image: "beer.jpg" },
+  { category: "placeholder14", display: "Solar Energy", emoji: "☀️", premium: true, image: "nobelprize.jpg" },
+  { category: "placeholder15", display: "Food Security", emoji: "🌾", premium: true, image: "hightemp.jpg" },
+  { category: "placeholder16", display: "Clean Water", emoji: "💧", premium: true, image: "rainfall.jpg" },
+  { category: "placeholder17", display: "Air Quality", emoji: "💨", premium: true, image: "tourism.jpg" },
+  { category: "placeholder18", display: "Bridge Count", emoji: "🌉", premium: true, image: "michelin.jpg" },
+  { category: "placeholder19", display: "Museum Visits", emoji: "🎨", premium: true, image: "bigmac.jpg" },
+  { category: "placeholder20", display: "Book Publishing", emoji: "📖", premium: true, image: "lifeexpectancy.jpg" }
+];
 
-<!-- LOCKED CATEGORY LOGIC -->
+const CATEGORIES_PER_PAGE = 20;
+let currentPage = 1;
+
+function renderCategories(page) {
+  const start = (page - 1) * CATEGORIES_PER_PAGE;
+  const end = start + CATEGORIES_PER_PAGE;
+  const pageCategories = allCategoriesData.slice(start, end);
+  
+  const categoriesGrid = document.getElementById('categoriesGrid');
+  categoriesGrid.innerHTML = pageCategories.map(cat => `
+    <div class="category-card" 
+         data-category="${cat.category}" 
+         data-display="${cat.display}" 
+         data-emoji="${cat.emoji}"
+         ${cat.premium ? 'data-premium="true"' : ''}
+         style="background-image:url('images/categories/${cat.image}');">
+      <div class="category-info">
+        <span class="emoji">${cat.emoji}</span>
+        <h3>${cat.display}</h3>
+      </div>
+    </div>
+  `).join('');
+  
+  updatePagination();
+  
+  // Scroll to top smoothly
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updatePagination() {
+  const totalPages = Math.ceil(allCategoriesData.length / CATEGORIES_PER_PAGE);
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const pageInfo = document.getElementById('pageInfo');
+  const pageButtons = document.querySelectorAll('.page-number');
+  
+  // Update page info
+  pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+  
+  // Update button states
+  prevBtn.disabled = currentPage === 1;
+  nextBtn.disabled = currentPage === totalPages;
+  
+  // Update page number buttons
+  pageButtons.forEach(btn => {
+    const page = parseInt(btn.dataset.page);
+    if (page === currentPage) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+}
+
+// Pagination event listeners
+document.getElementById('prevBtn').addEventListener('click', () => {
+  if (currentPage > 1) {
+    currentPage--;
+    renderCategories(currentPage);
+  }
+});
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  const totalPages = Math.ceil(allCategoriesData.length / CATEGORIES_PER_PAGE);
+  if (currentPage < totalPages) {
+    currentPage++;
+    renderCategories(currentPage);
+  }
+});
+
+document.querySelectorAll('.page-number').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentPage = parseInt(btn.dataset.page);
+    renderCategories(currentPage);
+  });
+});
+
+// Initial render
+renderCategories(currentPage);
+</script>
+
 <script type="module">
-  import { supabase } from './js/supabase-client.js';
+import { supabase } from './js/supabase-client.js';
+
+async function checkPremiumStatus() {
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (!session || !session.user) {
+    // Not signed in → lock premium cards
+    document.querySelectorAll('.category-card[data-premium="true"]').forEach(card => {
+      card.classList.add('locked');
+    });
+    return;
+  }
+
+  // Signed in → check premium
+  const { data: profile } = await supabase
+    .from('users')
+    .select('is_premium')
+    .eq('id', session.user.id)
+    .single();
+
+  if (!profile?.is_premium) {
+    document.querySelectorAll('.category-card[data-premium="true"]').forEach(card => {
+      card.classList.add('locked');
+    });
+  }
+}
+
+// Check premium status after categories are rendered
+setTimeout(checkPremiumStatus, 100);
+
+// Premium modal logic
+document.addEventListener('click', async (e) => {
+  const card = e.target.closest('.category-card');
+  if (!card) return;
+
+  const isPremium = card.dataset.premium === "true";
+  if (!isPremium) return; // Free category, let normal flow happen
 
   const { data: { session } } = await supabase.auth.getSession();
 
-  let isPremium = false;
-
-  if (session && session.user) {
-    const { data: profile } = await supabase
-      .from("users")
-      .select("is_premium")
-      .eq("id", session.user.id)
-      .single();
-    isPremium = profile?.is_premium === true;
+  // Not signed in → redirect to signin
+  if (!session || !session.user) {
+    if (confirm("Sign in to unlock premium categories!")) {
+      window.location.href = "signin.html";
+    }
+    return;
   }
 
-  const premiumCards = document.querySelectorAll("[data-premium='true']");
+  // Signed in → check if premium
+  const { data: profile } = await supabase
+    .from('users')
+    .select('is_premium')
+    .eq('id', session.user.id)
+    .single();
 
-  if (!isPremium) {
-    premiumCards.forEach(card => {
-      card.classList.add("locked");
-
-      // Add golden lock
-      let lock = document.createElement("div");
-      lock.className = "lock-icon";
-      lock.textContent = "🔒";
-      card.appendChild(lock);
-
-      // On click: check auth status and show appropriate response
-      card.addEventListener("click", async (e) => {
-  e.preventDefault();
-
-  const { data: { session: innerSession } } = await supabase.auth.getSession();
-
-  if (!innerSession) {
-    // NOT signed in → show upgrade modal (SAME AS INDEX.HTML)
-    const modal = document.getElementById("premiumModal");
-    if (modal) {
-      modal.classList.remove("hidden");
-      modal.scrollIntoView({ behavior: "smooth", block: "center" });
-    } else {
-      window.location.href = "premium.html";
-    }
+  if (profile?.is_premium) {
+    // Has premium → allow through
     return;
   }
 
@@ -322,15 +336,13 @@
     window.location.href = "premium.html";
   }
 });
-    });
-  }
-  
-  // Enable category grid after premium check is complete
-  const categoriesGrid = document.getElementById('categoriesGrid');
-  if (categoriesGrid) {
-    categoriesGrid.style.pointerEvents = 'auto';
-    categoriesGrid.style.opacity = '1';
-  }
+
+// Enable category grid after premium check is complete
+const categoriesGrid = document.getElementById('categoriesGrid');
+if (categoriesGrid) {
+  categoriesGrid.style.pointerEvents = 'auto';
+  categoriesGrid.style.opacity = '1';
+}
 </script>
 
 <!-- PREMIUM MODAL BUTTONS -->
@@ -420,6 +432,27 @@ overlay.addEventListener("click", (e) => {
     { name: "Rainfall", slug: "rainfall" },
     { name: "Tourist Visits", slug: "tourism" },
     { name: "World Cup Trophies", slug: "worldcup" },
+    // Page 2 placeholders (update search when you update categories)
+    { name: "Internet Speed", slug: "placeholder1" },
+    { name: "Coffee Consumption", slug: "placeholder2" },
+    { name: "Renewable Energy", slug: "placeholder3" },
+    { name: "Education Index", slug: "placeholder4" },
+    { name: "Healthcare Quality", slug: "placeholder5" },
+    { name: "Military Strength", slug: "placeholder6" },
+    { name: "Space Launches", slug: "placeholder7" },
+    { name: "Nuclear Power", slug: "placeholder8" },
+    { name: "Wine Production", slug: "placeholder9" },
+    { name: "UNESCO Sites", slug: "placeholder10" },
+    { name: "Car Production", slug: "placeholder11" },
+    { name: "Democracy Index", slug: "placeholder12" },
+    { name: "Tech Startups", slug: "placeholder13" },
+    { name: "Solar Energy", slug: "placeholder14" },
+    { name: "Food Security", slug: "placeholder15" },
+    { name: "Clean Water", slug: "placeholder16" },
+    { name: "Air Quality", slug: "placeholder17" },
+    { name: "Bridge Count", slug: "placeholder18" },
+    { name: "Museum Visits", slug: "placeholder19" },
+    { name: "Book Publishing", slug: "placeholder20" }
   ];
 
   const searchTrigger = document.getElementById('categorySearchInput');
@@ -499,30 +532,22 @@ searchModal?.addEventListener('click', (e) => {
   // Make openModeSelector globally accessible
   window.openModeSelector = openModeSelector;
 
-  // Add click handlers to all category cards
-  document.addEventListener('DOMContentLoaded', () => {
-    const categoryCards = document.querySelectorAll('.category-card');
+  // Add click handlers to all category cards (delegated event listener)
+  document.addEventListener('click', (e) => {
+    const card = e.target.closest('.category-card');
+    if (!card) return;
     
-    categoryCards.forEach(card => {
-      card.addEventListener('click', (e) => {
-        // Don't open modal if card is locked (premium)
-        if (card.classList.contains('locked')) {
-          return; // Let the existing lock modal handle it
-        }
+    // Don't open modal if card is locked (premium)
+    if (card.classList.contains('locked')) {
+      return; // Let the existing lock modal handle it
+    }
 
-        const category = card.dataset.category;
-        const displayName = card.dataset.display;
-        const emoji = card.dataset.emoji;
+    const category = card.dataset.category;
+    const displayName = card.dataset.display;
+    const emoji = card.dataset.emoji;
 
-        // Open mode selector modal
-        openModeSelector(category, displayName, emoji);
-      });
-
-      // Add cursor pointer style
-      if (!card.classList.contains('locked')) {
-        card.style.cursor = 'pointer';
-      }
-    });
+    // Open mode selector modal
+    openModeSelector(category, displayName, emoji);
   });
 </script>
 
