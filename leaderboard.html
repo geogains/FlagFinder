@@ -481,13 +481,13 @@
 
     console.log('Loading Daily Challenge for:', { date, categoryKey, categoryId });
 
-    // ✅ OPTIMIZED: Join users table in one query
+    // ✅ OPTIMIZED: Join users table in one query (explicit foreign key)
     const { data: scores, error } = await supabase
       .from("daily_challenge_scores")
       .select(`
         score,
         user_id,
-        users!inner(id, username, avatar_url, is_premium)
+        users!daily_challenge_scores_user_id_fkey(id, username, avatar_url, is_premium)
       `)
       .eq("category_id", categoryId)
       .eq("played_date", date)
@@ -615,7 +615,7 @@
       return;
     }
 
-    // ✅ OPTIMIZED: Join users table in one query
+    // ✅ OPTIMIZED: Join users table in one query (explicit foreign key)
     const { data: scores, error } = await supabase
       .from("top10_best_scores")
       .select(`
@@ -623,7 +623,7 @@
         correct_count,
         wrong_count,
         user_id,
-        users!inner(id, username, avatar_url, is_premium)
+        users!top10_best_scores_user_id_fkey(id, username, avatar_url, is_premium)
       `)
       .eq("category_id", categoryId)
       .order("score", { ascending: false })
@@ -649,7 +649,7 @@
       return;
     }
 
-    // ✅ OPTIMIZED: Join users table in one query
+    // ✅ OPTIMIZED: Join users table in one query (explicit foreign key)
     const { data: scores, error } = await supabase
       .from("vs_scores")
       .select(`
@@ -658,7 +658,7 @@
         accuracy,
         user_id,
         category_id,
-        users!inner(id, username, avatar_url, is_premium)
+        users!vs_scores_user_id_fkey(id, username, avatar_url, is_premium)
       `)
       .eq("category_id", categoryId)
       .order("score", { ascending: false });
