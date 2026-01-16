@@ -309,12 +309,14 @@
   </div>
   <div class="hamburger-menu">
     <div class="menu-icon" id="menuToggle">
-      <span></span><span></span><span></span>
+      <span></span>
+      <span></span>
+      <span></span>
     </div>
   </div>
 </header>
 
-<!-- ✅ Sliding Menu -->
+<!-- ✅ Hamburger Menu -->
 <div class="menu-overlay" id="menuOverlay">
   <div class="menu-panel">
     <h2>Menu</h2>
@@ -330,45 +332,34 @@
   </div>
 </div>
 
-<!-- ✅ Leaderboard Content -->
-<main class="leaderboard-container fade-in">
-  <h1 class="leaderboard-title">🏆 Leaderboard</h1>
+<div class="leaderboard-container">
+  <h1>🏆 Leaderboard</h1>
 
-  <!-- Mode Toggle (4 tabs) -->
+  <!-- Mode Toggle: Classic | Daily Challenge | Top 10 | VS -->
   <div class="mode-toggle">
-    <button class="mode-btn active" id="classicModeBtn">Classic</button>
-    <button class="mode-btn" id="dailyChallengeModeBtn">Daily Challenge</button>
-    <button class="mode-btn" id="top10ModeBtn">Top 10</button>
-    <button class="mode-btn" id="vsModeBtn">VS</button>
+    <button class="mode-btn active" data-mode="classic">Classic</button>
+    <button class="mode-btn" data-mode="daily-challenge">Daily Challenge</button>
+    <button class="mode-btn" data-mode="top10">Top 10</button>
+    <button class="mode-btn" data-mode="vs">VS</button>
   </div>
 
-  <!-- Date Selector (only for Daily Challenge) -->
+  <!-- Date Selector (Only for Daily Challenge) -->
   <div class="date-selector" id="dateSelector">
-    <select id="dateDropdown">
-      <option value="">Select Date...</option>
-    </select>
+    <label for="dateDropdown">Select Date:</label>
+    <select id="dateDropdown"></select>
   </div>
 
-  <!-- Category Display (for Daily Challenge mode) -->
-  <div id="dailyChallengeCategoryDisplay" style="display: none; text-align: center; margin: 15px 0;">
-    <p style="font-size: 1.2rem; margin: 5px 0;">
-      <strong id="dailyChallengeModeDisplay" style="color: #ff6f61;"></strong>
-    </p>
-    <p style="font-size: 1.1rem; color: #6b7280; font-weight: 500;">
-      Category: <strong id="dailyChallengeCategoryName" style="color: #0d315a;"></strong>
-    </p>
-  </div>
-
-  <div class="search-bar-wrapper" id="categorySearchWrapper">
+  <!-- Category Search Bar -->
+  <div class="search-bar-wrapper">
     <input type="text" id="categorySearchInput" placeholder="🔍 Search Categories..." readonly />
   </div>
 
-  <table class="leaderboard-table" id="leaderboardTable">
+  <table class="leaderboard-table">
     <thead>
       <tr>
         <th>Rank</th>
-        <th></th> 
-        <th>User</th>
+        <th>Avatar</th>
+        <th>Username</th>
         <th>Score</th>
       </tr>
     </thead>
@@ -376,236 +367,128 @@
       <tr><td colspan="4">Loading...</td></tr>
     </tbody>
   </table>
-  <a href="index.html" class="back-home">Home</a>
-</main>
 
-<footer class="home-footer">
-  <div class="footer-socials">
-    <div class="icon-row">
-      <a href="https://www.instagram.com/geo_ranks/" target="_blank" rel="noopener">
-        <img src="assets/instagram.png" alt="Instagram" />
-      </a>
-      <div class="divider"></div>
-      <a href="https://www.tiktok.com/@georanks" target="_blank" rel="noopener">
-        <img src="assets/tik-tok.png" alt="TikTok" />
-      </a>
-      <div class="divider"></div>
-      <a href="https://www.youtube.com/channel/UC8jrsBpCn09u0mHQle_O3Rw" target="_blank" rel="noopener">
-        <img src="assets/youtube.png" alt="YouTube" />
-      </a>
-      <div class="divider"></div>
-      <a href="https://x.com/Kieroncroo66687" target="_blank" rel="noopener">
-        <img src="assets/x.png" alt="X" />
-      </a>
-    </div>
-    <p>© 2025 GeoRanks</p>
-  </div>
-</footer>
+  <a href="index.html" class="back-home">🏠 Return Home</a>
+</div>
 
-<!-- 🔍 Category Search Modal -->
+<!-- 🔍 Search Modal -->
 <div id="categorySearchModal" class="search-modal hidden">
   <div class="search-modal-content glass-box">
     <div class="search-header">
       <input type="text" id="liveSearchInput" placeholder="Start typing to search..." autofocus />
       <button class="close-search-modal" id="closeSearchModal">×</button>
     </div>
-    <div class="search-results" id="searchResults"></div>
+    <div class="search-results" id="searchResults">
+      <!-- Dynamic Category Items -->
+    </div>
   </div>
 </div>
 
-<!-- 🌐 Main Leaderboard Logic -->
 <script type="module">
   import { supabase } from './js/supabase-client.js';
-  import { CATEGORY_ID_MAP } from './js/top10-categories-loader.js';
 
   const leaderboardBody = document.getElementById("leaderboardBody");
-  const classicModeBtn = document.getElementById("classicModeBtn");
-  const dailyChallengeModeBtn = document.getElementById("dailyChallengeModeBtn");
-  const top10ModeBtn = document.getElementById("top10ModeBtn");
-  const vsModeBtn = document.getElementById("vsModeBtn");
-  const dateSelector = document.getElementById("dateSelector");
   const dateDropdown = document.getElementById("dateDropdown");
-  const categorySearchWrapper = document.getElementById("categorySearchWrapper");
-  const dailyChallengeCategoryDisplay = document.getElementById("dailyChallengeCategoryDisplay");
-  const dailyChallengeCategoryName = document.getElementById("dailyChallengeCategoryName");
-  const dailyChallengeModeDisplay = document.getElementById("dailyChallengeModeDisplay");
+  const dateSelector = document.getElementById("dateSelector");
+  
+  let currentMode = 'classic'; // Track current mode
+  let currentDate = null; // Track current date for daily challenge
+  let currentCategory = null; // Track current category
 
-  let currentMode = 'classic'; // 'classic', 'daily-challenge', 'top10', or 'vs'
-  let currentCategory = null;
-  let currentDate = null;
-
+  // Display name mapping
   const displayNameMap = {
-    population: "Population",
-    gdp: "GDP Per Capita",
-    altitude: "Altitude",
-    forest: "Forest Cover",
-    coastline: "Coastline",
-    olympic: "Olympic Medals",
-    cuisine: "Cuisine",
-    worldcup: "World Cup Trophies",
-    landmass: "Land Mass",
-    crimerate: "Crime Rate",
-    happiness: "Happiness",
-    passport: "Passport Strength",
-    beer: "Beer Consumption",
-    nobelprize: "Nobel Prize Winners",
-    temperature: "Highest Temperature",
-    precipitation: "Rainfall"
+    'temperature': 'Highest Temperature',
+    'precipitation': 'Rainfall',
+    'altitude': 'Highest Altitude',
+    'gdp': 'GDP Per Capita',
+    'population': 'Population',
+    'forest': 'Forest Cover',
+    'coastline': 'Longest Coastline',
+    'olympic': 'Olympic Medals',
+    'cuisine': 'Cuisine',
+    'worldcup': 'World Cup Trophies',
+    'landmass': 'Land Mass',
+    'crimerate': 'Crime Rate',
+    'happiness': 'Happiness',
+    'passport': 'Passport Strength',
+    'beer': 'Beer Consumption',
+    'nobelprize': 'Nobel Prize Winners',
+    'michelin': 'Michelin Restaurants',
+    'bigmac': 'BigMac Index',
+    'lifeexpectancy': 'Life Expectancy',
+    'tourism': 'Tourist Visits'
   };
 
-  window.displayNameMap = displayNameMap;
+  function formatCategoryName(name) {
+    return name
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
 
-  window.formatCategoryName = function(category) {
-    if (!category) return "";
-    return category
-      .replace(/([A-Z])/g, " $1")
-      .replace(/_/g, " ")
-      .replace(/\b\w/g, (c) => c.toUpperCase())
-      .trim();
-  };
-
-  // Mode toggle handlers
-  // Classic Mode
-  classicModeBtn.addEventListener('click', () => {
-    currentMode = 'classic';
-    classicModeBtn.classList.add('active');
-    dailyChallengeModeBtn.classList.remove('active');
-    top10ModeBtn.classList.remove('active');
-    vsModeBtn.classList.remove('active');
-    dateSelector.classList.remove('active');
-    categorySearchWrapper.style.display = 'block';
-    dailyChallengeCategoryDisplay.style.display = 'none';
-    
-    if (currentCategory) loadLeaderboard(currentCategory);
+  // Mode toggle logic
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      currentMode = btn.dataset.mode;
+      
+      // Show/hide date selector for daily challenge
+      if (currentMode === 'daily-challenge') {
+        dateSelector.classList.add('active');
+        populateDateDropdown();
+        if (currentDate) loadDailyChallengeLeaderboardForDate(currentDate);
+      } else {
+        dateSelector.classList.remove('active');
+        if (currentCategory) {
+          loadLeaderboard(currentCategory);
+        }
+      }
+    });
   });
 
-  // Daily Challenge Mode (formerly Top 10)
-  dailyChallengeModeBtn.addEventListener('click', () => {
-    currentMode = 'daily-challenge';
-    dailyChallengeModeBtn.classList.add('active');
-    classicModeBtn.classList.remove('active');
-    top10ModeBtn.classList.remove('active');
-    vsModeBtn.classList.remove('active');
-    dateSelector.classList.add('active');
-    categorySearchWrapper.style.display = 'none';
-    dailyChallengeCategoryDisplay.style.display = 'block';
-    populateDateDropdown();
-    if (currentDate) loadDailyChallengeLeaderboardForDate(currentDate);
-  });
-
-  // Top 10 Mode (NEW - best scores per category)
-  top10ModeBtn.addEventListener('click', () => {
-    currentMode = 'top10';
-    top10ModeBtn.classList.add('active');
-    classicModeBtn.classList.remove('active');
-    dailyChallengeModeBtn.classList.remove('active');
-    vsModeBtn.classList.remove('active');
-    dateSelector.classList.remove('active');
-    categorySearchWrapper.style.display = 'block';
-    dailyChallengeCategoryDisplay.style.display = 'none';
-    
-    if (currentCategory) loadLeaderboard(currentCategory);
-  });
-
-  // VS Mode (NEW - best scores per category)
-  vsModeBtn.addEventListener('click', () => {
-    currentMode = 'vs';
-    vsModeBtn.classList.add('active');
-    classicModeBtn.classList.remove('active');
-    dailyChallengeModeBtn.classList.remove('active');
-    top10ModeBtn.classList.remove('active');
-    dateSelector.classList.remove('active');
-    categorySearchWrapper.style.display = 'block';
-    dailyChallengeCategoryDisplay.style.display = 'none';
-    
-    if (currentCategory) loadLeaderboard(currentCategory);
-  });
-
-  // Date dropdown handler
-  dateDropdown.addEventListener('change', (e) => {
+  // Date dropdown change handler
+  dateDropdown?.addEventListener('change', (e) => {
     currentDate = e.target.value;
-    if (currentDate) {
-      loadDailyChallengeLeaderboardForDate(currentDate);
-    }
+    loadDailyChallengeLeaderboardForDate(currentDate);
   });
 
-  // Load Top 10 for selected date (determines category automatically)
-  // Load Daily Challenge Leaderboard for selected date
+  // Load Daily Challenge Leaderboard for a specific date
   async function loadDailyChallengeLeaderboardForDate(date) {
     leaderboardBody.innerHTML = `<tr><td colspan="4">Loading...</td></tr>`;
-
-    // Import daily challenge utilities
-    const { getTodaysDailyChallenge, modeDisplayNames, categoryDisplayNames } = await import('./js/daily-challenge.js');
     
-    // Get the daily challenge for this date
-    // Note: This uses today's seed, but for historical dates we need a custom function
-    function getDailyChallengeForDate(dateString) {
-      const date = new Date(dateString + 'T00:00:00Z');
-      const year = date.getUTCFullYear();
-      const month = date.getUTCMonth() + 1;
-      const day = date.getUTCDate();
-      
-      const seed = year * 10000 + month * 100 + day;
-      
-      // Seeded random
-      const seededRandom = (s) => {
-        const x = Math.sin(s) * 10000;
-        return x - Math.floor(x);
-      };
-      
-      // Game modes
-      const gameModes = ['classic', 'top10', 'vs'];
-      const modeIndex = Math.floor(seededRandom(seed) * gameModes.length);
-      const selectedMode = gameModes[modeIndex];
-      
-      // Categories (use same list as daily-challenge.js)
-      const allCategories = [
-        'population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
-        'olympic', 'worldcup', 'passport', 'beer', 'nobelprize', 
-        'hightemp', 'rainfall', 'crimerate', 'happiness', 'cuisine', 'tourism', 'michelin', 'bigmac', 'lifeexpectancy'
-      ];
-      
-      const top10ValidCategories = [
-        'population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
-       'passport', 'beer', 'nobelprize', 'hightemp', 'rainfall',
-       'crimerate', 'happiness', 'tourism', 'michelin', 'bigmac', 'lifeexpectancy' 
-      ]; 
-      
-      let validCategories = selectedMode === 'top10' ? top10ValidCategories : allCategories;
-      
-      const categoryIndex = Math.floor(seededRandom(seed + 1000) * validCategories.length);
-      const selectedCategory = validCategories[categoryIndex];
-      
-      return {
-        mode: selectedMode,
-        category: selectedCategory
-      };
+    if (!date) {
+      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ No date selected</td></tr>`;
+      return;
     }
+
+    // Get category ID from the current selected category
+    const categoryKey = currentCategory ? currentCategory.toLowerCase() : null;
     
-    const dailyChallenge = getDailyChallengeForDate(date);
-    const categoryKey = dailyChallenge.category;
-    const modeKey = dailyChallenge.mode;
-    
-    // Display mode and category name
-    dailyChallengeModeDisplay.textContent = modeDisplayNames[modeKey] || modeKey;
-    dailyChallengeCategoryName.textContent = categoryDisplayNames[categoryKey] || categoryKey;
-    
-    // Import the correct category ID mapping from top10-categories-loader.js
+    if (!categoryKey) {
+      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Please select a category first</td></tr>`;
+      return;
+    }
+
     const { CATEGORY_ID_MAP } = await import('./js/top10-categories-loader.js');
     const categoryId = CATEGORY_ID_MAP[categoryKey];
     
     if (!categoryId) {
-      console.error('Category ID not found for:', categoryKey);
-      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Category not available</td></tr>`;
+      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Category not available for Daily Challenge</td></tr>`;
       return;
     }
 
     console.log('Loading Daily Challenge for:', { date, categoryKey, categoryId });
 
-    // Get scores from daily_challenge_scores table (renamed from top10_scores)
+    // ✅ OPTIMIZED: Join users table in one query
     const { data: scores, error } = await supabase
       .from("daily_challenge_scores")
-      .select("score, user_id")
+      .select(`
+        score,
+        user_id,
+        users!inner(id, username, avatar_url, is_premium)
+      `)
       .eq("category_id", categoryId)
       .eq("played_date", date)
       .order("score", { ascending: false })
@@ -617,29 +500,7 @@
       return;
     }
 
-    // Now fetch user data separately
-    if (scores && scores.length > 0) {
-      const userIds = scores.map(s => s.user_id);
-      
-      const { data: users } = await supabase
-        .from("users")
-        .select("id, username, avatar_url, is_premium")
-        .in("id", userIds);
-
-      // Combine scores with user data
-      const scoresWithUsers = scores.map(score => {
-        const user = users?.find(u => u.id === score.user_id);
-        return {
-          score: score.score,
-          user_id: score.user_id,
-          users: user || { username: 'Anonymous', avatar_url: null, is_premium: false }
-        };
-      });
-
-      renderLeaderboard(scoresWithUsers);
-    } else {
-      renderLeaderboard([]);
-    }
+    renderLeaderboard(scores || []);
   }
 
   // Populate date dropdown (last 30 days)
@@ -722,10 +583,14 @@
       return;
     }
 
-    // Get scores from category_scores table (best score per user per category)
+    // ✅ OPTIMIZED: Join users table in one query
     const { data: scores, error } = await supabase
       .from("category_scores")
-      .select("score, user_id")
+      .select(`
+        score,
+        user_id,
+        users!inner(id, username, avatar_url, is_premium)
+      `)
       .eq("category_id", categoryData.id)
       .order("score", { ascending: false })
       .limit(20);
@@ -736,10 +601,10 @@
       return;
     }
 
-    await renderLeaderboardWithUsers(scores);
+    renderLeaderboard(scores || []);
   }
 
-  // Load Top 10 Best Scores Leaderboard (NEW)
+  // Load Top 10 Best Scores Leaderboard
   async function loadTop10BestLeaderboard(categoryName) {
     // Get category ID from CATEGORY_ID_MAP
     const { CATEGORY_ID_MAP } = await import('./js/top10-categories-loader.js');
@@ -750,10 +615,16 @@
       return;
     }
 
-    // Get best scores from top10_best_scores table
+    // ✅ OPTIMIZED: Join users table in one query
     const { data: scores, error } = await supabase
       .from("top10_best_scores")
-      .select("score, correct_count, wrong_count, user_id")
+      .select(`
+        score,
+        correct_count,
+        wrong_count,
+        user_id,
+        users!inner(id, username, avatar_url, is_premium)
+      `)
       .eq("category_id", categoryId)
       .order("score", { ascending: false })
       .limit(20);
@@ -764,10 +635,10 @@
       return;
     }
 
-    await renderLeaderboardWithUsers(scores);
+    renderLeaderboard(scores || []);
   }
 
-  // Load VS Best Scores Leaderboard (NEW)
+  // Load VS Best Scores Leaderboard
   async function loadVSLeaderboard(categoryName) {
     // Get category ID from CATEGORY_ID_MAP
     const { CATEGORY_ID_MAP } = await import('./js/top10-categories-loader.js');
@@ -778,11 +649,17 @@
       return;
     }
 
-    // Get best scores per user from vs_scores table
-    // Use a subquery to get only the highest score per user
+    // ✅ OPTIMIZED: Join users table in one query
     const { data: scores, error } = await supabase
       .from("vs_scores")
-      .select("score, correct_count, accuracy, user_id, category_id")
+      .select(`
+        score,
+        correct_count,
+        accuracy,
+        user_id,
+        category_id,
+        users!inner(id, username, avatar_url, is_premium)
+      `)
       .eq("category_id", categoryId)
       .order("score", { ascending: false });
 
@@ -805,36 +682,7 @@
       .sort((a, b) => b.score - a.score)
       .slice(0, 20);
 
-    await renderLeaderboardWithUsers(bestScores);
-  }
-
-  // Helper: Fetch user data and render leaderboard
-  async function renderLeaderboardWithUsers(scores) {
-    if (!scores || scores.length === 0) {
-      leaderboardBody.innerHTML = `<tr><td colspan="4">👤 No scores yet for this category</td></tr>`;
-      return;
-    }
-
-    // Fetch user data separately
-    const userIds = scores.map(s => s.user_id);
-    const { data: users } = await supabase
-      .from("users")
-      .select("id, username, avatar_url, is_premium")
-      .in("id", userIds);
-
-    // Create a map for quick user lookup
-    const userMap = new Map();
-    users?.forEach(user => {
-      userMap.set(user.id, user);
-    });
-
-    // Attach user data to scores
-    const scoresWithUsers = scores.map(score => ({
-      ...score,
-      users: userMap.get(score.user_id)
-    }));
-
-    renderLeaderboard(scoresWithUsers);
+    renderLeaderboard(bestScores);
   }
 
   // Render leaderboard table
@@ -857,9 +705,13 @@
       const defaultIcon = 'assets/profile-icon.jpg';
       const premiumBadge = 'assets/GeoRanksPremium.png';
 
+      // ✅ OPTIMIZED: Removed cache buster, added lazy loading
       const avatarHtml = `
   <div class="avatar-wrapper" style="width: 50px; height: 50px;">
-    <img src="${user.avatar_url ? `${user.avatar_url}?t=${Date.now()}` : defaultIcon}" class="leaderboard-avatar avatar" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;" />
+    <img src="${user.avatar_url || defaultIcon}" 
+         loading="lazy"
+         class="leaderboard-avatar avatar" 
+         style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;" />
     ${user.is_premium ? `<img src="${premiumBadge}" class="premium-badge" style="position: absolute; bottom: 3px; right: 0px; width: 18px; height: 18px;" />` : ''}
   </div>
 `;
@@ -930,6 +782,36 @@
       temperature: 'hightemp',
       precipitation: 'rainfall',
     };
+
+    const displayNameMap = {
+      'temperature': 'Highest Temperature',
+      'precipitation': 'Rainfall',
+      'altitude': 'Highest Altitude',
+      'gdp': 'GDP Per Capita',
+      'population': 'Population',
+      'forest': 'Forest Cover',
+      'coastline': 'Longest Coastline',
+      'olympic': 'Olympic Medals',
+      'cuisine': 'Cuisine',
+      'worldcup': 'World Cup Trophies',
+      'landmass': 'Land Mass',
+      'crimerate': 'Crime Rate',
+      'happiness': 'Happiness',
+      'passport': 'Passport Strength',
+      'beer': 'Beer Consumption',
+      'nobelprize': 'Nobel Prize Winners',
+      'michelin': 'Michelin Restaurants',
+      'bigmac': 'BigMac Index',
+      'lifeexpectancy': 'Life Expectancy',
+      'tourism': 'Tourist Visits'
+    };
+
+    function formatCategoryName(name) {
+      return name
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    }
 
     categories
       .filter(cat => cat.name.toLowerCase().includes(filter))
