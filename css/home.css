@@ -167,6 +167,7 @@ h1, h2, h3, .tagline {
   justify-content: center;
   text-align: center;
   width: 100%;
+  min-height: 320px; /* Fixed minimum height for consistency */
   padding: 2.2rem 1.8rem;
   color: #1f2937;
   border-radius: 24px;
@@ -177,6 +178,13 @@ h1, h2, h3, .tagline {
   overflow: hidden;
   transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
   box-sizing: border-box;
+}
+
+/* Ensure background images are properly sized */
+.daily-challenge-card.has-photo {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .daily-challenge-card h2 {
@@ -232,14 +240,6 @@ h1, h2, h3, .tagline {
 
 
 /* Dynamic photo background (shared with category style) */
-.daily-challenge-card.has-photo {
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  position: relative;
-  overflow: hidden;
-}
-
 .daily-challenge-card.has-photo::before {
   content: "";
   position: absolute;
@@ -704,6 +704,7 @@ html, body {
   .daily-challenge-card {
     width: 100%;
     margin-bottom: 0;
+    min-height: 280px; /* Slightly shorter on mobile */
   }
 
   .categories-section {
