@@ -701,6 +701,16 @@ html, body {
     max-width: 100%;
   }
 
+  .carousel-container {
+    width: 100%;
+    touch-action: pan-y pinch-zoom; /* Allow vertical scroll but enable horizontal swipe */
+  }
+
+  .carousel-slide {
+    min-width: 100%;
+    width: 100%;
+  }
+
   .daily-challenge-card {
     width: 100%;
     margin-bottom: 0;

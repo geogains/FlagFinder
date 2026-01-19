@@ -584,6 +584,8 @@ overlay.addEventListener("click", (e) => {
   let currentSlide = 0;
   const totalSlides = 4;
   let autoSlideInterval;
+  let touchStartX = 0;
+  let touchEndX = 0;
 
   function showSlide(index) {
     const track = document.getElementById('carouselTrack');
@@ -613,6 +615,10 @@ overlay.addEventListener("click", (e) => {
     showSlide(currentSlide + 1);
   }
 
+  function prevSlide() {
+    showSlide(currentSlide - 1);
+  }
+
   function startAutoSlide() {
     autoSlideInterval = setInterval(nextSlide, 5000); // 5 seconds
   }
@@ -631,10 +637,42 @@ overlay.addEventListener("click", (e) => {
     });
   });
 
-  // Pause on hover (optional)
+  // Touch swipe functionality for mobile
   const carouselContainer = document.querySelector('.carousel-container');
-  carouselContainer?.addEventListener('mouseenter', stopAutoSlide);
-  carouselContainer?.addEventListener('mouseleave', startAutoSlide);
+  
+  carouselContainer?.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  carouselContainer?.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+  }, { passive: true });
+
+  function handleSwipe() {
+    const swipeThreshold = 50; // Minimum swipe distance in pixels
+    const diff = touchStartX - touchEndX;
+
+    if (Math.abs(diff) > swipeThreshold) {
+      stopAutoSlide();
+      
+      if (diff > 0) {
+        // Swiped left - go to next slide
+        nextSlide();
+      } else {
+        // Swiped right - go to previous slide
+        prevSlide();
+      }
+      
+      startAutoSlide(); // Restart timer after swipe
+    }
+  }
+
+  // Pause on hover (desktop only)
+  if (window.matchMedia("(min-width: 769px)").matches) {
+    carouselContainer?.addEventListener('mouseenter', stopAutoSlide);
+    carouselContainer?.addEventListener('mouseleave', startAutoSlide);
+  }
 
   // Start auto-slide on load
   startAutoSlide();
