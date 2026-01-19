@@ -131,6 +131,34 @@ h1, h2, h3, .tagline {
 /* -----------------------------------
    Daily Challenge Card
 ----------------------------------- */
+/* -----------------------------------
+   Daily Challenge Carousel
+----------------------------------- */
+.daily-challenge-carousel {
+  position: relative;
+  width: 90%;
+  max-width: 780px; /* 50% wider than 520px */
+  margin: 0 auto 2rem auto;
+}
+
+.carousel-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 24px;
+}
+
+.carousel-track {
+  display: flex;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.carousel-slide {
+  min-width: 100%;
+  flex-shrink: 0;
+}
+
 .daily-challenge-card {
   position: relative;
   display: flex;
@@ -138,9 +166,7 @@ h1, h2, h3, .tagline {
   align-items: center;
   justify-content: center;
   text-align: center;
-  width: 90%;
-  max-width: 520px;
-  margin: 0 auto 2rem auto;
+  width: 100%;
   padding: 2.2rem 1.8rem;
   color: #1f2937;
   border-radius: 24px;
@@ -235,6 +261,38 @@ h1, h2, h3, .tagline {
 .daily-challenge-card.has-photo .btn-primary {
   position: relative;
   z-index: 1;
+}
+
+/* Carousel Indicators */
+.carousel-indicators {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 1.5rem;
+  padding-bottom: 1rem;
+}
+
+.indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  border: 2px solid rgba(13, 49, 90, 0.3);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.indicator:hover {
+  background: rgba(255, 255, 255, 0.6);
+  transform: scale(1.2);
+}
+
+.indicator.active {
+  background: linear-gradient(135deg, #ff9770, #ff6f61);
+  border-color: #ff6f61;
+  width: 32px;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(255, 111, 97, 0.4);
 }
 
 /* -----------------------------------
@@ -638,9 +696,14 @@ html, body {
     align-items: center;
   }
 
-  .daily-challenge-card {
+  .daily-challenge-carousel {
     width: 90%;
-    margin-bottom: 2rem;
+    max-width: 100%;
+  }
+
+  .daily-challenge-card {
+    width: 100%;
+    margin-bottom: 0;
   }
 
   .categories-section {
