@@ -145,15 +145,15 @@ const allCategoriesData = [
   { category: "gdp", display: "GDP Per Capita", emoji: "💵", premium: false, image: "gdp.jpg" },
   { category: "altitude", display: "Highest Altitude", emoji: "🏔️", premium: false, image: "altitude.jpg" },
   { category: "forest", display: "Forest Cover", emoji: "🌲", premium: false, image: "forest.jpg" },
-  { category: "coastline", display: "Longest Coastline", emoji: "🌊", premium: true, image: "coastline.jpg" },
-  { category: "olympic", display: "Olympic Medals", emoji: "🥇", premium: true, image: "olympic.jpg" },
+  { category: "olympic", display: "Olympic Medals", emoji: "🥇", premium: false, image: "olympic.jpg" },
+  { category: "landmass", display: "Land Mass", emoji: "🌍", premium: false, image: "landmass.jpg" },
+  { category: "passport", display: "Passport Strength", emoji: "🛂", premium: false, image: "passport.jpg" },
+  { category: "beer", display: "Beer Consumption", emoji: "🍺", premium: false, image: "beer.jpg" },
   { category: "cuisine", display: "Cuisine", emoji: "🍽️", premium: true, image: "cuisine.jpg" },
   { category: "worldcup", display: "World Cup Trophies", emoji: "⚽", premium: true, image: "worldcup.jpg" },
-  { category: "landmass", display: "Land Mass", emoji: "🌍", premium: true, image: "landmass.jpg" },
   { category: "crimerate", display: "Crime Rate", emoji: "🚨", premium: true, image: "crimerate.jpg" },
   { category: "happiness", display: "Happiness", emoji: "😊", premium: true, image: "happiness.jpg" },
-  { category: "passport", display: "Passport Strength", emoji: "🛂", premium: true, image: "passport.jpg" },
-  { category: "beer", display: "Beer Consumption", emoji: "🍺", premium: true, image: "beer.jpg" },
+  { category: "coastline", display: "Longest Coastline", emoji: "🌊", premium: true, image: "coastline.jpg" },
   { category: "nobelprize", display: "Nobel Prize Winners", emoji: "🏆", premium: true, image: "nobelprize.jpg" },
   { category: "temperature", display: "Highest Temperature", emoji: "🌡️", premium: true, image: "hightemp.jpg" },
   { category: "precipitation", display: "Rainfall", emoji: "🌧️", premium: true, image: "rainfall.jpg" },
@@ -209,6 +209,9 @@ function renderCategories(page) {
   `).join('');
   
   updatePagination();
+  
+  // Apply premium locks to newly rendered categories
+  checkPremiumStatus();
   
   // Scroll to top smoothly
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -276,6 +279,14 @@ async function checkPremiumStatus() {
     // Not signed in → lock premium cards
     document.querySelectorAll('.category-card[data-premium="true"]').forEach(card => {
       card.classList.add('locked');
+      
+      // Add golden lock if not already present
+      if (!card.querySelector('.lock-icon')) {
+        let lock = document.createElement("div");
+        lock.className = "lock-icon";
+        lock.textContent = "🔒";
+        card.appendChild(lock);
+      }
     });
     return;
   }
@@ -290,6 +301,14 @@ async function checkPremiumStatus() {
   if (!profile?.is_premium) {
     document.querySelectorAll('.category-card[data-premium="true"]').forEach(card => {
       card.classList.add('locked');
+      
+      // Add golden lock if not already present
+      if (!card.querySelector('.lock-icon')) {
+        let lock = document.createElement("div");
+        lock.className = "lock-icon";
+        lock.textContent = "🔒";
+        card.appendChild(lock);
+      }
     });
   }
 }
