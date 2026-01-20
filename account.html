@@ -459,8 +459,31 @@ body {
     });
 
     logoutBtn?.addEventListener('click', async () => {
-      await supabase.auth.signOut();
-      window.location.href = 'index.html';
+      try {
+        console.log('Logging out...');
+        
+        // Sign out from Supabase
+        const { error } = await supabase.auth.signOut();
+        if (error) console.error('Supabase signOut error:', error);
+        
+        // Clear all storage
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        // Clear cookies (if any)
+        document.cookie.split(";").forEach((c) => {
+          document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        });
+        
+        console.log('Logout complete, redirecting...');
+        
+        // Force redirect with cache busting
+        window.location.href = 'index.html?logout=' + Date.now();
+      } catch (error) {
+        console.error('Logout error:', error);
+        // Force redirect anyway
+        window.location.href = 'index.html?logout=' + Date.now();
+      }
     });
 
   })();
