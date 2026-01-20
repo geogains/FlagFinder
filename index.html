@@ -324,16 +324,41 @@ body {
         scoresData.map(async (entry) => {
           const { category_id, score } = entry;
           
-          // Get rank by counting unique users with higher scores
-          const { data: higherScores } = await supabase
-            .from(tableName)
-            .select('user_id, score')
-            .gt('score', score)
-            .eq('category_id', category_id);
+          let rank;
 
-          // Count unique users with higher scores
-          const uniqueUsers = new Set(higherScores?.map(s => s.user_id) || []);
-          const rank = uniqueUsers.size + 1;
+          if (mode === 'vs') {
+            // For VS mode: Get all scores for this category, filter to best per user
+            const { data: allScores } = await supabase
+              .from(tableName)
+              .select('user_id, score')
+              .eq('category_id', category_id);
+
+            // Get best score per user
+            const bestScoresMap = new Map();
+            allScores?.forEach(s => {
+              const existing = bestScoresMap.get(s.user_id);
+              if (!existing || s.score > existing.score) {
+                bestScoresMap.set(s.user_id, s);
+              }
+            });
+
+            // Count how many users have a higher best score
+            const usersWithHigherScores = Array.from(bestScoresMap.values())
+              .filter(s => s.score > score);
+            
+            rank = usersWithHigherScores.length + 1;
+          } else {
+            // For Classic and Top 10: Count unique users with higher scores
+            const { data: higherScores } = await supabase
+              .from(tableName)
+              .select('user_id, score')
+              .gt('score', score)
+              .eq('category_id', category_id);
+
+            // Count unique users with higher scores
+            const uniqueUsers = new Set(higherScores?.map(s => s.user_id) || []);
+            rank = uniqueUsers.size + 1;
+          }
 
           return {
             ...entry,
