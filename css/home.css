@@ -251,7 +251,7 @@ h1, h2, h3, .tagline {
     rgba(255, 255, 255, 0.3)
   );
   backdrop-filter: blur(0.5px);
-  -webkit-backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(1px);
   z-index: 0;
 }
 
@@ -751,7 +751,7 @@ html, body {
 @media (max-width: 768px) {
   .daily-challenge-card::before {
     backdrop-filter: blur(3px) !important;
-    -webkit-backdrop-filter: blur(3px) !important;
+    -webkit-backdrop-filter: blur(1px) !important;
   }
 
   .daily-info {
