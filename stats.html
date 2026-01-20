@@ -42,6 +42,38 @@ body {
     margin-bottom: 0.4rem;
   }
 
+  /* Mode Toggle */
+  .mode-toggle {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 20px 0;
+  }
+
+  .mode-btn {
+    padding: 10px 24px;
+    background: white;
+    border: none;
+    outline: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .mode-btn.active {
+    background: linear-gradient(135deg, #ff9770, #ff6f61);
+    color: white;
+    border: none;
+    outline: none;
+  }
+
+  .mode-btn:hover:not(.active) {
+    background: #f3f4f6;
+  }
+
   .category-stats-table {
     width: 100%;
     border-collapse: collapse;
@@ -95,6 +127,16 @@ body {
       padding: 1rem;
     }
 
+    .mode-toggle {
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .mode-btn {
+      padding: 8px 16px;
+      font-size: 0.9rem;
+    }
+
     .category-stats-table th,
     .category-stats-table td {
       padding: 0.5rem 0.4rem;
@@ -129,7 +171,14 @@ body {
   <div class="stats-card">
     <h2>📊 Your Stats</h2>
     <p id="userEmail">Loading…</p>
-    <p id="userSince">Member since –</p>
+    <p id="userSince">Member since —</p>
+  </div>
+
+  <!-- Mode Toggle -->
+  <div class="mode-toggle">
+    <button class="mode-btn active" data-mode="classic">Classic</button>
+    <button class="mode-btn" data-mode="top10">Top 10</button>
+    <button class="mode-btn" data-mode="vs">VS</button>
   </div>
 
   <table class="category-stats-table" id="categoryStatsTable">
@@ -138,7 +187,7 @@ body {
         <th>Category</th>
         <th>Rank</th>
         <th>Score</th>
-        <th>Progress</th>
+        <th id="progressHeader">Progress</th>
       </tr>
     </thead>
     <tbody id="categoryStatsBody">
@@ -151,7 +200,7 @@ body {
 <div id="premiumModal" class="premium-modal hidden">
   <div class="premium-window">
     <h2>Premium Feature <span class="lock">🔒</span></h2>
-    <p>This feature is only available with <strong>GeoRanks Premium</strong> Upgrade to unlock stats and mmore.</p>
+    <p>This feature is only available with <strong>GeoRanks Premium</strong>. Upgrade to unlock stats and more.</p>
     <button id="goPremiumBtn" class="premium-btn upgrade">Upgrade to Premium</button>
     <button id="closePremiumBtn" class="premium-btn cancel">Return Home</button>
   </div>
@@ -163,6 +212,8 @@ body {
   const { data: { session } } = await supabase.auth.getSession();
   const modal = document.getElementById("premiumModal");
   const statsContainer = document.getElementById("statsContainer");
+  let currentMode = 'classic';
+  let isLoading = false; // Prevent race conditions
 
   if (!session || !session.user) {
     modal.classList.remove("hidden");
@@ -177,55 +228,161 @@ body {
       modal.classList.remove("hidden");
     } else {
       statsContainer.style.display = "block";
-      loadStats();
+      loadUserInfo();
+      loadStats(currentMode);
     }
   }
 
-  async function loadStats() {
+  // Mode toggle functionality
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      // Prevent switching while loading
+      if (isLoading) return;
+      
+      document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentMode = btn.dataset.mode;
+      loadStats(currentMode);
+    });
+  });
+
+  async function loadUserInfo() {
     const { data: { session } } = await supabase.auth.getSession();
     const user = session.user;
-
     document.getElementById('userEmail').textContent = user.email;
     document.getElementById('userSince').textContent = `Member since ${new Date(user.created_at).toDateString()}`;
+  }
 
+  async function loadStats(mode) {
+    // Prevent race conditions
+    if (isLoading) return;
+    isLoading = true;
+
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session.user;
     const categoryStatsBody = document.getElementById('categoryStatsBody');
-    const { data: scoresData } = await supabase
-      .from('category_scores')
-      .select('category_id, score')
-      .eq('user_id', user.id);
-
-    if (!scoresData || scoresData.length === 0) {
-      categoryStatsBody.innerHTML = `<tr><td colspan="4">No stats found yet.</td></tr>`;
-      return;
+    const progressHeader = document.getElementById('progressHeader');
+    
+    // Update header based on mode
+    if (mode === 'classic') {
+      progressHeader.textContent = 'Progress';
+    } else if (mode === 'top10') {
+      progressHeader.textContent = 'Accuracy (/10)';
+    } else if (mode === 'vs') {
+      progressHeader.textContent = 'Accuracy (%)';
     }
+    
+    categoryStatsBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
 
-    categoryStatsBody.innerHTML = '';
+    let scoresData;
+    let tableName;
 
-    for (const entry of scoresData) {
-      const { category_id, score } = entry;
-      const categoryName = getCategoryNameById(category_id);
+    try {
+      // Determine which table to query based on mode
+      if (mode === 'classic') {
+        tableName = 'category_scores';
+        const { data } = await supabase
+          .from('category_scores')
+          .select('category_id, score')
+          .eq('user_id', user.id);
+        scoresData = data;
+      } else if (mode === 'top10') {
+        tableName = 'top10_best_scores';
+        const { data } = await supabase
+          .from('top10_best_scores')
+          .select('category_id, score, correct_count, wrong_count')
+          .eq('user_id', user.id);
+        scoresData = data;
+      } else if (mode === 'vs') {
+        tableName = 'vs_scores';
+        // Get best score per category for VS mode
+        const { data } = await supabase
+          .from('vs_scores')
+          .select('category_id, score, correct_count, accuracy')
+          .eq('user_id', user.id)
+          .order('score', { ascending: false });
+        
+        // Filter to best score per category
+        const bestScoresMap = new Map();
+        data?.forEach(score => {
+          const existing = bestScoresMap.get(score.category_id);
+          if (!existing || score.score > existing.score) {
+            bestScoresMap.set(score.category_id, score);
+          }
+        });
+        scoresData = Array.from(bestScoresMap.values());
+      }
 
-      const { count: higherCount } = await supabase
-        .from('category_scores')
-        .select('*', { count: 'exact', head: true })
-        .gt('score', score)
-        .eq('category_id', category_id);
+      if (!scoresData || scoresData.length === 0) {
+        categoryStatsBody.innerHTML = `<tr><td colspan="4">No stats found yet for this mode.</td></tr>`;
+        isLoading = false;
+        return;
+      }
 
-      const rank = (higherCount || 0) + 1;
-      const progressPercent = Math.floor((score / 100) * 100);
+      // Fetch all ranks in parallel for better performance
+      const statsWithRanks = await Promise.all(
+        scoresData.map(async (entry) => {
+          const { category_id, score } = entry;
+          
+          // Get rank by counting how many scores are higher
+          const { count: higherCount } = await supabase
+            .from(tableName)
+            .select('*', { count: 'exact', head: true })
+            .gt('score', score)
+            .eq('category_id', category_id);
 
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${categoryName}</td>
-        <td>#${rank}</td>
-        <td>${score}</td>
-        <td>
-          <div class="progress-bar-container">
-            <div class="progress-bar-fill" style="width: ${progressPercent}%"></div>
-          </div>
-        </td>
-      `;
-      categoryStatsBody.appendChild(row);
+          return {
+            ...entry,
+            rank: (higherCount || 0) + 1
+          };
+        })
+      );
+
+      // Render all at once
+      categoryStatsBody.innerHTML = '';
+      
+      statsWithRanks.forEach(entry => {
+        const { category_id, score, rank } = entry;
+        const categoryName = getCategoryNameById(category_id);
+        
+        let progressPercent;
+        let progressLabel;
+
+        // Calculate progress based on mode
+        if (mode === 'classic') {
+          // Classic: Score out of 100
+          progressPercent = Math.min(Math.floor((score / 100) * 100), 100);
+          progressLabel = `${score}%`;
+        } else if (mode === 'top10') {
+          // Top 10: Accuracy based on correct/total (10 questions)
+          const correct = entry.correct_count || 0;
+          progressPercent = Math.floor((correct / 10) * 100);
+          progressLabel = `${correct}/10`;
+        } else if (mode === 'vs') {
+          // VS: Direct accuracy percentage
+          progressPercent = Math.floor(entry.accuracy || 0);
+          progressLabel = `${progressPercent}%`;
+        }
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${categoryName}</td>
+          <td>#${rank}</td>
+          <td>${score}</td>
+          <td>
+            <div class="progress-bar-container">
+              <div class="progress-bar-fill" style="width: ${progressPercent}%"></div>
+            </div>
+          </td>
+        `;
+        categoryStatsBody.appendChild(row);
+      });
+
+    } catch (error) {
+      console.error('Error loading stats:', error);
+      categoryStatsBody.innerHTML = `<tr><td colspan="4">Error loading stats</td></tr>`;
+    } finally {
+      isLoading = false;
     }
   }
 
@@ -235,7 +392,7 @@ body {
       2: '🏔️ Altitude',
       3: '💵 GDP',
       4: '☺️ Happiness',
-      5: '🌲 Forrest Cover',
+      5: '🌲 Forest Cover',
       6: '🌊 Coastline',
       7: '🍽️ Cuisine',
       8: '🥇 Olympic Medals',
@@ -250,7 +407,7 @@ body {
       17: '✈️ Tourist Visits',
       18: '⭐ Michelin Restaurants',
       19: '🍔 BigMac Index',
-      20: '🏥 Life Expectancy' 
+      20: '💚 Life Expectancy' 
     };
     return mapping[id] || `Category ${id}`;
   }
