@@ -210,8 +210,10 @@ function renderCategories(page) {
   
   updatePagination();
   
-  // Apply premium locks to newly rendered categories
-  checkPremiumStatus();
+  // Apply premium locks to newly rendered categories (use window reference)
+  if (window.checkPremiumStatus) {
+    window.checkPremiumStatus();
+  }
   
   // Scroll to top smoothly
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -312,6 +314,9 @@ async function checkPremiumStatus() {
     });
   }
 }
+
+// Make checkPremiumStatus globally accessible
+window.checkPremiumStatus = checkPremiumStatus;
 
 // Check premium status after categories are rendered
 setTimeout(checkPremiumStatus, 100);
