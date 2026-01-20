@@ -2,453 +2,521 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>GeoRanks — My Stats</title>
-  <link rel="stylesheet" href="css/home.css"/>
-  <link rel="stylesheet" href="css/game-modes.css"/>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-body {
-  font-family: 'Poppins', sans-serif;
-}
-  html, body {
-    min-height: 100vh;
-    margin: 0;
-    padding: 0;
-    background: linear-gradient(to bottom right, #a7f3d0, #38bdf8);
-  }
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeoRanks — Global Ranking Challenge 🌍</title>
+  <link rel="icon" href="assets/favicon.png" type="image/png">
 
-  .stats-container {
-    max-width: 720px;
-    margin: 120px auto 40px;
-    padding: 1.5rem;
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border-radius: 16px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-    box-sizing: border-box;
-    overflow-x: auto;
-    animation: fadeInUp 0.8s ease-out;
-  }
+  <!-- Open Graph Meta Tags for Sharing -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="🌍 Test your world ranking knowledge!">
+  <meta property="og:description" content="Can you guess the top 10 countries by landmass, GDP, and more? Try the challenge now!">
+  <meta property="og:image" content="https://geo-ranks.com/assets/preview.jpg">
+  <meta property="og:url" content="https://geo-ranks.com/">
 
-  .stats-card {
-    margin-bottom: 1.5rem;
-    text-align: center;
-  }
-
-  .stats-card h2 {
-    font-size: 1.6rem;
-    margin-bottom: 0.4rem;
-  }
-
-  /* Mode Toggle */
-  .mode-toggle {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin: 20px 0;
-  }
-
-  .mode-btn {
-    padding: 10px 24px;
-    background: white;
-    border: none;
-    outline: none;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s;
-    font-family: 'Poppins', sans-serif;
-  }
-
-  .mode-btn.active {
-    background: linear-gradient(135deg, #ff9770, #ff6f61);
-    color: white;
-    border: none;
-    outline: none;
-  }
-
-  .mode-btn:hover:not(.active) {
-    background: #f3f4f6;
-  }
-
-  .category-stats-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.95rem;
-  }
-
-  .category-stats-table th,
-  .category-stats-table td {
-    padding: 0.6rem 0.5rem;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
-    text-align: left;
-  }
-
-  .category-stats-table th {
-    font-weight: 600;
-    background: rgba(0, 0, 0, 0.05);
-  }
-
-  .progress-bar-container {
-    background: #e5e7eb;
-    border-radius: 4px;
-    height: 8px;
-    width: 100%;
-  }
-
-  .progress-bar-fill {
-    background: #7c3aed;
-    height: 8px;
-    border-radius: 4px;
-  }
-
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(40px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .fade-in {
-    opacity: 0;
-    animation: fadeInUp 0.8s ease-out forwards;
-  }
-
-  @media (max-width: 600px) {
-    .stats-container {
-      margin: 100px 16px 40px;
-      padding: 1rem;
-    }
-
-    .mode-toggle {
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .mode-btn {
-      padding: 8px 16px;
-      font-size: 0.9rem;
-    }
-
-    .category-stats-table th,
-    .category-stats-table td {
-      padding: 0.5rem 0.4rem;
-      font-size: 0.85rem;
-    }
-  }
-</style>
-
+  <!-- Fonts and Styles -->
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/game-modes.css" />
+  <link rel="stylesheet" href="css/home.css" />
+  <link rel="stylesheet" href="css/mode-selector.css" />
 </head>
 <body>
+  <!-- Page content goes here -->
+</body>
+</html>
 
-<header class="home-glass-header">
-  <div class="logo-header"><a href="index.html"><img src="assets/logo.png" alt="GeoRanks Logo" /></a></div>
-  <div class="hamburger-menu"><div class="menu-icon" id="menuToggle"><span></span><span></span><span></span></div></div>
-</header>
 
-<div class="menu-overlay" id="menuOverlay">
-  <div class="menu-panel">
-    <h2>Menu</h2>
-    <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
-    <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
-    <button class="menu-btn" onclick="window.location.href='categories.html'">🎮 Categories</button>
-    <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
-    <button class="menu-btn" onclick="window.location.href='how-to-play.html'">💡 How to Play</button>
-    <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
-    <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
-    <button class="menu-btn menu-close" id="closeMenu">Close</button>
+<body>
+<div class="home-glass-header">
+  <a href="auth.html" id="signInText" class="sign-in-text">Sign In</a>
+  <div class="menu-icon" id="menuToggle">
+    <span></span>
+    <span></span>
+    <span></span>
   </div>
 </div>
 
-<main class="stats-container fade-in" id="statsContainer" style="display: none;">
-  <div class="stats-card">
-    <h2>📊 Your Stats</h2>
-    <p id="userEmail">Loading…</p>
-    <p id="userSince">Member since —</p>
-  </div>
-
-  <!-- Mode Toggle -->
-  <div class="mode-toggle">
-    <button class="mode-btn active" data-mode="classic">Classic</button>
-    <button class="mode-btn" data-mode="top10">Top 10</button>
-    <button class="mode-btn" data-mode="vs">VS</button>
-  </div>
-
-  <table class="category-stats-table" id="categoryStatsTable">
-    <thead>
-      <tr>
-        <th>Category</th>
-        <th>Rank</th>
-        <th>Score</th>
-        <th id="progressHeader">Progress</th>
-      </tr>
-    </thead>
-    <tbody id="categoryStatsBody">
-      <tr><td colspan="4">Loading stats…</td></tr>
-    </tbody>
-  </table>
-</main>
-
-<!-- Premium Upgrade Modal -->
+<!-- 🔒 PREMIUM UPGRADE MODAL -->
 <div id="premiumModal" class="premium-modal hidden">
   <div class="premium-window">
     <h2>Premium Feature <span class="lock">🔒</span></h2>
-    <p>This feature is only available with <strong>GeoRanks Premium</strong>. Upgrade to unlock stats and more.</p>
+    <p>These categories are only available with <strong>GeoRanks Premium</strong>.</p>
+
     <button id="goPremiumBtn" class="premium-btn upgrade">Upgrade to Premium</button>
     <button id="closePremiumBtn" class="premium-btn cancel">Return Home</button>
   </div>
 </div>
 
+<div class="home-wrapper">
+
+  <!-- Main Header -->
+  <header class="home-header visible">
+    <div class="logo-wrapper">
+      <img
+        src="assets/logo.png"
+        srcset="assets/logo.png 2x, assets/logo.png 3x"
+        alt="GeoRanks Logo"
+        class="logo fade-in"
+      />
+    </div>
+    <p class="tagline fade-in">Test Your World Ranking Knowledge! 🌍</p>
+  </header>
+
+  <!-- Hamburger Overlay Menu -->
+  <div class="menu-overlay" id="menuOverlay">
+    <div class="menu-panel">
+      <h2>Menu</h2>
+      <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
+      <button class="menu-btn" onclick="window.location.href='categories.html'">🎮 Categories</button>
+      <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
+      <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
+      <button class="menu-btn" onclick="window.location.href='upload.html'">⚔️ Battle Royale</button>
+      <button class="menu-btn" onclick="window.location.href='how-to-play.html'">💡 How to Play</button>
+      <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
+      <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
+      <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'">🔓 Unlock All Categories</button>
+      <button class="menu-btn menu-close" id="closeMenu">Close</button>
+    </div>
+  </div>
+
+  <!-- DAILY CHALLENGE CAROUSEL -->
+  <section class="daily-challenge-carousel fade-in">
+    <div class="carousel-container">
+      <div class="carousel-track" id="carouselTrack">
+        
+        <!-- Slide 1: Daily Challenge -->
+        <div class="carousel-slide active" data-slide="0">
+          <div class="daily-challenge-card" id="dailyChallengeCard">
+            <div class="daily-info">
+              <h2>📅 DAILY CHALLENGE</h2>
+              <h3 id="dailyChallengeTitle">Loading...</h3>
+              <a href="#" id="dailyChallengeBtn" class="btn-primary glow">Play Now</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 2: Random Classic -->
+        <div class="carousel-slide" data-slide="1">
+          <div class="daily-challenge-card random-card has-photo" style="background-image: url('images/categories/crimerate.jpg');">
+            <div class="daily-info">
+              <h2>🌍 Random Classic</h2>
+              <h3>RANK COUNTRIES IN ORDER</h3>
+              <a href="#" id="randomClassicBtn" class="btn-primary glow">Play Now</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 3: Random Top 10 -->
+        <div class="carousel-slide" data-slide="2">
+          <div class="daily-challenge-card random-card has-photo" style="background-image: url('images/categories/rainfall.jpg');">
+            <div class="daily-info">
+              <h2>🔟 Random Top 10</h2>
+              <h3>NAME THE TOP 10 COUNTRIES</h3>
+              <a href="#" id="randomTop10Btn" class="btn-primary glow">Play Now</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 4: Random VS -->
+        <div class="carousel-slide" data-slide="3">
+          <div class="daily-challenge-card random-card has-photo" style="background-image: url('images/categories/tourism.jpg');">
+            <div class="daily-info">
+              <h2>⚔️ Random VS</h2>
+              <h3>SELECT THE HIGHEST RANKING COUNTRY</h3>
+              <a href="#" id="randomVsBtn" class="btn-primary glow">Play Now</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Carousel Indicators -->
+    <div class="carousel-indicators">
+      <span class="indicator active" data-slide="0"></span>
+      <span class="indicator" data-slide="1"></span>
+      <span class="indicator" data-slide="2"></span>
+      <span class="indicator" data-slide="3"></span>
+    </div>
+  </section>
+
+  <!-- CATEGORIES -->
+  <section class="categories-section">
+    <h2 class="fade-in">Top Categories 👇</h2>
+   
+    <div class="categories-grid" id="categoriesGrid" style="pointer-events: none;"> 
+
+      <!-- FREE CATEGORIES -->
+      <div class="category-card" data-category="population" data-display="Population" data-emoji="👥"
+         style="background-image:url('images/categories/population.jpg');">
+        <div class="category-info">
+          <span class="emoji">👥</span>
+          <h3>Population</h3>
+        </div>
+      </div>
+
+      <div class="category-card" data-category="gdp" data-display="GDP Per Capita" data-emoji="💵"
+         style="background-image:url('images/categories/gdp.jpg');">
+        <div class="category-info">
+          <span class="emoji">💵</span>
+          <h3>GDP Per Capita</h3>
+        </div>
+      </div>
+
+      <div class="category-card" data-category="altitude" data-display="Highest Altitude" data-emoji="🏔️"
+         style="background-image:url('images/categories/altitude.jpg');">
+        <div class="category-info">
+          <span class="emoji">🏔️</span>
+          <h3>Highest Altitude</h3>
+        </div>
+      </div>
+
+      <div class="category-card" data-category="forest" data-display="Forest Cover" data-emoji="🌲"
+         style="background-image:url('images/categories/forest.jpg');">
+        <div class="category-info">
+          <span class="emoji">🌲</span>
+          <h3>Forest Cover</h3>
+        </div>
+      </div>
+
+      <!-- PREMIUM CATEGORIES -->
+      <div class="category-card" data-premium="true" data-category="olympic" data-display="Olympic Medals" data-emoji="🥇"
+         style="background-image:url('images/categories/olympic.jpg');">
+        <div class="category-info">
+          <span class="emoji">🥇</span>
+          <h3>Olympic Medals</h3>
+        </div>
+      </div>
+
+      <div class="category-card" data-premium="true" data-category="landmass" data-display="Land Mass" data-emoji="🌍"
+         style="background-image:url('images/categories/landmass.jpg');">
+        <div class="category-info">
+          <span class="emoji">🌍</span>
+          <h3>Land Mass</h3>
+        </div>
+      </div>
+
+      <div class="category-card" data-premium="true" data-category="passport" data-display="Passport Strength" data-emoji="🛂"
+         style="background-image:url('images/categories/passport.jpg');">
+        <div class="category-info">
+          <span class="emoji">🛂</span>
+          <h3>Passport Strength</h3>
+        </div>
+      </div>
+
+      <div class="category-card" data-premium="true" data-category="beer" data-display="Beer Consumption" data-emoji="🍺"
+         style="background-image:url('images/categories/beer.jpg');">
+        <div class="category-info">
+          <span class="emoji">🍺</span>
+          <h3>Beer Consumption</h3>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="footer-buttons">
+    <button id="unlockCategoriesBtn" class="upgrade-access-btn">🔓 Unlock All Categories</button>
+    <button id="viewCategoriesBtn">View All Categories</button>
+  </div>
+
+  <footer class="home-footer">
+    <div class="footer-socials">
+      <div class="icon-row">
+        <a href="https://www.instagram.com/geo_ranks/" target="_blank" rel="noopener">
+          <img src="assets/instagram.png" alt="Instagram" />
+        </a>
+        <div class="divider"></div>
+        <a href="https://www.tiktok.com/@georanks" target="_blank" rel="noopener">
+          <img src="assets/tik-tok.png" alt="TikTok" />
+        </a>
+        <div class="divider"></div>
+        <a href="https://www.youtube.com/channel/UC8jrsBpCn09u0mHQle_O3Rw" target="_blank" rel="noopener">
+          <img src="assets/youtube.png" alt="YouTube" />
+        </a>
+        <div class="divider"></div>
+        <a href="https://x.com/Kieroncroo66687" target="_blank" rel="noopener">
+          <img src="assets/x.png" alt="X" />
+        </a>
+      </div>
+      <p>© 2025 GeoRanks</p>
+      <div class="footer-links">
+        <a href="terms.html">Terms of Service</a>
+        <span>•</span>
+        <a href="privacy.html">Privacy Policy</a>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<!-- ============================= -->
+<!-- ========== SCRIPTS ========== -->
+<!-- ============================= -->
+
 <script type="module">
   import { supabase } from './js/supabase-client.js';
 
-  const { data: { session } } = await supabase.auth.getSession();
-  const modal = document.getElementById("premiumModal");
-  const statsContainer = document.getElementById("statsContainer");
-  let currentMode = 'classic';
-  let isLoading = false; // Prevent race conditions
+  (async () => {
+    console.log('--- BEGIN SESSION DEBUG ---');
+    const { data: { session }, error } = await supabase.auth.getSession();
+    console.log('Session object:', session);
+    if (error) console.error('Session error:', error);
 
-  if (!session || !session.user) {
-    modal.classList.remove("hidden");
-  } else {
+    if (!session) {
+      console.log('🔒 No session: showing locked categories');
+      document.querySelectorAll('.category-card.locked').forEach(el => el.classList.remove('hidden'));
+      document.getElementById('sign-in-btn')?.addEventListener('click', () => {
+        document.getElementById('login-modal')?.classList.remove('hidden');
+      });
+    } else {
+      console.log('✅ Session found: unlock logic can go here');
+    }
+
+    console.log('LocalStorage keys:', Object.keys(localStorage));
+    if (navigator.storage?.estimate) {
+      const estimate = await navigator.storage.estimate();
+      console.log('Storage estimate:', estimate);
+    }
+    console.log('--- END SESSION DEBUG ---');
+  })();
+</script>
+
+<!-- DAILY CHALLENGE SCRIPT -->
+<script type="module">
+  import { 
+    getTodaysDailyChallenge,
+    modeDisplayNames,
+    categoryDisplayNames,
+    categoryEmojis
+  } from './js/daily-challenge.js';
+
+  // Get today's challenge (mode + category)
+  const todaysChallenge = getTodaysDailyChallenge();
+  console.log('Today\'s Daily Challenge:', todaysChallenge);
+
+  // Update daily challenge card
+  const dailyCard = document.getElementById("dailyChallengeCard");
+  const dailyTitle = document.getElementById("dailyChallengeTitle");
+  const dailyBtn = document.getElementById("dailyChallengeBtn");
+
+  // Calculate display text
+  const modeText = modeDisplayNames[todaysChallenge.mode].toUpperCase();
+  const categoryText = categoryDisplayNames[todaysChallenge.category].toUpperCase();
+  const emoji = categoryEmojis[todaysChallenge.category];
+
+  if (dailyTitle && dailyBtn) {
+    // Display: "MODE: CATEGORY" (e.g., "VS MODE: LANDMASS 🗺️")
+    dailyTitle.textContent = `${modeText}: ${categoryText} ${emoji}`;
+    
+    // Redirect to new daily challenge page (handles mode selection)
+    dailyBtn.href = `daily-challenge.html`;
+  }
+
+  // Set background image based on category
+  if (dailyCard) {
+    const bgMap = {
+      population: "population.jpg",
+      gdp: "gdp.jpg",
+      altitude: "altitude.jpg",
+      forest: "forest.jpg",
+      coastline: "coastline.jpg",
+      olympic: "olympic.jpg",
+      landmass: "landmass.jpg",
+      passport: "passport.jpg",
+      beer: "beer.jpg",
+      nobelprize: "nobelprize.jpg",
+      worldcup: "worldcup.jpg",
+      hightemp: "hightemp.jpg",
+      rainfall: "rainfall.jpg",
+      crimerate: "crimerate.jpg",
+      happiness: "happiness.jpg",
+      cuisine: "cuisine.jpg",
+      tourism: "tourism.jpg",
+      michelin: "michelin.jpg",
+      bigmac: "bigmac.jpg",
+      lifeexpectancy: "lifeexpectancy.jpg",
+    };
+
+    const img = bgMap[todaysChallenge.category];
+    if (img) {
+      dailyCard.style.backgroundImage = `url('images/categories/${img}')`;
+      dailyCard.classList.add("has-photo");
+    }
+  }
+
+  console.log(`📅 Today's Daily Challenge: ${modeText} - ${categoryText}`);
+</script>
+
+<!-- LOCKED CATEGORY LOGIC -->
+<script type="module">
+  import { supabase } from './js/supabase-client.js';
+  const { data: { session } } = await supabase.auth.getSession();
+
+  let isPremium = false;
+
+  if (session) {
     const { data: profile } = await supabase
       .from("users")
       .select("is_premium")
       .eq("id", session.user.id)
       .single();
-
-    if (!profile?.is_premium) {
-      modal.classList.remove("hidden");
-    } else {
-      statsContainer.style.display = "block";
-      loadUserInfo();
-      loadStats(currentMode);
-    }
+    isPremium = profile?.is_premium === true;
   }
 
-  // Mode toggle functionality
-  document.querySelectorAll('.mode-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      // Prevent switching while loading
-      if (isLoading) return;
-      
-      document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentMode = btn.dataset.mode;
-      loadStats(currentMode);
-    });
-  });
+  const premiumCards = document.querySelectorAll("[data-premium='true']");
 
-  async function loadUserInfo() {
-    const { data: { session } } = await supabase.auth.getSession();
-    const user = session.user;
-    document.getElementById('userEmail').textContent = user.email;
-    document.getElementById('userSince').textContent = `Member since ${new Date(user.created_at).toDateString()}`;
-  }
+  if (!isPremium) {
+    premiumCards.forEach(card => {
+      card.classList.add("locked");
 
-  async function loadStats(mode) {
-    // Prevent race conditions
-    if (isLoading) return;
-    isLoading = true;
+      // Add golden lock
+      let lock = document.createElement("div");
+      lock.className = "lock-icon";
+      lock.textContent = "🔒";
+      card.appendChild(lock);
 
-    const { data: { session } } = await supabase.auth.getSession();
-    const user = session.user;
-    const categoryStatsBody = document.getElementById('categoryStatsBody');
-    const progressHeader = document.getElementById('progressHeader');
-    
-    // Update header based on mode
-    if (mode === 'classic') {
-      progressHeader.textContent = 'Progress';
-    } else if (mode === 'top10') {
-      progressHeader.textContent = 'Accuracy (/10)';
-    } else if (mode === 'vs') {
-      progressHeader.textContent = 'Accuracy (%)';
-    }
-    
-    categoryStatsBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
+      // On click: login check → open upgrade modal
+      card.addEventListener("click", async (e) => {
+        e.preventDefault();
 
-    let scoresData;
-    let tableName;
+        const { data: { session: innerSession } } = await supabase.auth.getSession();
 
-    try {
-      // Determine which table to query based on mode
-      if (mode === 'classic') {
-        tableName = 'category_scores';
-        const { data } = await supabase
-          .from('category_scores')
-          .select('category_id, score')
-          .eq('user_id', user.id);
-        scoresData = data;
-      } else if (mode === 'top10') {
-        tableName = 'top10_best_scores';
-        const { data } = await supabase
-          .from('top10_best_scores')
-          .select('category_id, score, correct_count, wrong_count')
-          .eq('user_id', user.id);
-        scoresData = data;
-      } else if (mode === 'vs') {
-        tableName = 'vs_scores';
-        // Get best score per category for VS mode
-        const { data } = await supabase
-          .from('vs_scores')
-          .select('category_id, score, correct_count, accuracy')
-          .eq('user_id', user.id)
-          .order('score', { ascending: false });
-        
-        // Filter to best score per category
-        const bestScoresMap = new Map();
-        data?.forEach(score => {
-          const existing = bestScoresMap.get(score.category_id);
-          if (!existing || score.score > existing.score) {
-            bestScoresMap.set(score.category_id, score);
-          }
-        });
-        scoresData = Array.from(bestScoresMap.values());
-      }
-
-      if (!scoresData || scoresData.length === 0) {
-        categoryStatsBody.innerHTML = `<tr><td colspan="4">No stats found yet for this mode.</td></tr>`;
-        isLoading = false;
-        return;
-      }
-
-      // Fetch all ranks in parallel for better performance
-      const statsWithRanks = await Promise.all(
-        scoresData.map(async (entry) => {
-          const { category_id, score } = entry;
-          
-          let rank;
-
-          if (mode === 'vs') {
-            // For VS mode: Get all scores for this category, filter to best per user
-            const { data: allScores } = await supabase
-              .from(tableName)
-              .select('user_id, score')
-              .eq('category_id', category_id);
-
-            // Get best score per user
-            const bestScoresMap = new Map();
-            allScores?.forEach(s => {
-              const existing = bestScoresMap.get(s.user_id);
-              if (!existing || s.score > existing.score) {
-                bestScoresMap.set(s.user_id, s);
-              }
-            });
-
-            // Count how many users have a higher best score
-            const usersWithHigherScores = Array.from(bestScoresMap.values())
-              .filter(s => s.score > score);
-            
-            rank = usersWithHigherScores.length + 1;
+        if (!innerSession) {
+          // NOT signed in → still show upgrade modal
+          const modal = document.getElementById("premiumModal");
+          if (modal) {
+            modal.classList.remove("hidden");
+            modal.scrollIntoView({ behavior: "smooth", block: "center" });
           } else {
-            // For Classic and Top 10: Count unique users with higher scores
-            const { data: higherScores } = await supabase
-              .from(tableName)
-              .select('user_id, score')
-              .gt('score', score)
-              .eq('category_id', category_id);
-
-            // Count unique users with higher scores
-            const uniqueUsers = new Set(higherScores?.map(s => s.user_id) || []);
-            rank = uniqueUsers.size + 1;
+            window.location.href = "premium.html";
           }
-
-          return {
-            ...entry,
-            rank
-          };
-        })
-      );
-
-      // Render all at once
-      categoryStatsBody.innerHTML = '';
-      
-      statsWithRanks.forEach(entry => {
-        const { category_id, score, rank } = entry;
-        const categoryName = getCategoryNameById(category_id);
-        
-        let progressPercent;
-        let progressLabel;
-
-        // Calculate progress based on mode
-        if (mode === 'classic') {
-          // Classic: Score out of 100
-          progressPercent = Math.min(Math.floor((score / 100) * 100), 100);
-          progressLabel = `${score}%`;
-        } else if (mode === 'top10') {
-          // Top 10: Accuracy based on correct/total (10 questions)
-          const correct = entry.correct_count || 0;
-          progressPercent = Math.floor((correct / 10) * 100);
-          progressLabel = `${correct}/10`;
-        } else if (mode === 'vs') {
-          // VS: Direct accuracy percentage
-          progressPercent = Math.floor(entry.accuracy || 0);
-          progressLabel = `${progressPercent}%`;
+          return;
         }
 
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${categoryName}</td>
-          <td>#${rank}</td>
-          <td>${score}</td>
-          <td>
-            <div class="progress-bar-container">
-              <div class="progress-bar-fill" style="width: ${progressPercent}%"></div>
-            </div>
-          </td>
-        `;
-        categoryStatsBody.appendChild(row);
+        // Signed in but NOT premium
+        const modal = document.getElementById("premiumModal");
+        if (modal) {
+          modal.classList.remove("hidden");
+          modal.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else {
+          window.location.href = "premium.html";
+        }
       });
+    });
+  }
 
-    } catch (error) {
-      console.error('Error loading stats:', error);
-      categoryStatsBody.innerHTML = `<tr><td colspan="4">Error loading stats</td></tr>`;
-    } finally {
-      isLoading = false;
+  // Handle footer buttons
+  const viewBtn = document.getElementById("viewCategoriesBtn");
+  const unlockBtn = document.getElementById("unlockCategoriesBtn");
+
+  if (viewBtn) {
+    viewBtn.onclick = () => window.location.href = "categories.html";
+  }
+  
+  if (unlockBtn) {
+    unlockBtn.onclick = () => window.location.href = "premium.html";
+  }
+
+  // Hide unlock button for premium users
+  if (isPremium && unlockBtn) {
+    unlockBtn.remove();
+    const footerButtons = document.querySelector(".footer-buttons");
+    if (footerButtons) {
+      footerButtons.style.justifyContent = "center";
     }
   }
-
-  function getCategoryNameById(id) {
-    const mapping = {
-      1: '👥 Population',
-      2: '🏔️ Altitude',
-      3: '💵 GDP',
-      4: '☺️ Happiness',
-      5: '🌲 Forest Cover',
-      6: '🌊 Coastline',
-      7: '🍽️ Cuisine',
-      8: '🥇 Olympic Medals',
-      9: '⚽️ World Cup',
-      10: '🌍 Land Mass',
-      11: '🚨 Crime Rate',
-      12: '🛂 Passport',
-      13: '🍺 Beer Consumption',
-      14: '🕊️ Nobel Prize',
-      15: '☀️ Temperature',
-      16: '🌧️ Rainfall',
-      17: '✈️ Tourist Visits',
-      18: '⭐ Michelin Restaurants',
-      19: '🍔 BigMac Index',
-      20: '💚 Life Expectancy' 
-    };
-    return mapping[id] || `Category ${id}`;
+  
+  // Enable category grid after premium check is complete
+  const categoriesGrid = document.getElementById('categoriesGrid');
+  if (categoriesGrid) {
+    categoriesGrid.style.pointerEvents = 'auto';
+    categoriesGrid.style.opacity = '1';
   }
 
-  document.getElementById("closePremiumBtn").onclick = () => {
-    document.getElementById("premiumModal").classList.add("hidden");
-    window.location.href = "index.html";
-  };
+  // Premium modal button handlers
+  const closePremiumBtn = document.getElementById("closePremiumBtn");
+  const goPremiumBtn = document.getElementById("goPremiumBtn");
+  
+  if (closePremiumBtn) {
+    closePremiumBtn.onclick = () => {
+      const modal = document.getElementById("premiumModal");
+      if (modal) modal.classList.add("hidden");
+    };
+  }
+  
+  if (goPremiumBtn) {
+    goPremiumBtn.onclick = () => {
+      window.location.href = "premium.html";
+    };
+  }
+</script>
 
-  document.getElementById("goPremiumBtn").onclick = () => {
-    window.location.href = "premium.html";
-  };
+<!-- PREMIUM MODAL BUTTONS -->
+<script type="module">
+  import { supabase } from './js/supabase-client.js';
+
+  const { data: { session } } = await supabase.auth.getSession();
+  const signInText = document.getElementById("signInText");
+
+  if (!session || !session.user) {
+    if (signInText) {
+      signInText.innerHTML = `
+        <span style="color: inherit;">Sign In</span>
+        <span class="divider" style="margin: 0 8px; width: 1px; height: 16px; background: #aaa; display: inline-block; vertical-align: middle;"></span>
+        <span style="color: inherit;">Create Account</span>
+      `;
+      signInText.href = "auth.html";
+    }
+  } else {
+    // User is logged in - try to get username from database first
+    const { data: profile } = await supabase
+      .from('users')
+      .select('username, is_premium')
+      .eq('id', session.user.id)
+      .single();
+
+    let displayName = null;
+
+    if (profile?.username) {
+      // Username found in database
+      displayName = profile.username;
+    } else if (session.user.user_metadata?.username) {
+      // Fallback to username from auth metadata (for newly confirmed users)
+      displayName = session.user.user_metadata.username;
+      
+      // Trigger a database insert if user doesn't exist yet (backup)
+      setTimeout(async () => {
+        const { error } = await supabase
+          .from('users')
+          .insert({
+            id: session.user.id,
+            username: session.user.user_metadata.username,
+            email: session.user.email,
+            avatar_url: 'assets/profile-icon.jpg',
+            is_premium: false
+          })
+          .select()
+          .single();
+        
+        if (error && error.code !== '23505') { // Ignore duplicate key errors
+          console.error('Error creating user profile:', error);
+        }
+      }, 100);
+    } else {
+      // Last fallback - use email prefix
+      displayName = session.user.email.split('@')[0];
+    }
+
+    if (signInText && displayName) {
+      signInText.textContent = displayName;
+      signInText.href = "account.html";
+    }
+
+    // Hide upgrade button for premium users
+    if (profile?.is_premium) {
+      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+    }
+  }
 </script>
 
 <!-- Hamburger Menu Logic -->
@@ -463,6 +531,190 @@ closeBtn?.addEventListener("click", () => overlay.classList.remove("active"));
 overlay.addEventListener("click", (e) => {
   if (e.target === overlay) overlay.classList.remove("active");
 });
+</script>
+
+<!-- Menu Account Visibility Logic -->
+<script type="module">
+  import { supabase } from './js/supabase-client.js';
+
+  const { data: { session } } = await supabase.auth.getSession();
+
+  // Hide Account if user not logged in
+  if (!session || !session.user) {
+    document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+  }
+</script>
+
+<!-- Mode Selector Modal Integration -->
+<script type="module">
+  import { openModeSelector } from './js/mode-selector.js';
+  
+  // Make openModeSelector globally accessible
+  window.openModeSelector = openModeSelector;
+
+  // Add click handlers to all category cards
+  document.addEventListener('DOMContentLoaded', () => {
+    const categoryCards = document.querySelectorAll('.category-card');
+    
+    categoryCards.forEach(card => {
+      card.addEventListener('click', (e) => {
+        // Don't open modal if card is locked (premium)
+        if (card.classList.contains('locked')) {
+          return; // Let the existing lock modal handle it
+        }
+
+        const category = card.dataset.category;
+        const displayName = card.dataset.display;
+        const emoji = card.dataset.emoji;
+
+        // Open mode selector modal
+        openModeSelector(category, displayName, emoji);
+      });
+
+      // Add cursor pointer style
+      if (!card.classList.contains('locked')) {
+        card.style.cursor = 'pointer';
+      }
+    });
+  });
+</script>
+
+<!-- Carousel Auto-Slide Logic -->
+<script>
+  let currentSlide = 0;
+  const totalSlides = 4;
+  let autoSlideInterval;
+  let touchStartX = 0;
+  let touchEndX = 0;
+
+  function showSlide(index) {
+    const track = document.getElementById('carouselTrack');
+    const slides = document.querySelectorAll('.carousel-slide');
+    const indicators = document.querySelectorAll('.indicator');
+    
+    // Wrap around
+    if (index >= totalSlides) currentSlide = 0;
+    else if (index < 0) currentSlide = totalSlides - 1;
+    else currentSlide = index;
+    
+    // Move track
+    const offset = -currentSlide * 100;
+    track.style.transform = `translateX(${offset}%)`;
+    
+    // Update active states
+    slides.forEach((slide, i) => {
+      slide.classList.toggle('active', i === currentSlide);
+    });
+    
+    indicators.forEach((indicator, i) => {
+      indicator.classList.toggle('active', i === currentSlide);
+    });
+  }
+
+  function nextSlide() {
+    showSlide(currentSlide + 1);
+  }
+
+  function prevSlide() {
+    showSlide(currentSlide - 1);
+  }
+
+  function startAutoSlide() {
+    autoSlideInterval = setInterval(nextSlide, 5000); // 5 seconds
+  }
+
+  function stopAutoSlide() {
+    clearInterval(autoSlideInterval);
+  }
+
+  // Click indicators to jump to slide
+  document.querySelectorAll('.indicator').forEach(indicator => {
+    indicator.addEventListener('click', () => {
+      const slideIndex = parseInt(indicator.dataset.slide);
+      showSlide(slideIndex);
+      stopAutoSlide();
+      startAutoSlide(); // Restart timer
+    });
+  });
+
+  // Touch swipe functionality for mobile
+  const carouselContainer = document.querySelector('.carousel-container');
+  
+  carouselContainer?.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  carouselContainer?.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+  }, { passive: true });
+
+  function handleSwipe() {
+    const swipeThreshold = 50; // Minimum swipe distance in pixels
+    const diff = touchStartX - touchEndX;
+
+    if (Math.abs(diff) > swipeThreshold) {
+      stopAutoSlide();
+      
+      if (diff > 0) {
+        // Swiped left - go to next slide
+        nextSlide();
+      } else {
+        // Swiped right - go to previous slide
+        prevSlide();
+      }
+      
+      startAutoSlide(); // Restart timer after swipe
+    }
+  }
+
+  // Pause on hover (desktop only)
+  if (window.matchMedia("(min-width: 769px)").matches) {
+    carouselContainer?.addEventListener('mouseenter', stopAutoSlide);
+    carouselContainer?.addEventListener('mouseleave', startAutoSlide);
+  }
+
+  // Start auto-slide on load
+  startAutoSlide();
+
+  // Random game buttons
+  const allCategories = [
+    'population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
+    'olympic', 'worldcup', 'passport', 'beer', 'nobelprize', 
+    'hightemp', 'rainfall', 'crimerate', 'happiness', 'cuisine',
+    'tourism', 'michelin', 'bigmac', 'lifeexpectancy'
+  ];
+
+  const top10Categories = [
+    'population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
+    'passport', 'beer', 'nobelprize', 'hightemp', 'rainfall',
+    'crimerate', 'happiness', 'tourism', 'michelin', 'bigmac', 'lifeexpectancy'
+  ];
+
+  function getRandomCategory(categories) {
+    return categories[Math.floor(Math.random() * categories.length)];
+  }
+
+  // Random Classic
+  document.getElementById('randomClassicBtn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    const category = getRandomCategory(allCategories);
+    window.location.href = `game.html?mode=${category}`;
+  });
+
+  // Random Top 10
+  document.getElementById('randomTop10Btn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    const category = getRandomCategory(top10Categories);
+    window.location.href = `top10.html?mode=${category}`;
+  });
+
+  // Random VS
+  document.getElementById('randomVsBtn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    const category = getRandomCategory(allCategories);
+    window.location.href = `vs.html?mode=${category}`;
+  });
 </script>
 
 </body>
