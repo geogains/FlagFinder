@@ -1,0 +1,17 @@
+export const carexportsData = [
+  { name: 'Germany', code: 'DE', rank: 1, carExportsUsdB: 174.5 },
+  { name: 'Japan', code: 'JP', rank: 2, carExportsUsdB: 106.8 },
+  { name: 'China', code: 'CN', rank: 3, carExportsUsdB: 90.2 },
+  { name: 'South Korea', code: 'KR', rank: 4, carExportsUsdB: 68.3 },
+  { name: 'Mexico', code: 'MX', rank: 5, carExportsUsdB: 67.7 },
+  { name: 'United States', code: 'US', rank: 6, carExportsUsdB: 59.2 },
+  { name: 'Belgium', code: 'BE', rank: 7, carExportsUsdB: 41.5 },
+  { name: 'Spain', code: 'ES', rank: 8, carExportsUsdB: 38.9 },
+  { name: 'United Kingdom', code: 'GB', rank: 9, carExportsUsdB: 35.9 },
+  { name: 'Czechia', code: 'CZ', rank: 10, carExportsUsdB: 34.4 },
+  { name: 'Slovakia', code: 'SK', rank: 11, carExportsUsdB: 31.8 },
+  { name: 'Canada', code: 'CA', rank: 12, carExportsUsdB: 31.7 },
+  { name: 'France', code: 'FR', rank: 13, carExportsUsdB: 22.6 },
+  { name: 'Italy', code: 'IT', rank: 14, carExportsUsdB: 16.2 },
+  { name: 'Hungary', code: 'HU', rank: 15, carExportsUsdB: 15.0 },
+];

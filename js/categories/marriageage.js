@@ -1,0 +1,21 @@
+export const marriageageData = [
+  { name: 'Spain', code: 'ES', marriageAgeRank: 1, age: 38, marriageAge: 38 },
+  { name: 'Chile', code: 'CL', marriageAgeRank: 2, age: 37, marriageAge: 37 },
+  { name: 'Argentina', code: 'AR', marriageAgeRank: 3, age: 36, marriageAge: 36 },
+  { name: 'Brazil', code: 'BR', marriageAgeRank: 4, age: 35, marriageAge: 35 },
+  { name: 'Saint Lucia', code: 'LC', marriageAgeRank: 5, age: 34, marriageAge: 34 },
+  { name: 'Sweden', code: 'SE', marriageAgeRank: 6, age: 33, marriageAge: 33 },
+  { name: 'Barbados', code: 'BB', marriageAgeRank: 7, age: 32, marriageAge: 32 },
+  { name: 'Luxembourg', code: 'LU', marriageAgeRank: 8, age: 31, marriageAge: 31 },
+  { name: 'United States', code: 'US', marriageAgeRank: 9, age: 30, marriageAge: 30 },
+  { name: 'Japan', code: 'JP', marriageAgeRank: 10, age: 29, marriageAge: 29 },
+  { name: 'Oman', code: 'OM', marriageAgeRank: 11, age: 28, marriageAge: 28 },
+  { name: 'Albania', code: 'AL', marriageAgeRank: 12, age: 27, marriageAge: 27 },
+  { name: 'North Macedonia', code: 'MK', marriageAgeRank: 13, age: 26, marriageAge: 26 },
+  { name: 'Saudi Arabia', code: 'SA', marriageAgeRank: 14, age: 25, marriageAge: 25 },
+  { name: 'Haiti', code: 'HT', marriageAgeRank: 15, age: 24, marriageAge: 24 },
+  { name: 'Senegal', code: 'SN', marriageAgeRank: 16, age: 23, marriageAge: 23 },
+  { name: 'Mozambique', code: 'MZ', marriageAgeRank: 17, age: 22, marriageAge: 22 },
+  { name: 'Sudan', code: 'SD', marriageAgeRank: 18, age: 21, marriageAge: 21 },
+  { name: 'Malawi', code: 'MW', marriageAgeRank: 19, age: 20, marriageAge: 20 }
+];

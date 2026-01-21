@@ -188,6 +188,9 @@ const allCategoriesData = [
 const CATEGORIES_PER_PAGE = 20;
 let currentPage = 1;
 
+// Store user premium status globally
+let userIsPremium = false;
+
 function renderCategories(page) {
   const start = (page - 1) * CATEGORIES_PER_PAGE;
   const end = start + CATEGORIES_PER_PAGE;
@@ -279,17 +282,7 @@ async function checkPremiumStatus() {
   
   if (!session || !session.user) {
     // Not signed in → lock premium cards
-    document.querySelectorAll('.category-card[data-premium="true"]').forEach(card => {
-      card.classList.add('locked');
-      
-      // Add golden lock if not already present
-      if (!card.querySelector('.lock-icon')) {
-        let lock = document.createElement("div");
-        lock.className = "lock-icon";
-        lock.textContent = "🔒";
-        card.appendChild(lock);
-      }
-    });
+    lockPremiumCategories();
     return;
   }
 
@@ -301,18 +294,29 @@ async function checkPremiumStatus() {
     .single();
 
   if (!profile?.is_premium) {
+    lockPremiumCategories();
+  } else {
+    // User is premium, unlock all categories
     document.querySelectorAll('.category-card[data-premium="true"]').forEach(card => {
-      card.classList.add('locked');
-      
-      // Add golden lock if not already present
-      if (!card.querySelector('.lock-icon')) {
-        let lock = document.createElement("div");
-        lock.className = "lock-icon";
-        lock.textContent = "🔒";
-        card.appendChild(lock);
-      }
+      card.classList.remove('locked');
+      const lock = card.querySelector('.lock-icon');
+      if (lock) lock.remove();
     });
   }
+}
+
+function lockPremiumCategories() {
+  document.querySelectorAll('.category-card[data-premium="true"]').forEach(card => {
+    card.classList.add('locked');
+    
+    // Add golden lock if not already present
+    if (!card.querySelector('.lock-icon')) {
+      let lock = document.createElement("div");
+      lock.className = "lock-icon";
+      lock.textContent = "🔒";
+      card.appendChild(lock);
+    }
+  });
 }
 
 // Make checkPremiumStatus globally accessible
@@ -326,38 +330,24 @@ document.addEventListener('click', async (e) => {
   const card = e.target.closest('.category-card');
   if (!card) return;
 
-  const isPremium = card.dataset.premium === "true";
-  if (!isPremium) return; // Free category, let normal flow happen
-
-  const { data: { session } } = await supabase.auth.getSession();
-
-  // Not signed in → redirect to signin
-  if (!session || !session.user) {
-    if (confirm("Sign in to unlock premium categories!")) {
-      window.location.href = "signin.html";
+  // Check if category is locked
+  if (card.classList.contains('locked')) {
+    e.stopPropagation(); // Prevent mode selector from opening
+    
+    const modal = document.getElementById("premiumModal");
+    if (modal) {
+      modal.classList.remove("hidden");
+      modal.style.display = 'flex'; // Ensure flex display for centering
+      
+      // Scroll the modal into view centered in viewport
+      setTimeout(() => {
+        const modalWindow = modal.querySelector('.premium-window');
+        if (modalWindow) {
+          modalWindow.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+        }
+      }, 50);
     }
     return;
-  }
-
-  // Signed in → check if premium
-  const { data: profile } = await supabase
-    .from('users')
-    .select('is_premium')
-    .eq('id', session.user.id)
-    .single();
-
-  if (profile?.is_premium) {
-    // Has premium → allow through
-    return;
-  }
-
-  // Signed in but NOT premium → show upgrade modal
-  const modal = document.getElementById("premiumModal");
-  if (modal) {
-    modal.classList.remove("hidden");
-    modal.scrollIntoView({ behavior: "smooth", block: "center" });
-  } else {
-    window.location.href = "premium.html";
   }
 });
 
@@ -373,7 +363,10 @@ if (categoriesGrid) {
 <script>
   document.getElementById("closePremiumBtn").onclick = () => {
     const modal = document.getElementById("premiumModal");
-    if (modal) modal.classList.add("hidden");
+    if (modal) {
+      modal.classList.add("hidden");
+      modal.style.display = 'none'; // Reset display
+    }
   };
 
   document.getElementById("goPremiumBtn").onclick = () => {
@@ -494,12 +487,31 @@ overlay.addEventListener("click", (e) => {
       .forEach(cat => {
         const item = document.createElement("div");
         item.className = "search-item";
-        // Close search modal and open mode selector
+        // Close search modal and open mode selector or premium modal
         item.onclick = () => {
           closeModal(); // Close search modal first
           setTimeout(() => {
-            // Find the category emoji from the category cards
+            // Find the category card to check if it's locked
             const categoryCard = document.querySelector(`[data-category="${cat.slug}"]`);
+            
+            // If category is locked, show premium modal instead
+            if (categoryCard && categoryCard.classList.contains('locked')) {
+              const modal = document.getElementById("premiumModal");
+              if (modal) {
+                modal.classList.remove("hidden");
+                modal.style.display = 'flex'; // Ensure flex display for centering
+                
+                // Scroll the modal into view centered in viewport
+                setTimeout(() => {
+                  const modalWindow = modal.querySelector('.premium-window');
+                  if (modalWindow) {
+                    modalWindow.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+                  }
+                }, 50);
+              }
+              return;
+            }
+            
             const emoji = categoryCard ? categoryCard.dataset.emoji : '🎮';
             window.openModeSelector(cat.slug, cat.name, emoji, 'search'); // Pass 'search' as source
           }, 300); // Small delay to let search modal close

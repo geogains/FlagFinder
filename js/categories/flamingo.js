@@ -1,0 +1,18 @@
+export const flamingoData = [
+  { name: 'Kenya', code: 'KE', flamingoRank: 1, flamingos: 2000000 },
+  { name: 'Tanzania', code: 'TZ', flamingoRank: 2, flamingos: 1600000 },
+  { name: 'Ethiopia', code: 'ET', flamingoRank: 3, flamingos: 300000 },
+  { name: 'South Africa', code: 'ZA', flamingoRank: 4, flamingos: 200000 },
+  { name: 'Botswana', code: 'BW', flamingoRank: 5, flamingos: 200000 },
+  { name: 'Chile', code: 'CL', flamingoRank: 6, flamingos: 135000 },
+  { name: 'Argentina', code: 'AR', flamingoRank: 7, flamingos: 105000 },
+  { name: 'India', code: 'IN', flamingoRank: 8, flamingos: 100000 },
+  { name: 'Algeria', code: 'DZ', flamingoRank: 9, flamingos: 100000 },
+  { name: 'Spain', code: 'ES', flamingoRank: 10, flamingos: 70000 },
+  { name: 'Cuba', code: 'CU', flamingoRank: 11, flamingos: 70000 },
+  { name: 'Bolivia', code: 'BO', flamingoRank: 12, flamingos: 51000 },
+  { name: 'Brazil', code: 'BR', flamingoRank: 13, flamingos: 50000 },
+  { name: 'Mexico', code: 'MX', flamingoRank: 14, flamingos: 40000 },
+  { name: 'Peru', code: 'PE', flamingoRank: 15, flamingos: 37000 },
+  { name: 'Venezuela', code: 'VE', flamingoRank: 16, flamingos: 30000 },
+];
