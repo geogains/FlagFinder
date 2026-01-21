@@ -131,6 +131,23 @@ export function openModeSelector(categoryKey, categoryDisplayName, categoryEmoji
     michelin: "michelin.jpg",
     bigmac: "bigmac.jpg",
     lifeexpectancy: "lifeexpectancy.jpg",
+    // NEW CATEGORIES
+    marriageage: "marriageage.jpg",
+    sexratio: "sexratio.jpg",
+    tallestbuilding: "tallestbuilding.jpg",
+    density: "density.jpg",
+    carexports: "carexports.jpg",
+    militarypersonel: "militarypersonel.jpg",
+    rent: "rent.jpg",
+    poorestgdp: "poorestgdp.jpg",
+    university: "university.jpg",
+    volcano: "volcano.jpg",
+    flamingo: "flamingo.jpg",
+    disasterrisk: "disasterrisk.jpg",
+    longestriver: "longestriver.jpg",
+    renewableenergy: "renewableenergy.jpg",
+    millionaires: "millionaires.jpg",
+    gm: "gm.jpg",
   };
 
   const bgImage = bgMap[categoryKey];

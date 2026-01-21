@@ -288,6 +288,24 @@ function formatMetric(num) {
   if (metricKey === "bigMacPrice") return `$${num.toFixed(2)}`; 
   if (metricKey === "lifeExpectancy") return `${num.toFixed(1)} years`;
   
+  // NEW CATEGORIES
+  if (metricKey === "marriageAge") return `${num} years`;
+  if (metricKey === "sexRatio") return `${num}`;
+  if (metricKey === "height") return `${num}m`; // tallest building
+  if (metricKey === "density") return `${num.toLocaleString()} per km²`;
+  if (metricKey === "carExportsUsdB") return `$${num}B`;
+  if (metricKey === "personnel") return num.toLocaleString(); // military personnel
+  if (metricKey === "rentUsd") return `$${num.toLocaleString()}`;
+  if (metricKey === "gdpPerCapita") return `$${num.toLocaleString()}`; // poorest GDP
+  if (metricKey === "university") return `${num.toLocaleString()} universities`;
+  if (metricKey === "volcanos") return `${num} volcanoes`;
+  if (metricKey === "flamingos") return num.toLocaleString();
+  if (metricKey === "disasterrisk") return `${num.toFixed(2)}`;
+  if (metricKey === "longestriver") return `${num.toLocaleString()} km`;
+  if (metricKey === "sharepercent") return `${num}%`; // renewable energy
+  if (metricKey === "millionaires") return num.toLocaleString();
+  if (metricKey === "grandmasters") return `${num} grandmasters`;
+  
   // Special handling for altitude: always show full number with commas
   if (metricKey === "highestPoint") {
     return `${num.toLocaleString()} m`;

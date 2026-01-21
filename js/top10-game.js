@@ -797,6 +797,31 @@ function formatValue(value, unit) {
       return `$${value.toFixed(2)}`;  // ← UPDATE to use .toFixed(2)
     case 'years':
       return `${value.toFixed(1)} Years`;
+    // NEW CATEGORIES
+    case 'ratio': // sex ratio
+      return `${value}`;
+    case 'per km²': // density
+      return `${value.toLocaleString()} per km²`;
+    case '$B': // car exports
+      return `$${value.toFixed(1)}B`;
+    case 'personnel': // military personnel
+      return `${value.toLocaleString()}`;
+    case '$': // rent, poorest GDP
+      return `$${value.toLocaleString()}`;
+    case 'universities': // universities
+      return `${value.toLocaleString()} universities`;
+    case 'volcanoes': // volcanoes
+      return `${value} volcanoes`;
+    case 'flamingos': // flamingos
+      return `${value.toLocaleString()} flamingos`;
+    case 'risk index': // disaster risk
+      return `${value.toFixed(2)}`;
+    case '%': // renewable energy
+      return `${value}%`;
+    case 'millionaires': // millionaires
+      return `${value.toLocaleString()} millionaires`;
+    case 'grandmasters': // chess grandmasters
+      return `${value} grandmasters`;
     default:
       return `${value}`;
   }

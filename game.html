@@ -146,13 +146,30 @@
   import { michelinData } from './js/categories/michelin.js';
   import { bigmacData } from './js/categories/bigmac.js';
   import { lifeexpectancyData } from './js/categories/lifeexpectancy.js';
+  // NEW CATEGORIES
+  import { marriageageData } from './js/categories/marriageage.js';
+  import { sexratioData } from './js/categories/sexratio.js';
+  import { tallestbuildingData } from './js/categories/tallestbuilding.js';
+  import { densityData } from './js/categories/density.js';
+  import { carexportsData } from './js/categories/carexports.js';
+  import { militarypersonelData } from './js/categories/militarypersonel.js';
+  import { rentData } from './js/categories/rent.js';
+  import { poorestgdpData } from './js/categories/poorestgdp.js';
+  import { universityData } from './js/categories/university.js';
+  import { volcanoData } from './js/categories/volcano.js';
+  import { flamingoData } from './js/categories/flamingo.js';
+  import { disasterriskData } from './js/categories/disasterrisk.js';
+  import { longestriverData } from './js/categories/longestriver.js';
+  import { renewableenergyData } from './js/categories/renewableenergy.js';
+  import { millionairesData } from './js/categories/millionaires.js';
+  import { gmData } from './js/categories/gm.js';
 
   window.datasets = {
     population: { title: 'RANK COUNTRIES FROM LARGEST TO SMALLEST POPULATION 👥', data: populationData },
     gdp: { title: 'RANK COUNTRIES BASED ON AVERAGE INCOME PER PERSON 💰', data: gdpData },
     happiness: { title: 'RANK THESE COUNTRIES BY NATIONAL HAPPINESS SCORES 😊', data: happinessData },
     forest: { title: 'RANK COUNTRIES BASED ON THE TOTAL AREA COVERED BY FORESTS 🌲', data: forestData },
-    coastline: { title: 'RANK THESE COUNTRIES BY TOTAL COASTLINE LENGTH 🌊', data: coastlineData },
+    coastline: { title: 'RANK THESE COUNTRIES BY TOTAL COASTLINE LENGTH 🏝️', data: coastlineData },
     cuisine: { title: 'RANK THESE COUNTRIES BY CUISINE POPULARITY AND QUALITY 🍽️', data: cuisineData },
     olympic: { title: 'RANK COUNTRIES BY TOTAL OLYMPIC MEDALS WON 🥇', data: olympicData },
     worldcup: { title: 'RANK COUNTRIES BY THE NUMBER OF FIFA WORLD CUP TITLES THEY’VE WON ⚽', data: worldcupData },
@@ -170,6 +187,23 @@
     michelin: { title: 'RANK COUNTRIES BY MICHELIN STARRED RESTAURANTS ⭐', data: michelinData },
     bigmac: { title: 'RANK COUNTRIES BY BIG MAC PRICE 🍔', data: bigmacData },
     lifeexpectancy: { title: 'RANK COUNTRIES BY LIFE EXPECTANCY 🏥', data: lifeexpectancyData },
+    // NEW CATEGORIES
+    marriageage: { title: 'RANK COUNTRIES BY AVERAGE MARRIAGE AGE 💍', data: marriageageData },
+    sexratio: { title: 'RANK COUNTRIES BY SEX RATIO ⚖️', data: sexratioData },
+    tallestbuilding: { title: 'RANK COUNTRIES BY TALLEST BUILDING 🏙️', data: tallestbuildingData },
+    density: { title: 'RANK COUNTRIES BY POPULATION DENSITY 👨‍👩‍👧‍👦', data: densityData },
+    carexports: { title: 'RANK COUNTRIES BY CAR EXPORTS 🚗', data: carexportsData },
+    militarypersonel: { title: 'RANK COUNTRIES BY MILITARY PERSONNEL 🪖', data: militarypersonelData },
+    rent: { title: 'RANK COUNTRIES BY AVERAGE RENT PRICES 🏠', data: rentData },
+    poorestgdp: { title: 'RANK COUNTRIES BY LOWEST GDP PER CAPITA 📉', data: poorestgdpData },
+    university: { title: 'RANK COUNTRIES BY TOP UNIVERSITIES 🎓', data: universityData },
+    volcano: { title: 'RANK COUNTRIES BY NUMBER OF VOLCANOES 🌋', data: volcanoData },
+    flamingo: { title: 'RANK COUNTRIES BY FLAMINGO POPULATION 🦩', data: flamingoData },
+    disasterrisk: { title: 'RANK COUNTRIES BY DISASTER RISK ⚠️', data: disasterriskData },
+    longestriver: { title: 'RANK COUNTRIES BY LONGEST RIVER 🌊', data: longestriverData },
+    renewableenergy: { title: 'RANK COUNTRIES BY RENEWABLE ENERGY USE ♻️', data: renewableenergyData },
+    millionaires: { title: 'RANK COUNTRIES BY NUMBER OF MILLIONAIRES 💰', data: millionairesData },
+    gm: { title: 'RANK COUNTRIES BY CHESS GRANDMASTERS ♟️', data: gmData },
   };
 </script>
 
@@ -199,6 +233,23 @@
     'michelin',
     'bigmac',
     'lifeexpectancy',
+    // NEW CATEGORIES
+    'marriageage',
+    'sexratio',
+    'tallestbuilding',
+    'density',
+    'carexports',
+    'militarypersonel',
+    'rent',
+    'poorestgdp',
+    'university',
+    'volcano',
+    'flamingo',
+    'disasterrisk',
+    'longestriver',
+    'renewableenergy',
+    'millionaires',
+    'gm',
   ];
 
   const params = new URLSearchParams(window.location.search);

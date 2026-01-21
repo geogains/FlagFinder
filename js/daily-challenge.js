@@ -9,14 +9,22 @@ console.log('Daily Challenge system loaded');
 const allCategories = [
   'population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
   'olympic', 'worldcup', 'passport', 'beer', 'nobelprize', 
-  'hightemp', 'rainfall', 'crimerate', 'happiness', 'cuisine','tourism', 'michelin', 'bigmac', 'lifeexpectancy'
+  'hightemp', 'rainfall', 'crimerate', 'happiness', 'cuisine','tourism', 'michelin', 'bigmac', 'lifeexpectancy',
+  // NEW CATEGORIES
+  'marriageage', 'sexratio', 'tallestbuilding', 'density', 'carexports',
+  'militarypersonel', 'rent', 'poorestgdp', 'university', 'volcano',
+  'flamingo', 'disasterrisk', 'longestriver', 'renewableenergy', 'millionaires', 'gm'
 ];
 
 // Categories with at least 10 countries (valid for Top 10 mode)
 const top10ValidCategories = [
   'population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
   'passport', 'beer', 'nobelprize', 'hightemp', 'rainfall',
-  'crimerate', 'happiness','tourism', 'michelin', 'bigmac', 'lifeexpectancy'
+  'crimerate', 'happiness','tourism', 'michelin', 'bigmac', 'lifeexpectancy',
+  // NEW CATEGORIES (all have 10+ countries)
+  'marriageage', 'sexratio', 'tallestbuilding', 'density', 'carexports',
+  'militarypersonel', 'rent', 'poorestgdp', 'university', 'volcano',
+  'flamingo', 'disasterrisk', 'longestriver', 'renewableenergy', 'millionaires', 'gm'
 ];
 
 // All categories valid for Classic and VS (no minimum requirement)
@@ -158,6 +166,23 @@ export const categoryDisplayNames = {
   michelin: 'Michelin Restaurants',
   bigmac: 'BigMac Index',
   lifeexpectancy: 'Life Expectancy',
+  // NEW CATEGORIES
+  marriageage: 'Marriage Age',
+  sexratio: 'Sex Ratio',
+  tallestbuilding: 'Tallest Building',
+  density: 'Population Density',
+  carexports: 'Car Exports',
+  militarypersonel: 'Military Personnel',
+  rent: 'Rent Prices',
+  poorestgdp: 'Poorest Countries',
+  university: 'Universities',
+  volcano: 'Volcanoes',
+  flamingo: 'Flamingos',
+  disasterrisk: 'Disaster Risk',
+  longestriver: 'Longest River',
+  renewableenergy: 'Renewable Energy',
+  millionaires: 'Millionaires',
+  gm: 'Chess Grandmasters',
 };
 
 // Get emoji for each category
@@ -182,6 +207,23 @@ export const categoryEmojis = {
   michelin: '⭐',
   bigmac: '🍔',
   lifeexpectancy: '🏥',
+  // NEW CATEGORIES
+  marriageage: '💍',
+  sexratio: '⚖️',
+  tallestbuilding: '🏙️',
+  density: '👨‍👩‍👧‍👦',
+  carexports: '🚗',
+  militarypersonel: '🪖',
+  rent: '🏠',
+  poorestgdp: '📉',
+  university: '🎓',
+  volcano: '🌋',
+  flamingo: '🦩',
+  disasterrisk: '⚠️',
+  longestriver: '🌊',
+  renewableenergy: '♻️',
+  millionaires: '💰',
+  gm: '♟️',
 };
 
 console.log('Daily Challenge utilities ready');

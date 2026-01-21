@@ -450,6 +450,43 @@ function formatValue(value, unit) {
     case 'years':
       formatted = value.toFixed(1) + ' Years';
       break;
+    // NEW CATEGORIES
+    case 'ratio': // sex ratio
+      formatted = value.toLocaleString('en-US');
+      break;
+    case 'm': // tallest building (already handled above for altitude, but keep explicit)
+      formatted = value.toLocaleString('en-US') + 'm';
+      break;
+    case 'per km²': // density
+      formatted = value.toLocaleString('en-US') + ' per km²';
+      break;
+    case '$B': // car exports
+      formatted = '$' + value.toLocaleString('en-US', { maximumFractionDigits: 1 }) + 'B';
+      break;
+    case '': // military personnel (no unit, just number)
+      formatted = value.toLocaleString('en-US');
+      break;
+    case '$': // rent, poorest GDP
+      formatted = '$' + value.toLocaleString('en-US');
+      break;
+    case 'universities': // universities
+      formatted = value.toLocaleString('en-US') + ' universities';
+      break;
+    case 'volcanoes': // volcanoes
+      formatted = value.toLocaleString('en-US') + ' volcanoes';
+      break;
+    case 'flamingos': // flamingos
+      formatted = value.toLocaleString('en-US') + ' flamingos';
+      break;
+    case 'risk index': // disaster risk
+      formatted = value.toFixed(2);
+      break;
+    case 'millionaires': // millionaires
+      formatted = value.toLocaleString('en-US') + ' millionaires';
+      break;
+    case 'grandmasters': // chess grandmasters
+      formatted = value.toLocaleString('en-US') + ' grandmasters';
+      break;
     default:
       formatted = value.toLocaleString('en-US');
   }

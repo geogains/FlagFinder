@@ -25,6 +25,23 @@ export const CATEGORY_ID_MAP = {
   michelin: 18,
   bigmac: 19,
   lifeexpectancy: 20,
+  // NEW CATEGORIES
+  marriageage: 21,
+  sexratio: 22,
+  tallestbuilding: 23,
+  density: 24,
+  carexports: 25,
+  militarypersonel: 26,
+  rent: 27,
+  poorestgdp: 28,
+  university: 29,
+  volcano: 30,
+  flamingo: 31,
+  disasterrisk: 32,
+  longestriver: 33,
+  renewableenergy: 34,
+  millionaires: 35,
+  gm: 36,
 };
 
 // Category configurations for Top 10 mode
@@ -228,6 +245,151 @@ lifeexpectancy: {
   dataKey: "lifeexpectancyData",
   valueField: "lifeExpectancy",
   rankField: "lifeExpectancyRank"
+},
+// NEW CATEGORIES
+marriageage: {
+  title: "Average Marriage Age",
+  emoji: "💍",
+  unit: "years",
+  dataFile: "marriageage",
+  dataKey: "marriageageData",
+  valueField: "marriageAge",
+  rankField: "marriageAgeRank"
+},
+sexratio: {
+  title: "Sex Ratio (Males per 100 Females)",
+  emoji: "⚖️",
+  unit: "ratio",
+  dataFile: "sexratio",
+  dataKey: "sexratioData",
+  valueField: "sexRatio",
+  rankField: "sexRatioRank"
+},
+tallestbuilding: {
+  title: "Tallest Buildings",
+  emoji: "🏙️",
+  unit: "m",
+  dataFile: "tallestbuilding",
+  dataKey: "tallestbuildingData",
+  valueField: "height",
+  rankField: "tallestBuildingRank"
+},
+density: {
+  title: "Population Density",
+  emoji: "👨‍👩‍👧‍👦",
+  unit: "per km²",
+  dataFile: "density",
+  dataKey: "densityData",
+  valueField: "density",
+  rankField: "densityRank"
+},
+carexports: {
+  title: "Car Exports",
+  emoji: "🚗",
+  unit: "$B",
+  dataFile: "carexports",
+  dataKey: "carexportsData",
+  valueField: "carExportsUsdB",
+  rankField: "rank"
+},
+militarypersonel: {
+  title: "Military Personnel",
+  emoji: "🪖",
+  unit: "personnel",
+  dataFile: "militarypersonel",
+  dataKey: "militaryPersonnelData",
+  valueField: "personnel",
+  rankField: "personnelRank"
+},
+rent: {
+  title: "Rent Prices",
+  emoji: "🏠",
+  unit: "$",
+  dataFile: "rent",
+  dataKey: "rentData",
+  valueField: "rentUsd",
+  rankField: "rentRank"
+},
+poorestgdp: {
+  title: "Poorest Countries (GDP per Capita)",
+  emoji: "📉",
+  unit: "$",
+  dataFile: "poorestgdp",
+  dataKey: "poorestgdpData",
+  valueField: "gdpPerCapita",
+  rankField: "rank"
+},
+university: {
+  title: "Most Universities",
+  emoji: "🎓",
+  unit: "universities",
+  dataFile: "university",
+  dataKey: "universityData",
+  valueField: "university",
+  rankField: "universityRank"
+},
+volcano: {
+  title: "Most Volcanoes",
+  emoji: "🌋",
+  unit: "volcanoes",
+  dataFile: "volcano",
+  dataKey: "volcanoData",
+  valueField: "volcanos",
+  rankField: "volcanoRank"
+},
+flamingo: {
+  title: "Flamingo Population",
+  emoji: "🦩",
+  unit: "flamingos",
+  dataFile: "flamingo",
+  dataKey: "flamingoData",
+  valueField: "flamingos",
+  rankField: "flamingoRank"
+},
+disasterrisk: {
+  title: "Disaster Risk",
+  emoji: "⚠️",
+  unit: "risk index",
+  dataFile: "disasterrisk",
+  dataKey: "disasterRiskData",
+  valueField: "disasterrisk",
+  rankField: "disasterRank"
+},
+longestriver: {
+  title: "Longest Rivers",
+  emoji: "🌊",
+  unit: "km",
+  dataFile: "longestriver",
+  dataKey: "longestriverData",
+  valueField: "longestriver",
+  rankField: "longestriverRank"
+},
+renewableenergy: {
+  title: "Renewable Energy Share",
+  emoji: "♻️",
+  unit: "%",
+  dataFile: "renewableenergy",
+  dataKey: "renewableShareData",
+  valueField: "sharepercent",
+  rankField: "renewableRank"
+},
+millionaires: {
+  title: "Most Millionaires",
+  emoji: "💰",
+  unit: "millionaires",
+  dataFile: "millionaires",
+  dataKey: "millionaireData",
+  valueField: "millionaires",
+  rankField: "millionaireRank"
+},
+gm: {
+  title: "Chess Grandmasters",
+  emoji: "♟️",
+  unit: "grandmasters",
+  dataFile: "gm",
+  dataKey: "chessGMData",
+  valueField: "grandmasters",
+  rankField: "gmRank"
 }
 };
 

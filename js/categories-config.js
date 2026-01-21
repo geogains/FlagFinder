@@ -56,7 +56,7 @@ export const categoriesConfig = {
   
   coastline: {
     title: "Longest Coastline",
-    emoji: "🌊",
+    emoji: "🏝️",
     unit: "km",
     dataFile: "coastline",
     dataKey: "coastlineData",
@@ -209,6 +209,151 @@ lifeexpectancy: {
   dataKey: "lifeexpectancyData",
   valueField: "lifeExpectancy",
   questionText: "WHICH COUNTRY HAS HIGHER LIFE EXPECTANCY?"
+},
+// NEW CATEGORIES
+marriageage: {
+  title: "Marriage Age",
+  emoji: "💍",
+  unit: "years",
+  dataFile: "marriageage",
+  dataKey: "marriageageData",
+  valueField: "marriageAge",
+  questionText: "WHICH COUNTRY HAS A HIGHER MARRIAGE AGE?"
+},
+sexratio: {
+  title: "Sex Ratio",
+  emoji: "⚖️",
+  unit: "ratio",
+  dataFile: "sexratio",
+  dataKey: "sexratioData",
+  valueField: "sexRatio",
+  questionText: "WHICH COUNTRY HAS A HIGHER MALE TO FEMALE RATIO?"
+},
+tallestbuilding: {
+  title: "Tallest Building",
+  emoji: "🏙️",
+  unit: "m",
+  dataFile: "tallestbuilding",
+  dataKey: "tallestbuildingData",
+  valueField: "height",
+  questionText: "WHICH COUNTRY HAS A TALLER BUILDING?"
+},
+density: {
+  title: "Population Density",
+  emoji: "👨‍👩‍👧‍👦",
+  unit: "per km²",
+  dataFile: "density",
+  dataKey: "densityData",
+  valueField: "density",
+  questionText: "WHICH COUNTRY HAS HIGHER POPULATION DENSITY?"
+},
+carexports: {
+  title: "Car Exports",
+  emoji: "🚗",
+  unit: "$B",
+  dataFile: "carexports",
+  dataKey: "carexportsData",
+  valueField: "carExportsUsdB",
+  questionText: "WHICH COUNTRY EXPORTS MORE CARS?"
+},
+militarypersonel: {
+  title: "Military Personnel",
+  emoji: "🪖",
+  unit: "",
+  dataFile: "militarypersonel",
+  dataKey: "militaryPersonnelData",
+  valueField: "personnel",
+  questionText: "WHICH COUNTRY HAS MORE MILITARY PERSONNEL?"
+},
+rent: {
+  title: "Rent Prices",
+  emoji: "🏠",
+  unit: "$",
+  dataFile: "rent",
+  dataKey: "rentData",
+  valueField: "rentUsd",
+  questionText: "WHICH COUNTRY HAS HIGHER RENT PRICES?"
+},
+poorestgdp: {
+  title: "Poorest Countries",
+  emoji: "📉",
+  unit: "$",
+  dataFile: "poorestgdp",
+  dataKey: "poorestgdpData",
+  valueField: "gdpPerCapita",
+  questionText: "WHICH COUNTRY HAS LOWER GDP PER CAPITA?"
+},
+university: {
+  title: "Universities",
+  emoji: "🎓",
+  unit: "universities",
+  dataFile: "university",
+  dataKey: "universityData",
+  valueField: "university",
+  questionText: "WHICH COUNTRY HAS MORE UNIVERSITIES?"
+},
+volcano: {
+  title: "Volcanoes",
+  emoji: "🌋",
+  unit: "volcanoes",
+  dataFile: "volcano",
+  dataKey: "volcanoData",
+  valueField: "volcanos",
+  questionText: "WHICH COUNTRY HAS MORE VOLCANOES?"
+},
+flamingo: {
+  title: "Flamingos",
+  emoji: "🦩",
+  unit: "flamingos",
+  dataFile: "flamingo",
+  dataKey: "flamingoData",
+  valueField: "flamingos",
+  questionText: "WHICH COUNTRY HAS MORE FLAMINGOS?"
+},
+disasterrisk: {
+  title: "Disaster Risk",
+  emoji: "⚠️",
+  unit: "risk index",
+  dataFile: "disasterrisk",
+  dataKey: "disasterRiskData",
+  valueField: "disasterrisk",
+  questionText: "WHICH COUNTRY HAS HIGHER DISASTER RISK?"
+},
+longestriver: {
+  title: "Longest River",
+  emoji: "🌊",
+  unit: "km",
+  dataFile: "longestriver",
+  dataKey: "longestriverData",
+  valueField: "longestriver",
+  questionText: "WHICH COUNTRY HAS A LONGER RIVER?"
+},
+renewableenergy: {
+  title: "Renewable Energy",
+  emoji: "♻️",
+  unit: "%",
+  dataFile: "renewableenergy",
+  dataKey: "renewableShareData",
+  valueField: "sharepercent",
+  questionText: "WHICH COUNTRY USES MORE RENEWABLE ENERGY?"
+},
+millionaires: {
+  title: "Millionaires",
+  emoji: "💰",
+  unit: "millionaires",
+  dataFile: "millionaires",
+  dataKey: "millionaireData",
+  valueField: "millionaires",
+  questionText: "WHICH COUNTRY HAS MORE MILLIONAIRES?"
+},
+gm: {
+  title: "Chess Grandmasters",
+  emoji: "♟️",
+  unit: "grandmasters",
+  dataFile: "gm",
+  dataKey: "chessGMData",
+  valueField: "grandmasters",
+  questionText: "WHICH COUNTRY HAS MORE CHESS GRANDMASTERS?"
 }
 };
 
@@ -233,4 +378,21 @@ export const CATEGORY_ID_MAP = {
   michelin: 18,
   bigmac: 19,
   lifeexpectancy: 20,
+  // NEW CATEGORIES
+  marriageage: 21,
+  sexratio: 22,
+  tallestbuilding: 23,
+  density: 24,
+  carexports: 25,
+  militarypersonel: 26,
+  rent: 27,
+  poorestgdp: 28,
+  university: 29,
+  volcano: 30,
+  flamingo: 31,
+  disasterrisk: 32,
+  longestriver: 33,
+  renewableenergy: 34,
+  millionaires: 35,
+  gm: 36,
 };
