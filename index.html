@@ -366,6 +366,17 @@
 <!-- LOCKED CATEGORY LOGIC -->
 <script type="module">
   import { supabase } from './js/supabase-client.js';
+  
+  // Safety timeout: Always unlock UI after 3 seconds even if auth fails
+  const authTimeout = setTimeout(() => {
+    console.warn('Auth check timed out - enabling UI anyway');
+    const categoriesGrid = document.getElementById('categoriesGrid');
+    if (categoriesGrid) {
+      categoriesGrid.style.pointerEvents = 'auto';
+      categoriesGrid.style.opacity = '1';
+    }
+  }, 3000);
+  
   const { data: { session } } = await supabase.auth.getSession();
 
   let isPremium = false;
@@ -443,6 +454,7 @@
   }
   
   // Enable category grid after premium check is complete
+  clearTimeout(authTimeout); // Clear the safety timeout
   const categoriesGrid = document.getElementById('categoriesGrid');
   if (categoriesGrid) {
     categoriesGrid.style.pointerEvents = 'auto';
@@ -471,8 +483,15 @@
 <script type="module">
   import { supabase } from './js/supabase-client.js';
 
-  const { data: { session } } = await supabase.auth.getSession();
   const signInText = document.getElementById("signInText");
+  
+  // Show loading state initially
+  if (signInText) {
+    signInText.textContent = "Loading...";
+    signInText.style.opacity = "0.6";
+  }
+
+  const { data: { session } } = await supabase.auth.getSession();
 
   if (!session || !session.user) {
     if (signInText) {
@@ -482,6 +501,7 @@
         <span style="color: inherit;">Create Account</span>
       `;
       signInText.href = "auth.html";
+      signInText.style.opacity = "1"; // Restore full opacity
     }
   } else {
     // User is logged in - try to get username from database first
@@ -526,6 +546,7 @@
     if (signInText && displayName) {
       signInText.textContent = displayName;
       signInText.href = "account.html";
+      signInText.style.opacity = "1"; // Restore full opacity
     }
 
     // Hide upgrade button for premium users
