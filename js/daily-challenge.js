@@ -197,7 +197,7 @@ export const categoryEmojis = {
   worldcup: '⚽',
   passport: '🛂',
   beer: '🍺',
-  nobelprize: '🏆',
+  nobelprize: '🕊️',
   hightemp: '🌡️',
   rainfall: '🌧️',
   crimerate: '🚨',
@@ -206,7 +206,7 @@ export const categoryEmojis = {
   tourism: '✈️',
   michelin: '⭐',
   bigmac: '🍔',
-  lifeexpectancy: '🏥',
+  lifeexpectancy: '🤍',
   // NEW CATEGORIES
   marriageage: '💍',
   sexratio: '⚖️',

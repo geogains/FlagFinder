@@ -106,7 +106,7 @@ export const categoriesConfig = {
   
   nobelprize: {
     title: "Nobel Prizes",
-    emoji: "🏆",
+    emoji: "🕊️",
     unit: "prizes",
     dataFile: "nobelprize",
     dataKey: "nobelprizeData",
@@ -203,7 +203,7 @@ bigmac: {
 },
 lifeexpectancy: {
   title: "Life Expectancy",
-  emoji: "🏥",
+  emoji: "🤍",
   unit: "Years",
   dataFile: "lifeexpectancy",
   dataKey: "lifeexpectancyData",

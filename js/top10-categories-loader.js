@@ -202,7 +202,7 @@ const top10Config = {
   },
   worldcup: {
     title: "World Cup Wins",
-    emoji: "🏆",
+    emoji: "⚽️",
     unit: "titles",
     dataFile: "worldcup",
     dataKey: "worldcupData",
@@ -239,7 +239,7 @@ bigmac: {
 },
 lifeexpectancy: {
   title: "Highest Life Expectancy",
-  emoji: "🏥",
+  emoji: "🤍",
   unit: "Years",
   dataFile: "lifeexpectancy",
   dataKey: "lifeexpectancyData",
