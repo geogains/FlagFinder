@@ -168,7 +168,7 @@ export const categoryDisplayNames = {
   lifeexpectancy: 'Life Expectancy',
   // NEW CATEGORIES
   marriageage: 'Marriage Age',
-  sexratio: 'Sex Ratio',
+  sexratio: 'Gender Ratio',
   tallestbuilding: 'Tallest Building',
   density: 'Population Density',
   carexports: 'Car Exports',

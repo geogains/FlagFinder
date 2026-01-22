@@ -221,13 +221,13 @@ marriageage: {
   questionText: "WHICH COUNTRY HAS A HIGHER MARRIAGE AGE?"
 },
 sexratio: {
-  title: "Sex Ratio",
+  title: "Gender Ratio",
   emoji: "⚖️",
   unit: "ratio",
   dataFile: "sexratio",
   dataKey: "sexratioData",
   valueField: "sexRatio",
-  questionText: "WHICH COUNTRY HAS A HIGHER MALE TO FEMALE RATIO?"
+  questionText: "WHICH COUNTRY HAS A MORE MALES PER 100 FEMALES?"
 },
 tallestbuilding: {
   title: "Tallest Building",

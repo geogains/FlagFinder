@@ -257,7 +257,7 @@ marriageage: {
   rankField: "marriageAgeRank"
 },
 sexratio: {
-  title: "Sex Ratio (Males per 100 Females)",
+  title: "Most Males per 100 Females",
   emoji: "⚖️",
   unit: "ratio",
   dataFile: "sexratio",
