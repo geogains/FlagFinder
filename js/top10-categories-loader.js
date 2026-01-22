@@ -347,8 +347,8 @@ flamingo: {
   rankField: "flamingoRank"
 },
 disasterrisk: {
-  title: "Disaster Risk",
-  emoji: "⚠️",
+  title: "Natural Disasters",
+  emoji: "🌪️",
   unit: "risk index",
   dataFile: "disasterrisk",
   dataKey: "disasterRiskData",

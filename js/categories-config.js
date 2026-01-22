@@ -311,13 +311,13 @@ flamingo: {
   questionText: "WHICH COUNTRY HAS MORE FLAMINGOS?"
 },
 disasterrisk: {
-  title: "Disaster Risk",
-  emoji: "⚠️",
+  title: "Natural Disasters",
+  emoji: "🌪️",
   unit: "risk index",
   dataFile: "disasterrisk",
   dataKey: "disasterRiskData",
   valueField: "disasterrisk",
-  questionText: "WHICH COUNTRY HAS HIGHER DISASTER RISK?"
+  questionText: "WHICH COUNTRY HAS HIGHER NATURAL DISASTER RISK?"
 },
 longestriver: {
   title: "Longest River",
