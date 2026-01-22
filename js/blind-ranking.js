@@ -58,7 +58,24 @@ function detectMetricKey(data) {
     "touristArrivals",
     "michelinTotal",
     "bigMacPrice",
-    "lifeExpectancy" ,
+    "lifeExpectancy",
+    // NEW CATEGORIES
+    "marriageAge",
+    "sexRatio",
+    "height",
+    "density",
+    "carExportsUsdB",
+    "personnel",
+    "rentUsd",
+    "gdpPerCapita",
+    "university",
+    "volcanos",
+    "flamingos",
+    "disasterrisk",
+    "longestriver",
+    "sharepercent",
+    "millionaires",
+    "grandmasters"
   ];
   return possibleKeys.find((k) => keys.includes(k)) || null;
 }
