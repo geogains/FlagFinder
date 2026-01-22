@@ -284,7 +284,7 @@ density: {
   rankField: "densityRank"
 },
 carexports: {
-  title: "Car Exports",
+  title: "Highest Car Exports",
   emoji: "🚗",
   unit: "$B",
   dataFile: "carexports",
@@ -302,7 +302,7 @@ militarypersonel: {
   rankField: "personnelRank"
 },
 rent: {
-  title: "Rent Prices",
+  title: "Average 1 Bedroom City Centre Rent Price",
   emoji: "🏠",
   unit: "$",
   dataFile: "rent",
@@ -311,7 +311,7 @@ rent: {
   rankField: "rentRank"
 },
 poorestgdp: {
-  title: "Poorest Countries (GDP per Capita)",
+  title: "Lowest GDP per Capita",
   emoji: "📉",
   unit: "$",
   dataFile: "poorestgdp",
@@ -329,7 +329,7 @@ university: {
   rankField: "universityRank"
 },
 volcano: {
-  title: "Most Volcanoes",
+  title: "Most Holocene Volcanoes",
   emoji: "🌋",
   unit: "volcanoes",
   dataFile: "volcano",
@@ -347,7 +347,7 @@ flamingo: {
   rankField: "flamingoRank"
 },
 disasterrisk: {
-  title: "Natural Disasters",
+  title: "Natural Disaster Risk",
   emoji: "🌪️",
   unit: "risk index",
   dataFile: "disasterrisk",
@@ -365,7 +365,7 @@ longestriver: {
   rankField: "longestriverRank"
 },
 renewableenergy: {
-  title: "Renewable Energy Share",
+  title: "Their % of Renewable Energy Share",
   emoji: "♻️",
   unit: "%",
   dataFile: "renewableenergy",
