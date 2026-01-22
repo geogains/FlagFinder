@@ -78,62 +78,20 @@
     </div>
   </div>
 
-  <!-- FEATURED GAMES SECTION -->
-  <section class="featured-games-section">
-    <div class="featured-grid" id="featuredGrid">
-      
-      <!-- Daily Challenge Card -->
-      <div class="category-item featured">
-        <div class="category-card-new" id="dailyChallengeCard" data-category="daily" data-display="Daily Challenge" data-emoji="📅">
-          <div class="category-bg" style="background-image:url('images/categories/population.jpg');"></div>
+  <!-- DAILY CHALLENGE FEATURED CARD -->
+  <section class="daily-challenge-section">
+    <div class="daily-challenge-card-wrapper">
+      <div class="category-item">
+        <div class="category-card-new daily-challenge-card" id="dailyChallengeCard">
+          <div class="category-bg" id="dailyChallengeBg"></div>
           <div class="category-overlay"></div>
           <div class="category-content">
-            <div class="category-emoji">📅</div>
-            <div class="category-name" id="dailyChallengeTitle">Daily Challenge</div>
-            <div class="category-play-btn">Play Now →</div>
+            <div class="daily-badge">📅 DAILY CHALLENGE</div>
+            <div class="category-name" id="dailyChallengeTitle">Loading...</div>
+            <a href="#" id="dailyChallengeBtn" class="category-play-btn daily-play-btn">Play Now →</a>
           </div>
         </div>
       </div>
-
-      <!-- Random Classic Card -->
-      <div class="category-item featured">
-        <div class="category-card-new" id="randomClassicBtn" data-category="random-classic" data-display="Random Classic" data-emoji="🌍">
-          <div class="category-bg" style="background-image:url('images/categories/crimerate.jpg');"></div>
-          <div class="category-overlay"></div>
-          <div class="category-content">
-            <div class="category-emoji">🌍</div>
-            <div class="category-name">Random Classic</div>
-            <div class="category-play-btn">Play Now →</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Random Top 10 Card -->
-      <div class="category-item featured">
-        <div class="category-card-new" id="randomTop10Btn" data-category="random-top10" data-display="Random Top 10" data-emoji="🔟">
-          <div class="category-bg" style="background-image:url('images/categories/rainfall.jpg');"></div>
-          <div class="category-overlay"></div>
-          <div class="category-content">
-            <div class="category-emoji">🔟</div>
-            <div class="category-name">Random Top 10</div>
-            <div class="category-play-btn">Play Now →</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Random VS Card -->
-      <div class="category-item featured">
-        <div class="category-card-new" id="randomVsBtn" data-category="random-vs" data-display="Random VS" data-emoji="⚔️">
-          <div class="category-bg" style="background-image:url('images/categories/tourism.jpg');"></div>
-          <div class="category-overlay"></div>
-          <div class="category-content">
-            <div class="category-emoji">⚔️</div>
-            <div class="category-name">Random VS</div>
-            <div class="category-play-btn">Play Now →</div>
-          </div>
-        </div>
-      </div>
-
     </div>
   </section>
 
@@ -354,7 +312,8 @@
   }
 
   // Set background image based on category
-  if (dailyCard) {
+  const dailyBg = document.getElementById("dailyChallengeBg");
+  if (dailyBg) {
     const bgMap = {
       population: "population.jpg",
       gdp: "gdp.jpg",
@@ -395,11 +354,12 @@
       gm: "gm.jpg",
     };
 
-    const img = bgMap[todaysChallenge.category];
-    if (img) {
-      dailyCard.style.backgroundImage = `url('images/categories/${img}')`;
-      dailyCard.classList.add("has-photo");
-    }
+    console.log("🔍 Daily challenge category:", todaysChallenge.category);
+    const img = bgMap[todaysChallenge.category] || "population.jpg"; // Fallback to population
+    console.log("🖼️ Background image found:", img);
+    
+    dailyBg.style.backgroundImage = `url('images/categories/${img}')`;
+    console.log("✅ Background set to:", dailyBg.style.backgroundImage);
   }
 
   console.log(`📅 Today's Daily Challenge: ${modeText} - ${categoryText}`);
@@ -656,56 +616,6 @@ overlay.addEventListener("click", (e) => {
       }
     });
   });
-</script>
-
-<!-- Featured Games Click Handlers -->
-<script>
-  // Add click handlers to featured game cards
-  document.addEventListener('DOMContentLoaded', () => {
-    // Daily Challenge Card - handled by existing dailyChallengeBtn logic
-    document.getElementById('dailyChallengeCard')?.addEventListener('click', () => {
-      document.getElementById('dailyChallengeBtn')?.click();
-    });
-
-    // Random Classic Card
-    document.getElementById('randomClassicBtn')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      const category = getRandomCategory(allCategories);
-      window.location.href = `classic.html?category=${category}`;
-    });
-
-    // Random Top 10 Card
-    document.getElementById('randomTop10Btn')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      const category = getRandomCategory(top10Categories);
-      window.location.href = `top10.html?category=${category}`;
-    });
-
-    // Random VS Card
-    document.getElementById('randomVsBtn')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      const category = getRandomCategory(allCategories);
-      window.location.href = `vs.html?category=${category}`;
-    });
-  });
-
-  // Random game buttons
-  const allCategories = [
-    'population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
-    'olympic', 'worldcup', 'passport', 'beer', 'nobelprize', 
-    'hightemp', 'rainfall', 'crimerate', 'happiness', 'cuisine',
-    'tourism', 'michelin', 'bigmac', 'lifeexpectancy'
-  ];
-
-  const top10Categories = [
-    'population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
-    'passport', 'beer', 'nobelprize', 'hightemp', 'rainfall',
-    'crimerate', 'happiness', 'tourism', 'michelin', 'bigmac', 'lifeexpectancy'
-  ];
-
-  function getRandomCategory(categories) {
-    return categories[Math.floor(Math.random() * categories.length)];
-  }
 </script>
 
 </body>
