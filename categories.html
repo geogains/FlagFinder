@@ -140,7 +140,7 @@
 <script>
 // All categories data (Page 1 + Page 2 placeholders)
 const allCategoriesData = [
-  // PAGE 1 - Original 20 categories
+  // PAGE 1 - First 8 categories stay in place (FREE)
   { category: "population", display: "Population", emoji: "👥", premium: false, image: "population.jpg" },
   { category: "gdp", display: "GDP Per Capita", emoji: "💵", premium: false, image: "gdp.jpg" },
   { category: "altitude", display: "Highest Altitude", emoji: "🏔️", premium: false, image: "altitude.jpg" },
@@ -149,36 +149,38 @@ const allCategoriesData = [
   { category: "landmass", display: "Land Mass", emoji: "🌍", premium: false, image: "landmass.jpg" },
   { category: "passport", display: "Passport Strength", emoji: "🛂", premium: false, image: "passport.jpg" },
   { category: "beer", display: "Beer Consumption", emoji: "🍺", premium: false, image: "beer.jpg" },
-  { category: "cuisine", display: "Cuisine", emoji: "🍽️", premium: true, image: "cuisine.jpg" },
-  { category: "worldcup", display: "World Cup Trophies", emoji: "⚽", premium: true, image: "worldcup.jpg" },
-  { category: "crimerate", display: "Crime Rate", emoji: "🚨", premium: true, image: "crimerate.jpg" },
-  { category: "happiness", display: "Happiness", emoji: "😊", premium: true, image: "happiness.jpg" },
-  { category: "coastline", display: "Longest Coastline", emoji: "🌊", premium: true, image: "coastline.jpg" },
-  { category: "nobelprize", display: "Nobel Prize Winners", emoji: "🏆", premium: true, image: "nobelprize.jpg" },
-  { category: "temperature", display: "Highest Temperature", emoji: "🌡️", premium: true, image: "hightemp.jpg" },
-  { category: "precipitation", display: "Rainfall", emoji: "🌧️", premium: true, image: "rainfall.jpg" },
-  { category: "tourism", display: "Tourist Visits", emoji: "✈️", premium: true, image: "tourism.jpg" },
-  { category: "michelin", display: "Michelin Restaurants", emoji: "⭐", premium: true, image: "michelin.jpg" },
-  { category: "bigmac", display: "BigMac Index", emoji: "🍔", premium: true, image: "bigmac.jpg" },
-  { category: "lifeexpectancy", display: "Life Expectancy", emoji: "💚", premium: true, image: "lifeexpectancy.jpg" },
   
-  // PAGE 2 - NEW ACTIVE CATEGORIES (16 total)
-  { category: "marriageage", display: "Marriage Age", emoji: "💍", premium: true, image: "marriageage.jpg" },
-  { category: "sexratio", display: "Sex Ratio", emoji: "⚖️", premium: true, image: "sexratio.jpg" },
-  { category: "tallestbuilding", display: "Tallest Building", emoji: "🏙️", premium: true, image: "tallestbuilding.jpg" },
-  { category: "density", display: "Population Density", emoji: "👨‍👩‍👧‍👦", premium: true, image: "density.jpg" },
-  { category: "carexports", display: "Car Exports", emoji: "🚗", premium: true, image: "carexports.jpg" },
-  { category: "militarypersonel", display: "Military Personnel", emoji: "🪖", premium: true, image: "militarypersonel.jpg" },
-  { category: "rent", display: "Rent Prices", emoji: "🏠", premium: true, image: "rent.jpg" },
-  { category: "poorestgdp", display: "Poorest Countries", emoji: "📉", premium: true, image: "poorestgdp.jpg" },
-  { category: "university", display: "Top Universities", emoji: "🎓", premium: true, image: "university.jpg" },
+  // REMAINING 28 CATEGORIES - RANDOMLY SHUFFLED
   { category: "volcano", display: "Volcanoes", emoji: "🌋", premium: true, image: "volcano.jpg" },
-  { category: "flamingo", display: "Flamingos", emoji: "🦩", premium: true, image: "flamingo.jpg" },
-  { category: "disasterrisk", display: "Disaster Risk", emoji: "⚠️", premium: true, image: "disasterrisk.jpg" },
-  { category: "longestriver", display: "Longest River", emoji: "🌊", premium: true, image: "longestriver.jpg" },
+  { category: "crimerate", display: "Crime Rate", emoji: "🚨", premium: true, image: "crimerate.jpg" },
   { category: "renewableenergy", display: "Renewable Energy", emoji: "♻️", premium: true, image: "renewableenergy.jpg" },
+  { category: "tallestbuilding", display: "Tallest Building", emoji: "🏙️", premium: true, image: "tallestbuilding.jpg" },
+  { category: "nobelprize", display: "Nobel Prize Winners", emoji: "🏆", premium: true, image: "nobelprize.jpg" },
+  { category: "flamingo", display: "Flamingos", emoji: "🦩", premium: true, image: "flamingo.jpg" },
+  { category: "coastline", display: "Longest Coastline", emoji: "🌊", premium: true, image: "coastline.jpg" },
+  { category: "rent", display: "Rent Prices", emoji: "🏠", premium: true, image: "rent.jpg" },
+  { category: "lifeexpectancy", display: "Life Expectancy", emoji: "💚", premium: true, image: "lifeexpectancy.jpg" },
+  { category: "worldcup", display: "World Cup Trophies", emoji: "⚽", premium: true, image: "worldcup.jpg" },
+  { category: "michelin", display: "Michelin Restaurants", emoji: "⭐", premium: true, image: "michelin.jpg" },
+  { category: "density", display: "Population Density", emoji: "👨‍👩‍👧‍👦", premium: true, image: "density.jpg" },
+  
+  // PAGE 2 CONTINUES
+  { category: "university", display: "Top Universities", emoji: "🎓", premium: true, image: "university.jpg" },
+  { category: "sexratio", display: "Sex Ratio", emoji: "⚖️", premium: true, image: "sexratio.jpg" },
+  { category: "happiness", display: "Happiness", emoji: "😊", premium: true, image: "happiness.jpg" },
+  { category: "tourism", display: "Tourist Visits", emoji: "✈️", premium: true, image: "tourism.jpg" },
+  { category: "gm", display: "Grandmasters", emoji: "♟️", premium: true, image: "gm.jpg" },
+  { category: "militarypersonel", display: "Military Personnel", emoji: "🪖", premium: true, image: "militarypersonel.jpg" },
+  { category: "precipitation", display: "Rainfall", emoji: "🌧️", premium: true, image: "rainfall.jpg" },
+  { category: "bigmac", display: "BigMac Index", emoji: "🍔", premium: true, image: "bigmac.jpg" },
+  { category: "longestriver", display: "Longest River", emoji: "🌊", premium: true, image: "longestriver.jpg" },
+  { category: "carexports", display: "Car Exports", emoji: "🚗", premium: true, image: "carexports.jpg" },
+  { category: "disasterrisk", display: "Disaster Risk", emoji: "⚠️", premium: true, image: "disasterrisk.jpg" },
+  { category: "temperature", display: "Highest Temperature", emoji: "🌡️", premium: true, image: "hightemp.jpg" },
+  { category: "poorestgdp", display: "Poorest Countries", emoji: "📉", premium: true, image: "poorestgdp.jpg" },
+  { category: "marriageage", display: "Marriage Age", emoji: "💍", premium: true, image: "marriageage.jpg" },
   { category: "millionaires", display: "Millionaires", emoji: "💰", premium: true, image: "millionaires.jpg" },
-  { category: "gm", display: "Grandmasters", emoji: "♟️", premium: true, image: "gm.jpg" }
+  { category: "cuisine", display: "Cuisine", emoji: "🍽️", premium: true, image: "cuisine.jpg" }
 ];
 
 const CATEGORIES_PER_PAGE = 20;
