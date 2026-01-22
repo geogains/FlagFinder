@@ -913,6 +913,11 @@
 
     categories
       .filter(cat => cat.name.toLowerCase().includes(filter))
+      .sort((a, b) => {
+        const nameA = (displayNameMap[a.name.toLowerCase()] || formatCategoryName(a.name)).toLowerCase();
+        const nameB = (displayNameMap[b.name.toLowerCase()] || formatCategoryName(b.name)).toLowerCase();
+        return nameA.localeCompare(nameB);
+      })
       .forEach(cat => {
         const displayName = displayNameMap[cat.name.toLowerCase()] || formatCategoryName(cat.name);
         const slug = cat.name.toLowerCase();

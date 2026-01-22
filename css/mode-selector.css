@@ -1,4 +1,4 @@
-/* MODE SELECTOR MODAL STYLES */
+/* ========== PREMIUM MODE SELECTOR MODAL ========== */
 
 /* Modal Overlay */
 .mode-selector-overlay {
@@ -7,14 +7,15 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  background: rgba(13, 49, 90, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   display: none;
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  animation: fadeIn 0.3s ease;
+  animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 20px;
 }
 
 .mode-selector-overlay.active {
@@ -22,149 +23,177 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from { 
+    opacity: 0;
+  }
+  to { 
+    opacity: 1;
+  }
 }
 
 /* Modal Container */
 .mode-selector-modal {
-  background: rgba(255, 255, 255, 0.95);
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 24px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  padding: 40px;
-  max-width: 700px; /* Wider for landscape layout */
-  width: 90%;
+  border-radius: 32px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.4);
+  padding: 48px;
+  max-width: 900px;
+  width: 95%;
   position: relative;
-  animation: slideUp 0.4s ease;
+  animation: modalSlideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
 }
 
-/* Background image overlay for better text readability */
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(60px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Dark overlay for better text readability when background image is present */
 .mode-selector-modal::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.164);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   z-index: 0;
-  border-radius: 24px;
+  border-radius: 32px;
 }
 
-/* Ensure content is above the overlay */
+/* Subtle gradient overlay for depth */
+.mode-selector-modal::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(13, 49, 90, 0.15) 0%, transparent 50%, rgba(13, 49, 90, 0.2) 100%);
+  z-index: 0;
+  border-radius: 32px;
+  pointer-events: none;
+}
+
+/* Ensure content is above decorative elements */
 .mode-selector-modal > * {
   position: relative;
   z-index: 1;
 }
 
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 /* Close Button */
 .mode-selector-close {
   position: absolute;
-  top: 20px;
-  right: 20px;
-  background: rgba(0, 0, 0, 0.1);
-  border: none;
-  width: 36px;
-  height: 36px;
+  top: 24px;
+  right: 24px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
-  color: #6b7280;
-  transition: all 0.3s ease;
+  color: white;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+  font-weight: 300;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .mode-selector-close:hover {
-  background: rgba(0, 0, 0, 0.15);
-  transform: rotate(90deg);
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: rotate(90deg) scale(1.05);
+}
+
+.mode-selector-close:active {
+  transform: rotate(90deg) scale(0.95);
 }
 
 /* Header */
 .mode-selector-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
 }
 
 .mode-selector-title {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: #0d315a;
-  margin-bottom: 10px;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: white;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  margin-bottom: 12px;
   font-family: 'Poppins', sans-serif;
+  letter-spacing: -0.5px;
 }
 
 .mode-selector-category {
-  font-size: 1.3rem;
-  color: #0d315a;
-  font-weight: 500;
+  font-size: 1.5rem;
+  color: white;
+  font-weight: 600;
+  opacity: 0.95;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.mode-selector-category::before,
+.mode-selector-category::after {
+  content: '';
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  border-radius: 2px;
 }
 
 /* Mode Cards Grid */
 .mode-cards-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* Changed from 3 to 2 columns */
-  gap: 16px;
-  margin-bottom: 20px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 32px;
 }
 
 /* Individual Mode Card */
 .mode-card {
-  background:  #f9fafb9b;
-  border: 2px solid #e5e7eb;
-  border-radius: 16px;
-  padding: 30px 20px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 36px 24px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   opacity: 0;
-  transform: translateY(20px);
-  animation: fadeInCard 0.5s ease forwards;
+  transform: translateY(30px);
+  animation: fadeInCard 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-/* Staggered animation delays for each card */
-.mode-card:nth-child(1) {
-  animation-delay: 0.1s;
-}
-
-.mode-card:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.mode-card:nth-child(3) {
-  animation-delay: 0.3s;
-}
-
-.mode-card:nth-child(4) {
-  animation-delay: 0.4s;
-}
+/* Staggered animation delays */
+.mode-card:nth-child(1) { animation-delay: 0.1s; }
+.mode-card:nth-child(2) { animation-delay: 0.15s; }
+.mode-card:nth-child(3) { animation-delay: 0.2s; }
+.mode-card:nth-child(4) { animation-delay: 0.25s; }
 
 @keyframes fadeInCard {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
@@ -172,22 +201,48 @@
   }
 }
 
+/* Gradient accent on top */
 .mode-card::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
+  height: 5px;
   background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
   transform: scaleX(0);
-  transition: transform 0.3s ease;
+  transform-origin: left;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Shimmer effect on hover */
+.mode-card::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(102, 126, 234, 0.1) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  transition: transform 0.8s ease;
+  pointer-events: none;
+}
+
+.mode-card:hover::after {
+  transform: translateX(100%) translateY(100%) rotate(45deg);
 }
 
 .mode-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  border-color: #667eea;
+  transform: translateY(-8px) scale(1.02);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
+  border-color: rgba(102, 126, 234, 0.6);
 }
 
 .mode-card:hover::before {
@@ -195,146 +250,288 @@
 }
 
 .mode-card:active {
-  transform: translateY(-2px);
+  transform: translateY(-4px) scale(1);
 }
 
-/* Mode Card - Disabled (for categories with <10 countries) */
+/* Disabled State */
 .mode-card.disabled {
   cursor: not-allowed;
   pointer-events: none;
-}
-
-/* Override animation for disabled cards to fade to 40% opacity */
-@keyframes fadeInCardDisabled {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 0.4;
-    transform: translateY(0);
-  }
-}
-
-.mode-card.disabled {
-  animation-name: fadeInCardDisabled;
+  opacity: 0.4;
+  filter: grayscale(0.8);
 }
 
 .mode-card.disabled::after {
+  display: none;
+}
+
+/* Lock icon for disabled cards */
+.mode-card.disabled .mode-icon::after {
   content: '🔒';
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: -8px;
+  right: -8px;
   font-size: 1.2rem;
+  filter: grayscale(0) !important;
 }
 
 /* Mode Icon */
 .mode-icon {
-  font-size: 3rem;
-  margin-bottom: 15px;
+  font-size: 4rem;
+  margin-bottom: 16px;
   display: block;
+  filter: drop-shadow(0 4px 12px rgba(102, 126, 234, 0.2));
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.mode-card:hover .mode-icon {
+  transform: scale(1.15) rotate(5deg);
+  filter: drop-shadow(0 6px 20px rgba(102, 126, 234, 0.4));
 }
 
 /* Mode Name */
 .mode-name {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: 700;
   color: #0d315a;
-  margin-bottom: 10px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  margin-bottom: 12px;
+  letter-spacing: 0.5px;
+  transition: color 0.3s ease;
+}
+
+.mode-card:hover .mode-name {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* Mode Description */
 .mode-description {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: #6b7280;
-  line-height: 1.4;
+  line-height: 1.5;
+  font-weight: 400;
 }
 
 /* Cancel Button */
 .mode-cancel-btn {
   width: 100%;
-  background: linear-gradient(135deg, #ff9770, #ff6f61);
-  color: #ffffff;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
   border: none;
-  padding: 14px 30px;
-  border-radius: 12px;
-  font-size: 1rem;
+  padding: 18px 32px;
+  border-radius: 16px;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: 'Poppins', sans-serif;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.35);
   opacity: 0;
   transform: translateY(20px);
-  animation: fadeInCard 0.5s ease forwards;
-  animation-delay: 0.5s; /* After all cards */
+  animation: fadeInCard 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation-delay: 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.mode-cancel-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.6s ease;
+}
+
+.mode-cancel-btn:hover::before {
+  left: 100%;
 }
 
 .mode-cancel-btn:hover {
-  background: linear-gradient(135deg, #fb8b63, #f95f51);
+  background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.45);
 }
 
+.mode-cancel-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.3);
+}
 
-/* Mobile Responsive */
-@media (max-width: 768px) {
+/* ========== RESPONSIVE DESIGN ========== */
+
+/* Tablet */
+@media (max-width: 1024px) {
   .mode-selector-modal {
-    padding: 25px 20px;
-    width: 88%; /* Reduced from 90% to add margin from edges */
-    max-width: 380px; /* Slightly reduced for better spacing */
-  }
-
-  .mode-selector-header {
-    margin-bottom: 20px;
+    padding: 40px 32px;
   }
 
   .mode-selector-title {
-    font-size: 1.4rem;
+    font-size: 2rem;
+  }
+
+  .mode-selector-category {
+    font-size: 1.3rem;
+  }
+
+  .mode-cards-grid {
+    gap: 16px;
+  }
+
+  .mode-card {
+    padding: 30px 20px;
+  }
+
+  .mode-icon {
+    font-size: 3.5rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .mode-selector-overlay {
+    padding: 16px;
+  }
+
+  .mode-selector-modal {
+    padding: 32px 24px;
+    border-radius: 24px;
+    max-width: 100%;
+  }
+
+  .mode-selector-header {
+    margin-bottom: 32px;
+  }
+
+  .mode-selector-title {
+    font-size: 1.75rem;
+    margin-bottom: 10px;
+  }
+
+  .mode-selector-category {
+    font-size: 1.15rem;
+    gap: 8px;
+  }
+
+  .mode-selector-category::before,
+  .mode-selector-category::after {
+    width: 40px;
+  }
+
+  .mode-cards-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .mode-card {
+    padding: 24px 16px;
+    border-radius: 16px;
+  }
+
+  .mode-icon {
+    font-size: 3rem;
+    margin-bottom: 12px;
+  }
+
+  .mode-name {
+    font-size: 1.1rem;
     margin-bottom: 8px;
+  }
+
+  .mode-description {
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+
+  .mode-cancel-btn {
+    padding: 16px 24px;
+    font-size: 1rem;
+    border-radius: 14px;
+  }
+
+  .mode-selector-close {
+    width: 40px;
+    height: 40px;
+    top: 20px;
+    right: 20px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .mode-selector-modal {
+    padding: 28px 20px;
+  }
+
+  .mode-selector-title {
+    font-size: 1.5rem;
   }
 
   .mode-selector-category {
     font-size: 1rem;
   }
 
+  .mode-selector-category::before,
+  .mode-selector-category::after {
+    width: 30px;
+    height: 2px;
+  }
+
   .mode-cards-grid {
-    grid-template-columns: 1fr 1fr; /* 2x2 grid */
     gap: 12px;
-    margin-bottom: 15px;
   }
 
   .mode-card {
-    padding: 18px 12px;
+    padding: 20px 12px;
   }
 
   .mode-icon {
-    font-size: 2.2rem;
-    margin-bottom: 8px;
+    font-size: 2.5rem;
   }
 
   .mode-name {
-    font-size: 0.95rem;
-    margin-bottom: 6px;
+    font-size: 1rem;
+    letter-spacing: 0.3px;
   }
 
   .mode-description {
-    font-size: 0.75rem;
-    line-height: 1.3;
+    font-size: 0.8rem;
   }
 
   .mode-cancel-btn {
-    padding: 12px 20px;
+    padding: 14px 20px;
     font-size: 0.95rem;
   }
 }
 
-/* Tablet */
-@media (max-width: 1024px) and (min-width: 769px) {
-  .mode-cards-grid {
-    gap: 15px;
+/* ========== SMOOTH SCROLLING FOR MOBILE ========== */
+@media (max-height: 700px) {
+  .mode-selector-modal {
+    max-height: 90vh;
+    overflow-y: auto;
   }
 
-  .mode-card {
-    padding: 25px 15px;
+  .mode-selector-modal::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .mode-selector-modal::-webkit-scrollbar-track {
+    background: rgba(13, 49, 90, 0.05);
+    border-radius: 10px;
+  }
+
+  .mode-selector-modal::-webkit-scrollbar-thumb {
+    background: rgba(102, 126, 234, 0.3);
+    border-radius: 10px;
+  }
+
+  .mode-selector-modal::-webkit-scrollbar-thumb:hover {
+    background: rgba(102, 126, 234, 0.5);
   }
 }

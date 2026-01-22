@@ -78,64 +78,62 @@
     </div>
   </div>
 
-  <!-- DAILY CHALLENGE CAROUSEL -->
-  <section class="daily-challenge-carousel fade-in">
-    <div class="carousel-container">
-      <div class="carousel-track" id="carouselTrack">
-        
-        <!-- Slide 1: Daily Challenge -->
-        <div class="carousel-slide active" data-slide="0">
-          <div class="daily-challenge-card" id="dailyChallengeCard">
-            <div class="daily-info">
-              <h2>📅 DAILY CHALLENGE</h2>
-              <h3 id="dailyChallengeTitle">Loading...</h3>
-              <a href="#" id="dailyChallengeBtn" class="btn-primary glow">Play Now</a>
-            </div>
+  <!-- FEATURED GAMES SECTION -->
+  <section class="featured-games-section">
+    <div class="featured-grid" id="featuredGrid">
+      
+      <!-- Daily Challenge Card -->
+      <div class="category-item featured">
+        <div class="category-card-new" id="dailyChallengeCard" data-category="daily" data-display="Daily Challenge" data-emoji="📅">
+          <div class="category-bg" style="background-image:url('images/categories/population.jpg');"></div>
+          <div class="category-overlay"></div>
+          <div class="category-content">
+            <div class="category-emoji">📅</div>
+            <div class="category-name" id="dailyChallengeTitle">Daily Challenge</div>
+            <div class="category-play-btn">Play Now →</div>
           </div>
         </div>
-
-        <!-- Slide 2: Random Classic -->
-        <div class="carousel-slide" data-slide="1">
-          <div class="daily-challenge-card random-card has-photo" style="background-image: url('images/categories/crimerate.jpg');">
-            <div class="daily-info">
-              <h2>🌍 Random Classic</h2>
-              <h3>RANK COUNTRIES IN ORDER</h3>
-              <a href="#" id="randomClassicBtn" class="btn-primary glow">Play Now</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Slide 3: Random Top 10 -->
-        <div class="carousel-slide" data-slide="2">
-          <div class="daily-challenge-card random-card has-photo" style="background-image: url('images/categories/rainfall.jpg');">
-            <div class="daily-info">
-              <h2>🔟 Random Top 10</h2>
-              <h3>NAME THE TOP 10 COUNTRIES</h3>
-              <a href="#" id="randomTop10Btn" class="btn-primary glow">Play Now</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Slide 4: Random VS -->
-        <div class="carousel-slide" data-slide="3">
-          <div class="daily-challenge-card random-card has-photo" style="background-image: url('images/categories/tourism.jpg');">
-            <div class="daily-info">
-              <h2>⚔️ Random VS</h2>
-              <h3>SELECT THE HIGHEST RANKING COUNTRY</h3>
-              <a href="#" id="randomVsBtn" class="btn-primary glow">Play Now</a>
-            </div>
-          </div>
-        </div>
-
       </div>
-    </div>
 
-    <!-- Carousel Indicators -->
-    <div class="carousel-indicators">
-      <span class="indicator active" data-slide="0"></span>
-      <span class="indicator" data-slide="1"></span>
-      <span class="indicator" data-slide="2"></span>
-      <span class="indicator" data-slide="3"></span>
+      <!-- Random Classic Card -->
+      <div class="category-item featured">
+        <div class="category-card-new" id="randomClassicBtn" data-category="random-classic" data-display="Random Classic" data-emoji="🌍">
+          <div class="category-bg" style="background-image:url('images/categories/crimerate.jpg');"></div>
+          <div class="category-overlay"></div>
+          <div class="category-content">
+            <div class="category-emoji">🌍</div>
+            <div class="category-name">Random Classic</div>
+            <div class="category-play-btn">Play Now →</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Random Top 10 Card -->
+      <div class="category-item featured">
+        <div class="category-card-new" id="randomTop10Btn" data-category="random-top10" data-display="Random Top 10" data-emoji="🔟">
+          <div class="category-bg" style="background-image:url('images/categories/rainfall.jpg');"></div>
+          <div class="category-overlay"></div>
+          <div class="category-content">
+            <div class="category-emoji">🔟</div>
+            <div class="category-name">Random Top 10</div>
+            <div class="category-play-btn">Play Now →</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Random VS Card -->
+      <div class="category-item featured">
+        <div class="category-card-new" id="randomVsBtn" data-category="random-vs" data-display="Random VS" data-emoji="⚔️">
+          <div class="category-bg" style="background-image:url('images/categories/tourism.jpg');"></div>
+          <div class="category-overlay"></div>
+          <div class="category-content">
+            <div class="category-emoji">⚔️</div>
+            <div class="category-name">Random VS</div>
+            <div class="category-play-btn">Play Now →</div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </section>
 
@@ -143,70 +141,114 @@
   <section class="categories-section">
     <h2 class="fade-in">Top Categories 👇</h2>
    
-    <div class="categories-grid" id="categoriesGrid" style="pointer-events: none;"> 
+    <div class="categories-grid-new" id="categoriesGrid" style="pointer-events: none;"> 
 
       <!-- FREE CATEGORIES -->
-      <div class="category-card" data-category="population" data-display="Population" data-emoji="👥"
-         style="background-image:url('images/categories/population.jpg');">
-        <div class="category-info">
-          <span class="emoji">👥</span>
-          <h3>Population</h3>
+      <div class="category-item free">
+        <div class="category-card-new" data-category="population" data-display="Population" data-emoji="👥">
+          <div class="category-bg" style="background-image:url('images/categories/population.jpg');"></div>
+          <div class="category-overlay"></div>
+          <div class="category-content">
+            <div class="category-emoji">👥</div>
+            <div class="category-name">Population</div>
+            <div class="category-play-btn">Play Now →</div>
+          </div>
         </div>
       </div>
 
-      <div class="category-card" data-category="gdp" data-display="GDP Per Capita" data-emoji="💵"
-         style="background-image:url('images/categories/gdp.jpg');">
-        <div class="category-info">
-          <span class="emoji">💵</span>
-          <h3>GDP Per Capita</h3>
+      <div class="category-item free">
+        <div class="category-card-new" data-category="gdp" data-display="GDP Per Capita" data-emoji="💵">
+          <div class="category-bg" style="background-image:url('images/categories/gdp.jpg');"></div>
+          <div class="category-overlay"></div>
+          <div class="category-content">
+            <div class="category-emoji">💵</div>
+            <div class="category-name">GDP Per Capita</div>
+            <div class="category-play-btn">Play Now →</div>
+          </div>
         </div>
       </div>
 
-      <div class="category-card" data-category="altitude" data-display="Highest Altitude" data-emoji="🏔️"
-         style="background-image:url('images/categories/altitude.jpg');">
-        <div class="category-info">
-          <span class="emoji">🏔️</span>
-          <h3>Highest Altitude</h3>
+      <div class="category-item free">
+        <div class="category-card-new" data-category="altitude" data-display="Highest Altitude" data-emoji="🏔️">
+          <div class="category-bg" style="background-image:url('images/categories/altitude.jpg');"></div>
+          <div class="category-overlay"></div>
+          <div class="category-content">
+            <div class="category-emoji">🏔️</div>
+            <div class="category-name">Highest Altitude</div>
+            <div class="category-play-btn">Play Now →</div>
+          </div>
         </div>
       </div>
 
-      <div class="category-card" data-category="forest" data-display="Forest Cover" data-emoji="🌲"
-         style="background-image:url('images/categories/forest.jpg');">
-        <div class="category-info">
-          <span class="emoji">🌲</span>
-          <h3>Forest Cover</h3>
+      <div class="category-item free">
+        <div class="category-card-new" data-category="forest" data-display="Forest Cover" data-emoji="🌲">
+          <div class="category-bg" style="background-image:url('images/categories/forest.jpg');"></div>
+          <div class="category-overlay"></div>
+          <div class="category-content">
+            <div class="category-emoji">🌲</div>
+            <div class="category-name">Forest Cover</div>
+            <div class="category-play-btn">Play Now →</div>
+          </div>
         </div>
       </div>
 
-      <div class="category-card" data-category="olympic" data-display="Olympic Medals" data-emoji="🥇"
-         style="background-image:url('images/categories/olympic.jpg');">
-        <div class="category-info">
-          <span class="emoji">🥇</span>
-          <h3>Olympic Medals</h3>
+      <div class="category-item free">
+        <div class="category-card-new" data-category="olympic" data-display="Olympic Medals" data-emoji="🥇">
+          <div class="category-bg" style="background-image:url('images/categories/olympic.jpg');"></div>
+          <div class="category-overlay"></div>
+          <div class="category-content">
+            <div class="category-emoji">🥇</div>
+            <div class="category-name">Olympic Medals</div>
+            <div class="category-play-btn">Play Now →</div>
+          </div>
         </div>
       </div>
 
-      <div class="category-card" data-category="landmass" data-display="Land Mass" data-emoji="🌍"
-         style="background-image:url('images/categories/landmass.jpg');">
-        <div class="category-info">
-          <span class="emoji">🌍</span>
-          <h3>Land Mass</h3>
+      <div class="category-item free">
+        <div class="category-card-new" data-category="landmass" data-display="Land Mass" data-emoji="🌍">
+          <div class="category-bg" style="background-image:url('images/categories/landmass.jpg');"></div>
+          <div class="category-overlay"></div>
+          <div class="category-content">
+            <div class="category-emoji">🌍</div>
+            <div class="category-name">Land Mass</div>
+            <div class="category-play-btn">Play Now →</div>
+          </div>
         </div>
       </div>
 
-      <div class="category-card" data-category="passport" data-display="Passport Strength" data-emoji="🛂"
-         style="background-image:url('images/categories/passport.jpg');">
-        <div class="category-info">
-          <span class="emoji">🛂</span>
-          <h3>Passport Strength</h3>
+      <div class="category-item free">
+        <div class="category-card-new" data-category="passport" data-display="Passport Strength" data-emoji="🛂">
+          <div class="category-bg" style="background-image:url('images/categories/passport.jpg');"></div>
+          <div class="category-overlay"></div>
+          <div class="category-content">
+            <div class="category-emoji">🛂</div>
+            <div class="category-name">Passport Strength</div>
+            <div class="category-play-btn">Play Now →</div>
+          </div>
         </div>
       </div>
 
-      <div class="category-card" data-category="beer" data-display="Beer Consumption" data-emoji="🍺"
-         style="background-image:url('images/categories/beer.jpg');">
-        <div class="category-info">
-          <span class="emoji">🍺</span>
-          <h3>Beer Consumption</h3>
+      <div class="category-item free">
+        <div class="category-card-new" data-category="beer" data-display="Beer Consumption" data-emoji="🍺">
+          <div class="category-bg" style="background-image:url('images/categories/beer.jpg');"></div>
+          <div class="category-overlay"></div>
+          <div class="category-content">
+            <div class="category-emoji">🍺</div>
+            <div class="category-name">Beer Consumption</div>
+            <div class="category-play-btn">Play Now →</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="category-item free">
+        <div class="category-card-new" data-category="bigmac" data-display="BigMac Index" data-emoji="🍔">
+          <div class="category-bg" style="background-image:url('images/categories/bigmac.jpg');"></div>
+          <div class="category-overlay"></div>
+          <div class="category-content">
+            <div class="category-emoji">🍔</div>
+            <div class="category-name">BigMac Index</div>
+            <div class="category-play-btn">Play Now →</div>
+          </div>
         </div>
       </div>
 
@@ -616,103 +658,36 @@ overlay.addEventListener("click", (e) => {
   });
 </script>
 
-<!-- Carousel Auto-Slide Logic -->
+<!-- Featured Games Click Handlers -->
 <script>
-  let currentSlide = 0;
-  const totalSlides = 4;
-  let autoSlideInterval;
-  let touchStartX = 0;
-  let touchEndX = 0;
-
-  function showSlide(index) {
-    const track = document.getElementById('carouselTrack');
-    const slides = document.querySelectorAll('.carousel-slide');
-    const indicators = document.querySelectorAll('.indicator');
-    
-    // Wrap around
-    if (index >= totalSlides) currentSlide = 0;
-    else if (index < 0) currentSlide = totalSlides - 1;
-    else currentSlide = index;
-    
-    // Move track
-    const offset = -currentSlide * 100;
-    track.style.transform = `translateX(${offset}%)`;
-    
-    // Update active states
-    slides.forEach((slide, i) => {
-      slide.classList.toggle('active', i === currentSlide);
+  // Add click handlers to featured game cards
+  document.addEventListener('DOMContentLoaded', () => {
+    // Daily Challenge Card - handled by existing dailyChallengeBtn logic
+    document.getElementById('dailyChallengeCard')?.addEventListener('click', () => {
+      document.getElementById('dailyChallengeBtn')?.click();
     });
-    
-    indicators.forEach((indicator, i) => {
-      indicator.classList.toggle('active', i === currentSlide);
+
+    // Random Classic Card
+    document.getElementById('randomClassicBtn')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      const category = getRandomCategory(allCategories);
+      window.location.href = `classic.html?category=${category}`;
     });
-  }
 
-  function nextSlide() {
-    showSlide(currentSlide + 1);
-  }
+    // Random Top 10 Card
+    document.getElementById('randomTop10Btn')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      const category = getRandomCategory(top10Categories);
+      window.location.href = `top10.html?category=${category}`;
+    });
 
-  function prevSlide() {
-    showSlide(currentSlide - 1);
-  }
-
-  function startAutoSlide() {
-    autoSlideInterval = setInterval(nextSlide, 5000); // 5 seconds
-  }
-
-  function stopAutoSlide() {
-    clearInterval(autoSlideInterval);
-  }
-
-  // Click indicators to jump to slide
-  document.querySelectorAll('.indicator').forEach(indicator => {
-    indicator.addEventListener('click', () => {
-      const slideIndex = parseInt(indicator.dataset.slide);
-      showSlide(slideIndex);
-      stopAutoSlide();
-      startAutoSlide(); // Restart timer
+    // Random VS Card
+    document.getElementById('randomVsBtn')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      const category = getRandomCategory(allCategories);
+      window.location.href = `vs.html?category=${category}`;
     });
   });
-
-  // Touch swipe functionality for mobile
-  const carouselContainer = document.querySelector('.carousel-container');
-  
-  carouselContainer?.addEventListener('touchstart', (e) => {
-    touchStartX = e.changedTouches[0].screenX;
-  }, { passive: true });
-
-  carouselContainer?.addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].screenX;
-    handleSwipe();
-  }, { passive: true });
-
-  function handleSwipe() {
-    const swipeThreshold = 50; // Minimum swipe distance in pixels
-    const diff = touchStartX - touchEndX;
-
-    if (Math.abs(diff) > swipeThreshold) {
-      stopAutoSlide();
-      
-      if (diff > 0) {
-        // Swiped left - go to next slide
-        nextSlide();
-      } else {
-        // Swiped right - go to previous slide
-        prevSlide();
-      }
-      
-      startAutoSlide(); // Restart timer after swipe
-    }
-  }
-
-  // Pause on hover (desktop only)
-  if (window.matchMedia("(min-width: 769px)").matches) {
-    carouselContainer?.addEventListener('mouseenter', stopAutoSlide);
-    carouselContainer?.addEventListener('mouseleave', startAutoSlide);
-  }
-
-  // Start auto-slide on load
-  startAutoSlide();
 
   // Random game buttons
   const allCategories = [
@@ -731,27 +706,6 @@ overlay.addEventListener("click", (e) => {
   function getRandomCategory(categories) {
     return categories[Math.floor(Math.random() * categories.length)];
   }
-
-  // Random Classic
-  document.getElementById('randomClassicBtn')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    const category = getRandomCategory(allCategories);
-    window.location.href = `game.html?mode=${category}`;
-  });
-
-  // Random Top 10
-  document.getElementById('randomTop10Btn')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    const category = getRandomCategory(top10Categories);
-    window.location.href = `top10.html?mode=${category}`;
-  });
-
-  // Random VS
-  document.getElementById('randomVsBtn')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    const category = getRandomCategory(allCategories);
-    window.location.href = `vs.html?mode=${category}`;
-  });
 </script>
 
 </body>
