@@ -1413,3 +1413,127 @@ html, body {
 #dailyChallengeCard {
   width: 100% !important;
 }
+
+/* FIX: Remove backdrop-filter blur on mobile to prevent blurriness */
+@media (max-width: 768px) {
+  .category-overlay,
+  .daily-badge,
+  .category-play-btn,
+  .daily-play-btn {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  
+  /* Prevent transform-related blur on mobile */
+  .category-card-new,
+  .daily-challenge-card {
+    -webkit-transform: translateZ(0) !important;
+    transform: translateZ(0) !important;
+    -webkit-backface-visibility: hidden !important;
+    backface-visibility: hidden !important;
+    -webkit-perspective: 1000px !important;
+    perspective: 1000px !important;
+  }
+  
+  /* Remove filters that cause blur */
+  .category-bg {
+    -webkit-filter: brightness(0.7) !important;
+    filter: brightness(0.7) !important;
+  }
+}
+
+/* FIX: Proper centering without breaking layouts */
+.daily-challenge-section {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.categories-section {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.categories-section h2 {
+  text-align: center !important;
+}
+
+/* ========================================================
+   DAILY CHALLENGE CARD REFINEMENTS
+======================================================== */
+
+/* Make daily challenge card slightly larger and more prominent */
+.daily-challenge-card-wrapper .category-item {
+  max-width: 800px !important; /* Wider than category cards */
+}
+
+/* Enhanced daily challenge card styling */
+.daily-challenge-card {
+  height: 320px !important; /* Taller than category cards (280px) */
+  box-shadow: 0 12px 48px rgba(0,0,0,0.3) !important; /* Stronger shadow */
+}
+
+/* Gold badge styling improvements */
+.daily-badge {
+  font-size: 0.95rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+  padding: 10px 24px !important;
+  border-radius: 24px !important;
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5) !important;
+}
+
+/* Make title larger for daily challenge */
+.daily-challenge-card .category-name {
+  font-size: 2.2rem !important;
+  font-weight: 800 !important;
+  margin-bottom: 20px !important;
+}
+
+/* Make play button always visible and prominent */
+.daily-play-btn {
+  font-size: 1.1rem !important;
+  padding: 14px 32px !important;
+  font-weight: 700 !important;
+}
+
+/* Enhanced hover effect for daily challenge */
+.daily-challenge-card:hover {
+  transform: translate3d(0, -12px, 0) !important; /* Lift higher */
+  box-shadow: 0 20px 64px rgba(0,0,0,0.4) !important;
+}
+
+/* Responsive adjustments for daily challenge */
+@media (max-width: 768px) {
+  .daily-challenge-card-wrapper .category-item {
+    max-width: 100% !important;
+  }
+  
+  .daily-challenge-card {
+    height: 280px !important;
+  }
+  
+  .daily-badge {
+    font-size: 0.85rem !important;
+    padding: 8px 20px !important;
+  }
+  
+  .daily-challenge-card .category-name {
+    font-size: 1.8rem !important;
+  }
+  
+  .daily-play-btn {
+    font-size: 1rem !important;
+    padding: 12px 28px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .daily-challenge-card {
+    height: 260px !important;
+  }
+  
+  .daily-challenge-card .category-name {
+    font-size: 1.5rem !important;
+  }
+}
