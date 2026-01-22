@@ -365,7 +365,7 @@ longestriver: {
   rankField: "longestriverRank"
 },
 renewableenergy: {
-  title: "Their % of Renewable Energy Share",
+  title: "Their use of renewable energy",
   emoji: "♻️",
   unit: "%",
   dataFile: "renewableenergy",
