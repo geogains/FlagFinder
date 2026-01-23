@@ -38,6 +38,20 @@
       padding: 120px 20px 60px;
     }
 
+    /* Sleek divider at bottom of hero section */
+    .hero-section::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 1200px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(13, 49, 90, 0.15), transparent);
+      border-radius: 2px;
+    }
+
     .hero-content {
       position: relative;
       z-index: 2;
@@ -184,11 +198,16 @@
       margin: 0 auto;
       padding: 40px 20px 100px;
       position: relative;
+      transition: padding-top 0.3s ease;
+    }
+
+    /* Extra top padding when hero is hidden (pages 2, 3, 4) */
+    .categories-flow.no-hero {
+      padding-top: 120px;
     }
 
     .category-item {
       position: relative;
-      margin-bottom: 40px;
       opacity: 0;
       transform: translateY(50px) scale(0.9);
       animation: stompIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
@@ -355,6 +374,34 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
       gap: 30px;
+      position: relative;
+      padding-bottom: 60px;
+    }
+
+    /* Divider below categories grid */
+    .categories-grid-new::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 1200px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(13, 49, 90, 0.15), transparent);
+      border-radius: 2px;
+      opacity: 0;
+      animation: fadeInDivider 0.6s ease-out forwards;
+      animation-delay: 1.95s; /* Fades in after 9th card (last card at 1.65s + 0.3s) */
+    }
+
+    @keyframes fadeInDivider {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
     }
 
     /* ========== ANIMATIONS ========== */
@@ -455,7 +502,7 @@
       }
 
       .categories-grid-new {
-        gap: 3px; /* Reduced from 10px */
+        gap: 6px; /* Reduced from 10px */
       }
 
       .category-card-new {
@@ -478,10 +525,13 @@
       align-items: center;
       gap: 12px;
       margin: 60px 0 80px;
-      flex-wrap: wrap;
+      flex-wrap: nowrap; /* Changed from wrap to nowrap */
+      overflow-x: auto; /* Allow horizontal scroll if needed */
+      padding: 0 20px;
       opacity: 0;
       animation: fadeInPagination 0.6s ease-out forwards;
-      animation-delay: 2.1s; /* Fades in after 12th card (1.8s + 0.3s buffer) */
+      animation-delay: 2.1s;
+      position: relative;
     }
 
     .page-btn {
@@ -498,6 +548,7 @@
       transition: all 0.3s ease;
       font-family: 'Poppins', sans-serif;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      flex-shrink: 0; /* Prevent buttons from shrinking */
     }
 
     .page-btn:hover:not(.active):not(:disabled) {
@@ -520,6 +571,42 @@
 
     .page-arrow {
       font-size: 1.1rem;
+    }
+
+    /* Mobile pagination adjustments */
+    @media (max-width: 768px) {
+      .pagination-controls {
+        gap: 8px;
+        padding: 0 10px;
+      }
+
+      .page-btn {
+        min-width: 40px;
+        padding: 10px 16px;
+        font-size: 0.9rem;
+      }
+
+      .page-arrow {
+        font-size: 1rem;
+        padding: 10px 12px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .pagination-controls {
+        gap: 6px;
+      }
+
+      .page-btn {
+        min-width: 35px;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+      }
+
+      .page-arrow {
+        font-size: 0.9rem;
+        padding: 8px 10px;
+      }
     }
 
     /* ========== PREMIUM HAMBURGER MENU ========== */
@@ -793,6 +880,7 @@
     <button class="page-btn active" data-page="1">1</button>
     <button class="page-btn" data-page="2">2</button>
     <button class="page-btn" data-page="3">3</button>
+    <button class="page-btn" data-page="4">4</button>
     <button class="page-btn page-arrow" id="nextPage">Next →</button>
   </div>
 </div>
@@ -878,7 +966,7 @@
 
   let userIsPremium = false;
   let currentPage = 1;
-  const ITEMS_PER_PAGE = 12;
+  const ITEMS_PER_PAGE = 9; // 9 categories per page = 4 pages total (36 categories)
 
   // Check premium status
   async function checkPremiumStatus() {
@@ -912,11 +1000,15 @@
 
     // Show/hide hero section based on page
     const heroSection = document.querySelector('.hero-section');
+    const categoriesFlow = document.querySelector('.categories-flow');
+    
     if (heroSection) {
       if (currentPage === 1) {
         heroSection.style.display = 'flex';
+        categoriesFlow?.classList.remove('no-hero');
       } else {
         heroSection.style.display = 'none';
+        categoriesFlow?.classList.add('no-hero');
       }
     }
 
@@ -1034,11 +1126,76 @@
   const searchInput = document.getElementById('categorySearchInput');
   const searchDropdown = document.getElementById('searchDropdown');
 
+  // Show all categories when search bar is focused
+  searchInput?.addEventListener('focus', () => {
+    if (searchInput.value.trim().length === 0) {
+      // Show all categories sorted alphabetically
+      const allSorted = allCategoriesData.slice().sort((a, b) => a.display.localeCompare(b.display));
+      
+      searchDropdown.innerHTML = allSorted.map(cat => `
+        <div class="search-dropdown-item" data-category="${cat.category}" data-display="${cat.display}" data-emoji="${cat.emoji}" data-premium="${cat.premium}">
+          <img src="images/categories/${cat.image}" alt="${cat.display}" />
+          <div class="search-dropdown-text">${cat.display}</div>
+        </div>
+      `).join('');
+
+      searchDropdown.classList.add('active');
+
+      // Add click handlers to dropdown items
+      searchDropdown.querySelectorAll('.search-dropdown-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const category = item.dataset.category;
+          const display = item.dataset.display;
+          const emoji = item.dataset.emoji;
+          const isPremium = item.dataset.premium === 'true';
+          
+          searchInput.value = '';
+          searchDropdown.classList.remove('active');
+
+          if (isPremium && !userIsPremium) {
+            showPremiumModal();
+          } else {
+            openModeSelector(category, display, emoji);
+          }
+        });
+      });
+    }
+  });
+
   searchInput?.addEventListener('input', (e) => {
     const query = e.target.value.toLowerCase();
     
     if (query.length === 0) {
-      searchDropdown.classList.remove('active');
+      // Show all categories when input is cleared
+      const allSorted = allCategoriesData.slice().sort((a, b) => a.display.localeCompare(b.display));
+      
+      searchDropdown.innerHTML = allSorted.map(cat => `
+        <div class="search-dropdown-item" data-category="${cat.category}" data-display="${cat.display}" data-emoji="${cat.emoji}" data-premium="${cat.premium}">
+          <img src="images/categories/${cat.image}" alt="${cat.display}" />
+          <div class="search-dropdown-text">${cat.display}</div>
+        </div>
+      `).join('');
+
+      searchDropdown.classList.add('active');
+
+      // Add click handlers
+      searchDropdown.querySelectorAll('.search-dropdown-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const category = item.dataset.category;
+          const display = item.dataset.display;
+          const emoji = item.dataset.emoji;
+          const isPremium = item.dataset.premium === 'true';
+          
+          searchInput.value = '';
+          searchDropdown.classList.remove('active');
+
+          if (isPremium && !userIsPremium) {
+            showPremiumModal();
+          } else {
+            openModeSelector(category, display, emoji);
+          }
+        });
+      });
       return;
     }
 
