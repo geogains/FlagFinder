@@ -540,7 +540,8 @@ html, body {
 ----------------------------- */
 
 .hero-logo {
-  max-width: 300px;
+  max-width: 700px;
+  margin-top: 80px;
   width: 80%;
   height: auto;
   animation: fadeInUp 1s ease-out;
