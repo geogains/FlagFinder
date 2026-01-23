@@ -533,77 +533,7 @@ html, body {
   -webkit-overflow-scrolling: touch;
 }
 
-/* 📱 Mobile */
-@media (max-width: 768px) {
-  .home-wrapper {
-    max-width: 480px;
-    align-items: center;
-  }
-
-  .daily-challenge-carousel {
-    width: 90%;
-    max-width: 100%;
-  }
-
-  .carousel-container {
-    width: 100%;
-    touch-action: pan-y pinch-zoom; /* Allow vertical scroll but enable horizontal swipe */
-  }
-
-  .carousel-slide {
-    min-width: 100%;
-    width: 100%;
-  }
-
-  .daily-challenge-card {
-    width: 100%;
-    margin-bottom: 0;
-    min-height: 280px; /* Slightly shorter on mobile */
-  }
-
-  .categories-section {
-    max-width: 420px;
-  }
-
-  .categories-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* 💻 Desktop & Tablet */
-@media (min-width: 769px) {
-  .categories-section {
-    max-width: 850px;
-  }
-
-  .categories-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
-  }
-
-  .category-card {
-    max-width: 210px;
-    min-height: 200px;
-  }
-
-  .category-info h3 {
-    font-size: 1.1rem;
-  }
-}
-
-/* Reduce blur intensity on smaller screens */
-@media (max-width: 768px) {
-  .daily-challenge-card::before {
-    backdrop-filter: blur(3px) !important;
-    -webkit-backdrop-filter: blur(1px) !important;
-  }
-
-  .daily-info {
-    backdrop-filter: blur(3px) !important;
-    -webkit-backdrop-filter: blur(3px) !important;
-    background: rgba(255, 255, 255, 0.65); /* more opaque for readability */
-  }
-}
+/* Mobile overrides removed - desktop layout is perfect for all screens */
 
 /* -----------------------------
    Sign-In / Auth Modal Styles
@@ -1280,47 +1210,8 @@ html, body {
 /* ========================================================
    RESPONSIVE
 ======================================================== */
-@media (max-width: 768px) {
-  .categories-grid-new {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
+/* Mobile overrides removed - desktop layout is perfect for all screens */
 
-  .category-card-new {
-    height: 240px;
-  }
-
-  .category-content {
-    padding: 24px;
-  }
-
-  .category-emoji {
-    font-size: 2.8rem;
-  }
-
-  .category-name {
-    font-size: 1.5rem;
-  }
-
-  .category-play-btn {
-    padding: 10px 20px;
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .category-card-new {
-    height: 220px;
-  }
-
-  .category-emoji {
-    font-size: 2.5rem;
-  }
-
-  .category-name {
-    font-size: 1.3rem;
-  }
-}
 /* ========================================================
    DAILY CHALLENGE FEATURED CARD
 ======================================================== */
@@ -1378,20 +1269,7 @@ html, body {
   transform: translateX(8px) !important;
 }
 
-@media (max-width: 768px) {
-  .daily-challenge-section {
-    margin: 1.5rem auto 2.5rem;
-  }
-
-  .daily-badge {
-    font-size: 0.8rem;
-    padding: 6px 16px;
-  }
-
-  .daily-challenge-card .category-name {
-    font-size: 1.6rem;
-  }
-}
+/* Mobile overrides removed - desktop layout is perfect for all screens */
 
 
 
@@ -1504,39 +1382,8 @@ html, body {
 }
 
 /* Responsive adjustments for daily challenge */
-@media (max-width: 768px) {
-  .daily-challenge-card-wrapper .category-item {
-    max-width: 100% !important;
-  }
-  
-  .daily-challenge-card {
-    height: 280px !important;
-  }
-  
-  .daily-badge {
-    font-size: 0.85rem !important;
-    padding: 8px 20px !important;
-  }
-  
-  .daily-challenge-card .category-name {
-    font-size: 1.8rem !important;
-  }
-  
-  .daily-play-btn {
-    font-size: 1rem !important;
-    padding: 12px 28px !important;
-  }
-}
+/* Mobile overrides removed - desktop layout is perfect for all screens */
 
-@media (max-width: 480px) {
-  .daily-challenge-card {
-    height: 260px !important;
-  }
-  
-  .daily-challenge-card .category-name {
-    font-size: 1.5rem !important;
-  }
-}
 /* ========================================================
    HAMBURGER MENU SLIDER - VISUAL STYLES FROM CATEGORIES
 ======================================================== */
