@@ -560,15 +560,38 @@
 
 <!-- Hamburger Menu Logic -->
 <script>
+// Menu toggle with scroll lock
 const toggleBtn = document.getElementById("menuToggle");
 const overlay = document.getElementById("menuOverlay");
 const closeBtn = document.getElementById("closeMenu");
+let scrollPosition = 0;
 
-toggleBtn?.addEventListener("click", () => overlay.classList.add("active"));
-closeBtn?.addEventListener("click", () => overlay.classList.remove("active"));
+toggleBtn?.addEventListener("click", () => {
+  // Store current scroll position
+  scrollPosition = window.pageYOffset;
+  // Lock body scroll
+  document.body.classList.add('menu-open');
+  document.body.style.top = `-${scrollPosition}px`;
+  // Show menu
+  overlay.classList.add("active");
+});
 
-overlay.addEventListener("click", (e) => {
-  if (e.target === overlay) overlay.classList.remove("active");
+function closeMenuHandler() {
+  // Unlock body scroll
+  document.body.classList.remove('menu-open');
+  document.body.style.top = '';
+  // Restore scroll position
+  window.scrollTo(0, scrollPosition);
+  // Hide menu
+  overlay.classList.remove("active");
+}
+
+closeBtn?.addEventListener("click", closeMenuHandler);
+
+overlay?.addEventListener("click", (e) => {
+  if (e.target === overlay) {
+    closeMenuHandler();
+  }
 });
 </script>
 

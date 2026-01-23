@@ -898,6 +898,16 @@
     const grid = document.getElementById('categoriesGrid');
     grid.innerHTML = '';
 
+    // Show/hide hero section based on page
+    const heroSection = document.querySelector('.hero-section');
+    if (heroSection) {
+      if (currentPage === 1) {
+        heroSection.style.display = 'flex';
+      } else {
+        heroSection.style.display = 'none';
+      }
+    }
+
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     const end = start + ITEMS_PER_PAGE;
     const pageCategories = allCategoriesData.slice(start, end);
