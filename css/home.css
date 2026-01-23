@@ -541,12 +541,26 @@ html, body {
 
 .hero-logo {
   max-width: 700px;
-  margin-top: 80px;
+  margin-top: 0px;
   width: 80%;
   height: auto;
   animation: fadeInUp 1s ease-out;
 }
 
+/* ========== PAGE 2–4: Hide Hero Elements Except Search ========== */
+body.category-subpage .hero-content {
+  display: none;
+}
+
+body.category-subpage .search-bar-hero {
+  display: block;
+}
+
+body.category-subpage .hero-section {
+  height: auto;
+  min-height: 0;
+  padding: 40px 20px 20px;
+}
 
 .auth-modal {
   position: fixed;
