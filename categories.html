@@ -808,6 +808,23 @@
         font-size: 0.95rem;
         gap: 12px;
       }
+
+   /* When on page 2-4: hide hero-content but keep search bar */
+.categories-flow.no-hero ~ .hero-section .hero-content {
+  display: none;
+}
+
+.categories-flow.no-hero ~ .hero-section .search-bar-hero {
+  display: block;
+}
+
+/* Optional: tighten vertical spacing on pages 2–4 */
+.categories-flow.no-hero ~ .hero-section {
+  height: auto;
+  min-height: 0;
+  padding: 40px 20px 20px;
+}
+
     }
   </style>
 </head>
@@ -855,10 +872,10 @@
   <div class="hero-content">
     <img src="assets/logo.png" class="hero-logo" alt="GeoRanks" />
     <p class="hero-subtitle">36 unique ways to test your world knowledge</p>
-    <div class="search-bar-hero">
-      <input type="text" id="categorySearchInput" placeholder="🔍 Search categories..." />
-      <div class="search-dropdown" id="searchDropdown"></div>
-    </div>
+    <div class="search-bar-hero" style="margin-top: 80px;">
+  <input type="text" id="categorySearchInput" placeholder="🔍 Search categories..." />
+  <div class="search-dropdown" id="searchDropdown"></div>
+</div>
   </div>
 </section>
 
@@ -1027,14 +1044,12 @@
     const categoriesFlow = document.querySelector('.categories-flow');
     
     if (heroSection) {
-      if (currentPage === 1) {
-        heroSection.style.display = 'flex';
-        categoriesFlow?.classList.remove('no-hero');
-      } else {
-        heroSection.style.display = 'none';
-        categoriesFlow?.classList.add('no-hero');
-      }
-    }
+  if (currentPage === 1) {
+    categoriesFlow?.classList.remove('no-hero');
+  } else {
+    categoriesFlow?.classList.add('no-hero');
+  }
+}
 
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     const end = start + ITEMS_PER_PAGE;
@@ -1100,12 +1115,20 @@
 
   // Pagination handlers
   document.querySelectorAll('.page-btn[data-page]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      currentPage = parseInt(btn.dataset.page);
-      renderCategories();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
+  btn.addEventListener('click', () => {
+    currentPage = parseInt(btn.dataset.page);
+    renderCategories();
+
+    // ✅ Inject: toggle class on <body>
+    if (currentPage > 1) {
+      document.body.classList.add('category-subpage');
+    } else {
+      document.body.classList.remove('category-subpage');
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   });
+});
 
   document.getElementById('prevPage')?.addEventListener('click', () => {
     if (currentPage > 1) {
@@ -1315,14 +1338,17 @@
   signInText.style.opacity = "0.6";
 
   const { data: { session } } = await supabase.auth.getSession();
-  if (session && session.user) {
-    signInText.textContent = session.user.user_metadata.full_name || "Account";
-    signInText.href = "account.html";
-  } else {
-    signInText.textContent = "Sign In";
-    signInText.href = "auth.html";
-  }
-  signInText.style.opacity = "1";
+
+if (session && session.user) {
+  const userMeta = session.user.user_metadata;
+  signInText.textContent =
+    userMeta.full_name || userMeta.username || session.user.email || "Account";
+  signInText.href = "account.html";
+} else {
+  signInText.textContent = "Sign In";
+  signInText.href = "auth.html";
+}
+signInText.style.opacity = "1";
 </script>
 
 

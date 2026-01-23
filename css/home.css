@@ -546,6 +546,7 @@ html, body {
   animation: fadeInUp 1s ease-out;
 }
 
+
 .auth-modal {
   position: fixed;
   top: 0;
