@@ -539,6 +539,13 @@ html, body {
    Sign-In / Auth Modal Styles
 ----------------------------- */
 
+.hero-logo {
+  max-width: 300px;
+  width: 80%;
+  height: auto;
+  animation: fadeInUp 1s ease-out;
+}
+
 .auth-modal {
   position: fixed;
   top: 0;

@@ -825,19 +825,14 @@
 
 <!-- ========== HEADER ========== -->
 <header class="home-glass-header">
-  <div class="logo-header">
-    <a href="index.html" class="logo-link">
-      <img src="assets/logo.png" alt="GeoRanks Logo" />
-    </a>
-  </div>
-  <div class="hamburger-menu">
-    <div class="menu-icon" id="menuToggle">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
+  <a href="auth.html" id="signInText" class="sign-in-text">Loading...</a>
+  <div class="menu-icon" id="menuToggle">
+    <span></span>
+    <span></span>
+    <span></span>
   </div>
 </header>
+
 
 <!-- Hamburger Overlay Menu -->
 <div class="menu-overlay" id="menuOverlay">
@@ -858,7 +853,7 @@
 <!-- ========== HERO SECTION ========== -->
 <section class="hero-section">
   <div class="hero-content">
-    <h1 class="hero-title">Discover Categories</h1>
+    <img src="assets/logo.png" class="hero-logo" alt="GeoRanks" />
     <p class="hero-subtitle">36 unique ways to test your world knowledge</p>
     <div class="search-bar-hero">
       <input type="text" id="categorySearchInput" placeholder="🔍 Search categories..." />
@@ -884,6 +879,35 @@
     <button class="page-btn page-arrow" id="nextPage">Next →</button>
   </div>
 </div>
+
+<footer class="home-footer">
+  <div class="footer-socials">
+    <div class="icon-row">
+      <a href="https://www.instagram.com/geo_ranks/" target="_blank" rel="noopener">
+        <img src="assets/instagram.png" alt="Instagram" />
+      </a>
+      <div class="divider"></div>
+      <a href="https://www.tiktok.com/@georanks" target="_blank" rel="noopener">
+        <img src="assets/tik-tok.png" alt="TikTok" />
+      </a>
+      <div class="divider"></div>
+      <a href="https://www.youtube.com/channel/UC8jrsBpCn09u0mHQle_O3Rw" target="_blank" rel="noopener">
+        <img src="assets/youtube.png" alt="YouTube" />
+      </a>
+      <div class="divider"></div>
+      <a href="https://x.com/Kieroncroo66687" target="_blank" rel="noopener">
+        <img src="assets/x.png" alt="X" />
+      </a>
+    </div>
+    <p>© 2025 GeoRanks</p>
+    <div class="footer-links">
+      <a href="terms.html">Terms of Service</a>
+      <span>•</span>
+      <a href="privacy.html">Privacy Policy</a>
+    </div>
+  </div>
+</footer>
+
 
 <script type="module">
   import { supabase } from './js/supabase-client.js';
@@ -1282,6 +1306,25 @@
   // Initialize
   checkPremiumStatus();
 </script>
+
+<script type="module">
+  import { supabase } from './js/supabase-client.js';
+
+  const signInText = document.getElementById('signInText');
+  signInText.textContent = "Loading...";
+  signInText.style.opacity = "0.6";
+
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session && session.user) {
+    signInText.textContent = session.user.user_metadata.full_name || "Account";
+    signInText.href = "account.html";
+  } else {
+    signInText.textContent = "Sign In";
+    signInText.href = "auth.html";
+  }
+  signInText.style.opacity = "1";
+</script>
+
 
 </body>
 </html>
