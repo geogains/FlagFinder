@@ -18,6 +18,7 @@ body {
   justify-content: flex-start;
   gap: 1.5rem;
   padding: 1rem;
+  padding-top: 80px; /* Space for fixed header */
 }
 
 /* -------------------------------
@@ -59,6 +60,7 @@ body {
   cursor: pointer;
   transition: transform 0.2s, opacity 0.2s;
 }
+
 .country-flag-item img {
   width: 100%;
   height: 100%;
@@ -66,14 +68,17 @@ body {
   display: block;
   border-radius: 8px;
 }
+
 .country-flag-item:hover {
   transform: scale(1.05);
 }
+
 .country-flag-item.active {
   outline: 3px solid #ff7f50;
   outline-offset: 2px;
   box-shadow: 0 0 0 4px #ffece8;
 }
+
 .country-flag-item.used {
   opacity: 0.4;
   pointer-events: none;
@@ -124,13 +129,9 @@ body {
   letter-spacing: 0.5px;
 }
 
-.blind-ranking-wrapper {
-  opacity: 1;
-  transition: opacity 0.4s ease-in-out;
-}
-
 .blind-ranking-wrapper.fade-out {
   opacity: 0;
+  transition: opacity 0.4s ease-in-out;
 }
 
 /* -------------------------------
@@ -162,16 +163,23 @@ body {
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
+
 .rank-number:hover {
   transform: scale(1.05);
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
 }
+
 .rank-number.used-rank {
   background: linear-gradient(135deg, #fbd5d5, #fca5a5);
   cursor: default;
   transform: none !important;
   box-shadow: none !important;
   opacity: 0.7;
+}
+
+.rank-number.locked {
+  opacity: 0.5;
+  color: #666;
 }
 
 .rank-slot {
@@ -190,13 +198,35 @@ body {
   color: #1f1f1f;
   box-sizing: border-box;
 }
+
 .rank-slot img {
   height: 24px;
   width: auto;
   border-radius: 4px;
 }
+
 .rank-slot.stomp {
   animation: stompIn 0.35s ease;
+}
+
+/* Locked slot styles for World Cup Top 10 */
+.rank-slot.locked {
+  background: linear-gradient(135deg, #333 0%, #444 100%);
+  border: 2px solid #555;
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.rank-slot.locked .rank-locked {
+  color: #888;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.rank-slot.locked:hover {
+  transform: none;
+  box-shadow: none;
 }
 
 @keyframes stompIn {
@@ -223,14 +253,13 @@ body {
 
 .result-buttons {
   display: grid;
-  grid-template-columns: 1fr; /* Mobile: 1 column */
+  grid-template-columns: 1fr;
   gap: 0.8rem;
   justify-content: center;
   text-align: center;
   max-width: 100%;
 }
 
-/* Desktop: 2x2 grid */
 @media (min-width: 600px) {
   .result-buttons {
     grid-template-columns: repeat(2, 1fr);
@@ -262,6 +291,7 @@ body {
   display: flex;
   opacity: 1;
 }
+
 .result-score {
   font-size: 2rem;
   font-weight: 700;
@@ -282,6 +312,7 @@ body {
   transition: transform 0.15s, box-shadow 0.15s;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
+
 .btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
@@ -300,6 +331,7 @@ body {
   margin-top: 0.8rem;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
+
 .btn-shuffle-selection:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
@@ -310,6 +342,7 @@ body {
   transform-origin: center;
   opacity: 0.9;
 }
+
 @keyframes shufflePulse {
   from { transform: scale(1); opacity: 0.85; }
   to { transform: scale(1.08); opacity: 1; }
@@ -320,128 +353,11 @@ html {
 }
 
 /* -------------------------------
-   Hamburger Menu Styles
+   Header & Logo Styles
 ---------------------------------- */
-.hamburger-menu {
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
-  z-index: 1000;
-}
-
-.menu-icon {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 5px;
-  padding: 0;
-  margin: 0;
-  background: none !important;
-  border: none !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-  cursor: pointer;
-}
-
-.menu-icon span {
-  display: block;
-  width: 24px;
-  height: 3px;
-  background-color: #0d315a;
-  border-radius: 2px;
-}
-.menu-icon:hover {
-  transform: scale(1.1);
-}
-
-.menu-overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.35s ease;
-  z-index: 999;
-}
-.menu-overlay.active {
-  opacity: 1;
-  pointer-events: all;
-}
-.menu-panel {
-  background: white;
-  width: 260px;
-  height: 100%;
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.25);
-  border-top-left-radius: 20px;
-  border-bottom-left-radius: 20px;
-  transform: translateX(100%);
-  transition: transform 0.35s ease;
-}
-.menu-overlay.active .menu-panel {
-  transform: translateX(0);
-}
-.menu-panel h2 {
-  color: #0d315a;
-  font-size: 1.4rem;
-  margin-bottom: 0.5rem;
-}
-
-.menu-btn {
-  display: block;
-  width: 100%;
-  padding: 14px 0;
-  font-size: 1.05rem;
-  font-weight: bold;
-  background: linear-gradient(135deg, #ff9770, #ff6f61);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  margin: 1px 0;
-  cursor: pointer;
-  text-align: center;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
-}
-
-.menu-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-}
-
-.menu-close {
-  background: #e5e5e5;
-  color: #0d315a;
-}
-
-/* Frosted Glass Fixed Header */
-.home-glass-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 64px;
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 0rem; /* use 0 then control position with margin */
-  z-index: 1000;
-}
-
+.home-glass-header,
 .game-header {
-   position: fixed;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -453,87 +369,21 @@ html {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 0rem;
+  padding: 0;
   z-index: 1000;
 }
 
-.logo-header img {
-  height: 40px;
-  object-fit: contain;
-  margin-left: 0.5rem;
-}
-
-/* Ensure space for header */
-.blind-ranking-wrapper {
-  padding-top: 80px;
-}
-
-/* Hamburger Button */
-.menu-icon {
+.logo-header {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 5px;
-  padding: 1.8;
-  margin: 0;
-  background: none !important;
-  border: none !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-  cursor: pointer;
-}
-
-.menu-icon span {
-  display: block;
-  width: 24px;
-  height: 3px;
-  background-color: #0d315a;
-  border-radius: 2px;
-}
-.menu-icon:hover {
-  transform: scale(1.1);
-}
-
-/* Sliding Menu + Overlay */
-.menu-overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(6px);
-  display: flex;
-  justify-content: flex-end;
   align-items: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-  z-index: 999;
-}
-.menu-overlay.active {
-  opacity: 1;
-  pointer-events: all;
 }
 
-.menu-panel {
-  background: white;
-  width: 260px;
-  height: 100%;
-  padding: 80px 1.5rem 1.5rem 1.5rem; /* Top padding added */
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.25);
-  border-top-left-radius: 20px;
-  border-bottom-left-radius: 20px;
-  transform: translateX(100%);
-  transition: transform 0.35s ease;
-}
-
-.menu-overlay.active .menu-panel {
-  transform: translateX(0);
-}
-
+.logo-header img,
 .logo-link img {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  margin-left: 0.8rem;
   transition: transform 0.2s ease, opacity 0.2s ease;
   cursor: pointer;
 }
@@ -543,49 +393,22 @@ html {
   opacity: 0.85;
 }
 
-.menu-overlay {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  visibility: hidden;
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 1500;
+/* Hamburger menu positioning */
+.hamburger-menu {
   display: flex;
-  justify-content: flex-end;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  align-items: center;
+  margin-right: 0.8rem;
 }
 
-.menu-overlay.active {
-  opacity: 1;
-  visibility: visible;
-}
-
-.menu-panel {
-  background: white;
-  width: 280px;
-  height: 100%;
-  padding: 80px 1.5rem 1.5rem;
-  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
-  overflow-y: auto;
-  box-sizing: border-box;
-  transform: translateX(100%);
-  transition: transform 0.3s ease;
-}
-
-.menu-overlay.active .menu-panel {
-  transform: translateX(0%);
-}
-
-/* 🔁 Flag preview container and submit button swap zone */
+/* -------------------------------
+   Flag Preview & Submit Button
+---------------------------------- */
 #flag-preview-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px; /* creates space between flag and name */
+  gap: 10px;
   margin-bottom: 16px;
 }
 
@@ -597,7 +420,6 @@ html {
   min-height: 100px;
 }
 
-/* 🎯 Style for the top submit button */
 #submit-rankings-btn {
   margin: 0 auto;
   display: none;
@@ -608,7 +430,7 @@ html {
   border-radius: 12px;
   background-color: #ff7750;
   color: white;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease;
   cursor: pointer;
 }
@@ -622,7 +444,9 @@ html {
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
 }
 
-/* ✨ Reuse existing animation classes */
+/* -------------------------------
+   Animation Utilities
+---------------------------------- */
 .fade-in {
   opacity: 1;
   transition: opacity 0.4s ease, transform 0.3s ease;
@@ -649,30 +473,4 @@ html {
     opacity: 1;
     transform: scale(1);
   }
-}
-
-/* Locked slot styles for World Cup Top 10 */
-.rank-slot.locked {
-  background: linear-gradient(135deg, #333 0%, #444 100%);
-  border: 2px solid #555;
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.rank-slot.locked .rank-locked {
-  color: #888;
-  font-size: 0.9rem;
-  font-style: italic;
-}
-
-.rank-number.locked {
-  opacity: 0.5;
-  color: #666;
-}
-
-/* Prevent hover effects on locked slots */
-.rank-slot.locked:hover {
-  transform: none;
-  box-shadow: none;
 }

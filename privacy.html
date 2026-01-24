@@ -83,7 +83,7 @@
 <!-- Header and Menu -->
 <header class="home-glass-header">
   <div class="logo-header">
-    <a href="index.html" class="logo-link">
+    <a href="categories.html" class="logo-link">
       <img src="assets/logo.png" alt="GeoRanks Logo" />
     </a>
   </div>
@@ -98,9 +98,16 @@
 <div class="menu-overlay" id="menuOverlay">
   <div class="menu-panel">
     <h2>Menu</h2>
-    <button class="menu-btn" onclick="location.href='index.html'">🏠 Home</button>
+    <button class="menu-btn menu-daily-challenge" onclick="window.location.href='daily-challenge.html'" id="dailyChallengeMenuBtn">
+  <div class="daily-bg" id="dailyChallengeBg"></div>
+  <div class="daily-overlay"></div>
+  <div class="daily-content">
+    <h3 class="daily-title">📅 Daily Challenge</h3>
+    <span class="daily-category" id="dailyChallengeCategory">Loading...</span>
+  </div>
+</button>
+    <button class="menu-btn" onclick="location.href='categories.html'">🏠 Home</button>
     <button class="menu-btn menu-btn-account" onclick="location.href='account.html'">👤 Account</button>
-    <button class="menu-btn" onclick="location.href='categories.html'">🎮 Categories</button>
     <button class="menu-btn" onclick="location.href='leaderboard.html'">🏆 Leaderboard</button>
     <button class="menu-btn" onclick="location.href='stats.html'">📊 My Stats</button>
     <button class="menu-btn" onclick="location.href='how-to-play.html'">💡 How to Play</button>
@@ -226,6 +233,31 @@
       document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
     }
   }
+</script>
+
+<script type="module">
+  import {
+    getTodaysDailyChallenge,
+    modeDisplayNames,
+    categoryDisplayNames,
+    categoryEmojis
+  } from './js/daily-challenge.js';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const categorySpan = document.getElementById('dailyChallengeCategory');
+    const bg = document.getElementById('dailyChallengeBg');
+
+    const today = getTodaysDailyChallenge();
+
+    if (today && categorySpan && bg) {
+      const modeName = modeDisplayNames[today.mode] || today.mode.toUpperCase();
+      const categoryName = categoryDisplayNames[today.category] || today.category;
+      const emoji = categoryEmojis[today.category] || '';
+
+      categorySpan.textContent = `${modeName}: ${categoryName} ${emoji}`;
+      bg.style.backgroundImage = `url('images/categories/${today.category}.jpg')`;
+    }
+  });
 </script>
 
 </body>

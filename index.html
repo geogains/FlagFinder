@@ -63,20 +63,31 @@
 
   <!-- Hamburger Overlay Menu -->
   <div class="menu-overlay" id="menuOverlay">
-    <div class="menu-panel">
-      <h2>Menu</h2>
-      <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
-      <button class="menu-btn" onclick="window.location.href='categories.html'">🎮 Categories</button>
-      <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
-      <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
-      <button class="menu-btn" onclick="window.location.href='upload.html'">⚔️ Battle Royale</button>
-      <button class="menu-btn" onclick="window.location.href='how-to-play.html'">💡 How to Play</button>
-      <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
-      <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
-      <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'">🔓 Unlock All Categories</button>
-      <button class="menu-btn menu-close" id="closeMenu">Close</button>
-    </div>
+  <div class="menu-panel">
+    <h2>Menu</h2>
+    
+    <button class="menu-btn menu-daily-challenge" onclick="window.location.href='daily-challenge.html'" id="dailyChallengeMenuBtn">
+  <div class="daily-bg" id="dailyChallengeBg"></div>
+  <div class="daily-overlay"></div>
+  <div class="daily-content">
+    <h3 class="daily-title">📅 Daily Challenge</h3>
+    <span class="daily-category" id="dailyChallengeCategory">Loading...</span>
   </div>
+</button>
+    <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
+    <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
+    <button class="menu-btn" onclick="window.location.href='categories.html'">🎮 Categories</button>
+    <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
+    <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
+    <button class="menu-btn" onclick="window.location.href='how-to-play.html'">💡 How to Play</button>
+    <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
+    <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
+    <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'">🔓 Unlock All Categories</button>
+    
+    <!-- Close button at bottom -->
+    <button class="menu-btn menu-close" id="closeMenu">Close</button>
+  </div>
+</div>
 
   <!-- DAILY CHALLENGE FEATURED CARD -->
   <section class="daily-challenge-section">
@@ -638,6 +649,31 @@ overlay?.addEventListener("click", (e) => {
         card.style.cursor = 'pointer';
       }
     });
+  });
+</script>
+
+<script type="module">
+  import {
+    getTodaysDailyChallenge,
+    modeDisplayNames,
+    categoryDisplayNames,
+    categoryEmojis
+  } from './js/daily-challenge.js';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const categorySpan = document.getElementById('dailyChallengeCategory');
+    const bg = document.getElementById('dailyChallengeBg');
+
+    const today = getTodaysDailyChallenge();
+
+    if (today && categorySpan && bg) {
+      const modeName = modeDisplayNames[today.mode] || today.mode.toUpperCase();
+      const categoryName = categoryDisplayNames[today.category] || today.category;
+      const emoji = categoryEmojis[today.category] || '';
+
+      categorySpan.textContent = `${modeName}: ${categoryName} ${emoji}`;
+      bg.style.backgroundImage = `url('images/categories/${today.category}.jpg')`;
+    }
   });
 </script>
 

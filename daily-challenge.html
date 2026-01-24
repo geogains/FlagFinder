@@ -34,19 +34,6 @@
       text-align: center;
     }
     
-    .daily-badge {
-      display: inline-block;
-      background: linear-gradient(135deg, #ff9770, #ff6f61);
-      color: white;
-      padding: 8px 20px;
-      border-radius: 20px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      margin-bottom: 20px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    
     .daily-title {
       font-size: 2.5rem;
       font-weight: 700;
@@ -327,7 +314,7 @@
   <!-- GLASS HEADER -->
   <header class="home-glass-header">
     <div class="logo-header">
-      <a href="index.html" class="logo-link">
+      <a href="categories.html" class="logo-link">
         <img src="assets/logo.png" alt="GeoRanks Logo" />
       </a>
     </div>
@@ -345,7 +332,7 @@
     <div class="menu-overlay" id="menuOverlay">
       <div class="menu-panel">
         <h2>Menu</h2>
-        <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
+        <button class="menu-btn" onclick="window.location.href='categories.html'">🏠 Home</button>
         <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
         <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
         <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
@@ -359,7 +346,6 @@
 
     <!-- MAIN DAILY CHALLENGE CONTAINER -->
     <div class="daily-container">
-      <div class="daily-badge">Daily Challenge</div>
       <h1 class="daily-title">Today's Challenge</h1>
       <p class="daily-subtitle" id="dateDisplay">Loading...</p>
 
@@ -383,7 +369,7 @@
           Start Challenge
         </button>
 
-        <button class="back-button" onclick="window.location.href='index.html'">
+        <button class="back-button" onclick="window.location.href='categories.html'">
           Home
         </button>
       </div>
@@ -400,7 +386,7 @@
         <button class="back-button" onclick="window.location.href='leaderboard.html'" style="margin-right: 10px;">
           🏆 View Leaderboard
         </button>
-        <button class="back-button" onclick="window.location.href='index.html'">
+        <button class="back-button" onclick="window.location.href='categories.html'">
           🏠 Home
         </button>
       </div>
@@ -496,7 +482,7 @@
       };
       
       document.getElementById('cancelLoginBtn').onclick = () => {
-        window.location.href = 'index.html';
+        window.location.href = 'categories.html';
       };
       
       return;
