@@ -1930,7 +1930,7 @@ body.category-subpage .hero-section {
 
 @media (max-width: 480px) {
   .hero-logo {
-    max-width: 260px; /* Increased from 220px for better mobile visibility */
+    max-width: 320px; /* Increased from 220px for better mobile visibility */
   }
 
   /* Better mobile spacing for hero section */
