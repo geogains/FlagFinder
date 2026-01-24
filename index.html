@@ -1177,7 +1177,12 @@
       document.body.classList.remove('category-subpage');
     }
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Force DOM update before scrolling (especially important on mobile)
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
   });
 });
 
@@ -1193,7 +1198,12 @@
         document.body.classList.remove('category-subpage');
       }
       
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Force DOM update before scrolling (especially important on mobile)
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      });
     }
   });
 
@@ -1210,7 +1220,12 @@
         document.body.classList.remove('category-subpage');
       }
       
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Force DOM update before scrolling (especially important on mobile)
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      });
     }
   });
 
