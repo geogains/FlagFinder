@@ -1417,8 +1417,29 @@
 
 if (session && session.user) {
   const userMeta = session.user.user_metadata;
-  signInText.textContent =
-    userMeta.full_name || userMeta.username || session.user.email || "Account";
+  
+  // Try to fetch username from the users table in database
+  let displayName = userMeta.full_name || userMeta.username;
+  
+  // If no username in metadata, try fetching from users table
+  if (!displayName) {
+    try {
+      const { data: userData, error } = await supabase
+        .from('users')
+        .select('username')
+        .eq('id', session.user.id)
+        .single();
+      
+      if (!error && userData && userData.username) {
+        displayName = userData.username;
+      }
+    } catch (err) {
+      console.log('Could not fetch username from database');
+    }
+  }
+  
+  // Final fallback to "Account" (no email shown)
+  signInText.textContent = displayName || "Account";
   signInText.href = "account.html";
 } else {
   signInText.textContent = "Sign In";

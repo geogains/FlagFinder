@@ -1792,6 +1792,20 @@ body.menu-open {
   padding: 40px 20px;
   text-align: center;
   margin-top: 0;
+  opacity: 0;
+  animation: fadeInFooter 0.8s ease-out forwards;
+  animation-delay: 2.1s; /* Starts after last card (1.80s + 0.3s buffer) */
+}
+
+@keyframes fadeInFooter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .footer-socials {
