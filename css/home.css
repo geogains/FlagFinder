@@ -1865,6 +1865,15 @@ body.category-subpage .hero-content > .hero-subtitle {
   display: none;
 }
 
+/* Ensure hero-content maintains full width on subpages */
+body.category-subpage .hero-content {
+  width: 100%;
+  max-width: 1400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 /* Keep search bar visible on all pages with consistent width */
 body.category-subpage .search-bar-hero {
   display: block;
@@ -1891,9 +1900,14 @@ body.category-subpage .hero-section {
     padding: 80px 20px 15px; /* Reduced bottom padding */
   }
 
+  body.category-subpage .hero-content {
+    width: 100%;
+    padding: 0 10px; /* Add padding on mobile */
+  }
+
   body.category-subpage .search-bar-hero {
     max-width: 600px; /* Maintain width */
-    padding: 0 10px; /* Add side padding on mobile */
+    width: calc(100% - 20px); /* Account for container padding */
   }
 
   .home-footer {
@@ -1946,8 +1960,14 @@ body.category-subpage .hero-section {
     padding: 75px 16px 12px; /* Further reduced bottom padding */
   }
 
+  body.category-subpage .hero-content {
+    width: 100%;
+    padding: 0 8px;
+  }
+
   body.category-subpage .search-bar-hero {
     max-width: 100%; /* Full width on mobile subpages */
+    width: calc(100% - 16px); /* Account for container padding */
   }
 
   .icon-row {
