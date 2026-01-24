@@ -15,7 +15,7 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 export async function requireAuth() {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session?.user) {
-    window.location.href = 'categories.html?showAuth=true';
+    window.location.href = 'index.html?showAuth=true';
     throw new Error('Authentication required');
   }
   return session;

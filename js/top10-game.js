@@ -62,7 +62,7 @@ async function initializeGame() {
   } catch (error) {
     console.error('Error loading category data:', error);
     alert('Failed to load category data. Please try again.');
-    window.location.href = 'categories.html';
+    window.location.href = 'index.html';
   }
 }
 

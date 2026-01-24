@@ -27,7 +27,7 @@ const categoryConfig = categoriesConfig[categoryKey];
 if (!categoryConfig) {
   console.error('Invalid category:', categoryKey);
   alert('Invalid category selected!');
-  window.location.href = 'categories.html';
+  window.location.href = 'index.html';
 }
 
 const categoryId = CATEGORY_ID_MAP[categoryKey];
@@ -88,7 +88,7 @@ gameState.countries = data.map(country => {
   } catch (error) {
     console.error('Error loading category data:', error);
     alert('Failed to load category data. Please try again.');
-    window.location.href = 'categories.html';
+    window.location.href = 'index.html';
   }
 }
 

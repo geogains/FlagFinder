@@ -107,7 +107,7 @@ body {
 <!-- ✅ Glass Header with Logo and Hamburger -->
 <header class="home-glass-header">
   <div class="logo-header">
-    <a href="categories.html" class="logo-link">
+    <a href="index.html" class="logo-link">
       <img src="assets/logo.png" alt="GeoRanks Logo" />
     </a>
   </div>
@@ -132,7 +132,7 @@ body {
     <span class="daily-category" id="dailyChallengeCategory">Loading...</span>
   </div>
 </button>
-    <button class="menu-btn" onclick="window.location.href='categories.html'">🏠 Home</button>
+    <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
     <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
     <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
     <button class="menu-btn" onclick="window.location.href='how-to-play.html'">💡 How to Play</button>
@@ -235,7 +235,7 @@ body {
     const { data: { session } } = await supabase.auth.getSession();
 
     if (!session?.user) {
-      window.location.href = 'categories.html';
+      window.location.href = 'index.html';
       return;
     }
 
@@ -485,11 +485,11 @@ body {
         console.log('Logout complete, redirecting...');
         
         // Force redirect with cache busting
-        window.location.href = 'categories.html?logout=' + Date.now();
+        window.location.href = 'index.html?logout=' + Date.now();
       } catch (error) {
         console.error('Logout error:', error);
         // Force redirect anyway
-        window.location.href = 'categories.html?logout=' + Date.now();
+        window.location.href = 'index.html?logout=' + Date.now();
       }
     });
 
