@@ -13,11 +13,24 @@
   <link rel="stylesheet" href="css/mode-selector.css" />
   
   <style>
+
+    body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100%;
+  background: linear-gradient(135deg, #abefcf, #38bdf8);
+  z-index: -1;
+  pointer-events: none;
+}
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
+    
 
     body {
       font-family: 'Poppins', sans-serif;
