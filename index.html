@@ -78,6 +78,7 @@
       max-width: 600px;
       margin: 0 auto;
       position: relative;
+      margin-top: 2.5rem; /* Add spacing from subtitle */
     }
 
     .search-bar-hero input {
@@ -200,9 +201,9 @@
       transition: padding-top 0.3s ease;
     }
 
-    /* Extra top padding when hero is hidden (pages 2, 3, 4) */
+    /* Reduce top padding on subpages (pages 2, 3, 4) to close gap */
     .categories-flow.no-hero {
-      padding-top: 120px;
+      padding-top: 20px; /* Reduced from 120px */
     }
 
     .category-item {
@@ -455,8 +456,27 @@
         padding-top: 100px;
       }
 
+      /* Adjust search bar spacing on mobile */
+      .search-bar-hero {
+        margin-top: 2rem;
+      }
+
+      /* Subpage adjustments - reduce gap significantly */
+      body.category-subpage .hero-section {
+        padding: 80px 20px 15px;
+      }
+
+      body.category-subpage .search-bar-hero {
+        max-width: 600px;
+      }
+
       .categories-flow {
         padding: 40px 12px 0px; /* Reduced side padding from 20px to 12px for wider cards */
+      }
+
+      /* Further reduce top padding on subpages */
+      .categories-flow.no-hero {
+        padding-top: 15px;
       }
 
       .categories-grid-new {
@@ -489,6 +509,13 @@
     @media (max-width: 480px) {
       .hero-section {
         padding-top: 90px;
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      /* Reduce search bar margin on very small screens */
+      .search-bar-hero {
+        margin-top: 1.5rem;
       }
 
       .search-bar-hero input {
@@ -496,8 +523,22 @@
         font-size: 1rem;
       }
 
+      /* Subpage mobile adjustments - minimize gap */
+      body.category-subpage .hero-section {
+        padding: 75px 16px 10px;
+      }
+
+      body.category-subpage .search-bar-hero {
+        max-width: 100%;
+      }
+
       .categories-flow {
         padding: 40px 10px 100px; /* Even less side padding on small phones */
+      }
+
+      /* Further reduce top padding on subpages for mobile */
+      .categories-flow.no-hero {
+        padding-top: 10px;
       }
 
       .categories-grid-new {
@@ -879,7 +920,7 @@
   <div class="hero-content">
     <img src="assets/logo.png" class="hero-logo" alt="GeoRanks" />
     <p class="hero-subtitle">36 unique ways to test your world knowledge</p>
-    <div class="search-bar-hero" style="margin-top: 80px;">
+    <div class="search-bar-hero">
   <input type="text" id="categorySearchInput" placeholder="🔍 Search categories..." />
   <div class="search-dropdown" id="searchDropdown"></div>
 </div>

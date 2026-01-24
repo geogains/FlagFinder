@@ -1778,7 +1778,7 @@ body.menu-open {
 
 /* Hero Logo (replaces "Discover Categories" text) */
 .hero-logo {
-  max-width: 350px;
+  max-width: 500px; /* Increased from 350px */
   width: 100%;
   height: auto;
   display: block;
@@ -1859,25 +1859,41 @@ body.menu-open {
 }
 
 /* Category Subpage Visibility (Pages 2-4) */
-body.category-subpage .hero-content {
+/* Hide only the hero content (logo + subtitle), keep search bar visible */
+body.category-subpage .hero-content > .hero-logo,
+body.category-subpage .hero-content > .hero-subtitle {
   display: none;
 }
 
+/* Keep search bar visible on all pages with consistent width */
 body.category-subpage .search-bar-hero {
   display: block;
-  margin-top: 20px;
+  margin-top: 0; /* Remove extra top margin when logo is hidden */
+  max-width: 600px; /* Ensure same width as page 1 */
+  width: 100%;
 }
 
+/* Adjust hero section height for subpages - reduce gap */
 body.category-subpage .hero-section {
   height: auto;
   min-height: 0;
-  padding: 100px 20px 20px;
+  padding: 90px 20px 20px; /* Reduced bottom padding from 40px to 20px */
 }
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .hero-logo {
-    max-width: 280px;
+    max-width: 320px; /* Slightly larger on tablets */
+  }
+
+  /* Subpage adjustments - reduce gap */
+  body.category-subpage .hero-section {
+    padding: 80px 20px 15px; /* Reduced bottom padding */
+  }
+
+  body.category-subpage .search-bar-hero {
+    max-width: 600px; /* Maintain width */
+    padding: 0 10px; /* Add side padding on mobile */
   }
 
   .home-footer {
@@ -1900,7 +1916,38 @@ body.category-subpage .hero-section {
 
 @media (max-width: 480px) {
   .hero-logo {
-    max-width: 220px;
+    max-width: 260px; /* Increased from 220px for better mobile visibility */
+  }
+
+  /* Better mobile spacing for hero section */
+  .hero-section {
+    padding: 100px 16px 40px; /* Reduced side padding on mobile */
+  }
+
+  /* Adjust subtitle size on mobile */
+  .hero-subtitle {
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Search bar adjustments for mobile */
+  .search-bar-hero {
+    max-width: 100%;
+    padding: 0 4px;
+  }
+
+  .search-bar-hero input {
+    padding: 14px 20px; /* Slightly smaller padding on mobile */
+    font-size: 1rem;
+  }
+
+  /* Subpage mobile adjustments - minimize gap */
+  body.category-subpage .hero-section {
+    padding: 75px 16px 12px; /* Further reduced bottom padding */
+  }
+
+  body.category-subpage .search-bar-hero {
+    max-width: 100%; /* Full width on mobile subpages */
   }
 
   .icon-row {
