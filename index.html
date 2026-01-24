@@ -1168,42 +1168,38 @@
   document.querySelectorAll('.page-btn[data-page]').forEach(btn => {
   btn.addEventListener('click', () => {
     currentPage = parseInt(btn.dataset.page);
-    renderCategories();
-
-    // ✅ Inject: toggle class on <body>
+    
+    // ✅ Inject: toggle class on <body> BEFORE rendering
     if (currentPage > 1) {
       document.body.classList.add('category-subpage');
     } else {
       document.body.classList.remove('category-subpage');
     }
-
-    // Force DOM update before scrolling (especially important on mobile)
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-    });
+    
+    // Immediate scroll to top (instant, not smooth) to prevent layout shift issues
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    
+    // Then render categories
+    renderCategories();
   });
 });
 
   document.getElementById('prevPage')?.addEventListener('click', () => {
     if (currentPage > 1) {
       currentPage--;
-      renderCategories();
       
-      // Toggle class on <body> to show/hide hero section
+      // Toggle class on <body> to show/hide hero section BEFORE rendering
       if (currentPage > 1) {
         document.body.classList.add('category-subpage');
       } else {
         document.body.classList.remove('category-subpage');
       }
       
-      // Force DOM update before scrolling (especially important on mobile)
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-      });
+      // Immediate scroll to top (instant, not smooth) to prevent layout shift issues
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      
+      // Then render categories
+      renderCategories();
     }
   });
 
@@ -1211,21 +1207,19 @@
     const totalPages = Math.ceil(allCategoriesData.length / ITEMS_PER_PAGE);
     if (currentPage < totalPages) {
       currentPage++;
-      renderCategories();
       
-      // Toggle class on <body> to show/hide hero section
+      // Toggle class on <body> to show/hide hero section BEFORE rendering
       if (currentPage > 1) {
         document.body.classList.add('category-subpage');
       } else {
         document.body.classList.remove('category-subpage');
       }
       
-      // Force DOM update before scrolling (especially important on mobile)
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-      });
+      // Immediate scroll to top (instant, not smooth) to prevent layout shift issues
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      
+      // Then render categories
+      renderCategories();
     }
   });
 
