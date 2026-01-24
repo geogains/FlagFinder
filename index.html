@@ -1185,6 +1185,14 @@
     if (currentPage > 1) {
       currentPage--;
       renderCategories();
+      
+      // Toggle class on <body> to show/hide hero section
+      if (currentPage > 1) {
+        document.body.classList.add('category-subpage');
+      } else {
+        document.body.classList.remove('category-subpage');
+      }
+      
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   });
@@ -1194,6 +1202,14 @@
     if (currentPage < totalPages) {
       currentPage++;
       renderCategories();
+      
+      // Toggle class on <body> to show/hide hero section
+      if (currentPage > 1) {
+        document.body.classList.add('category-subpage');
+      } else {
+        document.body.classList.remove('category-subpage');
+      }
+      
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   });
