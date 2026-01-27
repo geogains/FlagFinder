@@ -434,7 +434,9 @@ export async function loadTop10CategoryData(categoryKey) {
         rank: country[config.rankField],
         code: country.code,
         flag: `flags/${country.code}.png`,
-        value: value
+        value: value,
+        highestPointName: country.highestPointName,        // ← ADD THIS
+        tallestBuildingName: country.tallestBuildingName   // ← ADD THIS
       };
     });
     

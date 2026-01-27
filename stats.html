@@ -3,216 +3,802 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>GeoRanks — My Stats</title>
-  <link rel="stylesheet" href="css/home.css"/>
-  <link rel="stylesheet" href="css/game-modes.css"/>
+  <title>My Stats | GeoRanks</title>
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-body {
-  font-family: 'Poppins', sans-serif;
-}
-  html, body {
-    min-height: 100vh;
-    margin: 0;
-    padding: 0;
-    background: linear-gradient(135deg, #a7f3d0 0%, #38bdf8 100%);
-  }
+    /* ========================================
+       RESET & BASE STYLES
+    ======================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #a7f3d0 0%, #38bdf8 100%);
+      min-height: 100vh;
+    }
+    
+    /* ========================================
+       HEADER
+    ======================================== */
+    .home-glass-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 64px;
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 0rem;
+      z-index: 1000;
+    }
+    
+    .logo-header {
+      display: flex;
+      align-items: center;
+    }
 
-  .stats-container {
-    max-width: 720px;
-    margin: 120px auto 40px;
-    padding: 1.5rem;
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border-radius: 16px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-    box-sizing: border-box;
-    overflow-x: auto;
-    animation: fadeInUp 0.8s ease-out;
-  }
+    .logo-header img,
+    .logo-link img {
+      height: 40px;
+      width: auto;
+      object-fit: contain;
+      margin-left: 0.8rem;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+      cursor: pointer;
+    }
 
-  .stats-card {
-    margin-bottom: 1.5rem;
-    text-align: center;
-  }
-
-  .stats-card h2 {
-    font-size: 1.6rem;
-    margin-bottom: 0.4rem;
-  }
-
-  /* Mode Toggle */
-  .mode-toggle {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin: 20px 0;
-  }
-
-  .mode-btn {
-    padding: 10px 24px;
-    background: white;
-    border: none;
-    outline: none;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s;
-    font-family: 'Poppins', sans-serif;
-  }
-
-  .mode-btn.active {
-    background: linear-gradient(135deg, #ff9770, #ff6f61);
-    color: white;
-    border: none;
-    outline: none;
-  }
-
-  .mode-btn:hover:not(.active) {
-    background: #f3f4f6;
-  }
-
-  .category-stats-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.95rem;
-  }
-
-  .category-stats-table th,
-  .category-stats-table td {
-    padding: 0.6rem 0.5rem;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
-    text-align: left;
-  }
-
-  .category-stats-table th {
-    font-weight: 600;
-    background: rgba(0, 0, 0, 0.05);
-  }
-
-  .progress-bar-container {
-    background: #e5e7eb;
-    border-radius: 4px;
-    height: 8px;
-    width: 100%;
-  }
-
-  .progress-bar-fill {
-    background: #7c3aed;
-    height: 8px;
-    border-radius: 4px;
-  }
-
-  @keyframes fadeInUp {
-    from {
+    .logo-link:hover img {
+      transform: scale(1.05);
+      opacity: 0.85;
+    }
+    
+    /* ========================================
+       HAMBURGER ICON
+    ======================================== */
+    .menu-icon {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      padding: 1.8rem;
+      margin: 0;
+      margin-right: 1rem;
+      background: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      cursor: pointer;
+    }
+    
+    .menu-icon span {
+      display: block;
+      width: 24px;
+      height: 3px;
+      background-color: #0d315a;
+      border-radius: 2px;
+    }
+    
+    .menu-icon:hover {
+      transform: scale(1.1);
+    }
+    
+    /* ========================================
+       MENU OVERLAY & PANEL
+    ======================================== */
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(13, 49, 90, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 9998;
       opacity: 0;
-      transform: translateY(40px);
+      visibility: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    to {
+    
+    .menu-overlay.active {
       opacity: 1;
-      transform: translateY(0);
+      visibility: visible;
     }
-  }
+    
+    .menu-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 100%;
+      max-width: 420px;
+      height: 100vh;
+      max-height: 100vh;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafcec 100%);
+      box-shadow: -8px 0 40px rgba(0, 0, 0, 0.25);
+      transform: translateX(100%);
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      padding: 100px 32px 40px;
+    }
+    
+    .menu-overlay.active .menu-panel {
+      transform: translateX(0);
+    }
+    
+    body.menu-open {
+      overflow: hidden;
+      height: 100vh;
+    }
+    
+    /* ========================================
+       MENU TITLE - CORAL UNDERLINE
+    ======================================== */
+    .menu-panel h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #0d315a;
+      margin-bottom: 32px;
+      letter-spacing: -0.5px;
+      position: relative;
+      padding-bottom: 16px;
+    }
+    
+    .menu-panel h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 4px;
+      background: linear-gradient(90deg, #ff9770, #ff6f61);
+      border-radius: 2px;
+    }
+    
+    /* ========================================
+       MENU BUTTONS
+    ======================================== */
+    .menu-btn {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      padding: 18px 24px;
+      margin-bottom: 12px;
+      background: white;
+      border: 2px solid rgba(13, 49, 90, 0.08);
+      border-radius: 16px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #0d315a;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: 'Poppins', sans-serif;
+      text-align: left;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .menu-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    .menu-btn:hover::before {
+      left: 100%;
+    }
+    
+    .menu-btn:hover {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+      border-color: rgba(102, 126, 234, 0.3);
+      transform: translateX(4px);
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+    }
+    
+    .menu-btn:active {
+      transform: translateX(4px) scale(0.98);
+    }
+    
+    /* ========================================
+       DAILY CHALLENGE BUTTON (190px HEIGHT)
+    ======================================== */
+    .menu-daily-challenge {
+      position: relative;
+      height: 190px;
+      padding: 0;
+      margin-bottom: 16px;
+      overflow: hidden;
+      border: 3px solid rgba(255, 151, 112, 0.6);
+      box-shadow: 0 4px 20px rgba(255, 151, 112, 0.3);
+    }
+    
+    .menu-daily-challenge .daily-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #8b4513 0%, #d2691e 100%);
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.6);
+      z-index: 1;
+    }
+    
+    .menu-daily-challenge .daily-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.4) 100%);
+      z-index: 2;
+    }
+    
+    .menu-daily-challenge .daily-content {
+      position: relative;
+      z-index: 3;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 16px;
+    }
+    
+    .menu-daily-challenge .daily-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+      margin: 0;
+    }
+    
+    .menu-daily-challenge .daily-category {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    }
+    
+    .menu-daily-challenge:hover {
+      transform: translateX(4px) scale(1.02);
+      border-color: rgba(255, 111, 97, 0.9);
+    }
+    
+    /* ========================================
+       SPECIAL BUTTONS
+    ======================================== */
+    .upgrade-access-btn {
+      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 20px rgba(255, 151, 112, 0.4);
+      margin-top: 8px;
+    }
+    
+    .upgrade-access-btn:hover {
+      background: linear-gradient(135deg, #ff8560 0%, #ff5f51 100%);
+      transform: translateX(4px) translateY(-2px);
+      box-shadow: 0 6px 28px rgba(255, 151, 112, 0.5);
+    }
+    
+    .menu-close {
+      margin-top: auto;
+      background: rgba(13, 49, 90, 0.06);
+      border-color: rgba(13, 49, 90, 0.12);
+      color: #0d315a;
+      font-weight: 500;
+    }
+    
+    .menu-close:hover {
+      background: rgba(13, 49, 90, 0.12);
+      border-color: rgba(13, 49, 90, 0.2);
+    }
+    
+    /* ========================================
+       SCROLLBAR
+    ======================================== */
+    .menu-panel::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .menu-panel::-webkit-scrollbar-track {
+      background: rgba(13, 49, 90, 0.05);
+      border-radius: 10px;
+    }
+    
+    .menu-panel::-webkit-scrollbar-thumb {
+      background: rgba(102, 126, 234, 0.3);
+      border-radius: 10px;
+    }
+    
+    .menu-panel::-webkit-scrollbar-thumb:hover {
+      background: rgba(102, 126, 234, 0.5);
+    }
 
-  .fade-in {
-    opacity: 0;
-    animation: fadeInUp 0.8s ease-out forwards;
-  }
-
-  @media (max-width: 600px) {
+    /* ========================================
+       STATS PAGE CONTENT
+    ======================================== */
     .stats-container {
-      margin: 100px 16px 40px;
-      padding: 1rem;
+      max-width: 820px;
+      margin: 120px auto 60px;
+      padding: 48px 40px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 24px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+      opacity: 0;
+      animation: fadeInContainer 0.5s ease-out forwards;
     }
-
+    
+    @keyframes fadeInContainer {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* Header Section */
+    .stats-header {
+      text-align: center;
+      margin-bottom: 40px;
+      opacity: 0;
+      animation: fadeIn 0.5s ease-out 0.2s forwards;
+    }
+    
+    .page-title {
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: #0d315a;
+      margin-bottom: 12px;
+    }
+    
+    .page-title-text {
+      background: linear-gradient(135deg, #0d315a 0%, #667eea 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .user-info {
+      color: #6b7280;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+    
+    .user-email {
+      font-weight: 600;
+      color: #0d315a;
+    }
+    
+    /* Mode Toggle */
     .mode-toggle {
-      flex-wrap: wrap;
-      gap: 8px;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 32px;
+      opacity: 0;
+      animation: fadeIn 0.5s ease-out 0.4s forwards;
     }
-
+    
     .mode-btn {
-      padding: 8px 16px;
-      font-size: 0.9rem;
+      padding: 12px 28px;
+      background: white;
+      border: 2px solid rgba(102, 126, 234, 0.15);
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+      color: #0d315a;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
-
-    .category-stats-table th,
+    
+    .mode-btn.active {
+      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 4px 16px rgba(255, 151, 112, 0.3);
+    }
+    
+    .mode-btn:hover:not(.active) {
+      background: rgba(102, 126, 234, 0.08);
+      border-color: rgba(102, 126, 234, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+    }
+    
+    /* Stats Table */
+    .stats-table-wrapper {
+      opacity: 0;
+      animation: fadeIn 0.5s ease-out 0.6s forwards;
+      overflow-x: auto;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+    
+    .category-stats-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    
+    .category-stats-table thead {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    }
+    
+    .category-stats-table th {
+      padding: 16px 20px;
+      text-align: left;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #0d315a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+    }
+    
     .category-stats-table td {
-      padding: 0.5rem 0.4rem;
-      font-size: 0.85rem;
+      padding: 16px 20px;
+      text-align: left;
+      font-size: 1rem;
+      color: #333;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
     }
-  }
-</style>
-
+    
+    .category-stats-table tbody tr {
+      transition: all 0.2s ease;
+    }
+    
+    .category-stats-table tbody tr:hover {
+      background: rgba(102, 126, 234, 0.04);
+    }
+    
+    .category-stats-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+    
+    /* Progress Bar */
+    .progress-bar-container {
+      background: rgba(102, 126, 234, 0.1);
+      border-radius: 8px;
+      height: 10px;
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .progress-bar-fill {
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      height: 100%;
+      border-radius: 8px;
+      transition: width 0.6s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .progress-bar-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      animation: shimmer 2s infinite;
+    }
+    
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    
+    /* Premium Modal */
+    .premium-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .premium-modal.hidden {
+      display: none;
+    }
+    
+    .premium-window {
+      background: white;
+      padding: 48px 40px;
+      border-radius: 24px;
+      max-width: 480px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+    
+    .premium-window h2 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #0d315a;
+      margin-bottom: 16px;
+    }
+    
+    .lock {
+      font-size: 2.5rem;
+      display: block;
+      margin-bottom: 16px;
+    }
+    
+    .premium-window p {
+      font-size: 1.1rem;
+      color: #4b5563;
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+    
+    .premium-btn {
+      width: 100%;
+      padding: 16px 32px;
+      border: none;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+      margin-bottom: 12px;
+    }
+    
+    .premium-btn.upgrade {
+      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
+      color: white;
+      box-shadow: 0 6px 24px rgba(255, 111, 97, 0.3);
+    }
+    
+    .premium-btn.upgrade:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(255, 111, 97, 0.4);
+    }
+    
+    .premium-btn.cancel {
+      background: rgba(13, 49, 90, 0.08);
+      color: #0d315a;
+      border: 2px solid rgba(13, 49, 90, 0.15);
+    }
+    
+    .premium-btn.cancel:hover {
+      background: rgba(13, 49, 90, 0.12);
+    }
+    
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .stats-container {
+        margin: 90px 16px 40px;
+        padding: 32px 24px;
+      }
+      
+      .page-title {
+        font-size: 2rem;
+      }
+      
+      .mode-toggle {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      
+      .mode-btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+      }
+      
+      .category-stats-table th,
+      .category-stats-table td {
+        padding: 12px 14px;
+        font-size: 0.9rem;
+      }
+      
+      .premium-window {
+        padding: 40px 28px;
+      }
+      
+      .premium-window h2 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
 </head>
 <body>
 
+<!-- ========== HEADER ========== -->
 <header class="home-glass-header">
-  <div class="logo-header"><a href="index.html"><img src="assets/logo.png" alt="GeoRanks Logo" /></a></div>
-  <div class="hamburger-menu"><div class="menu-icon" id="menuToggle"><span></span><span></span><span></span></div></div>
+  <div class="logo-header">
+    <a href="index.html" class="logo-link">
+      <img src="assets/logo.png" alt="GeoRanks Logo" />
+    </a>
+  </div>
+  <div class="menu-icon" id="menuToggle">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
 </header>
 
+<!-- ========== HAMBURGER MENU ========== -->
 <div class="menu-overlay" id="menuOverlay">
   <div class="menu-panel">
     <h2>Menu</h2>
+    
     <button class="menu-btn menu-daily-challenge" onclick="window.location.href='daily-challenge.html'" id="dailyChallengeMenuBtn">
-  <div class="daily-bg" id="dailyChallengeBg"></div>
-  <div class="daily-overlay"></div>
-  <div class="daily-content">
-    <h3 class="daily-title">📅 Daily Challenge</h3>
-    <span class="daily-category" id="dailyChallengeCategory">Loading...</span>
-  </div>
-</button>
+      <div class="daily-bg" id="dailyChallengeBg"></div>
+      <div class="daily-overlay"></div>
+      <div class="daily-content">
+        <h3 class="daily-title">📅 Daily Challenge</h3>
+        <span class="daily-category" id="dailyChallengeCategory">Loading...</span>
+      </div>
+    </button>
+    
     <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
     <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
     <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
     <button class="menu-btn" onclick="window.location.href='how-to-play.html'">💡 How to Play</button>
     <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
     <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
+    <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'">🔓 Unlock All Categories</button>
     <button class="menu-btn menu-close" id="closeMenu">Close</button>
   </div>
 </div>
 
-<main class="stats-container fade-in" id="statsContainer" style="display: none;">
-  <div class="stats-card">
-    <h2>📊 Your Stats</h2>
-    <p id="userEmail">Loading…</p>
-    <p id="userSince">Member since —</p>
+<!-- ========== STATS CONTENT ========== -->
+<main class="stats-container" id="statsContainer" style="display: none;">
+  <div class="stats-header">
+    <h1 class="page-title">📊 <span class="page-title-text">Your Stats</span></h1>
+    <p class="user-info"><span class="user-email" id="userEmail">Loading…</span></p>
+    <p class="user-info" id="userSince">Member since —</p>
   </div>
 
   <!-- Mode Toggle -->
   <div class="mode-toggle">
-    <button class="mode-btn active" data-mode="classic">Classic</button>
-    <button class="mode-btn" data-mode="top10">Top 10</button>
-    <button class="mode-btn" data-mode="vs">VS</button>
+    <button class="mode-btn active" data-mode="classic">🎯 Classic</button>
+    <button class="mode-btn" data-mode="top10">🔝 Top 10</button>
+    <button class="mode-btn" data-mode="vs">⚔️ VS</button>
   </div>
 
-  <table class="category-stats-table" id="categoryStatsTable">
-    <thead>
-      <tr>
-        <th>Category</th>
-        <th>Rank</th>
-        <th>Score</th>
-        <th id="progressHeader">Progress</th>
-      </tr>
-    </thead>
-    <tbody id="categoryStatsBody">
-      <tr><td colspan="4">Loading stats…</td></tr>
-    </tbody>
-  </table>
+  <!-- Stats Table -->
+  <div class="stats-table-wrapper">
+    <table class="category-stats-table" id="categoryStatsTable">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Rank</th>
+          <th>Score</th>
+          <th id="progressHeader">Progress</th>
+        </tr>
+      </thead>
+      <tbody id="categoryStatsBody">
+        <tr><td colspan="4" style="text-align: center; padding: 40px;">Loading stats…</td></tr>
+      </tbody>
+    </table>
+  </div>
 </main>
 
-<!-- Premium Upgrade Modal -->
+<!-- ========== PREMIUM MODAL ========== -->
 <div id="premiumModal" class="premium-modal hidden">
   <div class="premium-window">
-    <h2>Premium Feature <span class="lock">🔒</span></h2>
+    <span class="lock">🔒</span>
+    <h2>Premium Feature</h2>
     <p>This feature is only available with <strong>GeoRanks Premium</strong>. Upgrade to unlock stats and more.</p>
     <button id="goPremiumBtn" class="premium-btn upgrade">Upgrade to Premium</button>
     <button id="closePremiumBtn" class="premium-btn cancel">Return Home</button>
   </div>
 </div>
 
+<!-- ========== JAVASCRIPT ========== -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const menuToggle = document.getElementById('menuToggle');
+  const menuOverlay = document.getElementById('menuOverlay');
+  const closeMenu = document.getElementById('closeMenu');
+  let scrollPosition = 0;
+
+  if (menuToggle && menuOverlay) {
+    menuToggle.addEventListener('click', () => {
+      scrollPosition = window.pageYOffset;
+      document.body.classList.add('menu-open');
+      document.body.style.top = `-${scrollPosition}px`;
+      menuOverlay.classList.add('active');
+    });
+
+    function closeMenuHandler() {
+      document.body.classList.remove('menu-open');
+      document.body.style.top = '';
+      window.scrollTo(0, scrollPosition);
+      menuOverlay.classList.remove('active');
+    }
+
+    closeMenu?.addEventListener('click', closeMenuHandler);
+
+    menuOverlay.addEventListener('click', (e) => {
+      if (e.target === menuOverlay) {
+        closeMenuHandler();
+      }
+    });
+  }
+});
+</script>
+
+<!-- Account/Premium Button Removal -->
+<script type="module">
+  import { supabase } from './js/supabase-client.js';
+  (async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      const { data: profile } = await supabase.from('users').select('is_premium').eq('id', session.user.id).single();
+      if (profile?.is_premium) document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+    }
+    if (!session?.user) document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+  })();
+</script>
+
+<!-- Daily Challenge Menu Button -->
+<script type="module">
+  import { getTodaysDailyChallenge, modeDisplayNames, categoryDisplayNames, categoryEmojis } from './js/daily-challenge.js';
+  document.addEventListener('DOMContentLoaded', () => {
+    const categorySpan = document.getElementById('dailyChallengeCategory');
+    const bg = document.getElementById('dailyChallengeBg');
+    const today = getTodaysDailyChallenge();
+    if (today && categorySpan && bg) {
+      const modeName = modeDisplayNames[today.mode] || today.mode.toUpperCase();
+      const categoryName = categoryDisplayNames[today.category] || today.category;
+      const emoji = categoryEmojis[today.category] || '';
+      categorySpan.textContent = `${modeName}: ${categoryName} ${emoji}`;
+      bg.style.backgroundImage = `url('images/categories/${today.category}.jpg')`;
+    }
+  });
+</script>
+
+<!-- Stats Functionality -->
 <script type="module">
   import { supabase } from './js/supabase-client.js';
 
@@ -220,7 +806,7 @@ body {
   const modal = document.getElementById("premiumModal");
   const statsContainer = document.getElementById("statsContainer");
   let currentMode = 'classic';
-  let isLoading = false; // Prevent race conditions
+  let isLoading = false;
 
   if (!session || !session.user) {
     modal.classList.remove("hidden");
@@ -243,7 +829,6 @@ body {
   // Mode toggle functionality
   document.querySelectorAll('.mode-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      // Prevent switching while loading
       if (isLoading) return;
       
       document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
@@ -261,7 +846,6 @@ body {
   }
 
   async function loadStats(mode) {
-    // Prevent race conditions
     if (isLoading) return;
     isLoading = true;
 
@@ -270,7 +854,6 @@ body {
     const categoryStatsBody = document.getElementById('categoryStatsBody');
     const progressHeader = document.getElementById('progressHeader');
     
-    // Update header based on mode
     if (mode === 'classic') {
       progressHeader.textContent = 'Progress';
     } else if (mode === 'top10') {
@@ -279,13 +862,12 @@ body {
       progressHeader.textContent = 'Accuracy (%)';
     }
     
-    categoryStatsBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
+    categoryStatsBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 40px;">Loading...</td></tr>';
 
     let scoresData;
     let tableName;
 
     try {
-      // Determine which table to query based on mode
       if (mode === 'classic') {
         tableName = 'category_scores';
         const { data } = await supabase
@@ -302,14 +884,12 @@ body {
         scoresData = data;
       } else if (mode === 'vs') {
         tableName = 'vs_scores';
-        // Get best score per category for VS mode
         const { data } = await supabase
           .from('vs_scores')
           .select('category_id, score, correct_count, accuracy')
           .eq('user_id', user.id)
           .order('score', { ascending: false });
         
-        // Filter to best score per category
         const bestScoresMap = new Map();
         data?.forEach(score => {
           const existing = bestScoresMap.get(score.category_id);
@@ -321,12 +901,11 @@ body {
       }
 
       if (!scoresData || scoresData.length === 0) {
-        categoryStatsBody.innerHTML = `<tr><td colspan="4">No stats found yet for this mode.</td></tr>`;
+        categoryStatsBody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 40px;">No stats found yet for this mode.</td></tr>`;
         isLoading = false;
         return;
       }
 
-      // Fetch all ranks in parallel for better performance
       const statsWithRanks = await Promise.all(
         scoresData.map(async (entry) => {
           const { category_id, score } = entry;
@@ -334,13 +913,11 @@ body {
           let rank;
 
           if (mode === 'vs') {
-            // For VS mode: Get all scores for this category, filter to best per user
             const { data: allScores } = await supabase
               .from(tableName)
               .select('user_id, score')
               .eq('category_id', category_id);
 
-            // Get best score per user
             const bestScoresMap = new Map();
             allScores?.forEach(s => {
               const existing = bestScoresMap.get(s.user_id);
@@ -349,20 +926,17 @@ body {
               }
             });
 
-            // Count how many users have a higher best score
             const usersWithHigherScores = Array.from(bestScoresMap.values())
               .filter(s => s.score > score);
             
             rank = usersWithHigherScores.length + 1;
           } else {
-            // For Classic and Top 10: Count unique users with higher scores
             const { data: higherScores } = await supabase
               .from(tableName)
               .select('user_id, score')
               .gt('score', score)
               .eq('category_id', category_id);
 
-            // Count unique users with higher scores
             const uniqueUsers = new Set(higherScores?.map(s => s.user_id) || []);
             rank = uniqueUsers.size + 1;
           }
@@ -374,7 +948,6 @@ body {
         })
       );
 
-      // Render all at once
       categoryStatsBody.innerHTML = '';
       
       statsWithRanks.forEach(entry => {
@@ -384,18 +957,14 @@ body {
         let progressPercent;
         let progressLabel;
 
-        // Calculate progress based on mode
         if (mode === 'classic') {
-          // Classic: Score out of 100
           progressPercent = Math.min(Math.floor((score / 100) * 100), 100);
           progressLabel = `${score}%`;
         } else if (mode === 'top10') {
-          // Top 10: Accuracy based on correct/total (10 questions)
           const correct = entry.correct_count || 0;
           progressPercent = Math.floor((correct / 10) * 100);
           progressLabel = `${correct}/10`;
         } else if (mode === 'vs') {
-          // VS: Direct accuracy percentage
           progressPercent = Math.floor(entry.accuracy || 0);
           progressLabel = `${progressPercent}%`;
         }
@@ -416,7 +985,7 @@ body {
 
     } catch (error) {
       console.error('Error loading stats:', error);
-      categoryStatsBody.innerHTML = `<tr><td colspan="4">Error loading stats</td></tr>`;
+      categoryStatsBody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 40px; color: #dc2626;">Error loading stats</td></tr>`;
     } finally {
       isLoading = false;
     }
@@ -444,7 +1013,6 @@ body {
       18: '⭐ Michelin Restaurants',
       19: '🍔 BigMac Index',
       20: '🤍 Life Expectancy',
-      // NEW CATEGORIES
       21: '💍 Marriage Age',
       22: '⚖️ Gender Ratio',
       23: '🏙️ Tallest Building',
@@ -473,45 +1041,6 @@ body {
   document.getElementById("goPremiumBtn").onclick = () => {
     window.location.href = "premium.html";
   };
-</script>
-
-<!-- Hamburger Menu Logic -->
-<script>
-const toggleBtn = document.getElementById("menuToggle");
-const overlay = document.getElementById("menuOverlay");
-const closeBtn = document.getElementById("closeMenu");
-
-toggleBtn?.addEventListener("click", () => overlay.classList.add("active"));
-closeBtn?.addEventListener("click", () => overlay.classList.remove("active"));
-
-overlay.addEventListener("click", (e) => {
-  if (e.target === overlay) overlay.classList.remove("active");
-});
-</script>
-
-<script type="module">
-  import {
-    getTodaysDailyChallenge,
-    modeDisplayNames,
-    categoryDisplayNames,
-    categoryEmojis
-  } from './js/daily-challenge.js';
-
-  document.addEventListener('DOMContentLoaded', () => {
-    const categorySpan = document.getElementById('dailyChallengeCategory');
-    const bg = document.getElementById('dailyChallengeBg');
-
-    const today = getTodaysDailyChallenge();
-
-    if (today && categorySpan && bg) {
-      const modeName = modeDisplayNames[today.mode] || today.mode.toUpperCase();
-      const categoryName = categoryDisplayNames[today.category] || today.category;
-      const emoji = categoryEmojis[today.category] || '';
-
-      categorySpan.textContent = `${modeName}: ${categoryName} ${emoji}`;
-      bg.style.backgroundImage = `url('images/categories/${today.category}.jpg')`;
-    }
-  });
 </script>
 
 </body>

@@ -1,0 +1,254 @@
+/* ========================================================
+   HAMBURGER MENU - COMPREHENSIVE STYLING
+   Load this AFTER home.css to override defaults
+======================================================== */
+
+/* Menu Overlay */
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(13, 49, 90, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 9998;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.menu-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Menu Panel - SIZES TO CONTENT, NOT VIEWPORT */
+.menu-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  max-width: 380px !important;
+  max-height: 100vh; /* Can't exceed viewport height */
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow: -8px 0 40px rgba(0, 0, 0, 0.25);
+  transform: translateX(100%);
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto; /* Allow scrolling if content exceeds viewport */
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  padding: 70px 28px 30px !important;
+}
+
+.menu-overlay.active .menu-panel {
+  transform: translateX(0);
+}
+
+/* Prevent body scroll when menu is open */
+body.menu-open {
+  overflow: hidden !important;
+  height: 100vh !important;
+  position: fixed !important;
+  width: 100% !important;
+}
+
+/* Menu Title */
+.menu-panel h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #0d315a;
+  margin-bottom: 16px;
+  letter-spacing: -0.5px;
+  position: relative;
+  padding-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.menu-panel h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  border-radius: 2px;
+}
+
+/* Menu Buttons - COMPACT */
+.menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px !important;
+  margin-bottom: 6px !important;
+  background: white;
+  border: 2px solid rgba(13, 49, 90, 0.08);
+  border-radius: 12px;
+  font-size: 0.88rem !important;
+  font-weight: 600;
+  color: #0d315a;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Poppins', sans-serif;
+  text-align: left;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.menu-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.menu-btn:hover::before {
+  left: 100%;
+}
+
+.menu-btn:hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+  border-color: rgba(102, 126, 234, 0.3);
+  transform: translateX(4px);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+}
+
+.menu-btn:active {
+  transform: translateX(4px) scale(0.98);
+}
+
+/* Daily Challenge Button - COMPACT */
+.menu-daily-challenge {
+  height: 62px !important;
+  padding: 0 !important;
+  margin-bottom: 8px !important;
+  overflow: hidden;
+  border: 3px solid rgba(255, 215, 0, 0.4) !important;
+  box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3), 0 0 40px rgba(255, 215, 0, 0.1) !important;
+  flex-shrink: 0;
+}
+
+.menu-daily-challenge .daily-content {
+  gap: 4px !important;
+}
+
+.menu-daily-challenge .daily-title {
+  font-size: 1.1rem !important;
+}
+
+.menu-daily-challenge .daily-category {
+  font-size: 0.85rem !important;
+}
+
+/* Upgrade Button */
+.upgrade-access-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+  margin-top: 8px;
+  flex-shrink: 0;
+}
+
+.upgrade-access-btn:hover {
+  background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
+  transform: translateX(4px) translateY(-2px);
+  box-shadow: 0 6px 28px rgba(102, 126, 234, 0.5);
+}
+
+/* Close Button - NO SPACER NEEDED */
+.menu-close {
+  background: rgba(13, 49, 90, 0.06);
+  border-color: rgba(13, 49, 90, 0.12);
+  color: #0d315a;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.menu-close:hover {
+  background: rgba(13, 49, 90, 0.12);
+  border-color: rgba(13, 49, 90, 0.2);
+}
+
+/* Flex Spacer - HIDE IT, NOT NEEDED */
+.flex-spacer {
+  display: none !important;
+}
+
+/* Scrollbar Styling */
+.menu-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.menu-panel::-webkit-scrollbar-track {
+  background: rgba(13, 49, 90, 0.05);
+  border-radius: 10px;
+}
+
+.menu-panel::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.3);
+  border-radius: 10px;
+}
+
+.menu-panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 126, 234, 0.5);
+}
+
+/* ========================================================
+   RESPONSIVE BREAKPOINTS
+======================================================== */
+
+@media (max-width: 768px) {
+  .menu-panel {
+    max-width: 85% !important;
+    padding: 70px 24px 30px !important;
+  }
+
+  .menu-panel h2 {
+    font-size: 1.5rem;
+    margin-bottom: 14px;
+  }
+
+  .menu-btn {
+    padding: 9px 13px !important;
+    font-size: 0.85rem !important;
+    margin-bottom: 5px !important;
+  }
+
+  .menu-daily-challenge {
+    height: 58px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .menu-panel {
+    max-width: 90% !important;
+    padding: 60px 20px 25px !important;
+  }
+
+  .menu-panel h2 {
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+  }
+
+  .menu-btn {
+    padding: 8px 12px !important;
+    font-size: 0.82rem !important;
+    gap: 8px;
+  }
+
+  .menu-daily-challenge {
+    height: 54px !important;
+  }
+}

@@ -320,7 +320,14 @@ function formatMetric(num) {
   if (metricKey === "disasterrisk") return `${num.toFixed(2)}`;
   if (metricKey === "longestriver") return `${num.toLocaleString()} km`;
   if (metricKey === "sharepercent") return `${num}%`; // renewable energy
-  if (metricKey === "millionaires") return num.toLocaleString();
+  if (metricKey === "millionaires") {
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(1)}M`;
+    } else if (num >= 1000) {
+      return `${(num / 1000).toFixed(1)}K`;
+    }
+    return num.toLocaleString();
+  }
   if (metricKey === "grandmasters") return `${num} grandmasters`;
   
   // Special handling for altitude: always show full number with commas
@@ -457,8 +464,20 @@ function endGame() {
 
     const tr = document.createElement("tr");
     tr.style.background = isPerfect ? "rgba(34,197,94,0.12)" : "#f8f7fc";
-   const metricDisplay = metricKey === "highestPoint" && c.highestPointName
+   // Debug logging
+    console.log('Classic mode DEBUG:', {
+      metricKey,
+      country: c.name,
+      hasHighestPointName: !!c.highestPointName,
+      hasTallestBuildingName: !!c.tallestBuildingName,
+      highestPointName: c.highestPointName,
+      tallestBuildingName: c.tallestBuildingName
+    });
+    
+    const metricDisplay = metricKey === "highestPoint" && c.highestPointName
       ? `${formatMetric(c[metricKey])} (${c.highestPointName})`
+      : metricKey === "height" && c.tallestBuildingName
+      ? `${formatMetric(c[metricKey])} (${c.tallestBuildingName})`
       : metricKey ? formatMetric(c[metricKey]) : "";
     
     tr.innerHTML = `

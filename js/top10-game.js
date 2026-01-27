@@ -381,7 +381,7 @@ async function initGame() {
         const slot = document.querySelector(`[data-rank="${country.rank}"]`);
         if (slot) {
           slot.classList.add('correct');
-          const formattedValue = formatValue(country.value, currentCategory.unit);
+          const formattedValue = formatValue(country.value, currentCategory.unit, country);
           slot.innerHTML = `
             <img src="${country.flag}" alt="${country.name}" class="rank-flag">
             <span class="rank-data">${formattedValue}</span>
@@ -713,7 +713,7 @@ async function selectCountry(country) {
     slot.classList.add('correct');
     
     // Format the value based on category
-    const formattedValue = formatValue(country.value, currentCategory.unit);
+    const formattedValue = formatValue(country.value, currentCategory.unit, country);
     
     slot.innerHTML = `
       <img src="${country.flag}" alt="${country.name}" class="rank-flag">
@@ -740,7 +740,28 @@ async function selectCountry(country) {
   }
 }
 
-function formatValue(value, unit) {
+function formatValue(value, unit, country = null) {
+  // Debug logging
+  if (unit === 'm' && country) {
+    console.log('formatValue DEBUG:', {
+      value,
+      unit,
+      country,
+      hasBuildingName: !!country.tallestBuildingName,
+      hasMountainName: !!country.highestPointName
+    });
+  }
+  
+  // Special handling for tallest building - show building name
+  if (unit === 'm' && country && country.tallestBuildingName) {
+    return `${value.toLocaleString()} m (${country.tallestBuildingName})`;
+  }
+  
+  // Special handling for altitude - show mountain name
+  if (unit === 'm' && country && country.highestPointName) {
+    return `${value.toLocaleString()} m (${country.highestPointName})`;
+  }
+  
   // Format numbers based on unit type
   switch(unit) {
     case 'M': // Million (with B/M/K support)
@@ -819,7 +840,12 @@ function formatValue(value, unit) {
     case '%': // renewable energy
       return `${value}%`;
     case 'millionaires': // millionaires
-      return `${value.toLocaleString()} millionaires`;
+      if (value >= 1000000) {
+        return `${(value / 1000000).toFixed(1)}M`;
+      } else if (value >= 1000) {
+        return `${(value / 1000).toFixed(1)}K`;
+      }
+      return `${value.toLocaleString()}`;
     case 'grandmasters': // chess grandmasters
       return `${value} grandmasters`;
     default:
@@ -869,6 +895,8 @@ function startTimer() {
 }
 
 async function endGame(won) {
+  console.log('🎮 endGame called with won:', won);
+  
   // Clear timer
   if (gameState.timerInterval) {
     clearInterval(gameState.timerInterval);
@@ -901,10 +929,19 @@ async function endGame(won) {
   // Update the final score
   gameState.score = finalScore;
   
-  // Save score to database (only if logged in)
-  await saveDailyScore(finalScore, correctGuesses, timeElapsed);
+  // Save score to database (only if logged in) - but don't let it block results
+  try {
+    await Promise.race([
+      saveDailyScore(finalScore, correctGuesses, timeElapsed),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Save timeout')), 5000))
+    ]);
+  } catch (error) {
+    console.error('⚠️ Score save failed or timed out:', error);
+    // Continue anyway - show results even if save failed
+  }
   
-  // Show results overlay
+  // ALWAYS show results overlay, even if save failed
+  console.log('📊 Showing results overlay...');
   showResults(won, correctGuesses, timeElapsed);
 }
 
@@ -1073,7 +1110,7 @@ function buildResultsTable() {
     const row = document.createElement('div');
     row.className = `table-row ${isGuessed ? 'correct' : ''}`;
     
-    const formattedValue = formatValue(country.value, currentCategory.unit);
+    const formattedValue = formatValue(country.value, currentCategory.unit, country);
     
     row.innerHTML = `
       <span class="table-rank">#${country.rank}</span>

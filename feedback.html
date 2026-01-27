@@ -3,253 +3,720 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>GeoRanks — Feedback</title>
-  <link rel="stylesheet" href="css/home.css"/>
-  <link rel="stylesheet" href="css/game-modes.css"/>
+  <title>Feedback | GeoRanks</title>
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
   <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #a7f3d0 0%, #38bdf8 100%);
+    /* ========================================
+       RESET & BASE STYLES
+    ======================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      height: 100%;
       margin: 0;
     }
 
-    .feedback-wrapper {
-      max-width: 720px;
-      margin: 120px auto 60px;
-      padding: 40px;
-      background: rgba(255, 255, 255, 0.8);
+    body {
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #a7f3d0 0%, #38bdf8 100%);
+      background-attachment: fixed;
+    }
+    
+    /* ========================================
+       HEADER
+    ======================================== */
+    .home-glass-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 64px;
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 0rem;
+      z-index: 1000;
+    }
+    
+    .logo-header {
+      display: flex;
+      align-items: center;
+    }
+
+    .logo-header img,
+    .logo-link img {
+      height: 40px;
+      width: auto;
+      object-fit: contain;
+      margin-left: 0.8rem;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+      cursor: pointer;
+    }
+
+    .logo-link:hover img {
+      transform: scale(1.05);
+      opacity: 0.85;
+    }
+    
+    /* ========================================
+       HAMBURGER ICON
+    ======================================== */
+    .menu-icon {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      padding: 1.8rem;
+      margin: 0;
+      margin-right: 1rem;
+      background: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      cursor: pointer;
+    }
+    
+    .menu-icon span {
+      display: block;
+      width: 24px;
+      height: 3px;
+      background-color: #0d315a;
+      border-radius: 2px;
+    }
+    
+    .menu-icon:hover {
+      transform: scale(1.1);
+    }
+    
+    /* ========================================
+       MENU OVERLAY & PANEL
+    ======================================== */
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(13, 49, 90, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 9998;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .menu-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .menu-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 100%;
+      max-width: 420px;
+      height: 100vh;
+      max-height: 100vh;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafcec 100%);
+      box-shadow: -8px 0 40px rgba(0, 0, 0, 0.25);
+      transform: translateX(100%);
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      padding: 100px 32px 40px;
+    }
+    
+    .menu-overlay.active .menu-panel {
+      transform: translateX(0);
+    }
+    
+    body.menu-open {
+      overflow: hidden;
+      height: 100vh;
+    }
+    
+    /* ========================================
+       MENU TITLE - CORAL UNDERLINE
+    ======================================== */
+    .menu-panel h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #0d315a;
+      margin-bottom: 32px;
+      letter-spacing: -0.5px;
+      position: relative;
+      padding-bottom: 16px;
+    }
+    
+    .menu-panel h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 4px;
+      background: linear-gradient(90deg, #ff9770, #ff6f61);
+      border-radius: 2px;
+    }
+    
+    /* ========================================
+       MENU BUTTONS
+    ======================================== */
+    .menu-btn {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      padding: 18px 24px;
+      margin-bottom: 12px;
+      background: white;
+      border: 2px solid rgba(13, 49, 90, 0.08);
       border-radius: 16px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #0d315a;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: 'Poppins', sans-serif;
+      text-align: left;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .menu-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    .menu-btn:hover::before {
+      left: 100%;
+    }
+    
+    .menu-btn:hover {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+      border-color: rgba(102, 126, 234, 0.3);
+      transform: translateX(4px);
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+    }
+    
+    .menu-btn:active {
+      transform: translateX(4px) scale(0.98);
+    }
+    
+    /* ========================================
+       DAILY CHALLENGE BUTTON (190px HEIGHT)
+    ======================================== */
+    .menu-daily-challenge {
+      position: relative;
+      height: 190px;
+      padding: 0;
+      margin-bottom: 16px;
+      overflow: hidden;
+      border: 3px solid rgba(255, 151, 112, 0.6);
+      box-shadow: 0 4px 20px rgba(255, 151, 112, 0.3);
+    }
+    
+    .menu-daily-challenge .daily-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #8b4513 0%, #d2691e 100%);
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.6);
+      z-index: 1;
+    }
+    
+    .menu-daily-challenge .daily-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.4) 100%);
+      z-index: 2;
+    }
+    
+    .menu-daily-challenge .daily-content {
+      position: relative;
+      z-index: 3;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 16px;
+    }
+    
+    .menu-daily-challenge .daily-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+      margin: 0;
+    }
+    
+    .menu-daily-challenge .daily-category {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    }
+    
+    .menu-daily-challenge:hover {
+      transform: translateX(4px) scale(1.02);
+      border-color: rgba(255, 111, 97, 0.9);
+    }
+    
+    /* ========================================
+       SPECIAL BUTTONS
+    ======================================== */
+    .upgrade-access-btn {
+      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 20px rgba(255, 151, 112, 0.4);
+      margin-top: 8px;
+    }
+    
+    .upgrade-access-btn:hover {
+      background: linear-gradient(135deg, #ff8560 0%, #ff5f51 100%);
+      transform: translateX(4px) translateY(-2px);
+      box-shadow: 0 6px 28px rgba(255, 151, 112, 0.5);
+    }
+    
+    .menu-close {
+      margin-top: auto;
+      background: rgba(13, 49, 90, 0.06);
+      border-color: rgba(13, 49, 90, 0.12);
+      color: #0d315a;
+      font-weight: 500;
+    }
+    
+    .menu-close:hover {
+      background: rgba(13, 49, 90, 0.12);
+      border-color: rgba(13, 49, 90, 0.2);
+    }
+    
+    /* ========================================
+       SCROLLBAR
+    ======================================== */
+    .menu-panel::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .menu-panel::-webkit-scrollbar-track {
+      background: rgba(13, 49, 90, 0.05);
+      border-radius: 10px;
+    }
+    
+    .menu-panel::-webkit-scrollbar-thumb {
+      background: rgba(102, 126, 234, 0.3);
+      border-radius: 10px;
+    }
+    
+    .menu-panel::-webkit-scrollbar-thumb:hover {
+      background: rgba(102, 126, 234, 0.5);
+    }
+
+    /* ========================================
+       FEEDBACK FORM CONTENT - UPGRADED
+    ======================================== */
+    .feedback-wrapper {
+      max-width: 780px;
+      margin: 120px auto 60px;
+      padding: 48px 40px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 24px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
       text-align: center;
-      backdrop-filter: blur(10px);
+      opacity: 0;
+      animation: fadeInContainer 0.5s ease-out forwards;
+    }
+    
+    @keyframes fadeInContainer {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .feedback-wrapper h1 {
-      font-size: 2rem;
-      margin-bottom: 30px;
-      color: #222;
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: #0d315a;
+      margin-bottom: 12px;
+      opacity: 0;
+      animation: fadeIn 0.5s ease-out 0.2s forwards;
+    }
+    
+    .page-title-text {
+      background: linear-gradient(135deg, #0d315a 0%, #667eea 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    #feedback-form {
+      opacity: 0;
+      animation: fadeIn 0.5s ease-out 0.4s forwards;
     }
 
     .slider-block {
-      margin: 30px 0;
-      text-align: center;
+      margin: 32px 0;
+      text-align: left;
+      padding: 24px;
+      background: rgba(102, 126, 234, 0.04);
+      border-radius: 16px;
+      border: 2px solid rgba(102, 126, 234, 0.1);
+      transition: all 0.3s ease;
+    }
+    
+    .slider-block:hover {
+      background: rgba(102, 126, 234, 0.08);
+      border-color: rgba(102, 126, 234, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.1);
     }
 
     .slider-block label {
       display: block;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
       font-size: 1.1rem;
-      color: #333;
+      font-weight: 600;
+      color: #0d315a;
     }
 
     .slider {
       -webkit-appearance: none;
-      width: 80%;
-      height: 10px;
-      border-radius: 6px;
-      background: #ddd;
+      width: 100%;
+      height: 12px;
+      border-radius: 8px;
+      background: linear-gradient(90deg, rgba(102, 126, 234, 0.2) 0%, rgba(102, 126, 234, 0.4) 100%);
       outline: none;
-      transition: background 0.3s;
+      transition: all 0.3s;
     }
 
     .slider::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 24px;
-      height: 24px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #ff9770, #ff6f61);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       cursor: pointer;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      transition: all 0.2s ease;
+    }
+    
+    .slider::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
     }
 
     .slider::-moz-range-thumb {
-      width: 24px;
-      height: 24px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
-      background: #ff6f61;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       cursor: pointer;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      border: none;
     }
 
     .slider-value {
       display: inline-block;
-      margin-top: 10px;
-      font-weight: bold;
-      font-size: 1rem;
-      color: #444;
-    }
-
-    .text-input-block textarea {
-  width: 100%;
-  height: 120px;
-  border-radius: 12px;
-  border: 1px solid #ccc;
-  padding: 12px;
-  font-family: 'Poppins', sans-serif;
-  font-size: 1rem;
-  resize: vertical;
-  box-sizing: border-box;
-  display: block;
-  margin: 0 auto;
-}
-
-.text-input-block label {
-  display: block;
-  text-align: left;
-  font-size: 1.05rem;
-  font-weight: 500;
-  margin-bottom: 8px;
-  color: #333;
-}
-    .submit-btn {
-      margin-top: 30px;
-      padding: 14px 24px;
-      border: none;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #ff9770, #ff6f61);
-      color: white;
-      font-weight: bold;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .submit-btn:hover {
-       transform: scale(1.05);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+      margin-top: 12px;
+      font-weight: 700;
+      font-size: 1.3rem;
+      color: #667eea;
+      background: rgba(102, 126, 234, 0.1);
+      padding: 6px 16px;
+      border-radius: 20px;
     }
 
     .text-input-block {
-  margin: 24px 0;
-  text-align: left;
-}
+      margin: 24px 0;
+      text-align: left;
+    }
 
-.text-input-block input[type="text"] {
-  width: 100%;
-  padding: 12px;
-  font-size: 1rem;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
-}
+    .text-input-block label {
+      display: block;
+      text-align: left;
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #0d315a;
+    }
 
-.text-input-block input[type="email"] {
-  width: 100%;
-  padding: 12px;
-  font-size: 1rem;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
-}
+    .text-input-block input[type="text"],
+    .text-input-block input[type="email"] {
+      width: 100%;
+      padding: 14px 18px;
+      font-size: 1rem;
+      border-radius: 12px;
+      border: 2px solid rgba(102, 126, 234, 0.2);
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s ease;
+      background: white;
+    }
+    
+    .text-input-block input[type="text"]:focus,
+    .text-input-block input[type="email"]:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+      transform: translateY(-2px);
+    }
 
+    .text-input-block textarea {
+      width: 100%;
+      height: 120px;
+      border-radius: 12px;
+      border: 2px solid rgba(102, 126, 234, 0.2);
+      padding: 14px 18px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      resize: vertical;
+      box-sizing: border-box;
+      display: block;
+      transition: all 0.3s ease;
+      background: white;
+    }
+    
+    .text-input-block textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    }
 
-    @media (max-width: 599px) {
+    .submit-btn {
+      margin-top: 32px;
+      padding: 16px 48px;
+      border: none;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 24px rgba(255, 151, 112, 0.4);
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(255, 151, 112, 0.5);
+    }
+    
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+
+    #thank-you-message {
+      text-align: center;
+      padding: 40px;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+      border-radius: 20px;
+      margin-top: 20px;
+      border: 2px solid rgba(102, 126, 234, 0.2);
+    }
+    
+    #thank-you-message h2 {
+      font-size: 2rem;
+      color: #0d315a;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+    
+    #thank-you-message p {
+      font-size: 1.1rem;
+      color: #4b5563;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
       .feedback-wrapper {
-        margin: 100px 16px 40px;
-        padding: 24px;
+        margin: 90px 16px 40px;
+        padding: 32px 24px;
       }
 
-      .slider {
-        width: 100%;
+      .feedback-wrapper h1 {
+        font-size: 2rem;
+      }
+
+      .slider-block {
+        padding: 20px;
       }
     }
   </style>
 </head>
 <body>
 
+<!-- ========== HEADER ========== -->
 <header class="home-glass-header">
   <div class="logo-header">
     <a href="index.html" class="logo-link">
       <img src="assets/logo.png" alt="GeoRanks Logo" />
     </a>
   </div>
-  <div class="hamburger-menu">
-    <div class="menu-icon" id="menuToggle">
-      <span></span><span></span><span></span>
-    </div>
+  <div class="menu-icon" id="menuToggle">
+    <span></span>
+    <span></span>
+    <span></span>
   </div>
 </header>
 
-<!-- ===== Overlay Menu ===== -->
+<!-- ========== HAMBURGER MENU ========== -->
 <div class="menu-overlay" id="menuOverlay">
   <div class="menu-panel">
     <h2>Menu</h2>
+    
     <button class="menu-btn menu-daily-challenge" onclick="window.location.href='daily-challenge.html'" id="dailyChallengeMenuBtn">
-  <div class="daily-bg" id="dailyChallengeBg"></div>
-  <div class="daily-overlay"></div>
-  <div class="daily-content">
-    <h3 class="daily-title">📅 Daily Challenge</h3>
-    <span class="daily-category" id="dailyChallengeCategory">Loading...</span>
-  </div>
-</button>
-    <button class="menu-btn" onclick="location.href='index.html'">🏠 Home</button>
-    <button class="menu-btn menu-btn-account" onclick="location.href='account.html'">👤 Account</button>
-    <button class="menu-btn" onclick="location.href='leaderboard.html'">🏆 Leaderboard</button>
-    <button class="menu-btn" onclick="location.href='stats.html'">📊 Stats</button>
-    <button class="menu-btn" onclick="location.href='how-to-play.html'">💡 How to Play</button>
+      <div class="daily-bg" id="dailyChallengeBg"></div>
+      <div class="daily-overlay"></div>
+      <div class="daily-content">
+        <h3 class="daily-title">📅 Daily Challenge</h3>
+        <span class="daily-category" id="dailyChallengeCategory">Loading...</span>
+      </div>
+    </button>
+    
+    <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
+    <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
+    <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
+    <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
+    <button class="menu-btn" onclick="window.location.href='how-to-play.html'">💡 How to Play</button>
     <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
     <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'">🔓 Unlock All Categories</button>
     <button class="menu-btn menu-close" id="closeMenu">Close</button>
   </div>
 </div>
 
-<!-- ===== Feedback Form ===== -->
-<div class="feedback-wrapper fade-in">
-  <h1>Please let us know your thoughts 💭</h1>
+<!-- ========== FEEDBACK FORM ========== -->
+<div class="feedback-wrapper">
+  <h1><span class="page-title-text">Please let us know your thoughts</span> 💬</h1>
 
   <form id="feedback-form" action="https://formspree.io/f/mwpgqpnj" method="POST">
 
-  <div class="slider-block">
-    <label for="q1">How would you rate Classic game mode?</label>
-    <input type="range" id="q1" name="q1" min="0" max="10" value="5" class="slider" />
-    <span class="slider-value" id="q1-value">5</span>
-  </div>
+    <div class="slider-block">
+      <label for="q1">How would you rate Classic game mode?</label>
+      <input type="range" id="q1" name="q1" min="0" max="10" value="5" class="slider" />
+      <span class="slider-value" id="q1-value">5</span>
+    </div>
 
-  <div class="slider-block">
-    <label for="q2">How would you rate Top 10 game mode?</label>
-    <input type="range" id="q2" name="q2" min="0" max="10" value="5" class="slider" />
-    <span class="slider-value" id="q2-value">5</span>
-  </div>
+    <div class="slider-block">
+      <label for="q2">How would you rate Top 10 game mode?</label>
+      <input type="range" id="q2" name="q2" min="0" max="10" value="5" class="slider" />
+      <span class="slider-value" id="q2-value">5</span>
+    </div>
 
-  <div class="slider-block">
-    <label for="q3">How would you rate VS game mode?</label>
-    <input type="range" id="q3" name="q3" min="0" max="10" value="5" class="slider" />
-    <span class="slider-value" id="q3-value">5</span>
-  </div>
+    <div class="slider-block">
+      <label for="q3">How would you rate VS game mode?</label>
+      <input type="range" id="q3" name="q3" min="0" max="10" value="5" class="slider" />
+      <span class="slider-value" id="q3-value">5</span>
+    </div>
 
-<div class="text-input-block">
-  <label for="confusion">Which Categories would you like to see in the next update?</label>
-  <input type="text" id="confusion" name="confusion" placeholder="Tell us your suggestions here" />
-</div>
+    <div class="text-input-block">
+      <label for="confusion">Which Categories would you like to see in the next update?</label>
+      <input type="text" id="confusion" name="confusion" placeholder="Tell us your suggestions here" />
+    </div>
 
-<div class="text-input-block">
-  <label for="expectation">Did you experience any bugs, issues or problems?</label>
-  <textarea id="expectation" name="expectation" placeholder="e.g. Clicking a rank didn’t register my selection sometimes"></textarea>
-</div>
+    <div class="text-input-block">
+      <label for="expectation">Did you experience any bugs, issues or problems?</label>
+      <textarea id="expectation" name="expectation" placeholder="e.g. Clicking a rank didn't register my selection sometimes"></textarea>
+    </div>
 
-<div class="text-input-block">
-  <label for="more-feedback">Anything else you'd like to share?</label>
-  <textarea id="more-feedback" name="more-feedback" placeholder="Any suggestions, reccomendations, or feedback? Let us know here!"></textarea>
-</div>
+    <div class="text-input-block">
+      <label for="more-feedback">Anything else you'd like to share?</label>
+      <textarea id="more-feedback" name="more-feedback" placeholder="Any suggestions, recommendations, or feedback? Let us know here!"></textarea>
+    </div>
 
-<div class="text-input-block">
-  <label for="email">Leave your email address</label>
-  <input type="email" id="email" name="email" placeholder="e.g. yourname@example.com (optional)" />
-</div>
+    <div class="text-input-block">
+      <label for="email">Leave your email address</label>
+      <input type="email" id="email" name="email" placeholder="e.g. yourname@example.com (optional)" />
+    </div>
 
-  <button type="submit" class="submit-btn">Submit Feedback</button>
+    <button type="submit" class="submit-btn">Submit Feedback</button>
   </form>
+
+  <div id="thank-you-message" style="display:none;">
+    <h2>🎉 Thank you for your feedback!</h2>
+    <p>We really appreciate your time and support. Your input helps us improve GeoRanks!</p>
+  </div>
 </div>
 
-<div id="thank-you-message" style="display:none; margin-top: 20px; text-align: center;">
-  <h2>🎉 Thank you for your feedback!</h2>
-  <p>We really appreciate your time and support. Your input helps us improve GeoRanks!</p>
-</div>
-
+<!-- ========== JAVASCRIPT ========== -->
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+  const menuToggle = document.getElementById('menuToggle');
+  const menuOverlay = document.getElementById('menuOverlay');
+  const closeMenu = document.getElementById('closeMenu');
+  let scrollPosition = 0;
+
+  if (menuToggle && menuOverlay) {
+    menuToggle.addEventListener('click', () => {
+      scrollPosition = window.pageYOffset;
+      document.body.classList.add('menu-open');
+      document.body.style.top = `-${scrollPosition}px`;
+      menuOverlay.classList.add('active');
+    });
+
+    function closeMenuHandler() {
+      document.body.classList.remove('menu-open');
+      document.body.style.top = '';
+      window.scrollTo(0, scrollPosition);
+      menuOverlay.classList.remove('active');
+    }
+
+    closeMenu?.addEventListener('click', closeMenuHandler);
+
+    menuOverlay.addEventListener('click', (e) => {
+      if (e.target === menuOverlay) {
+        closeMenuHandler();
+      }
+    });
+  }
+
   // Live update slider values
   document.querySelectorAll(".slider").forEach(slider => {
     const valueEl = document.getElementById(slider.id + "-value");
@@ -278,70 +745,33 @@
       alert("Oops! Something went wrong. Please try again later.");
     }
   });
-
-  // Hamburger menu
-  const toggle = document.getElementById("menuToggle");
-  const overlay = document.getElementById("menuOverlay");
-  const close = document.getElementById("closeMenu");
-  toggle.addEventListener("click", () => overlay.classList.add("active"));
-  close.addEventListener("click", () => overlay.classList.remove("active"));
-  overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) overlay.classList.remove("active");
-  });
+});
 </script>
 
+<!-- Account/Premium Button Removal -->
 <script type="module">
   import { supabase } from './js/supabase-client.js';
-
-  const { data: { session } } = await supabase.auth.getSession();
-
-  // Hide Account if user not logged in
-  if (!session || !session.user) {
-    document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
-  }
-
-  // Hide Unlock All Categories if user is premium
-  if (session && session.user) {
-    const { data: profile } = await supabase
-      .from('users')
-      .select('is_premium')
-      .eq('id', session.user.id)
-      .single();
-
-    if (profile?.is_premium) {
-      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+  (async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      const { data: profile } = await supabase.from('users').select('is_premium').eq('id', session.user.id).single();
+      if (profile?.is_premium) document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
     }
-  }
+    if (!session?.user) document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+  })();
 </script>
 
-<button class="menu-btn menu-daily-challenge" onclick="window.location.href='daily-challenge.html'" id="dailyChallengeMenuBtn">
-  <div class="daily-bg" id="dailyChallengeBg"></div>
-  <div class="daily-overlay"></div>
-  <div class="daily-content">
-    <h3 class="daily-title">📅 Daily Challenge</h3>
-    <span class="daily-category" id="dailyChallengeCategory">Loading...</span>
-  </div>
-</button>
-
+<!-- Daily Challenge Menu Button -->
 <script type="module">
-  import {
-    getTodaysDailyChallenge,
-    modeDisplayNames,
-    categoryDisplayNames,
-    categoryEmojis
-  } from './js/daily-challenge.js';
-
+  import { getTodaysDailyChallenge, modeDisplayNames, categoryDisplayNames, categoryEmojis } from './js/daily-challenge.js';
   document.addEventListener('DOMContentLoaded', () => {
     const categorySpan = document.getElementById('dailyChallengeCategory');
     const bg = document.getElementById('dailyChallengeBg');
-
     const today = getTodaysDailyChallenge();
-
     if (today && categorySpan && bg) {
       const modeName = modeDisplayNames[today.mode] || today.mode.toUpperCase();
       const categoryName = categoryDisplayNames[today.category] || today.category;
       const emoji = categoryEmojis[today.category] || '';
-
       categorySpan.textContent = `${modeName}: ${categoryName} ${emoji}`;
       bg.style.backgroundImage = `url('images/categories/${today.category}.jpg')`;
     }

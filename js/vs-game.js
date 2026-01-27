@@ -76,7 +76,9 @@ gameState.countries = data.map(country => {
     name: country.name,
     code: country.code,
     flag: `flags/${country.code}.png`,
-    value: value
+    value: value,
+    highestPointName: country.highestPointName,        // ← ADD THIS
+    tallestBuildingName: country.tallestBuildingName   // ← ADD THIS
   };
 });
     
@@ -197,8 +199,12 @@ function loadNewRound() {
   // Store country data in option elements
   document.getElementById('option1').dataset.value = country1.value;
   document.getElementById('option1').dataset.country = country1.name;
+  document.getElementById('option1').dataset.buildingName = country1.tallestBuildingName || '';
+  document.getElementById('option1').dataset.mountainName = country1.highestPointName || '';
   document.getElementById('option2').dataset.value = country2.value;
   document.getElementById('option2').dataset.country = country2.name;
+  document.getElementById('option2').dataset.buildingName = country2.tallestBuildingName || '';
+  document.getElementById('option2').dataset.mountainName = country2.highestPointName || '';
   
   // Get country options (not flags, but the wrapper divs)
   const option1 = document.getElementById('option1');
@@ -287,11 +293,21 @@ function handleSelection(optionNumber) {
   // Show values with animation
   const value1Element = document.getElementById('value1');
   const value2Element = document.getElementById('value2');
-  const country1Value = parseFloat(document.getElementById('option1').dataset.value);
-  const country2Value = parseFloat(document.getElementById('option2').dataset.value);
+  const option1Element = document.getElementById('option1');
+  const option2Element = document.getElementById('option2');
+  const country1Value = parseFloat(option1Element.dataset.value);
+  const country2Value = parseFloat(option2Element.dataset.value);
+  const country1Data = {
+    tallestBuildingName: option1Element.dataset.buildingName,
+    highestPointName: option1Element.dataset.mountainName
+  };
+  const country2Data = {
+    tallestBuildingName: option2Element.dataset.buildingName,
+    highestPointName: option2Element.dataset.mountainName
+  };
   
-  value1Element.textContent = formatValue(country1Value, categoryConfig.unit);
-  value2Element.textContent = formatValue(country2Value, categoryConfig.unit);
+  value1Element.innerHTML = formatValue(country1Value, categoryConfig.unit, country1Data);
+  value2Element.innerHTML = formatValue(country2Value, categoryConfig.unit, country2Data);
   
   setTimeout(() => {
     value1Element.classList.add('show');
@@ -375,8 +391,31 @@ setTimeout(() => {
 }
 
 // Format value with proper units and commas
-function formatValue(value, unit) {
+function formatValue(value, unit, country = null) {
+  // Debug logging
+  if (unit === 'm' && country) {
+    console.log('VS formatValue DEBUG:', {
+      value,
+      unit,
+      country,
+      hasBuildingName: !!country.tallestBuildingName,
+      hasMountainName: !!country.highestPointName
+    });
+  }
+  
   let formatted;
+  
+  // Special handling for tallest building - show building name underneath
+  if (unit === 'm' && country && country.tallestBuildingName) {
+    formatted = `${value.toLocaleString()} m<br><span style="font-size: 0.85em; opacity: 0.8;">${country.tallestBuildingName}</span>`;
+    return formatted;
+  }
+  
+  // Special handling for altitude - show mountain name underneath
+  if (unit === 'm' && country && country.highestPointName) {
+    formatted = `${value.toLocaleString()} m<br><span style="font-size: 0.85em; opacity: 0.8;">${country.highestPointName}</span>`;
+    return formatted;
+  }
   
   switch (unit) {
     case 'M': // Population (already in millions)
@@ -482,7 +521,13 @@ function formatValue(value, unit) {
       formatted = value.toFixed(2);
       break;
     case 'millionaires': // millionaires
-      formatted = value.toLocaleString('en-US') + ' millionaires';
+      if (value >= 1000000) {
+        formatted = `${(value / 1000000).toFixed(1)}M`;
+      } else if (value >= 1000) {
+        formatted = `${(value / 1000).toFixed(1)}K`;
+      } else {
+        formatted = value.toLocaleString('en-US');
+      }
       break;
     case 'grandmasters': // chess grandmasters
       formatted = value.toLocaleString('en-US') + ' grandmasters';

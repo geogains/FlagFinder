@@ -3,65 +3,577 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>GeoRanks — How to Play</title>
-  <link rel="stylesheet" href="css/home.css" />
-  <link rel="stylesheet" href="css/game-modes.css" />
+  <title>How to Play | GeoRanks</title>
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
   <style>
+    /* ========================================
+       RESET & BASE STYLES
+    ======================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
     body {
       font-family: 'Poppins', sans-serif;
       background: linear-gradient(135deg, #a7f3d0 0%, #38bdf8 100%);
-      margin: 0;
-      padding: 0;
+      min-height: 100vh;
+    }
+    
+    /* ========================================
+       HEADER
+    ======================================== */
+    .home-glass-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 64px;
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 0rem;
+      z-index: 1000;
+    }
+    
+    .logo-header {
+      display: flex;
+      align-items: center;
     }
 
-    .how-to-container {
-      max-width: 800px;
-      margin: 120px auto 40px;
-      padding: 2rem;
-      background: rgba(255, 255, 255, 0.8);
+    .logo-header img,
+    .logo-link img {
+      height: 40px;
+      width: auto;
+      object-fit: contain;
+      margin-left: 0.8rem;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+      cursor: pointer;
+    }
+
+    .logo-link:hover img {
+      transform: scale(1.05);
+      opacity: 0.85;
+    }
+    
+    /* ========================================
+       HAMBURGER ICON
+    ======================================== */
+    .menu-icon {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      padding: 1.8rem;
+      margin: 0;
+      margin-right: 1rem;
+      background: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      cursor: pointer;
+    }
+    
+    .menu-icon span {
+      display: block;
+      width: 24px;
+      height: 3px;
+      background-color: #0d315a;
+      border-radius: 2px;
+    }
+    
+    .menu-icon:hover {
+      transform: scale(1.1);
+    }
+    
+    /* ========================================
+       MENU OVERLAY & PANEL
+    ======================================== */
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(13, 49, 90, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 9998;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .menu-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .menu-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 100%;
+      max-width: 420px;
+      height: 100vh;
+      max-height: 100vh;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafcec 100%);
+      box-shadow: -8px 0 40px rgba(0, 0, 0, 0.25);
+      transform: translateX(100%);
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      padding: 100px 32px 40px;
+    }
+    
+    .menu-overlay.active .menu-panel {
+      transform: translateX(0);
+    }
+    
+    body.menu-open {
+      overflow: hidden;
+      height: 100vh;
+    }
+    
+    /* ========================================
+       MENU TITLE - CORAL UNDERLINE
+    ======================================== */
+    .menu-panel h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #0d315a;
+      margin-bottom: 32px;
+      letter-spacing: -0.5px;
+      position: relative;
+      padding-bottom: 16px;
+    }
+    
+    .menu-panel h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 4px;
+      background: linear-gradient(90deg, #ff9770, #ff6f61);
+      border-radius: 2px;
+    }
+    
+    /* ========================================
+       MENU BUTTONS
+    ======================================== */
+    .menu-btn {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      padding: 18px 24px;
+      margin-bottom: 12px;
+      background: white;
+      border: 2px solid rgba(13, 49, 90, 0.08);
       border-radius: 16px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #0d315a;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: 'Poppins', sans-serif;
+      text-align: left;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .menu-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    .menu-btn:hover::before {
+      left: 100%;
+    }
+    
+    .menu-btn:hover {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+      border-color: rgba(102, 126, 234, 0.3);
+      transform: translateX(4px);
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+    }
+    
+    .menu-btn:active {
+      transform: translateX(4px) scale(0.98);
+    }
+    
+    /* ========================================
+       DAILY CHALLENGE BUTTON (190px HEIGHT)
+    ======================================== */
+    .menu-daily-challenge {
+      position: relative;
+      height: 190px;
+      padding: 0;
+      margin-bottom: 16px;
+      overflow: hidden;
+      border: 3px solid rgba(255, 151, 112, 0.6);
+      box-shadow: 0 4px 20px rgba(255, 151, 112, 0.3);
+    }
+    
+    .menu-daily-challenge .daily-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #8b4513 0%, #d2691e 100%);
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.6);
+      z-index: 1;
+    }
+    
+    .menu-daily-challenge .daily-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.4) 100%);
+      z-index: 2;
+    }
+    
+    .menu-daily-challenge .daily-content {
+      position: relative;
+      z-index: 3;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 16px;
+    }
+    
+    .menu-daily-challenge .daily-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+      margin: 0;
+    }
+    
+    .menu-daily-challenge .daily-category {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    }
+    
+    .menu-daily-challenge:hover {
+      transform: translateX(4px) scale(1.02);
+      border-color: rgba(255, 111, 97, 0.9);
+    }
+    
+    /* ========================================
+       SPECIAL BUTTONS
+    ======================================== */
+    .upgrade-access-btn {
+      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 20px rgba(255, 151, 112, 0.4);
+      margin-top: 8px;
+    }
+    
+    .upgrade-access-btn:hover {
+      background: linear-gradient(135deg, #ff8560 0%, #ff5f51 100%);
+      transform: translateX(4px) translateY(-2px);
+      box-shadow: 0 6px 28px rgba(255, 151, 112, 0.5);
+    }
+    
+    .menu-close {
+      margin-top: auto;
+      background: rgba(13, 49, 90, 0.06);
+      border-color: rgba(13, 49, 90, 0.12);
+      color: #0d315a;
+      font-weight: 500;
+    }
+    
+    .menu-close:hover {
+      background: rgba(13, 49, 90, 0.12);
+      border-color: rgba(13, 49, 90, 0.2);
+    }
+    
+    /* ========================================
+       SCROLLBAR
+    ======================================== */
+    .menu-panel::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .menu-panel::-webkit-scrollbar-track {
+      background: rgba(13, 49, 90, 0.05);
+      border-radius: 10px;
+    }
+    
+    .menu-panel::-webkit-scrollbar-thumb {
+      background: rgba(102, 126, 234, 0.3);
+      border-radius: 10px;
+    }
+    
+    .menu-panel::-webkit-scrollbar-thumb:hover {
+      background: rgba(102, 126, 234, 0.5);
+    }
+
+    /* ========================================
+       HOW TO PLAY CONTENT (UNCHANGED)
+    ======================================== */
+    .how-to-container {
+      max-width: 900px;
+      margin: 100px auto 60px;
+      padding: 0 1rem;
+    }
+
+    .intro-section {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 20px;
+      padding: 3rem 2.5rem;
+      margin-bottom: 2rem;
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-      animation: fadeInUp 0.8s ease-out;
-    }
-
-
-    h1 {
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+      animation: fadeInUp 0.6s ease-out;
       text-align: center;
-      font-size: 2.5rem;
+    }
+
+    .intro-section h1 {
+      font-size: 2.8rem;
+      color: #0d315a;
       margin-bottom: 1rem;
+      font-weight: 700;
     }
 
-    h2 {
-      font-size: 1.4rem;
+    .intro-section p {
+      font-size: 1.15rem;
       color: #333;
-      margin-top: 1.5rem;
+      line-height: 1.7;
+      max-width: 700px;
+      margin: 0 auto;
     }
 
-    p, ul {
+    .game-modes-section {
+      margin-bottom: 2rem;
+    }
+
+    .mode-card {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 20px;
+      padding: 2.5rem;
+      margin-bottom: 1.5rem;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+      animation: fadeInUp 0.6s ease-out;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .mode-card:nth-child(1) { animation-delay: 0.1s; }
+    .mode-card:nth-child(2) { animation-delay: 0.2s; }
+    .mode-card:nth-child(3) { animation-delay: 0.3s; }
+
+    .mode-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+    }
+
+    .mode-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 6px;
+      height: 100%;
+      background: linear-gradient(180deg, #667eea, #764ba2);
+    }
+
+    .mode-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .mode-icon {
+      font-size: 2.5rem;
+      line-height: 1;
+    }
+
+    .mode-title {
+      font-size: 1.8rem;
+      color: #0d315a;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .mode-subtitle {
       font-size: 1rem;
-      line-height: 1.6;
-      color: #222;
+      color: #666;
+      font-weight: 500;
+      margin: 0;
+      margin-top: 0.25rem;
     }
 
-    ul {
-      padding-left: 1.4rem;
+    .mode-description {
+      font-size: 1.05rem;
+      color: #333;
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+
+    .mode-features {
+      background: rgba(102, 126, 234, 0.08);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .mode-features h3 {
+      font-size: 1.1rem;
+      color: #0d315a;
+      margin: 0 0 1rem 0;
+      font-weight: 600;
+    }
+
+    .mode-features ul {
+      margin: 0;
+      padding-left: 1.5rem;
+      list-style: none;
+    }
+
+    .mode-features li {
+      font-size: 1rem;
+      color: #333;
+      line-height: 1.8;
+      position: relative;
+      padding-left: 1.5rem;
+    }
+
+    .mode-features li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: #667eea;
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+
+    .scoring-box {
+      background: linear-gradient(135deg, rgba(255, 151, 112, 0.15), rgba(255, 111, 97, 0.15));
+      border-left: 4px solid #ff9770;
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+    }
+
+    .scoring-box h4 {
+      font-size: 1rem;
+      color: #0d315a;
+      margin: 0 0 0.5rem 0;
+      font-weight: 600;
+    }
+
+    .scoring-box p {
+      font-size: 0.95rem;
+      color: #333;
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .tips-section {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 20px;
+      padding: 2.5rem;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+      animation: fadeInUp 0.6s ease-out 0.4s;
+      animation-fill-mode: both;
+      margin-bottom: 2rem;
+    }
+
+    .tips-section h2 {
+      font-size: 2rem;
+      color: #0d315a;
+      margin: 0 0 1.5rem 0;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .tips-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .tip-card {
+      background: rgba(102, 126, 234, 0.08);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: transform 0.2s ease;
+    }
+
+    .tip-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .tip-card h3 {
+      font-size: 1.1rem;
+      color: #0d315a;
+      margin: 0 0 0.75rem 0;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .tip-card p {
+      font-size: 0.95rem;
+      color: #333;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .cta-section {
+      text-align: center;
+      margin-bottom: 2rem;
+      animation: fadeInUp 0.6s ease-out 0.5s;
+      animation-fill-mode: both;
     }
 
     .back-home {
       display: inline-block;
-      margin-top: 2rem;
-      padding: 0.8rem 1.6rem;
-      border-radius: 8px;
+      padding: 1rem 2.5rem;
+      border-radius: 50px;
       background: linear-gradient(135deg, #ff9770, #ff6f61);
       color: white;
       text-decoration: none;
       font-weight: 600;
+      font-size: 1.1rem;
+      box-shadow: 0 6px 20px rgba(255, 151, 112, 0.4);
+      transition: all 0.3s ease;
     }
 
     .back-home:hover {
-      opacity: 0.9;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(255, 151, 112, 0.5);
     }
 
     @keyframes fadeInUp {
@@ -69,45 +581,154 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
       .how-to-container {
-        margin: 100px 20px 40px;
+        margin: 90px auto 40px;
+        padding: 0 1rem;
       }
 
-      h1 {
+      .intro-section {
+        padding: 2rem 1.5rem;
+      }
+
+      .intro-section h1 {
+        font-size: 2.2rem;
+      }
+
+      .intro-section p {
+        font-size: 1rem;
+      }
+
+      .mode-card {
+        padding: 2rem 1.5rem;
+      }
+
+      .mode-title {
+        font-size: 1.5rem;
+      }
+
+      .tips-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tips-section {
+        padding: 2rem 1.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .mode-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+
+      .mode-icon {
         font-size: 2rem;
       }
+
+      .mode-title {
+        font-size: 1.3rem;
+      }
+    }
+
+    /* ========================================
+       FOOTER
+    ======================================== */
+    .home-footer {
+      background: rgba(13, 49, 90, 0.95);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      padding: 2rem 1rem;
+      color: white;
+      text-align: center;
+    }
+
+    .footer-socials {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .icon-row {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .icon-row img {
+      width: 32px;
+      height: 32px;
+      opacity: 0.8;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .icon-row img:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .divider {
+      width: 1px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .footer-socials p {
+      margin: 0;
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .footer-links a {
+      color: white;
+      text-decoration: none;
+      opacity: 0.8;
+      transition: opacity 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      opacity: 1;
     }
   </style>
 </head>
 <body>
 
-<!-- ✅ Header -->
+<!-- ========== HEADER ========== -->
 <header class="home-glass-header">
   <div class="logo-header">
     <a href="index.html" class="logo-link">
       <img src="assets/logo.png" alt="GeoRanks Logo" />
     </a>
   </div>
-  <div class="hamburger-menu">
-    <div class="menu-icon" id="menuToggle">
-      <span></span><span></span><span></span>
-    </div>
+  <div class="menu-icon" id="menuToggle">
+    <span></span>
+    <span></span>
+    <span></span>
   </div>
 </header>
 
-<!-- ✅ Sliding Menu -->
+<!-- ========== HAMBURGER MENU ========== -->
 <div class="menu-overlay" id="menuOverlay">
   <div class="menu-panel">
     <h2>Menu</h2>
+    
     <button class="menu-btn menu-daily-challenge" onclick="window.location.href='daily-challenge.html'" id="dailyChallengeMenuBtn">
-  <div class="daily-bg" id="dailyChallengeBg"></div>
-  <div class="daily-overlay"></div>
-  <div class="daily-content">
-    <h3 class="daily-title">📅 Daily Challenge</h3>
-    <span class="daily-category" id="dailyChallengeCategory">Loading...</span>
-  </div>
-</button>
+      <div class="daily-bg" id="dailyChallengeBg"></div>
+      <div class="daily-overlay"></div>
+      <div class="daily-content">
+        <h3 class="daily-title">📅 Daily Challenge</h3>
+        <span class="daily-category" id="dailyChallengeCategory">Loading...</span>
+      </div>
+    </button>
+    
     <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
     <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
     <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
@@ -119,37 +740,150 @@
   </div>
 </div>
 
-<!-- ✅ How To Play Content -->
+<!-- ========== HOW TO PLAY CONTENT (UNCHANGED) ========== -->
 <main class="how-to-container">
-  <h1>How to Play</h1>
-  <p>Welcome to <strong>GeoRanks</strong> — the country ranking challenge! Here's how it works:</p>
+  <!-- Introduction -->
+  <section class="intro-section">
+    <h1>How to Play GeoRanks</h1>
+    <p>Welcome to GeoRanks – the ultimate country ranking challenge! Test your global knowledge across 36 unique categories with three exciting game modes. Can you rank the world?</p>
+  </section>
 
-  <h2>🎯 Objective</h2>
-  <p>You're given 10 countries and a single ranking category (like population, happiness, GDP, etc.). Your goal is to arrange the countries from highest to lowest based on that category.</p>
+  <!-- Game Modes -->
+  <section class="game-modes-section">
+    <!-- Classic Mode -->
+    <div class="mode-card">
+      <div class="mode-header">
+        <span class="mode-icon">🎯</span>
+        <div>
+          <h2 class="mode-title">Classic Mode</h2>
+          <p class="mode-subtitle">Rank all countries from highest to lowest</p>
+        </div>
+      </div>
+      
+      <p class="mode-description">
+        The original GeoRanks experience! You'll receive 10 countries and must arrange them in order from highest to lowest based on the selected category (like population, GDP, happiness score, or coffee consumption).
+      </p>
 
-  <h2>🕹️ Gameplay</h2>
-  <ul>
-    <li>Select a category to start the game.</li>
-    <li>Drag each country flag into a ranking slot, or tap to assign it to a number.</li>
-    <li>Once all slots are filled, your results will be scored instantly.</li>
-  </ul>
+      <div class="mode-features">
+        <h3>How it Works:</h3>
+        <ul>
+          <li>10 countries appear with their flags</li>
+          <li>Drag and drop to arrange them in the correct order</li>
+          <li>Submit when you think you've got it right</li>
+          <li>See your score and the correct rankings instantly</li>
+        </ul>
+      </div>
 
-  <h2>🏆 Scoring</h2>
-  <ul>
-    <li>+1 point for each correct rank placement.</li>
-    <li>No penalty for mistakes — aim for a perfect 10!</li>
-  </ul>
+      <div class="scoring-box">
+        <h4>📊 Scoring System</h4>
+        <p><strong>+1 point</strong> for each country in the correct position. Perfect score: <strong>10/10</strong>. The closer each country is to its correct position, the better your overall accuracy!</p>
+      </div>
+    </div>
 
-  <h2>💡 Tips & Strategy</h2>
-  <ul>
-    <li>Think in extremes — who’s likely the biggest or smallest?</li>
-    <li>Use what you know about regions, politics, culture, or sports.</li>
-    <li>Guess wisely — and have fun doing it!</li>
-  </ul>
+    <!-- Top 10 Mode -->
+    <div class="mode-card">
+      <div class="mode-header">
+        <span class="mode-icon">🔝</span>
+        <div>
+          <h2 class="mode-title">Top 10 Mode</h2>
+          <p class="mode-subtitle">Identify the top 10 from a larger pool</p>
+        </div>
+      </div>
+      
+      <p class="mode-description">
+        Think you know the world's extremes? You'll see 15-20 countries, but only 10 of them belong in the actual top 10 for the category. Your job is to identify which countries make the cut – order doesn't matter!
+      </p>
 
-  <a href="index.html" class="back-home">Back to Home</a>
+      <div class="mode-features">
+        <h3>How it Works:</h3>
+        <ul>
+          <li>15-20 countries are displayed</li>
+          <li>Select the 10 countries that rank in the top 10</li>
+          <li>Order doesn't matter – just pick the right 10!</li>
+          <li>Submit and see which ones you got correct</li>
+        </ul>
+      </div>
+
+      <div class="scoring-box">
+        <h4>📊 Scoring System</h4>
+        <p><strong>+1 point</strong> for each correct country selected. Perfect score: <strong>10/10</strong>. This mode tests your knowledge of extremes – can you identify the world leaders?</p>
+      </div>
+    </div>
+
+    <!-- VS Mode -->
+    <div class="mode-card">
+      <div class="mode-header">
+        <span class="mode-icon">⚔️</span>
+        <div>
+          <h2 class="mode-title">VS Mode</h2>
+          <p class="mode-subtitle">Quick-fire head-to-head comparisons</p>
+        </div>
+      </div>
+      
+      <p class="mode-description">
+        Fast-paced and addictive! Two countries face off, and you choose which one ranks higher in the given category. Make your choice quickly and rack up your streak – how many can you get in a row?
+      </p>
+
+      <div class="mode-features">
+        <h3>How it Works:</h3>
+        <ul>
+          <li>Two countries appear side by side</li>
+          <li>Click the country you think ranks higher</li>
+          <li>Get instant feedback – correct or incorrect</li>
+          <li>Keep going to build your streak!</li>
+        </ul>
+      </div>
+
+      <div class="scoring-box">
+        <h4>📊 Scoring System</h4>
+        <p><strong>+1 point</strong> for each correct choice. Build your <strong>streak</strong> by getting multiple correct answers in a row. One wrong answer ends your streak – how high can you go?</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tips & Strategy -->
+  <section class="tips-section">
+    <h2>💡 Tips & Strategy</h2>
+    <div class="tips-grid">
+      <div class="tip-card">
+        <h3>🌍 Think Geographically</h3>
+        <p>Consider regions, continents, and neighboring countries. Geographic patterns often reveal economic and cultural trends.</p>
+      </div>
+      
+      <div class="tip-card">
+        <h3>📈 Start with Extremes</h3>
+        <p>Identify the obvious outliers first – the biggest, smallest, richest, or poorest. This narrows down the middle rankings.</p>
+      </div>
+      
+      <div class="tip-card">
+        <h3>🧠 Use What You Know</h3>
+        <p>Draw from your knowledge of history, current events, sports, and pop culture. Every bit of trivia helps!</p>
+      </div>
+      
+      <div class="tip-card">
+        <h3>🎲 Educated Guesses</h3>
+        <p>When unsure, make logical deductions. Context clues from the category can guide your reasoning.</p>
+      </div>
+      
+      <div class="tip-card">
+        <h3>🔄 Practice Makes Perfect</h3>
+        <p>Play multiple categories to build your global knowledge. Patterns emerge the more you play!</p>
+      </div>
+      
+      <div class="tip-card">
+        <h3>📅 Daily Challenge</h3>
+        <p>Take on the daily challenge to compete with players worldwide and climb the global leaderboard!</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <a href="index.html" class="back-home">Start Playing Now</a>
+  </section>
 </main>
 
+<!-- ========== FOOTER ========== -->
 <footer class="home-footer">
   <div class="footer-socials">
     <div class="icon-row">
@@ -170,76 +904,72 @@
       </a>
     </div>
     <p>© 2025 GeoRanks</p>
+    <div class="footer-links">
+      <a href="terms.html">Terms of Service</a>
+      <span>•</span>
+      <a href="privacy.html">Privacy Policy</a>
+    </div>
   </div>
 </footer>
 
+<!-- ========== JAVASCRIPT ========== -->
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const menuToggle = document.getElementById("menuToggle");
-    const menuOverlay = document.getElementById("menuOverlay");
-    const closeButton = document.getElementById("closeMenu");
+document.addEventListener('DOMContentLoaded', function() {
+  const menuToggle = document.getElementById('menuToggle');
+  const menuOverlay = document.getElementById('menuOverlay');
+  const closeMenu = document.getElementById('closeMenu');
+  let scrollPosition = 0;
 
-    if (menuToggle && menuOverlay) {
-      menuToggle.addEventListener("click", () => {
-        menuOverlay.classList.add("active");
-      });
+  if (menuToggle && menuOverlay) {
+    menuToggle.addEventListener('click', () => {
+      scrollPosition = window.pageYOffset;
+      document.body.classList.add('menu-open');
+      document.body.style.top = `-${scrollPosition}px`;
+      menuOverlay.classList.add('active');
+    });
 
-      closeButton?.addEventListener("click", () => {
-        menuOverlay.classList.remove("active");
-      });
-
-      menuOverlay.addEventListener("click", (e) => {
-        if (e.target === menuOverlay) {
-          menuOverlay.classList.remove("active");
-        }
-      });
+    function closeMenuHandler() {
+      document.body.classList.remove('menu-open');
+      document.body.style.top = '';
+      window.scrollTo(0, scrollPosition);
+      menuOverlay.classList.remove('active');
     }
-  });
+
+    closeMenu?.addEventListener('click', closeMenuHandler);
+
+    menuOverlay.addEventListener('click', (e) => {
+      if (e.target === menuOverlay) {
+        closeMenuHandler();
+      }
+    });
+  }
+});
 </script>
 
+<!-- Account/Premium Button Removal -->
 <script type="module">
   import { supabase } from './js/supabase-client.js';
-
-  const { data: { session } } = await supabase.auth.getSession();
-
-  // Hide Account if user not logged in
-  if (!session || !session.user) {
-    document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
-  }
-
-  // Hide Unlock All Categories if user is premium
-  if (session && session.user) {
-    const { data: profile } = await supabase
-      .from('users')
-      .select('is_premium')
-      .eq('id', session.user.id)
-      .single();
-
-    if (profile?.is_premium) {
-      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+  (async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      const { data: profile } = await supabase.from('users').select('is_premium').eq('id', session.user.id).single();
+      if (profile?.is_premium) document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
     }
-  }
+    if (!session?.user) document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+  })();
 </script>
 
+<!-- Daily Challenge Menu Button -->
 <script type="module">
-  import {
-    getTodaysDailyChallenge,
-    modeDisplayNames,
-    categoryDisplayNames,
-    categoryEmojis
-  } from './js/daily-challenge.js';
-
+  import { getTodaysDailyChallenge, modeDisplayNames, categoryDisplayNames, categoryEmojis } from './js/daily-challenge.js';
   document.addEventListener('DOMContentLoaded', () => {
     const categorySpan = document.getElementById('dailyChallengeCategory');
     const bg = document.getElementById('dailyChallengeBg');
-
     const today = getTodaysDailyChallenge();
-
     if (today && categorySpan && bg) {
       const modeName = modeDisplayNames[today.mode] || today.mode.toUpperCase();
       const categoryName = categoryDisplayNames[today.category] || today.category;
       const emoji = categoryEmojis[today.category] || '';
-
       categorySpan.textContent = `${modeName}: ${categoryName} ${emoji}`;
       bg.style.backgroundImage = `url('images/categories/${today.category}.jpg')`;
     }

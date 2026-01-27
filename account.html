@@ -3,135 +3,653 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GeoRanks — Account</title>
-  <link rel="stylesheet" href="css/home.css" />
-  <link rel="stylesheet" href="css/game-modes.css" />
-
+  <title>Account Settings | GeoRanks</title>
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
   <style>
-  @keyframes fadeInUp {
-    from {
+    /* ========================================
+       RESET & BASE STYLES
+    ======================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #a7f3d0 0%, #38bdf8 100%);
+      min-height: 100vh;
+    }
+    
+    /* ========================================
+       HEADER
+    ======================================== */
+    .home-glass-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 64px;
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 0rem;
+      z-index: 1000;
+    }
+    
+    .logo-header {
+      display: flex;
+      align-items: center;
+    }
+
+    .logo-header img,
+    .logo-link img {
+      height: 40px;
+      width: auto;
+      object-fit: contain;
+      margin-left: 0.8rem;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+      cursor: pointer;
+    }
+
+    .logo-link:hover img {
+      transform: scale(1.05);
+      opacity: 0.85;
+    }
+    
+    /* ========================================
+       HAMBURGER ICON
+    ======================================== */
+    .menu-icon {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      padding: 1.8rem;
+      margin: 0;
+      margin-right: 1rem;
+      background: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      cursor: pointer;
+    }
+    
+    .menu-icon span {
+      display: block;
+      width: 24px;
+      height: 3px;
+      background-color: #0d315a;
+      border-radius: 2px;
+    }
+    
+    .menu-icon:hover {
+      transform: scale(1.1);
+    }
+    
+    /* ========================================
+       MENU OVERLAY & PANEL
+    ======================================== */
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(13, 49, 90, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 9998;
       opacity: 0;
-      transform: translateY(40px);
+      visibility: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    to {
+    
+    .menu-overlay.active {
       opacity: 1;
-      transform: translateY(0);
+      visibility: visible;
     }
-  }
-
-  .fade-in {
-    animation: fadeInUp 0.8s ease-out both;
-  }
-
-     html, body {
-  height: 100%;
-  margin: 0;
-}
-
-body {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-.account-glass-card {
-  width: 90%;
-  max-width: 480px;
-  margin: 100px auto 60px;
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-radius: 16px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-  padding: 2rem;
-  text-align: center;
-  box-sizing: border-box; /* Ensure padding doesn't break width */
-}
-
-
-  .account-glass-card h2 {
-    margin-top: 0;
-    margin-bottom: 1rem;
-  }
-
-  .account-info p {
-    margin: 0.5rem 0;
-  }
-
-  .form-section {
-    margin-top: 1.8rem;
-    text-align: left;
-  }
-
-  .form-section input {
-    width: 100%;
-    margin-top: 0.6rem;
-    padding: 0.65rem 1rem;
-    font-size: 1rem;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
-  }
-
-  .full-btn {
-    display: block;
-    width: 100%;
-    margin-top: 1rem;
-    padding: 0.8rem 1rem;
-  }
-
-  .logout-btn {
-    background: linear-gradient(90deg, #222222, #171717);
-    margin-top: 2rem;
-  }
-
-  .message {
-    margin-top: 0.75rem;
-    font-size: 0.9rem;
-    font-weight: 500;
-  }
-
-  .message {
-  margin-top: 0.75rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: color 0.3s ease;
-}
-</style>
-
+    
+    .menu-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 100%;
+      max-width: 420px;
+      height: 100vh;
+      max-height: 100vh;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafcec 100%);
+      box-shadow: -8px 0 40px rgba(0, 0, 0, 0.25);
+      transform: translateX(100%);
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      padding: 100px 32px 40px;
+    }
+    
+    .menu-overlay.active .menu-panel {
+      transform: translateX(0);
+    }
+    
+    body.menu-open {
+      overflow: hidden;
+      height: 100vh;
+    }
+    
+    /* ========================================
+       MENU TITLE - CORAL UNDERLINE
+    ======================================== */
+    .menu-panel h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #0d315a;
+      margin-bottom: 32px;
+      letter-spacing: -0.5px;
+      position: relative;
+      padding-bottom: 16px;
+    }
+    
+    .menu-panel h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 4px;
+      background: linear-gradient(90deg, #ff9770, #ff6f61);
+      border-radius: 2px;
+    }
+    
+    /* ========================================
+       MENU BUTTONS
+    ======================================== */
+    .menu-btn {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      padding: 18px 24px;
+      margin-bottom: 12px;
+      background: white;
+      border: 2px solid rgba(13, 49, 90, 0.08);
+      border-radius: 16px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #0d315a;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: 'Poppins', sans-serif;
+      text-align: left;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .menu-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    .menu-btn:hover::before {
+      left: 100%;
+    }
+    
+    .menu-btn:hover {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+      border-color: rgba(102, 126, 234, 0.3);
+      transform: translateX(4px);
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+    }
+    
+    .menu-btn:active {
+      transform: translateX(4px) scale(0.98);
+    }
+    
+    /* ========================================
+       DAILY CHALLENGE BUTTON (190px HEIGHT)
+    ======================================== */
+    .menu-daily-challenge {
+      position: relative;
+      height: 190px;
+      padding: 0;
+      margin-bottom: 16px;
+      overflow: hidden;
+      border: 3px solid rgba(255, 151, 112, 0.6);
+      box-shadow: 0 4px 20px rgba(255, 151, 112, 0.3);
+    }
+    
+    .menu-daily-challenge .daily-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #8b4513 0%, #d2691e 100%);
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.6);
+      z-index: 1;
+    }
+    
+    .menu-daily-challenge .daily-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.4) 100%);
+      z-index: 2;
+    }
+    
+    .menu-daily-challenge .daily-content {
+      position: relative;
+      z-index: 3;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 16px;
+    }
+    
+    .menu-daily-challenge .daily-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+      margin: 0;
+    }
+    
+    .menu-daily-challenge .daily-category {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    }
+    
+    .menu-daily-challenge:hover {
+      transform: translateX(4px) scale(1.02);
+      border-color: rgba(255, 111, 97, 0.9);
+    }
+    
+    /* ========================================
+       SPECIAL BUTTONS
+    ======================================== */
+    .upgrade-access-btn {
+      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 20px rgba(255, 151, 112, 0.4);
+      margin-top: 8px;
+    }
+    
+    .upgrade-access-btn:hover {
+      background: linear-gradient(135deg, #ff8560 0%, #ff5f51 100%);
+      transform: translateX(4px) translateY(-2px);
+      box-shadow: 0 6px 28px rgba(255, 151, 112, 0.5);
+    }
+    
+    .menu-close {
+      margin-top: auto;
+      background: rgba(13, 49, 90, 0.06);
+      border-color: rgba(13, 49, 90, 0.12);
+      color: #0d315a;
+      font-weight: 500;
+    }
+    
+    .menu-close:hover {
+      background: rgba(13, 49, 90, 0.12);
+      border-color: rgba(13, 49, 90, 0.2);
+    }
+    
+    /* ========================================
+       SCROLLBAR
+    ======================================== */
+    .menu-panel::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .menu-panel::-webkit-scrollbar-track {
+      background: rgba(13, 49, 90, 0.05);
+      border-radius: 10px;
+    }
+    
+    .menu-panel::-webkit-scrollbar-thumb {
+      background: rgba(102, 126, 234, 0.3);
+      border-radius: 10px;
+    }
+    
+    .menu-panel::-webkit-scrollbar-thumb:hover {
+      background: rgba(102, 126, 234, 0.5);
+    }
+    
+    /* ========================================
+       ACCOUNT PAGE CONTENT
+    ======================================== */
+    .account-container {
+      max-width: 580px;
+      margin: 120px auto 60px;
+      padding: 48px 40px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 24px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+      opacity: 0;
+      animation: fadeInContainer 0.5s ease-out forwards;
+    }
+    
+    @keyframes fadeInContainer {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .page-title {
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: #0d315a;
+      text-align: center;
+      margin-bottom: 40px;
+      opacity: 0;
+      animation: fadeIn 0.5s ease-out 0.2s forwards;
+    }
+    
+    .page-title-text {
+      background: linear-gradient(135deg, #0d315a 0%, #0d315a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    /* Profile Section */
+    .profile-section {
+      text-align: center;
+      margin-bottom: 40px;
+      opacity: 0;
+      animation: fadeIn 0.5s ease-out 0.4s forwards;
+    }
+    
+    .avatar-container {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 20px;
+    }
+    
+    .avatar-preview {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid rgba(102, 126, 234, 0.2);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s ease;
+    }
+    
+    .avatar-preview:hover {
+      transform: scale(1.05);
+      border-color: rgba(102, 126, 234, 0.4);
+    }
+    
+    .premium-badge {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 38px;
+      height: 38px;
+      display: none;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    }
+    
+    .avatar-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 16px;
+    }
+    
+    /* Account Info Cards */
+    .info-card {
+      background: rgba(255, 255, 255, 0.6);
+      border: 2px solid rgba(102, 126, 234, 0.1);
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+      opacity: 0;
+      animation: fadeIn 0.5s ease-out 0.6s forwards;
+    }
+    
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(102, 126, 234, 0.08);
+    }
+    
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    
+    .info-label {
+      font-weight: 600;
+      color: #4b5563;
+      font-size: 0.95rem;
+    }
+    
+    .info-value {
+      font-weight: 600;
+      color: #0d315a;
+      font-size: 1rem;
+    }
+    
+    /* Form Sections */
+    .form-section {
+      background: rgba(255, 255, 255, 0.6);
+      border: 2px solid rgba(102, 126, 234, 0.1);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      opacity: 0;
+      animation: fadeIn 0.5s ease-out 0.8s forwards;
+    }
+    
+    .form-section h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #0d315a;
+      margin-bottom: 16px;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 14px 18px;
+      font-size: 1rem;
+      font-family: 'Poppins', sans-serif;
+      border: 2px solid rgba(102, 126, 234, 0.15);
+      border-radius: 12px;
+      background: white;
+      transition: all 0.3s ease;
+      margin-bottom: 12px;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: rgba(102, 126, 234, 0.4);
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    }
+    
+    /* Buttons */
+    .btn {
+      width: 100%;
+      padding: 14px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-secondary {
+      background: rgba(102, 126, 234, 0.08);
+      color: #0d315a;
+      border: 2px solid rgba(102, 126, 234, 0.15);
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(102, 126, 234, 0.12);
+      border-color: rgba(102, 126, 234, 0.25);
+    }
+    
+    .btn-small {
+      padding: 10px 20px;
+      font-size: 0.9rem;
+      width: auto;
+    }
+    
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+      margin-top: 32px;
+      opacity: 0;
+      animation: fadeIn 0.5s ease-out 1.2s forwards;
+    }
+    
+    .btn-danger:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+    }
+    
+    .upgrade-btn {
+      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
+      color: white;
+      box-shadow: 0 4px 16px rgba(255, 151, 112, 0.3);
+      margin-top: 24px;
+      opacity: 0;
+      animation: fadeIn 0.5s ease-out 1s forwards;
+    }
+    
+    .upgrade-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 151, 112, 0.4);
+    }
+    
+    /* Messages */
+    .message {
+      margin-top: 12px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    
+    .message:empty {
+      display: none;
+    }
+    
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .account-container {
+        margin: 90px 16px 40px;
+        padding: 32px 24px;
+      }
+      
+      .page-title {
+        font-size: 2rem;
+      }
+      
+      .avatar-preview {
+        width: 100px;
+        height: 100px;
+      }
+      
+      .avatar-buttons {
+        flex-direction: column;
+      }
+      
+      .btn-small {
+        width: 100%;
+      }
+      
+      .info-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+    }
+  </style>
 </head>
-
-
 <body>
 
-<!-- ✅ Glass Header with Logo and Hamburger -->
+<!-- ========== HEADER ========== -->
 <header class="home-glass-header">
   <div class="logo-header">
     <a href="index.html" class="logo-link">
       <img src="assets/logo.png" alt="GeoRanks Logo" />
     </a>
   </div>
-  <div class="hamburger-menu">
-    <div class="menu-icon" id="menuToggle">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
+  <div class="menu-icon" id="menuToggle">
+    <span></span>
+    <span></span>
+    <span></span>
   </div>
 </header>
 
-<!-- ✅ Sliding Menu Overlay -->
+<!-- ========== HAMBURGER MENU ========== -->
 <div class="menu-overlay" id="menuOverlay">
   <div class="menu-panel">
     <h2>Menu</h2>
+    
     <button class="menu-btn menu-daily-challenge" onclick="window.location.href='daily-challenge.html'" id="dailyChallengeMenuBtn">
-  <div class="daily-bg" id="dailyChallengeBg"></div>
-  <div class="daily-overlay"></div>
-  <div class="daily-content">
-    <h3 class="daily-title">📅 Daily Challenge</h3>
-    <span class="daily-category" id="dailyChallengeCategory">Loading...</span>
-  </div>
-</button>
+      <div class="daily-bg" id="dailyChallengeBg"></div>
+      <div class="daily-overlay"></div>
+      <div class="daily-content">
+        <h3 class="daily-title">📅 Daily Challenge</h3>
+        <span class="daily-category" id="dailyChallengeCategory">Loading...</span>
+      </div>
+    </button>
+    
     <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
     <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
     <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
@@ -143,109 +661,153 @@ body {
   </div>
 </div>
 
-<!-- ✅ Page Content Wrapper -->
-<main class="account-glass-card fade-in">
-    <h2>Account Settings</h2>
+<!-- ========== ACCOUNT CONTENT ========== -->
+<div class="account-container">
+  <h1 class="page-title">👤 <span class="page-title-text">Account Settings</span></h1>
 
-    <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 1rem;">
-  <div style="position: relative; display: inline-block; margin-bottom: 0.8rem;">
-    <img id="profilePreview" src="assets/profile-icon.jpg" alt="Profile Icon"
-      style="width: 110px; height: 110px; object-fit: cover; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" />
-    <img id="premiumBadge" src="assets/GeoRanksPremium.png" alt="Premium Badge"
-      style="position: absolute; bottom: -2px; right: -2px; width: 36px; height: 36px; display: none;" />
+  <!-- Profile Section -->
+  <div class="profile-section">
+    <div class="avatar-container">
+      <img id="profilePreview" src="assets/profile-icon.jpg" alt="Profile" class="avatar-preview" />
+      <img id="premiumBadge" src="assets/GeoRanksPremium.png" alt="Premium" class="premium-badge" />
+    </div>
+    
+    <div class="avatar-buttons">
+      <button class="btn btn-secondary btn-small" id="uploadAvatarBtn">📸 Upload Photo</button>
+      <button class="btn btn-secondary btn-small" id="deleteAvatarBtn">🗑️ Remove Photo</button>
+    </div>
+    <input type="file" id="avatarUpload" accept="image/*" style="display: none;" />
+    <div class="message" id="avatarMsg"></div>
   </div>
 
-  <button class="btn full-btn" id="uploadAvatarBtn">Upload Photo</button>
-  <button class="btn full-btn" id="deleteAvatarBtn">Remove Photo</button>
-  <input type="file" id="avatarUpload" accept="image/*" style="display: none;" />
-  <div class="message" id="avatarMsg"></div>
+  <!-- Account Info -->
+  <div class="info-card">
+    <div class="info-row">
+      <span class="info-label">👤 Username</span>
+      <span class="info-value" id="currentUsername">Loading...</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">✉️ Email</span>
+      <span class="info-value" id="userEmail">Loading...</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">📅 Member Since</span>
+      <span class="info-value" id="userSince">—</span>
+    </div>
+  </div>
+
+  <!-- Change Username -->
+  <div class="form-section">
+    <h3>👤 Change Username</h3>
+    <input type="text" id="newUsername" placeholder="Enter new username" class="form-input" />
+    <button class="btn btn-primary" id="changeUsernameBtn">Update Username</button>
+    <div class="message" id="usernameMsg"></div>
+  </div>
+
+  <!-- Change Email -->
+  <div class="form-section">
+    <h3>✉️ Change Email Address</h3>
+    <input type="email" id="newEmail" placeholder="Enter new email" class="form-input" />
+    <button class="btn btn-primary" id="changeEmailBtn">Update Email</button>
+    <div class="message" id="emailMsg"></div>
+  </div>
+
+  <!-- Upgrade Button -->
+  <button class="btn upgrade-btn" onclick="window.location.href='premium.html'">
+    🔓 Unlock All Categories
+  </button>
+
+  <!-- Logout Button -->
+  <button class="btn btn-danger" id="logoutBtn">Log Out</button>
 </div>
 
+<!-- ========== JAVASCRIPT ========== -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const menuToggle = document.getElementById('menuToggle');
+  const menuOverlay = document.getElementById('menuOverlay');
+  const closeMenu = document.getElementById('closeMenu');
+  let scrollPosition = 0;
 
-    <div class="account-info">
-      <p><strong>Username:</strong> <span id="currentUsername">Loading...</span></p>
-      <p><strong>Email:</strong> <span id="userEmail">Loading...</span></p>
-      <p><strong>Member Since:</strong> <span id="userSince">—</span></p>
-    </div>
+  if (menuToggle && menuOverlay) {
+    menuToggle.addEventListener('click', () => {
+      scrollPosition = window.pageYOffset;
+      document.body.classList.add('menu-open');
+      document.body.style.top = `-${scrollPosition}px`;
+      menuOverlay.classList.add('active');
+    });
 
-    <!-- ✅ Section to Change Username -->
-    <div class="form-section">
-      <h3>👤 Change Username</h3>
-      <input type="text" id="newUsername" placeholder="Enter new username" />
-      <button class="btn full-btn" id="changeUsernameBtn">Update Username</button>
-      <div class="message" id="usernameMsg"></div>
-    </div>
+    function closeMenuHandler() {
+      document.body.classList.remove('menu-open');
+      document.body.style.top = '';
+      window.scrollTo(0, scrollPosition);
+      menuOverlay.classList.remove('active');
+    }
 
-    <!-- ✅ Section to Change Email -->
-    <div class="form-section">
-      <h3>✉️ Change Email Address</h3>
-      <input type="email" id="newEmail" placeholder="Enter new email" />
-      <button class="btn full-btn" id="changeEmailBtn">Update Email</button>
-      <div class="message" id="emailMsg"></div>
-    </div>
+    closeMenu?.addEventListener('click', closeMenuHandler);
 
-   <button class="upgrade-btn upgrade-access-btn" onclick="window.location.href='premium.html'">
-  Unlock All Categories
-</button>
+    menuOverlay.addEventListener('click', (e) => {
+      if (e.target === menuOverlay) {
+        closeMenuHandler();
+      }
+    });
+  }
+});
+</script>
 
+<!-- Daily Challenge Menu Button -->
+<script type="module">
+  import { getTodaysDailyChallenge, modeDisplayNames, categoryDisplayNames, categoryEmojis } from './js/daily-challenge.js';
+  document.addEventListener('DOMContentLoaded', () => {
+    const categorySpan = document.getElementById('dailyChallengeCategory');
+    const bg = document.getElementById('dailyChallengeBg');
+    const today = getTodaysDailyChallenge();
+    if (today && categorySpan && bg) {
+      const modeName = modeDisplayNames[today.mode] || today.mode.toUpperCase();
+      const categoryName = categoryDisplayNames[today.category] || today.category;
+      const emoji = categoryEmojis[today.category] || '';
+      categorySpan.textContent = `${modeName}: ${categoryName} ${emoji}`;
+      bg.style.backgroundImage = `url('images/categories/${today.category}.jpg')`;
+    }
+  });
+</script>
 
-    <button class="btn full-btn logout-btn" id="logoutBtn">Log Out</button>
-  </div>
-</main>
-
-  <footer class="home-footer">
-  <div class="footer-socials">
-    <div class="icon-row">
-      <a href="https://www.instagram.com/geo_ranks/" target="_blank" rel="noopener">
-        <img src="assets/instagram.png" alt="Instagram" />
-      </a>
-      <div class="divider"></div>
-      <a href="https://www.tiktok.com/@georanks" target="_blank" rel="noopener">
-        <img src="assets/tik-tok.png" alt="TikTok" />
-      </a>
-      <div class="divider"></div>
-      <a href="https://www.youtube.com/channel/UC8jrsBpCn09u0mHQle_O3Rw" target="_blank" rel="noopener">
-        <img src="assets/youtube.png" alt="YouTube" />
-      </a>
-    <div class="divider"></div>
-      <a href="https://x.com/Kieroncroo66687" target="_blank" rel="noopener">
-        <img src="assets/x.png" alt="X" />
-      </a>
-    </div>
-    <p>© 2025 GeoRanks</p>
-  </div>
-</footer>
-
-<!-- ✅ Supabase Script -->
+<!-- Account Functionality -->
 <script type="module">
   import { supabase } from './js/supabase-client.js';
 
   (async () => {
-    const usernameSpan = document.getElementById('currentUsername');
-    const emailSpan = document.getElementById('userEmail');
-    const sinceSpan = document.getElementById('userSince');
-    const newUsernameInput = document.getElementById('newUsername');
-    const changeUsernameBtn = document.getElementById('changeUsernameBtn');
-    const usernameMsg = document.getElementById('usernameMsg');
-    const newEmailInput = document.getElementById('newEmail');
-    const changeEmailBtn = document.getElementById('changeEmailBtn');
-    const emailMsg = document.getElementById('emailMsg');
-    const logoutBtn = document.getElementById('logoutBtn');
-
     const { data: { session } } = await supabase.auth.getSession();
 
-    if (!session?.user) {
-      window.location.href = 'index.html';
+    if (!session || !session.user) {
+      window.location.href = 'auth.html';
       return;
     }
 
     const currentUser = session.user;
-    emailSpan.textContent = currentUser.email;
-    sinceSpan.textContent = new Date(currentUser.created_at).toLocaleDateString();
+    const usernameSpan = document.getElementById('currentUsername');
+    const emailSpan = document.getElementById('userEmail');
+    const userSinceSpan = document.getElementById('userSince');
+    const newUsernameInput = document.getElementById('newUsername');
+    const newEmailInput = document.getElementById('newEmail');
+    const changeUsernameBtn = document.getElementById('changeUsernameBtn');
+    const changeEmailBtn = document.getElementById('changeEmailBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const usernameMsg = document.getElementById('usernameMsg');
+    const emailMsg = document.getElementById('emailMsg');
 
-    const { data: profile, error } = await supabase
+    emailSpan.textContent = currentUser.email;
+
+    const createdAt = new Date(currentUser.created_at);
+    userSinceSpan.textContent = createdAt.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+
+    const { data: profile } = await supabase
       .from('users')
-      .select('username, is_premium, avatar_url')
+      .select('*')
       .eq('id', currentUser.id)
       .single();
 
@@ -255,7 +817,7 @@ body {
       const premiumBadge = document.getElementById('premiumBadge');
 
       if (profile.is_premium) {
-        document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+        document.querySelectorAll('.upgrade-access-btn, .upgrade-btn').forEach(btn => btn.remove());
         if (premiumBadge) premiumBadge.style.display = 'block';
       } else {
         if (premiumBadge) premiumBadge.style.display = 'none';
@@ -268,7 +830,6 @@ body {
       const avatarMsg = document.getElementById('avatarMsg');
       const profilePreview = document.getElementById('profilePreview');
 
-      // Load existing avatar with cache buster
       if (profile.avatar_url) {
         profilePreview.src = `${profile.avatar_url}?t=${Date.now()}`;
       }
@@ -277,7 +838,6 @@ body {
         avatarUpload.click();
       });
 
-      // ✨ IMAGE COMPRESSION FUNCTION
       async function compressImage(file, maxWidth = 400, maxHeight = 400, quality = 0.85) {
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
@@ -288,7 +848,6 @@ body {
               let width = img.width;
               let height = img.height;
 
-              // Calculate new dimensions while maintaining aspect ratio
               if (width > height) {
                 if (width > maxWidth) {
                   height *= maxWidth / width;
@@ -329,40 +888,33 @@ body {
         const file = avatarUpload.files[0];
         if (!file || !currentUser) return;
 
-        // ✅ VALIDATE FILE SIZE (5MB max before compression)
-        const maxSize = 5 * 1024 * 1024; // 5MB
+        const maxSize = 5 * 1024 * 1024;
         if (file.size > maxSize) {
           avatarMsg.textContent = '❌ File too large. Max 5MB.';
           avatarMsg.style.color = '#ef4444';
-          avatarUpload.value = ''; // Clear input
-          return;
-        }
-
-        // ✅ VALIDATE FILE TYPE
-        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
-        if (!validTypes.includes(file.type)) {
-          avatarMsg.textContent = '❌ Invalid file type. Use JPG, PNG, or WebP.';
-          avatarMsg.style.color = '#ef4444';
+          avatarMsg.style.background = 'rgba(239, 68, 68, 0.1)';
           avatarUpload.value = '';
           return;
         }
 
-        // Show loading state
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+        if (!validTypes.includes(file.type)) {
+          avatarMsg.textContent = '❌ Invalid file type. Use JPG, PNG, or WebP.';
+          avatarMsg.style.color = '#ef4444';
+          avatarMsg.style.background = 'rgba(239, 68, 68, 0.1)';
+          avatarUpload.value = '';
+          return;
+        }
+
         avatarMsg.textContent = '⏳ Processing...';
         avatarMsg.style.color = '#6366f1';
+        avatarMsg.style.background = 'rgba(99, 102, 241, 0.1)';
         uploadAvatarBtn.disabled = true;
 
         try {
-          // ✅ COMPRESS IMAGE
-          console.log('Original file size:', (file.size / 1024).toFixed(2), 'KB');
           const compressedFile = await compressImage(file, 400, 400, 0.85);
-          console.log('Compressed file size:', (compressedFile.size / 1024).toFixed(2), 'KB');
-          console.log('Compression ratio:', ((1 - compressedFile.size / file.size) * 100).toFixed(1) + '%');
-
-          // Always save as .jpg after compression
           const filePath = `${currentUser.id}.jpg`;
 
-          // Show uploading state
           avatarMsg.textContent = '⏳ Uploading...';
 
           const { error: uploadError } = await supabase.storage
@@ -370,13 +922,13 @@ body {
             .upload(filePath, compressedFile, {
               upsert: true,
               contentType: 'image/jpeg',
-              cacheControl: '3600' // Cache for 1 hour
+              cacheControl: '3600'
             });
 
           if (uploadError) {
-            console.error('Upload error:', uploadError);
             avatarMsg.textContent = '❌ Upload failed';
             avatarMsg.style.color = '#ef4444';
+            avatarMsg.style.background = 'rgba(239, 68, 68, 0.1)';
             uploadAvatarBtn.disabled = false;
             return;
           }
@@ -385,7 +937,6 @@ body {
             .from('avatars')
             .getPublicUrl(filePath);
 
-          // Store clean URL in database (without cache buster)
           const publicUrl = data.publicUrl;
 
           const { error: updateError } = await supabase
@@ -394,19 +945,19 @@ body {
             .eq('id', currentUser.id);
 
           if (!updateError) {
-            // Display with cache buster for immediate update
             profilePreview.src = `${publicUrl}?t=${Date.now()}`;
             avatarMsg.textContent = '✅ Avatar updated!';
             avatarMsg.style.color = '#22c55e';
+            avatarMsg.style.background = 'rgba(34, 197, 94, 0.1)';
           } else {
-            console.error('Database update error:', updateError);
             avatarMsg.textContent = '❌ Failed to update profile';
             avatarMsg.style.color = '#ef4444';
+            avatarMsg.style.background = 'rgba(239, 68, 68, 0.1)';
           }
         } catch (error) {
-          console.error('Processing error:', error);
           avatarMsg.textContent = '❌ Failed to process image';
           avatarMsg.style.color = '#ef4444';
+          avatarMsg.style.background = 'rgba(239, 68, 68, 0.1)';
         } finally {
           uploadAvatarBtn.disabled = false;
         }
@@ -417,10 +968,10 @@ body {
 
         avatarMsg.textContent = '⏳ Removing...';
         avatarMsg.style.color = '#6366f1';
+        avatarMsg.style.background = 'rgba(99, 102, 241, 0.1)';
         deleteAvatarBtn.disabled = true;
 
         try {
-          // Remove all possible extensions
           await supabase.storage
             .from('avatars')
             .remove([`${currentUser.id}.jpg`, `${currentUser.id}.png`, `${currentUser.id}.jpeg`]);
@@ -434,10 +985,11 @@ body {
             profilePreview.src = `assets/profile-icon.jpg?t=${Date.now()}`;
             avatarMsg.textContent = '✅ Reverted to default avatar';
             avatarMsg.style.color = '#22c55e';
+            avatarMsg.style.background = 'rgba(34, 197, 94, 0.1)';
           } else {
-            console.error('Delete error:', error);
             avatarMsg.textContent = '❌ Failed to delete avatar';
             avatarMsg.style.color = '#ef4444';
+            avatarMsg.style.background = 'rgba(239, 68, 68, 0.1)';
           }
         } finally {
           deleteAvatarBtn.disabled = false;
@@ -454,7 +1006,17 @@ body {
         .update({ username: newUsername })
         .eq('id', currentUser.id);
 
-      usernameMsg.textContent = error ? error.message : '✅ Username updated';
+      if (error) {
+        usernameMsg.textContent = `❌ ${error.message}`;
+        usernameMsg.style.color = '#ef4444';
+        usernameMsg.style.background = 'rgba(239, 68, 68, 0.1)';
+      } else {
+        usernameMsg.textContent = '✅ Username updated';
+        usernameMsg.style.color = '#22c55e';
+        usernameMsg.style.background = 'rgba(34, 197, 94, 0.1)';
+        usernameSpan.textContent = newUsername;
+        newUsernameInput.value = '';
+      }
     });
 
     changeEmailBtn?.addEventListener('click', async () => {
@@ -462,33 +1024,34 @@ body {
       if (!newEmail) return;
 
       const { error } = await supabase.auth.updateUser({ email: newEmail });
-      emailMsg.textContent = error ? error.message : '✅ Confirmation email sent';
+      
+      if (error) {
+        emailMsg.textContent = `❌ ${error.message}`;
+        emailMsg.style.color = '#ef4444';
+        emailMsg.style.background = 'rgba(239, 68, 68, 0.1)';
+      } else {
+        emailMsg.textContent = '✅ Confirmation email sent';
+        emailMsg.style.color = '#22c55e';
+        emailMsg.style.background = 'rgba(34, 197, 94, 0.1)';
+        newEmailInput.value = '';
+      }
     });
 
     logoutBtn?.addEventListener('click', async () => {
       try {
-        console.log('Logging out...');
-        
-        // Sign out from Supabase
         const { error } = await supabase.auth.signOut();
         if (error) console.error('Supabase signOut error:', error);
         
-        // Clear all storage
         localStorage.clear();
         sessionStorage.clear();
         
-        // Clear cookies (if any)
         document.cookie.split(";").forEach((c) => {
           document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
         });
         
-        console.log('Logout complete, redirecting...');
-        
-        // Force redirect with cache busting
         window.location.href = 'index.html?logout=' + Date.now();
       } catch (error) {
         console.error('Logout error:', error);
-        // Force redirect anyway
         window.location.href = 'index.html?logout=' + Date.now();
       }
     });
@@ -496,55 +1059,5 @@ body {
   })();
 </script>
 
-<script>
-  // Menu toggle logic
-  document.addEventListener("DOMContentLoaded", () => {
-    const menuToggle = document.getElementById("menuToggle");
-    const menuOverlay = document.getElementById("menuOverlay");
-    const closeMenu = document.getElementById("closeMenu");
-
-    menuToggle?.addEventListener("click", () => {
-      menuOverlay.classList.add("active");
-    });
-
-    closeMenu?.addEventListener("click", () => {
-      menuOverlay.classList.remove("active");
-    });
-
-    menuOverlay?.addEventListener("click", (e) => {
-      if (e.target === menuOverlay) {
-        menuOverlay.classList.remove("active");
-      }
-    });
-  });
-</script>
-
-<script type="module">
-  import {
-    getTodaysDailyChallenge,
-    modeDisplayNames,
-    categoryDisplayNames,
-    categoryEmojis
-  } from './js/daily-challenge.js';
-
-  document.addEventListener('DOMContentLoaded', () => {
-    const categorySpan = document.getElementById('dailyChallengeCategory');
-    const bg = document.getElementById('dailyChallengeBg');
-
-    const today = getTodaysDailyChallenge();
-
-    if (today && categorySpan && bg) {
-      const modeName = modeDisplayNames[today.mode] || today.mode.toUpperCase();
-      const categoryName = categoryDisplayNames[today.category] || today.category;
-      const emoji = categoryEmojis[today.category] || '';
-
-      categorySpan.textContent = `${modeName}: ${categoryName} ${emoji}`;
-      bg.style.backgroundImage = `url('images/categories/${today.category}.jpg')`;
-    }
-  });
-</script>
-
-<!-- Load Stripe FIRST -->
-<script src="https://js.stripe.com/v3/"></script>
 </body>
 </html>

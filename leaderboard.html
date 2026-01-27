@@ -2,324 +2,736 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GeoRanks — Leaderboard</title>
-  <link rel="stylesheet" href="css/home.css"/>
-  <link rel="stylesheet" href="css/game-modes.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/game-modes.css" />
+  
   <style>
+    /* ========================================
+       RESET & BASE STYLES
+    ======================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #a7f3d0 0%, #38bdf8 100%);
+      min-height: 100vh;
+    }
+    
+    /* ========================================
+       HEADER (FROM home.css)
+    ======================================== */
+    .home-glass-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 64px;
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 0rem;
+      z-index: 1000;
+    }
+    
+    .logo-header {
+      display: flex;
+      align-items: center;
+    }
 
-/* ------------------------------
-   CONTAINER
------------------------------- */
-.leaderboard-container {
-  max-width: 720px;
-  margin: 120px auto 40px;
-  padding: 2rem;
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-radius: 16px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-  text-align: center;
-  overflow: hidden;
-}
+    .logo-header img,
+    .logo-link img {
+      height: 40px;
+      width: auto;
+      object-fit: contain;
+      margin-left: 0.8rem;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+      cursor: pointer;
+    }
 
-.search-bar-wrapper {
-  max-width: 100%;
-  width: 100%;
-  margin: 15px 0;
-  box-sizing: border-box;
-}
+    .logo-link:hover img {
+      transform: scale(1.05);
+      opacity: 0.85;
+    }
+    
+    /* ========================================
+       HAMBURGER ICON (FROM home.css)
+    ======================================== */
+    .menu-icon {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      padding: 1.8rem;
+      margin: 0;
+      margin-right: 1rem;
+      background: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      cursor: pointer;
+    }
+    
+    .menu-icon span {
+      display: block;
+      width: 24px;
+      height: 3px;
+      background-color: #0d315a;
+      border-radius: 2px;
+    }
+    
+    .menu-icon:hover {
+      transform: scale(1.1);
+    }
+    
+    /* ========================================
+       MENU OVERLAY & PANEL (FROM index.html inline)
+    ======================================== */
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(13, 49, 90, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 9998;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .menu-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .menu-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 100%;
+      max-width: 420px;
+      height: 100vh;
+      max-height: 100vh;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      box-shadow: -8px 0 40px rgba(0, 0, 0, 0.25);
+      transform: translateX(100%);
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      padding: 100px 32px 40px;
+    }
+    
+    .menu-overlay.active .menu-panel {
+      transform: translateX(0);
+    }
+    
+    body.menu-open {
+      overflow: hidden;
+      height: 100vh;
+    }
+    
+    /* ========================================
+       MENU TITLE - CORAL UNDERLINE
+    ======================================== */
+    .menu-panel h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #0d315a;
+      margin-bottom: 32px;
+      letter-spacing: -0.5px;
+      position: relative;
+      padding-bottom: 16px;
+    }
+    
+    .menu-panel h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 4px;
+      background: linear-gradient(90deg, #ff9770, #ff6f61);
+      border-radius: 2px;
+    }
+    
+    /* ========================================
+       MENU BUTTONS
+    ======================================== */
+    .menu-btn {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      padding: 18px 24px;
+      margin-bottom: 12px;
+      background: white;
+      border: 2px solid rgba(13, 49, 90, 0.08);
+      border-radius: 16px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #0d315a;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: 'Poppins', sans-serif;
+      text-align: left;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .menu-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    .menu-btn:hover::before {
+      left: 100%;
+    }
+    
+    .menu-btn:hover {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+      border-color: rgba(102, 126, 234, 0.3);
+      transform: translateX(4px);
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+    }
+    
+    .menu-btn:active {
+      transform: translateX(4px) scale(0.98);
+    }
+    
+    /* ========================================
+       DAILY CHALLENGE BUTTON (190px HEIGHT)
+    ======================================== */
+    .menu-daily-challenge {
+      position: relative;
+      height: 190px;
+      padding: 0;
+      margin-bottom: 16px;
+      overflow: hidden;
+      border: 3px solid rgba(255, 151, 112, 0.6);
+      box-shadow: 0 4px 20px rgba(255, 151, 112, 0.3);
+    }
+    
+    .menu-daily-challenge .daily-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #8b4513 0%, #d2691e 100%);
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.6);
+      z-index: 1;
+    }
+    
+    .menu-daily-challenge .daily-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.4) 100%);
+      z-index: 2;
+    }
+    
+    .menu-daily-challenge .daily-content {
+      position: relative;
+      z-index: 3;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 16px;
+    }
+    
+    .menu-daily-challenge .daily-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+      margin: 0;
+    }
+    
+    .menu-daily-challenge .daily-category {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    }
+    
+    .menu-daily-challenge:hover {
+      transform: translateX(4px) scale(1.02);
+      border-color: rgba(255, 111, 97, 0.9);
+    }
+    
+    /* ========================================
+       SPECIAL BUTTONS - CORAL UPGRADE BUTTON
+    ======================================== */
+    .upgrade-access-btn {
+      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 20px rgba(255, 151, 112, 0.4);
+      margin-top: 8px;
+    }
+    
+    .upgrade-access-btn:hover {
+      background: linear-gradient(135deg, #ff8560 0%, #ff5f51 100%);
+      transform: translateX(4px) translateY(-2px);
+      box-shadow: 0 6px 28px rgba(255, 151, 112, 0.5);
+    }
+    
+    .menu-close {
+      margin-top: auto;
+      background: rgba(13, 49, 90, 0.06);
+      border-color: rgba(13, 49, 90, 0.12);
+      color: #0d315a;
+      font-weight: 500;
+    }
+    
+    .menu-close:hover {
+      background: rgba(13, 49, 90, 0.12);
+      border-color: rgba(13, 49, 90, 0.2);
+    }
+    
+    /* ========================================
+       SCROLLBAR
+    ======================================== */
+    .menu-panel::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .menu-panel::-webkit-scrollbar-track {
+      background: rgba(13, 49, 90, 0.05);
+      border-radius: 10px;
+    }
+    
+    .menu-panel::-webkit-scrollbar-thumb {
+      background: rgba(102, 126, 234, 0.3);
+      border-radius: 10px;
+    }
+    
+    .menu-panel::-webkit-scrollbar-thumb:hover {
+      background: rgba(102, 126, 234, 0.5);
+    }
+    
+    /* ========================================
+       LEADERBOARD SPECIFIC STYLES
+    ======================================== */
+    .leaderboard-container {
+      max-width: 720px;
+      margin: 120px auto 40px;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+      text-align: center;
+      overflow: hidden;
+      opacity: 0;
+      animation: fadeInContainer 0.5s ease-out forwards;
+    }
+    
+    @keyframes fadeInContainer {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .leaderboard-container h1 {
+      opacity: 0;
+      animation: fadeIn 0.5s ease-out 0.2s forwards;
+    }
+    
+    .page-title {
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: #0d315a;
+      margin-bottom: 8px;
+    }
+    
+    .page-title-text {
+      background: linear-gradient(135deg, #0d315a 0%, #667eea 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
 
-.search-bar-wrapper input {
-  max-width: 100%;
-  width: 100%;
-  box-sizing: border-box;
-}
+    .search-bar-wrapper {
+      max-width: 600px;
+      margin: 20px auto;
+      position: relative;
+      box-sizing: border-box;
+      opacity: 0;
+      animation: fadeIn 0.5s ease-out 0.4s forwards;
+    }
 
-/* ------------------------------
-   MODE TOGGLE
------------------------------- */
-.mode-toggle {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin: 20px 0;
-}
+    .search-bar-wrapper input {
+      width: 100%;
+      padding: 18px 24px;
+      font-size: 1.1rem;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50px;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      cursor: pointer;
+      box-sizing: border-box;
+    }
 
-.mode-btn {
-  padding: 10px 24px;
-  background: white;
-  border: none;
-  outline: none;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s;
-  font-family: 'Poppins', sans-serif;
-}
+    .search-bar-wrapper input:focus {
+      outline: none;
+      border-color: rgba(255,255,255,0.6);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 48px rgba(0,0,0,0.2);
+    }
 
-.mode-btn.active {
-  background: linear-gradient(135deg, #ff9770, #ff6f61);
-  color: white;
-  border: none;
-  outline: none;
-}
+    .search-bar-wrapper input:hover {
+      border-color: rgba(255,255,255,0.5);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    }
 
-.mode-btn:hover:not(.active) {
-  background: #f3f4f6;
-}
+    .search-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      margin-top: 8px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.2);
+      max-height: 400px;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+    }
 
-/* ------------------------------
-   DATE SELECTOR
------------------------------- */
-.date-selector {
-  margin: 20px 0;
-  display: none;
-}
+    .search-dropdown.active {
+      display: block;
+      animation: dropdownSlide 0.3s ease-out;
+    }
 
-.date-selector.active {
-  display: block;
-}
+    @keyframes dropdownSlide {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
-.date-selector select {
-  padding: 10px 16px;
-  border: 2px solid #e5e7eb;
-  border-radius: 10px;
-  font-size: 1rem;
-  font-family: 'Poppins', sans-serif;
-  background: white;
-  cursor: pointer;
-}
+    .search-dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
 
-/* ------------------------------
-   TABLE BASE
------------------------------- */
-.leaderboard-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-  margin-top: 1rem;
-}
+    .search-dropdown-item:last-child {
+      border-bottom: none;
+    }
 
-.leaderboard-table th {
-  font-weight: 600;
-  padding: 1rem;
-  font-size: 1.2rem;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
+    .search-dropdown-item:hover {
+      background: rgba(102,126,234,0.08);
+    }
 
-.leaderboard-table td {
-  padding: 1.1rem 0.5rem;
-  border-bottom: 1px solid rgba(0,0,0,0.12);
-  font-size: 1.25rem;
-  text-align: center;
-}
+    .search-dropdown-item img {
+      width: 60px;
+      height: 40px;
+      border-radius: 8px;
+      object-fit: cover;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
 
-.leaderboard-table tbody tr td[colspan] {
-  text-align: center !important;
-  padding: 2rem 1rem;
-}
+    .search-dropdown-text {
+      flex: 1;
+      font-weight: 500;
+      color: #333;
+      font-size: 1rem;
+    }
 
-/* ------------------------------
-   COLUMN WIDTHS
------------------------------- */
-.leaderboard-table th:nth-child(1),
-.leaderboard-table td:nth-child(1) {
-  width: 20%;
-}
+    .search-dropdown::-webkit-scrollbar {
+      width: 8px;
+    }
 
-.leaderboard-table th:nth-child(2),
-.leaderboard-table td:nth-child(2) {
-  width: 20%;
-}
+    .search-dropdown::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.05);
+      border-radius: 10px;
+    }
 
-.leaderboard-table th:nth-child(3),
-.leaderboard-table td:nth-child(3) {
-  width: 40%;
-}
+    .search-dropdown::-webkit-scrollbar-thumb {
+      background: rgba(102,126,234,0.3);
+      border-radius: 10px;
+    }
 
-.leaderboard-table th:nth-child(4),
-.leaderboard-table td:nth-child(4) {
-  width: 20%;
-}
+    .search-dropdown::-webkit-scrollbar-thumb:hover {
+      background: rgba(102,126,234,0.5);
+    }
 
-.leaderboard-table th:first-child {
-  border-top-left-radius: 12px;
-  border-left: none;
-}
+    .no-results {
+      padding: 20px;
+      text-align: center;
+      color: #666;
+      font-size: 0.95rem;
+    }
 
-.leaderboard-table th:last-child {
-  border-top-right-radius: 12px;
-  border-right: none;
-}
+    .mode-toggle {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin: 20px 0;
+      opacity: 0;
+      animation: fadeIn 0.5s ease-out 0.6s forwards;
+    }
 
-.leaderboard-table tr:last-child td:first-child {
-  border-bottom-left-radius: 12px;
-}
+    .mode-btn {
+      padding: 12px 28px;
+      background: white;
+      border: 2px solid rgba(102, 126, 234, 0.15);
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+      color: #0d315a;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
 
-.leaderboard-table tr:last-child td:last-child {
-  border-bottom-right-radius: 12px;
-}
+    .mode-btn.active {
+      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 4px 16px rgba(255, 151, 112, 0.3);
+    }
 
-/* ------------------------------
-   AVATAR + BADGE
------------------------------- */
-.avatar-wrapper {
-  position: relative;
-  display: inline-block;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-}
+    .mode-btn:hover:not(.active) {
+      background: rgba(102, 126, 234, 0.08);
+      border-color: rgba(102, 126, 234, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+    }
 
-.avatar-wrapper img.avatar {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-}
+    .date-selector {
+      margin: 20px 0;
+      display: none;
+    }
 
-.avatar-wrapper img.premium-badge {
-  position: absolute;
-  bottom: -4px;
-  right: -4px;
-  width: 22px;
-  height: 22px;
-}
+    .date-selector.active {
+      display: block;
+    }
 
-/* Prevent avatar image interactions */
-.leaderboard-avatar {
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -webkit-user-drag: none;
-  -khtml-user-drag: none;
-  -moz-user-drag: none;
-  -o-user-drag: none;
-  -webkit-touch-callout: none;
-  pointer-events: none;
-}
+    .date-selector select {
+      padding: 10px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-family: 'Poppins', sans-serif;
+      background: white;
+      cursor: pointer;
+    }
 
-/* ------------------------------
-   MEDALS
------------------------------- */
-.leaderboard-rank {
-  font-weight: bold;
-  font-size: 1.25rem;
-}
+    .leaderboard-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      table-layout: fixed;
+      margin-top: 1rem;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      opacity: 0;
+      animation: fadeIn 0.5s ease-out 0.8s forwards;
+    }
 
-.leaderboard-rank:has(> .medal) {
-  line-height: 1;
-}
+    .leaderboard-table th {
+      font-weight: 600;
+      padding: 1rem;
+      font-size: 1.2rem;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+      color: #0d315a;
+      border-bottom: 2px solid rgba(102, 126, 234, 0.15);
+    }
 
-.medal {
-  font-size: 1.75rem;
-  display: inline-block;
-}
+    .leaderboard-table td {
+      padding: 1.1rem 0.5rem;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      font-size: 1.25rem;
+      text-align: center;
+      background: white;
+      transition: background 0.2s ease;
+    }
 
-/* ------------------------------
-   BUTTON
------------------------------- */
-.back-home {
-  margin-top: 2.2rem;
-  display: inline-block;
-  padding: 0.9rem 1.8rem;
-  border-radius: 10px;
-  border: none;
-  outline: none;
-  color: white;
-  font-size: 1.2rem;
-  font-weight: 600;
-  text-decoration: none;
-  background: linear-gradient(135deg, #ff9770, #ff6f61);
-  cursor: pointer;
-}
+    .leaderboard-table tbody tr:hover td {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.04), rgba(118, 75, 162, 0.04));
+    }
 
-/* ------------------------------
-   RESPONSIVE: MOBILE
------------------------------- */
-@media (max-width: 768px) {
-  .leaderboard-container {
-    margin: 100px auto 40px;
-    padding: 1.5rem 1rem;
-  }
+    .leaderboard-table tbody tr:last-child td {
+      border-bottom: none;
+    }
 
-  .mode-toggle {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
+    .leaderboard-table tbody tr td[colspan] {
+      text-align: center !important;
+      padding: 2rem 1rem;
+    }
 
-  .mode-btn {
-    padding: 8px 16px;
-    font-size: 0.9rem;
-  }
+    .leaderboard-table th:nth-child(1), .leaderboard-table td:nth-child(1) { width: 20%; }
+    .leaderboard-table th:nth-child(2), .leaderboard-table td:nth-child(2) { width: 20%; }
+    .leaderboard-table th:nth-child(3), .leaderboard-table td:nth-child(3) { width: 40%; }
+    .leaderboard-table th:nth-child(4), .leaderboard-table td:nth-child(4) { width: 20%; }
 
-  .avatar-wrapper {
-    width: 50px;
-    height: 50px;
-  }
+    .leaderboard-table th:first-child { border-top-left-radius: 12px; }
+    .leaderboard-table th:last-child { border-top-right-radius: 12px; }
+    .leaderboard-table tr:last-child td:first-child { border-bottom-left-radius: 12px; }
+    .leaderboard-table tr:last-child td:last-child { border-bottom-right-radius: 12px; }
 
-  .avatar-wrapper img.avatar {
-    width: 50px;
-    height: 50px;
-  }
+    .avatar-wrapper {
+      position: relative;
+      display: inline-block;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
 
-  .avatar-wrapper img.premium-badge {
-    width: 18px;
-    height: 18px;
-    bottom: -2px;
-    right: -2px;
-  }
+    .avatar-wrapper img.avatar {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 2px solid rgba(102, 126, 234, 0.15);
+    }
 
-  .leaderboard-table th {
-    font-size: 1rem;
-    padding: 0.75rem 0.5rem;
-  }
+    .avatar-wrapper img.premium-badge {
+      position: absolute;
+      bottom: -4px;
+      right: -4px;
+      width: 22px;
+      height: 22px;
+    }
 
-  .leaderboard-table td {
-    font-size: 1rem;
-    padding: 0.75rem 0.25rem;
-  }
+    .leaderboard-avatar {
+      user-select: none;
+      -webkit-user-drag: none;
+      pointer-events: none;
+    }
 
-  .medal {
-    font-size: 1.5rem;
-  }
+    .leaderboard-rank {
+      font-weight: bold;
+      font-size: 1.25rem;
+    }
 
-  .back-home {
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-  }
-}
+    .leaderboard-rank:has(> .medal) {
+      line-height: 1;
+    }
 
-</style>
+    .medal {
+      font-size: 1.75rem;
+      display: inline-block;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+    }
+
+    .back-home {
+      margin-top: 2.2rem;
+      display: inline-block;
+      padding: 0.9rem 1.8rem;
+      border-radius: 10px;
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 600;
+      text-decoration: none;
+      background: linear-gradient(135deg, #ff9770, #ff6f61);
+      cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      .leaderboard-container { 
+        margin: 100px 1rem 40px; 
+        padding: 1.5rem 1rem;
+        max-width: calc(100% - 2rem);
+      }
+      .mode-toggle { flex-wrap: wrap; gap: 8px; }
+      .mode-btn { padding: 8px 16px; font-size: 0.9rem; }
+      .avatar-wrapper, .avatar-wrapper img.avatar { width: 50px; height: 50px; }
+      .avatar-wrapper img.premium-badge { width: 18px; height: 18px; bottom: -2px; right: -2px; }
+      .leaderboard-table th { font-size: 1rem; padding: 0.75rem 0.5rem; }
+      .leaderboard-table td { font-size: 1rem; padding: 0.75rem 0.25rem; }
+      .medal { font-size: 1.5rem; }
+      .back-home { padding: 0.75rem 1.5rem; font-size: 1rem; }
+    }
+
+    @media (max-width: 480px) {
+      .leaderboard-container {
+        margin: 90px 0.75rem 30px;
+        padding: 1.25rem 0.75rem;
+        max-width: calc(100% - 1.5rem);
+      }
+    }
+  </style>
 </head>
 <body>
+<body>
 
-<!-- ✅ Header -->
+<!-- ========== HEADER ========== -->
 <header class="home-glass-header">
   <div class="logo-header">
     <a href="index.html" class="logo-link">
       <img src="assets/logo.png" alt="GeoRanks Logo" />
     </a>
   </div>
-  <div class="hamburger-menu">
-    <div class="menu-icon" id="menuToggle">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
+  <div class="menu-icon" id="menuToggle">
+    <span></span>
+    <span></span>
+    <span></span>
   </div>
 </header>
 
-<!-- ✅ Hamburger Menu -->
+<!-- ========== HAMBURGER MENU ========== -->
 <div class="menu-overlay" id="menuOverlay">
   <div class="menu-panel">
     <h2>Menu</h2>
+    
     <button class="menu-btn menu-daily-challenge" onclick="window.location.href='daily-challenge.html'" id="dailyChallengeMenuBtn">
   <div class="daily-bg" id="dailyChallengeBg"></div>
   <div class="daily-overlay"></div>
@@ -328,6 +740,7 @@
     <span class="daily-category" id="dailyChallengeCategory">Loading...</span>
   </div>
 </button>
+    
     <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
     <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
     <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
@@ -339,29 +752,31 @@
   </div>
 </div>
 
+<!-- ========== LEADERBOARD CONTENT ========== -->
 <div class="leaderboard-container">
-  <h1>🏆 Leaderboard</h1>
+  <h1 class="page-title">🏆 <span class="page-title-text">Leaderboard</span></h1>
 
-  <!-- Mode Toggle: Classic | Daily Challenge | Top 10 | VS -->
+  <!-- Mode Toggle -->
   <div class="mode-toggle">
-    <button class="mode-btn active" data-mode="classic">Classic</button>
-    <button class="mode-btn" data-mode="daily-challenge">Daily Challenge</button>
+    <button class="mode-btn active" data-mode="daily-challenge">Daily Challenge</button>
+    <button class="mode-btn" data-mode="classic">Classic</button>
     <button class="mode-btn" data-mode="top10">Top 10</button>
     <button class="mode-btn" data-mode="vs">VS</button>
   </div>
 
-  <!-- Date Selector (Only for Daily Challenge) -->
+  <!-- Date Selector -->
   <div class="date-selector" id="dateSelector">
     <label for="dateDropdown">Select Date:</label>
     <select id="dateDropdown"></select>
   </div>
 
-  <!-- Category Search Bar (hidden for Daily Challenge) -->
+  <!-- Category Search Bar -->
   <div class="search-bar-wrapper" id="categorySearchWrapper">
-    <input type="text" id="categorySearchInput" placeholder="🔍 Search Categories..." readonly />
+    <input type="text" id="categorySearchInput" placeholder="🔍 Search Categories..." />
+    <div class="search-dropdown" id="searchDropdown"></div>
   </div>
 
-  <!-- Daily Challenge Title (shown only for Daily Challenge) -->
+  <!-- Daily Challenge Title -->
   <h3 id="dailyChallengeTitle" style="display: none; margin: 20px 0; font-size: 1.3rem;"></h3>
 
   <table class="leaderboard-table">
@@ -381,19 +796,161 @@
   <a href="index.html" class="back-home">🏠 Return Home</a>
 </div>
 
-<!-- 🔍 Search Modal -->
-<div id="categorySearchModal" class="search-modal hidden">
-  <div class="search-modal-content glass-box">
-    <div class="search-header">
-      <input type="text" id="liveSearchInput" placeholder="Start typing to search..." autofocus />
-      <button class="close-search-modal" id="closeSearchModal">×</button>
-    </div>
-    <div class="search-results" id="searchResults">
-      <!-- Dynamic Category Items -->
-    </div>
-  </div>
-</div>
+<!-- ========== JAVASCRIPT ========== -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const menuToggle = document.getElementById('menuToggle');
+  const menuOverlay = document.getElementById('menuOverlay');
+  const closeMenu = document.getElementById('closeMenu');
+  let scrollPosition = 0;
 
+  if (menuToggle && menuOverlay) {
+    menuToggle.addEventListener('click', () => {
+      scrollPosition = window.pageYOffset;
+      document.body.classList.add('menu-open');
+      document.body.style.top = `-${scrollPosition}px`;
+      menuOverlay.classList.add('active');
+    });
+
+    function closeMenuHandler() {
+      document.body.classList.remove('menu-open');
+      document.body.style.top = '';
+      window.scrollTo(0, scrollPosition);
+      menuOverlay.classList.remove('active');
+    }
+
+    closeMenu?.addEventListener('click', closeMenuHandler);
+
+    menuOverlay.addEventListener('click', (e) => {
+      if (e.target === menuOverlay) {
+        closeMenuHandler();
+      }
+    });
+  }
+});
+</script>
+
+</body>
+</html>
+
+<!-- ========================================
+     SEARCH DROPDOWN JAVASCRIPT
+======================================== -->
+<script type="module">
+  import { supabase } from './js/supabase-client.js';
+
+  const searchInput = document.getElementById('categorySearchInput');
+  const searchDropdown = document.getElementById('searchDropdown');
+
+  const displayNameMap = {
+    'temperature': 'Highest Temperature', 'precipitation': 'Rainfall', 'altitude': 'Highest Altitude',
+    'gdp': 'GDP Per Capita', 'population': 'Population', 'forest': 'Forest Cover',
+    'coastline': 'Longest Coastline', 'olympic': 'Olympic Medals', 'cuisine': 'Cuisine',
+    'worldcup': 'World Cup Trophies', 'landmass': 'Land Mass', 'crimerate': 'Crime Rate',
+    'happiness': 'Happiness', 'passport': 'Passport Strength', 'beer': 'Beer Consumption',
+    'nobelprize': 'Nobel Prize Winners', 'michelin': 'Michelin Restaurants', 'bigmac': 'BigMac Index',
+    'lifeexpectancy': 'Life Expectancy', 'tourism': 'Tourist Visits', 'marriageage': 'Marriage Age',
+    'sexratio': 'Gender Ratio', 'tallestbuilding': 'Tallest Building', 'density': 'Population Density',
+    'carexports': 'Car Exports', 'militarypersonel': 'Military Personnel', 'rent': 'Rent Prices',
+    'poorestgdp': 'Poorest Countries', 'university': 'Universities', 'volcano': 'Volcanoes',
+    'flamingo': 'Flamingos', 'disasterrisk': 'Natural Disasters', 'longestriver': 'Longest River',
+    'renewableenergy': 'Renewable Energy', 'millionaires': 'Millionaires', 'gm': 'Chess Grandmasters'
+  };
+
+  const imageMap = { temperature: 'hightemp', precipitation: 'rainfall' };
+
+  function formatCategoryName(name) {
+    return name.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  }
+
+  let allCategories = [];
+
+  // Load categories
+  async function loadCategories() {
+    const { data: categories } = await supabase.from('categories').select('*').order('name');
+    if (categories) {
+      allCategories = categories.map(cat => ({
+        category: cat.name,
+        display: displayNameMap[cat.name.toLowerCase()] || formatCategoryName(cat.name),
+        image: imageMap[cat.name.toLowerCase()] || cat.name.toLowerCase() + '.jpg'
+      })).sort((a, b) => a.display.localeCompare(b.display));
+    }
+  }
+
+  loadCategories();
+
+  // Clear input and show all categories when clicked
+  searchInput?.addEventListener('click', () => {
+    searchInput.value = '';
+    renderDropdown(allCategories);
+  });
+
+  // Show all categories when focused
+  searchInput?.addEventListener('focus', () => {
+    if (searchInput.value.trim().length === 0) {
+      renderDropdown(allCategories);
+    }
+  });
+
+  // Filter as user types
+  searchInput?.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase();
+    
+    if (query.length === 0) {
+      renderDropdown(allCategories);
+      return;
+    }
+
+    const filtered = allCategories.filter(cat => 
+      cat.display.toLowerCase().includes(query)
+    );
+
+    if (filtered.length === 0) {
+      searchDropdown.innerHTML = '<div class="no-results">No categories found</div>';
+      searchDropdown.classList.add('active');
+      return;
+    }
+
+    renderDropdown(filtered);
+  });
+
+  function renderDropdown(categories) {
+    searchDropdown.innerHTML = categories.map(cat => `
+      <div class="search-dropdown-item" data-category="${cat.category}" data-display="${cat.display}">
+        <img src="images/categories/${cat.image}" alt="${cat.display}" />
+        <div class="search-dropdown-text">${cat.display}</div>
+      </div>
+    `).join('');
+
+    searchDropdown.classList.add('active');
+
+    searchDropdown.querySelectorAll('.search-dropdown-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const category = item.dataset.category;
+        const display = item.dataset.display;
+        
+        searchInput.value = display; // Set the display name in the search bar
+        searchDropdown.classList.remove('active');
+
+        if (window.currentMode === 'classic' || window.currentMode === 'top10' || window.currentMode === 'vs') {
+          window.loadLeaderboard(category);
+        }
+        window.currentCategory = category;
+      });
+    });
+  }
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
+      searchDropdown.classList.remove('active');
+    }
+  });
+</script>
+
+<!-- ========================================
+     LEADERBOARD JAVASCRIPT
+======================================== -->
 <script type="module">
   import { supabase } from './js/supabase-client.js';
 
@@ -403,67 +960,35 @@
   const categorySearchWrapper = document.getElementById("categorySearchWrapper");
   const dailyChallengeTitle = document.getElementById("dailyChallengeTitle");
   
-  let currentMode = 'classic'; // Track current mode
-  let currentDate = null; // Track current date for daily challenge
-  let currentCategory = null; // Track current category
+  let currentMode = 'daily-challenge';
+  let currentDate = null;
+  let currentCategory = null;
 
-  // Display name mapping (matching daily-challenge.js)
   const displayNameMap = {
-    'hightemp': 'Highest Temperature',
-    'rainfall': 'Annual Rainfall',
-    'altitude': 'Highest Altitude',
-    'gdp': 'GDP Per Capita',
-    'population': 'Population',
-    'forest': 'Forest Coverage',
-    'coastline': 'Coastline Length',
-    'olympic': 'Olympic Medals',
-    'cuisine': 'Cuisine Popularity',
-    'worldcup': 'World Cup Wins',
-    'landmass': 'Landmass',
-    'crimerate': 'Crime Rate',
-    'happiness': 'Happiness Index',
-    'passport': 'Passport Power',
-    'beer': 'Beer Consumption',
-    'nobelprize': 'Nobel Prizes',
-    'michelin': 'Michelin Restaurants',
-    'bigmac': 'BigMac Index',
-    'lifeexpectancy': 'Life Expectancy',
-    'tourism': 'Tourist Visits',
-    // NEW CATEGORIES
-    'marriageage': 'Marriage Age',
-    'sexratio': 'Gender Ratio',
-    'tallestbuilding': 'Tallest Building',
-    'density': 'Population Density',
-    'carexports': 'Car Exports',
-    'militarypersonel': 'Military Personnel',
-    'rent': 'Rent Prices',
-    'poorestgdp': 'Poorest Countries',
-    'university': 'Universities',
-    'volcano': 'Volcanoes',
-    'flamingo': 'Flamingos',
-    'disasterrisk': 'Natural Disasters',
-    'longestriver': 'Longest River',
-    'renewableenergy': 'Renewable Energy',
-    'millionaires': 'Millionaires',
-    'gm': 'Chess Grandmasters'
+    'hightemp': 'Highest Temperature', 'rainfall': 'Annual Rainfall', 'altitude': 'Highest Altitude',
+    'gdp': 'GDP Per Capita', 'population': 'Population', 'forest': 'Forest Coverage',
+    'coastline': 'Coastline Length', 'olympic': 'Olympic Medals', 'cuisine': 'Cuisine Popularity',
+    'worldcup': 'World Cup Wins', 'landmass': 'Landmass', 'crimerate': 'Crime Rate',
+    'happiness': 'Happiness Index', 'passport': 'Passport Power', 'beer': 'Beer Consumption',
+    'nobelprize': 'Nobel Prizes', 'michelin': 'Michelin Restaurants', 'bigmac': 'BigMac Index',
+    'lifeexpectancy': 'Life Expectancy', 'tourism': 'Tourist Visits', 'marriageage': 'Marriage Age',
+    'sexratio': 'Gender Ratio', 'tallestbuilding': 'Tallest Building', 'density': 'Population Density',
+    'carexports': 'Car Exports', 'militarypersonel': 'Military Personnel', 'rent': 'Rent Prices',
+    'poorestgdp': 'Poorest Countries', 'university': 'Universities', 'volcano': 'Volcanoes',
+    'flamingo': 'Flamingos', 'disasterrisk': 'Natural Disasters', 'longestriver': 'Longest River',
+    'renewableenergy': 'Renewable Energy', 'millionaires': 'Millionaires', 'gm': 'Chess Grandmasters'
   };
 
   function formatCategoryName(name) {
-    return name
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+    return name.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   }
 
-  // Mode toggle logic
   document.querySelectorAll('.mode-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      
       currentMode = btn.dataset.mode;
       
-      // Show/hide elements based on mode
       if (currentMode === 'daily-challenge') {
         dateSelector.classList.add('active');
         categorySearchWrapper.style.display = 'none';
@@ -476,107 +1001,68 @@
         dailyChallengeTitle.style.display = 'none';
         if (currentCategory) {
           loadLeaderboard(currentCategory);
+          // Update search bar with current category name
+          const displayName = displayNameMap[currentCategory.toLowerCase()] || formatCategoryName(currentCategory);
+          document.getElementById("categorySearchInput").value = displayName;
         }
       }
     });
   });
 
-  // Date dropdown change handler
   dateDropdown?.addEventListener('change', (e) => {
     currentDate = e.target.value;
     loadDailyChallengeLeaderboardForDate(currentDate);
   });
 
-  // Seeded random function (same as daily-challenge.js)
   function seededRandom(seed) {
     const x = Math.sin(seed) * 10000;
     return x - Math.floor(x);
   }
 
-  // Get daily challenge for a specific date
   function getDailyChallengeForDate(dateString) {
-    const date = new Date(dateString + 'T00:00:00Z'); // Parse as UTC
-    const year = date.getUTCFullYear();
-    const month = date.getUTCMonth() + 1;
-    const day = date.getUTCDate();
+    const date = new Date(dateString + 'T00:00:00Z');
+    const seed = date.getUTCFullYear() * 10000 + (date.getUTCMonth() + 1) * 100 + date.getUTCDate();
     
-    const seed = year * 10000 + month * 100 + day;
-    
-    // Game modes
     const gameModes = ['classic', 'top10', 'vs'];
+    const top10ValidCategories = ['population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
+      'passport', 'beer', 'nobelprize', 'hightemp', 'rainfall', 'crimerate', 'happiness','tourism',
+      'michelin', 'bigmac', 'lifeexpectancy', 'marriageage', 'sexratio', 'tallestbuilding',
+      'density', 'carexports', 'militarypersonel', 'rent', 'poorestgdp', 'university', 'volcano',
+      'flamingo', 'disasterrisk', 'longestriver', 'renewableenergy', 'millionaires', 'gm'];
+    const allCategories = [...top10ValidCategories, 'olympic', 'worldcup', 'cuisine'];
     
-    // Categories
-    const top10ValidCategories = [
-      'population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
-      'passport', 'beer', 'nobelprize', 'hightemp', 'rainfall',
-      'crimerate', 'happiness','tourism', 'michelin', 'bigmac', 'lifeexpectancy',
-      // NEW CATEGORIES (all have 10+ countries)
-      'marriageage', 'sexratio', 'tallestbuilding', 'density', 'carexports',
-      'militarypersonel', 'rent', 'poorestgdp', 'university', 'volcano',
-      'flamingo', 'disasterrisk', 'longestriver', 'renewableenergy', 'millionaires', 'gm'
-    ];
-    
-    const allCategories = [
-      'population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
-      'olympic', 'worldcup', 'passport', 'beer', 'nobelprize', 
-      'hightemp', 'rainfall', 'crimerate', 'happiness', 'cuisine','tourism', 'michelin', 'bigmac', 'lifeexpectancy',
-      // NEW CATEGORIES
-      'marriageage', 'sexratio', 'tallestbuilding', 'density', 'carexports',
-      'militarypersonel', 'rent', 'poorestgdp', 'university', 'volcano',
-      'flamingo', 'disasterrisk', 'longestriver', 'renewableenergy', 'millionaires', 'gm'
-    ];
-    
-    // Pick mode
     const modeIndex = Math.floor(seededRandom(seed) * gameModes.length);
     const selectedMode = gameModes[modeIndex];
-    
-    // Pick category
     const validCategories = selectedMode === 'top10' ? top10ValidCategories : allCategories;
     const categoryIndex = Math.floor(seededRandom(seed + 1000) * validCategories.length);
-    const selectedCategory = validCategories[categoryIndex];
     
-    return { mode: selectedMode, category: selectedCategory };
+    return { mode: selectedMode, category: validCategories[categoryIndex] };
   }
 
-  // Load Daily Challenge Leaderboard for a specific date
   async function loadDailyChallengeLeaderboardForDate(date) {
-    leaderboardBody.innerHTML = `<tr><td colspan="4">Loading...</td></tr>`;
-    
+    leaderboardBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
     if (!date) {
-      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ No date selected</td></tr>`;
+      leaderboardBody.innerHTML = '<tr><td colspan="4">❌ No date selected</td></tr>';
       return;
     }
 
-    // Get the daily challenge for this date using deterministic algorithm
     const dailyChallenge = getDailyChallengeForDate(date);
-    const categoryKey = dailyChallenge.category;
-    const modeKey = dailyChallenge.mode;
-
-    // Get category ID from CATEGORY_ID_MAP
     const { CATEGORY_ID_MAP } = await import('./js/top10-categories-loader.js');
-    const categoryId = CATEGORY_ID_MAP[categoryKey];
+    const categoryId = CATEGORY_ID_MAP[dailyChallenge.category];
     
     if (!categoryId) {
-      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Category not found</td></tr>`;
+      leaderboardBody.innerHTML = '<tr><td colspan="4">❌ Category not found</td></tr>';
       dailyChallengeTitle.textContent = '';
       return;
     }
 
-    // Update title with mode and category name
     const modeNames = { classic: 'Classic', top10: 'Top 10', vs: 'VS' };
-    const displayName = displayNameMap[categoryKey] || formatCategoryName(categoryKey);
-    dailyChallengeTitle.textContent = `${modeNames[modeKey]} - ${displayName}`;
+    const displayName = displayNameMap[dailyChallenge.category] || formatCategoryName(dailyChallenge.category);
+    dailyChallengeTitle.textContent = `${modeNames[dailyChallenge.mode]} - ${displayName}`;
 
-    console.log('Loading Daily Challenge for:', { date, categoryKey, categoryId, mode: modeKey });
-
-    // ✅ OPTIMIZED: Join users table in one query (explicit foreign key)
     const { data: scores, error } = await supabase
       .from("daily_challenge_scores")
-      .select(`
-        score,
-        user_id,
-        users!fk_user(id, username, avatar_url, is_premium)
-      `)
+      .select('score, user_id, users!fk_user(id, username, avatar_url, is_premium)')
       .eq("category_id", categoryId)
       .eq("played_date", date)
       .order("score", { ascending: false })
@@ -584,230 +1070,146 @@
 
     if (error) {
       console.error('Error loading Daily Challenge scores:', error);
-      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Error loading scores: ${error.message}</td></tr>`;
+      leaderboardBody.innerHTML = '<tr><td colspan="4">❌ Error loading scores</td></tr>';
       return;
     }
-
     renderLeaderboard(scores || []);
   }
 
-  // Populate date dropdown (last 30 days)
   function populateDateDropdown() {
     const today = new Date();
     dateDropdown.innerHTML = '';
-    
     for (let i = 0; i < 30; i++) {
       const date = new Date(today);
       date.setDate(date.getDate() - i);
       const dateStr = date.toISOString().split('T')[0];
-      const displayDate = date.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric', 
-        year: 'numeric' 
-      });
-      
+      const displayDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       const option = document.createElement('option');
       option.value = dateStr;
       option.textContent = i === 0 ? `Today (${displayDate})` : displayDate;
       dateDropdown.appendChild(option);
     }
-    
-    // Set to today by default
     currentDate = dateDropdown.value;
   }
 
   async function loadCategories() {
     const params = new URLSearchParams(window.location.search);
-    const selectedParam = params.get("mode");
-
-    const { data: categories } = await supabase
-      .from("categories")
-      .select("*")
-      .order("name");
-
+    const { data: categories } = await supabase.from("categories").select("*").order("name");
     if (!categories?.length) return;
 
-    const initial = selectedParam || categories[0].name;
+    // Sort categories alphabetically by display name
+    const sortedCategories = categories
+      .map(cat => ({
+        name: cat.name,
+        display: displayNameMap[cat.name.toLowerCase()] || formatCategoryName(cat.name)
+      }))
+      .sort((a, b) => a.display.localeCompare(b.display));
+
+    const initial = params.get("mode") || sortedCategories[0].name;
     currentCategory = initial;
     
-    // Initialize based on current mode
     if (currentMode === 'classic' || currentMode === 'top10' || currentMode === 'vs') {
+      categorySearchWrapper.style.display = 'block';
+      dailyChallengeTitle.style.display = 'none';
+      dateSelector.classList.remove('active');
       loadLeaderboard(initial);
+      const displayName = displayNameMap[initial.toLowerCase()] || formatCategoryName(initial);
+      document.getElementById("categorySearchInput").value = displayName;
     } else if (currentMode === 'daily-challenge') {
+      categorySearchWrapper.style.display = 'none';
+      dailyChallengeTitle.style.display = 'block';
+      dateSelector.classList.add('active');
       populateDateDropdown();
-      if (currentDate) loadDailyChallengeLeaderboardForDate(currentDate);
+      if (dateDropdown.value) {
+        currentDate = dateDropdown.value;
+        loadDailyChallengeLeaderboardForDate(currentDate);
+      }
     }
-    
-    const displayName = displayNameMap[initial.toLowerCase()] || formatCategoryName(initial);
-    document.getElementById("categorySearchInput").value = "🔍 " + displayName;
   }
 
-  // Main Leaderboard Loading Function (handles Classic, Top 10, VS)
   async function loadLeaderboard(categoryName) {
-    leaderboardBody.innerHTML = `<tr><td colspan="4">Loading...</td></tr>`;
+    leaderboardBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
     currentCategory = categoryName;
-
-    if (currentMode === 'classic') {
-      await loadClassicLeaderboard(categoryName);
-    } else if (currentMode === 'top10') {
-      await loadTop10BestLeaderboard(categoryName);
-    } else if (currentMode === 'vs') {
-      await loadVSLeaderboard(categoryName);
-    }
+    if (currentMode === 'classic') await loadClassicLeaderboard(categoryName);
+    else if (currentMode === 'top10') await loadTop10BestLeaderboard(categoryName);
+    else if (currentMode === 'vs') await loadVSLeaderboard(categoryName);
   }
 
-  // Load Classic Mode Leaderboard
   async function loadClassicLeaderboard(categoryName) {
-    // First, get the category_id for this category name
-    const { data: categoryData, error: categoryError } = await supabase
-      .from("categories")
-      .select("id")
-      .eq("name", categoryName)
-      .single();
-
-    if (categoryError || !categoryData) {
-      console.error('Error loading category:', categoryError);
-      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Category not found</td></tr>`;
+    const { data: categoryData } = await supabase.from("categories").select("id").eq("name", categoryName).single();
+    if (!categoryData) {
+      leaderboardBody.innerHTML = '<tr><td colspan="4">❌ Category not found</td></tr>';
       return;
     }
 
-    // ✅ OPTIMIZED: Join users table in one query
-    const { data: scores, error } = await supabase
-      .from("category_scores")
-      .select(`
-        score,
-        user_id,
-        users!inner(id, username, avatar_url, is_premium)
-      `)
+    const { data: scores } = await supabase.from("category_scores")
+      .select('score, user_id, users!inner(id, username, avatar_url, is_premium)')
       .eq("category_id", categoryData.id)
       .order("score", { ascending: false })
       .limit(20);
-
-    if (error) {
-      console.error('Error loading Classic scores:', error);
-      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Error loading scores</td></tr>`;
-      return;
-    }
-
     renderLeaderboard(scores || []);
   }
 
-  // Load Top 10 Best Scores Leaderboard
   async function loadTop10BestLeaderboard(categoryName) {
-    // Get category ID from CATEGORY_ID_MAP
     const { CATEGORY_ID_MAP } = await import('./js/top10-categories-loader.js');
     const categoryId = CATEGORY_ID_MAP[categoryName.toLowerCase()];
-    
     if (!categoryId) {
-      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Category not available for Top 10</td></tr>`;
+      leaderboardBody.innerHTML = '<tr><td colspan="4">❌ Category not available for Top 10</td></tr>';
       return;
     }
 
-    // ✅ OPTIMIZED: Join users table in one query (explicit foreign key)
-    const { data: scores, error } = await supabase
-      .from("top10_best_scores")
-      .select(`
-        score,
-        correct_count,
-        wrong_count,
-        user_id,
-        users!fk_user(id, username, avatar_url, is_premium)
-      `)
+    const { data: scores } = await supabase.from("top10_best_scores")
+      .select('score, user_id, users!fk_user(id, username, avatar_url, is_premium)')
       .eq("category_id", categoryId)
       .order("score", { ascending: false })
       .limit(20);
-
-    if (error) {
-      console.error('Error loading Top 10 best scores:', error);
-      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Error loading scores</td></tr>`;
-      return;
-    }
-
     renderLeaderboard(scores || []);
   }
 
-  // Load VS Best Scores Leaderboard
   async function loadVSLeaderboard(categoryName) {
-    // Get category ID from CATEGORY_ID_MAP
     const { CATEGORY_ID_MAP } = await import('./js/top10-categories-loader.js');
     const categoryId = CATEGORY_ID_MAP[categoryName.toLowerCase()];
-    
     if (!categoryId) {
-      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Category not available for VS</td></tr>`;
+      leaderboardBody.innerHTML = '<tr><td colspan="4">❌ Category not available for VS</td></tr>';
       return;
     }
 
-    // ✅ OPTIMIZED: Join users table in one query (explicit foreign key)
-    const { data: scores, error } = await supabase
-      .from("vs_scores")
-      .select(`
-        score,
-        correct_count,
-        accuracy,
-        user_id,
-        category_id,
-        users!fk_user(id, username, avatar_url, is_premium)
-      `)
+    const { data: scores } = await supabase.from("vs_scores")
+      .select('score, user_id, users!fk_user(id, username, avatar_url, is_premium)')
       .eq("category_id", categoryId)
       .order("score", { ascending: false });
 
-    if (error) {
-      console.error('Error loading VS scores:', error);
-      leaderboardBody.innerHTML = `<tr><td colspan="4">❌ Error loading scores</td></tr>`;
-      return;
-    }
-
-    // Filter to show only best score per user
     const bestScoresMap = new Map();
     scores?.forEach(score => {
       const existing = bestScoresMap.get(score.user_id);
-      if (!existing || score.score > existing.score) {
-        bestScoresMap.set(score.user_id, score);
-      }
+      if (!existing || score.score > existing.score) bestScoresMap.set(score.user_id, score);
     });
-
-    const bestScores = Array.from(bestScoresMap.values())
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 20);
-
-    renderLeaderboard(bestScores);
+    renderLeaderboard(Array.from(bestScoresMap.values()).sort((a, b) => b.score - a.score).slice(0, 20));
   }
 
-  // Render leaderboard table
   function renderLeaderboard(scores) {
     leaderboardBody.innerHTML = "";
-
     if (!scores || scores.length === 0) {
-      leaderboardBody.innerHTML = `<tr><td colspan="4">👤 No scores yet for this category</td></tr>`;
+      leaderboardBody.innerHTML = '<tr><td colspan="4">👤 No scores yet for this category</td></tr>';
       return;
     }
 
     scores.forEach((entry, index) => {
       const user = entry.users || {};
-      const rankDisplay =
-        index === 0 ? '<span class="medal">🥇</span>' :
+      const rankDisplay = index === 0 ? '<span class="medal">🥇</span>' :
         index === 1 ? '<span class="medal">🥈</span>' :
-        index === 2 ? '<span class="medal">🥉</span>' :
-        `#${index + 1}`;
-
-      const defaultIcon = 'assets/profile-icon.jpg';
-      const premiumBadge = 'assets/GeoRanksPremium.png';
-
-      // ✅ OPTIMIZED: Removed cache buster, added lazy loading
-      const avatarHtml = `
-  <div class="avatar-wrapper" style="width: 50px; height: 50px;">
-    <img src="${user.avatar_url || defaultIcon}" 
-         loading="lazy"
-         class="leaderboard-avatar avatar" 
-         style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;" />
-    ${user.is_premium ? `<img src="${premiumBadge}" class="premium-badge" style="position: absolute; bottom: 3px; right: 0px; width: 18px; height: 18px;" />` : ''}
-  </div>
-`;
+        index === 2 ? '<span class="medal">🥉</span>' : `#${index + 1}`;
 
       const row = document.createElement("tr");
       row.innerHTML = `
         <td class="leaderboard-rank">${rankDisplay}</td>
-        <td>${avatarHtml}</td>
+        <td>
+          <div class="avatar-wrapper" style="width: 50px; height: 50px;">
+            <img src="${user.avatar_url || 'assets/profile-icon.jpg'}" loading="lazy"
+                 class="leaderboard-avatar avatar" style="width: 50px; height: 50px; border-radius: 50%;" />
+            ${user.is_premium ? '<img src="assets/GeoRanksPremium.png" class="premium-badge" />' : ''}
+          </div>
+        </td>
         <td>${user.username || "Anonymous"}</td>
         <td>${entry.score}</td>
       `;
@@ -815,219 +1217,56 @@
     });
   }
 
-  // Make functions globally accessible
   window.loadLeaderboard = loadLeaderboard;
   window.loadDailyChallengeLeaderboardForDate = loadDailyChallengeLeaderboardForDate;
-  window.currentMode = currentMode;
-  window.currentDate = currentDate;
-  window.currentCategory = currentCategory;
+  
+  // Make these reactive - use getters/setters
+  Object.defineProperty(window, 'currentMode', {
+    get: () => currentMode,
+    set: (value) => { currentMode = value; }
+  });
+  
+  Object.defineProperty(window, 'currentDate', {
+    get: () => currentDate,
+    set: (value) => { currentDate = value; }
+  });
+  
+  Object.defineProperty(window, 'currentCategory', {
+    get: () => currentCategory,
+    set: (value) => { currentCategory = value; }
+  });
 
   loadCategories();
 </script>
 
-<!-- 🔍 Modal Logic -->
+<!-- ========================================
+     ACCOUNT/PREMIUM BUTTON REMOVAL
+======================================== -->
 <script type="module">
   import { supabase } from './js/supabase-client.js';
-
-  const categorySearchModal = document.getElementById('categorySearchModal');
-  const closeSearchModal = document.getElementById('closeSearchModal');
-  const liveSearchInput = document.getElementById('liveSearchInput');
-  const searchResults = document.getElementById('searchResults');
-
-  document.getElementById('categorySearchInput')?.addEventListener('click', () => {
-    categorySearchModal.classList.remove('hidden');
-    setTimeout(() => {
-      liveSearchInput.focus();
-      renderCategories('');
-    }, 50);
-  });
-
-  closeSearchModal.addEventListener('click', () => {
-    categorySearchModal.classList.add('hidden');
-  });
-
-  window.addEventListener('click', (e) => {
-    if (e.target === categorySearchModal) {
-      categorySearchModal.classList.add('hidden');
-    }
-  });
-
-  liveSearchInput.addEventListener('input', (e) => {
-    renderCategories(e.target.value.toLowerCase());
-  });
-
-  async function renderCategories(filter = '') {
-    const { data: categories } = await supabase
-      .from('categories')
-      .select('*')
-      .order('name');
-
-    if (!categories) return;
-
-    searchResults.innerHTML = '';
-
-    const imageMap = {
-      temperature: 'hightemp',
-      precipitation: 'rainfall',
-    };
-
-    const displayNameMap = {
-      'temperature': 'Highest Temperature',
-      'precipitation': 'Rainfall',
-      'altitude': 'Highest Altitude',
-      'gdp': 'GDP Per Capita',
-      'population': 'Population',
-      'forest': 'Forest Cover',
-      'coastline': 'Longest Coastline',
-      'olympic': 'Olympic Medals',
-      'cuisine': 'Cuisine',
-      'worldcup': 'World Cup Trophies',
-      'landmass': 'Land Mass',
-      'crimerate': 'Crime Rate',
-      'happiness': 'Happiness',
-      'passport': 'Passport Strength',
-      'beer': 'Beer Consumption',
-      'nobelprize': 'Nobel Prize Winners',
-      'michelin': 'Michelin Restaurants',
-      'bigmac': 'BigMac Index',
-      'lifeexpectancy': 'Life Expectancy',
-      'tourism': 'Tourist Visits',
-      // NEW CATEGORIES
-      'marriageage': 'Marriage Age',
-      'sexratio': 'Gender Ratio',
-      'tallestbuilding': 'Tallest Building',
-      'density': 'Population Density',
-      'carexports': 'Car Exports',
-      'militarypersonel': 'Military Personnel',
-      'rent': 'Rent Prices',
-      'poorestgdp': 'Poorest Countries',
-      'university': 'Universities',
-      'volcano': 'Volcanoes',
-      'flamingo': 'Flamingos',
-      'disasterrisk': 'Natural Disasters',
-      'longestriver': 'Longest River',
-      'renewableenergy': 'Renewable Energy',
-      'millionaires': 'Millionaires',
-      'gm': 'Chess Grandmasters'
-    };
-
-    function formatCategoryName(name) {
-      return name
-        .split('_')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-    }
-
-    categories
-      .filter(cat => cat.name.toLowerCase().includes(filter))
-      .sort((a, b) => {
-        const nameA = (displayNameMap[a.name.toLowerCase()] || formatCategoryName(a.name)).toLowerCase();
-        const nameB = (displayNameMap[b.name.toLowerCase()] || formatCategoryName(b.name)).toLowerCase();
-        return nameA.localeCompare(nameB);
-      })
-      .forEach(cat => {
-        const displayName = displayNameMap[cat.name.toLowerCase()] || formatCategoryName(cat.name);
-        const slug = cat.name.toLowerCase();
-        const imageSlug = imageMap[slug] || slug;
-
-        const item = document.createElement("div");
-        item.className = "search-item";
-
-        item.onclick = () => {
-          const newUrl = new URL(window.location);
-          newUrl.searchParams.set('mode', cat.name);
-          window.history.pushState({}, '', newUrl);
-
-          // Handle all modes: classic, daily-challenge, top10, vs
-          if (window.currentMode === 'classic' || window.currentMode === 'top10' || window.currentMode === 'vs') {
-            window.loadLeaderboard(cat.name);
-          } else if (window.currentMode === 'daily-challenge' && window.currentDate) {
-            window.loadDailyChallengeLeaderboardForDate(window.currentDate);
-          }
-
-          categorySearchModal.classList.add('hidden');
-          document.getElementById('categorySearchInput').value = `🔍 ${displayName}`;
-          window.currentCategory = cat.name;
-        };
-
-        item.innerHTML = `
-          <img src="images/categories/${imageSlug}.jpg" alt="${displayName}" />
-          <div class="info">${displayName}</div>
-        `;
-
-        searchResults.appendChild(item);
-      });
-  }
-</script>
-
-<!-- 🍔 Menu Logic -->
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const menuToggle = document.getElementById("menuToggle");
-    const menuOverlay = document.getElementById("menuOverlay");
-    const closeMenuBtn = document.getElementById("closeMenu");
-
-    if (menuToggle && menuOverlay) {
-      menuToggle.addEventListener("click", () => {
-        menuOverlay.classList.add("active");
-      });
-
-      closeMenuBtn?.addEventListener("click", () => {
-        menuOverlay.classList.remove("active");
-      });
-
-      menuOverlay.addEventListener("click", (e) => {
-        if (e.target === menuOverlay) {
-          menuOverlay.classList.remove("active");
-        }
-      });
-    }
-  });
-</script>
-
-<script type="module">
-  import { supabase } from './js/supabase-client.js';
-
   (async () => {
     const { data: { session } } = await supabase.auth.getSession();
-
-    if (!session || !session.user) {
-      document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
-    }
-
     if (session?.user) {
-      const { data: profile } = await supabase
-        .from('users')
-        .select('is_premium')
-        .eq('id', session.user.id)
-        .single();
-
-      if (profile?.is_premium) {
-        document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
-      }
+      const { data: profile } = await supabase.from('users').select('is_premium').eq('id', session.user.id).single();
+      if (profile?.is_premium) document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
     }
+    if (!session?.user) document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
   })();
 </script>
 
+<!-- ========================================
+     DAILY CHALLENGE MENU BUTTON
+======================================== -->
 <script type="module">
-  import {
-    getTodaysDailyChallenge,
-    modeDisplayNames,
-    categoryDisplayNames,
-    categoryEmojis
-  } from './js/daily-challenge.js';
-
+  import { getTodaysDailyChallenge, modeDisplayNames, categoryDisplayNames, categoryEmojis } from './js/daily-challenge.js';
   document.addEventListener('DOMContentLoaded', () => {
     const categorySpan = document.getElementById('dailyChallengeCategory');
     const bg = document.getElementById('dailyChallengeBg');
-
     const today = getTodaysDailyChallenge();
-
     if (today && categorySpan && bg) {
       const modeName = modeDisplayNames[today.mode] || today.mode.toUpperCase();
       const categoryName = categoryDisplayNames[today.category] || today.category;
       const emoji = categoryEmojis[today.category] || '';
-
       categorySpan.textContent = `${modeName}: ${categoryName} ${emoji}`;
       bg.style.backgroundImage = `url('images/categories/${today.category}.jpg')`;
     }
