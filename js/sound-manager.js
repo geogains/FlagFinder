@@ -1,95 +1,99 @@
-// js/sound-manager.js - Centralized sound management
 class SoundManager {
   constructor() {
-    this.sounds = {};
-    this.enabled = localStorage.getItem('soundsEnabled') !== 'false'; // Default ON
-    this.volume = parseFloat(localStorage.getItem('soundVolume') || '0.5'); // 50% default
-    this.initialized = false;
+    this.enabled = true;
+    this.volume = 0.5;
+    this.sounds = {
+      click: this.createAudio('sounds/click.mp3'),
+      correct: this.createAudio('sounds/correct.mp3'),
+      wrong: this.createAudio('sounds/wrong.mp3'),
+      countdown: this.createAudio('sounds/countdown.mp3'),
+      timesup: this.createAudio('sounds/timesup.mp3'),
+      win: this.createAudio('sounds/win.mp3'),
+      lose: this.createAudio('sounds/lose.mp3'),
+      background: this.createAudio('sounds/background.mp3', { loop: true })
+    };
   }
 
-  // Initialize and preload sounds
-  async init(soundMap) {
-    if (this.initialized) return;
-    
-    console.log('🔊 Initializing Sound Manager...');
-    
-    for (const [key, path] of Object.entries(soundMap)) {
-      try {
-        const audio = new Audio(path);
-        audio.volume = this.volume;
-        audio.preload = 'auto';
-        
-        // Preload by triggering load
-        audio.load();
-        
-        this.sounds[key] = audio;
-      } catch (error) {
-        console.warn(`Failed to load sound: ${key}`, error);
-      }
+  createAudio(src, options = {}) {
+    const audio = new Audio(src);
+    audio.volume = this.volume;
+    audio.loop = !!options.loop;
+    audio.setAttribute('preload', 'auto');
+    audio.setAttribute('playsinline', '');
+    return audio;
+  }
+
+  setEnabled(value) {
+    this.enabled = value;
+    if (!value) {
+      this.stopAll();
     }
-    
-    this.initialized = true;
-    console.log(`✅ Loaded ${Object.keys(this.sounds).length} sounds`);
   }
 
-  // Play a sound
+  setVolume(value) {
+    this.volume = value;
+    for (let key in this.sounds) {
+      this.sounds[key].volume = value;
+    }
+  }
+
+  stopAll() {
+    for (let key in this.sounds) {
+      const sound = this.sounds[key];
+      sound.pause();
+      sound.currentTime = 0;
+    }
+  }
+
+  // Play sound without pausing background media (e.g. Spotify)
   play(soundKey) {
     if (!this.enabled) return;
-    
-    const sound = this.sounds[soundKey];
-    if (!sound) {
+
+    const original = this.sounds[soundKey];
+    if (!original) {
       console.warn(`Sound not found: ${soundKey}`);
       return;
     }
 
-    // Clone audio for overlapping sounds
-    const audioClone = sound.cloneNode();
-    audioClone.volume = this.volume;
-    
-    audioClone.play().catch(err => {
-      console.warn(`Failed to play sound: ${soundKey}`, err);
+    const clone = original.cloneNode();
+    clone.volume = this.volume;
+    clone.setAttribute('playsinline', '');
+    clone.setAttribute('muted', '');
+    clone.muted = true;
+
+    // Silent unlock
+    clone.play().then(() => {
+      clone.muted = false;
+      clone.volume = this.volume;
+
+      // Real playback
+      clone.play().catch(err => {
+        console.warn(`Playback error: ${soundKey}`, err);
+      });
+    }).catch(err => {
+      console.warn(`Initial silent play failed: ${soundKey}`, err);
     });
   }
 
-  // Set volume (0.0 to 1.0)
-  setVolume(level) {
-    this.volume = Math.max(0, Math.min(1, level));
-    localStorage.setItem('soundVolume', this.volume);
-    
-    // Update all loaded sounds
-    Object.values(this.sounds).forEach(sound => {
-      sound.volume = this.volume;
+  playLoop(soundKey) {
+    if (!this.enabled) return;
+
+    const sound = this.sounds[soundKey];
+    if (!sound) return;
+
+    sound.loop = true;
+    sound.volume = this.volume;
+    sound.play().catch(err => {
+      console.warn(`Loop playback failed: ${soundKey}`, err);
     });
   }
 
-  // Toggle sounds on/off
-  toggle() {
-    this.enabled = !this.enabled;
-    localStorage.setItem('soundsEnabled', this.enabled);
-    return this.enabled;
-  }
-
-  // Enable sounds
-  enable() {
-    this.enabled = true;
-    localStorage.setItem('soundsEnabled', 'true');
-  }
-
-  // Disable sounds
-  disable() {
-    this.enabled = false;
-    localStorage.setItem('soundsEnabled', 'false');
-  }
-
-  // Check if enabled
-  isEnabled() {
-    return this.enabled;
+  stop(soundKey) {
+    const sound = this.sounds[soundKey];
+    if (!sound) return;
+    sound.pause();
+    sound.currentTime = 0;
   }
 }
 
-// Create global instance
-window.soundManager = new SoundManager();
-
-// Export for modules
-export { SoundManager };
-export default window.soundManager;
+const soundManager = new SoundManager();
