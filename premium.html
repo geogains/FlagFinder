@@ -5,347 +5,640 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>GeoRanks Premium</title>
   <link rel="icon" href="assets/favicon.png" type="image/png">
-  
-  <!-- Fonts and Styles -->
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/game-modes.css" />
-  <link rel="stylesheet" href="css/home.css" />
   
   <style>
-  body {
-    background: linear-gradient(135deg, #a7f3d0 0%, #38bdf8 100%);
-    font-family: 'Poppins', sans-serif;
-    margin: 0;
-  }
-
-  .fade-in {
-    opacity: 0;
-    transform: translateY(20px);
-    animation: fadeInUp 0.8s ease forwards;
-  }
-
-  .pricing-card:nth-child(1) {
-    animation-delay: 0.4s;
-  }
-
-  .pricing-card:nth-child(2) {
-    animation-delay: 0.6s;
-  }
-
-  @keyframes fadeInUp {
-    to {
-      opacity: 1;
-      transform: translateY(0);
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #a7f3d0 0%, #38bdf8 100%);
+      min-height: 100vh;
+      padding-top: 64px;
     }
-  }
-
-  .premium-wrapper {
-    max-width: 720px;
-    margin: 100px auto 60px;
-    background: white;
-    padding: 40px;
-    border-radius: 20px;
-    text-align: center;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
-  }
-
-  .premium-header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .premium-header img {
-    max-width: 100px;
-    width: 100%;
-    height: auto;
-  }
-
-  .premium-header h1 {
-    font-size: 2.1rem;
-    margin: 0;
-    color: #2d3436;
-  }
-
-  .premium-wrapper p {
-    font-size: 1.2rem;
-    color: #444;
-    margin-top: 16px;
-    text-align: center;
-  }
-
-  .benefits {
-    text-align: left;
-    margin: 30px auto;
-    max-width: 500px;
-    padding: 0;
-    list-style: none;
-  }
-
-  .benefits li {
-    margin: 14px 0;
-    font-size: 1.1rem;
-    padding-left: 24px;
-    position: relative;
-  }
-
-  .benefits li::before {
-    content: "✅";
-    position: absolute;
-    left: 0;
-  }
-
-  .upgrade-options {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    margin-top: 20px;
-  }
-
-  .upgrade-btn {
-    padding: 15px;
-    border: none;
-    border-radius: 10px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    cursor: pointer;
-    background: linear-gradient(135deg, #ff9770, #ff6f61);
-    color: white;
-    transition: background 0.3s;
-  }
-
-  .upgrade-btn:hover {
-    background: #fab1a0;
-  }
-
-  @media (max-width: 599px) {
-  .premium-wrapper {
-    margin: 100px 16px 60px;
-  }
-}
-
-  @media (min-width: 600px) {
-    .upgrade-options {
-      flex-direction: row;
-      justify-content: center;
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #abefcf, #38bdf8);
+      z-index: -1;
     }
-
-    .upgrade-btn {
-      min-width: 200px;
-    }
-
-    .premium-header {
-      flex-direction: row;
-      justify-content: center;
+    .home-glass-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 64px;
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      display: flex;
       align-items: center;
+      justify-content: space-between;
+      z-index: 1000;
     }
-
-    .premium-header img {
-      max-width: 100px;
-      margin-right: 20px;
+    .logo-header img {
+      height: 40px;
+      margin-left: 0.8rem;
+      transition: transform 0.2s;
+      cursor: pointer;
     }
-
-    .premium-header h1 {
-      font-size: 2.5rem;
-      margin: 0;
+    .logo-header img:hover { transform: scale(1.05); }
+    .menu-icon {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      padding: 1.8rem;
+      margin-right: 1rem;
+      cursor: pointer;
+    }
+    .menu-icon span {
+      display: block;
+      width: 24px;
+      height: 3px;
+      background-color: #0d315a;
+      border-radius: 2px;
+    }
+    .menu-icon:hover { transform: scale(1.1); }
+    .menu-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(13, 49, 90, 0.75);
+      backdrop-filter: blur(12px);
+      z-index: 9998;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s ease;
+    }
+    .menu-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    .menu-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 100%;
+      max-width: 420px;
+      height: 100vh;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafcec 100%);
+      box-shadow: -8px 0 40px rgba(0, 0, 0, 0.25);
+      transform: translateX(100%);
+      transition: transform 0.5s ease;
+      overflow-y: auto;
+      z-index: 9999;
+      padding: 100px 32px 40px;
+      display: flex;
+      flex-direction: column;
+    }
+    .menu-overlay.active .menu-panel { transform: translateX(0); }
+    body.menu-open { overflow: hidden; }
+    .menu-panel h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #0d315a;
+      margin-bottom: 32px;
+      position: relative;
+      padding-bottom: 16px;
+    }
+    .menu-panel h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 4px;
+      background: linear-gradient(90deg, #ff9770, #ff6f61);
+      border-radius: 2px;
+    }
+    .menu-btn {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      padding: 18px 24px;
+      margin-bottom: 12px;
+      background: white;
+      border: 2px solid rgba(13, 49, 90, 0.08);
+      border-radius: 16px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #0d315a;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: 'Poppins', sans-serif;
       text-align: left;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      position: relative;
+      overflow: hidden;
     }
-
-    .premium-wrapper p {
+    
+    .menu-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    .menu-btn:hover::before {
+      left: 100%;
+    }
+    
+    .menu-btn:hover {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+      border-color: rgba(102, 126, 234, 0.3);
+      transform: translateX(4px);
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+    }
+    
+    .menu-btn:active {
+      transform: translateX(4px) scale(0.98);
+    }
+    .menu-daily-challenge {
+      position: relative;
+      height: 190px;
+      padding: 0;
+      margin-bottom: 16px;
+      overflow: hidden;
+      border: 3px solid rgba(255, 151, 112, 0.6);
+      box-shadow: 0 4px 20px rgba(255, 151, 112, 0.3);
+    }
+    .menu-daily-challenge .daily-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #8b4513 0%, #d2691e 100%);
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.6);
+      z-index: 1;
+    }
+    .menu-daily-challenge .daily-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.4) 100%);
+      z-index: 2;
+    }
+    .menu-daily-challenge .daily-content {
+      position: relative;
+      z-index: 3;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 16px;
+    }
+    .menu-daily-challenge .daily-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+      margin: 0;
+    }
+    .menu-daily-challenge .daily-category {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    }
+    .menu-daily-challenge:hover {
+      transform: translateX(4px) scale(1.02);
+      border-color: rgba(255, 111, 97, 0.9);
+    }
+    
+    .upgrade-access-btn {
+      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 20px rgba(255, 151, 112, 0.4);
+      margin-top: 8px;
+    }
+    
+    .upgrade-access-btn:hover {
+      background: linear-gradient(135deg, #ff8560 0%, #ff5f51 100%);
+      transform: translateX(4px) translateY(-2px);
+      box-shadow: 0 6px 28px rgba(255, 151, 112, 0.5);
+    }
+    
+    .menu-close {
+      margin-top: auto;
+      background: rgba(13, 49, 90, 0.06);
+      border-color: rgba(13, 49, 90, 0.12);
+      color: #0d315a;
+      font-weight: 500;
+    }
+    
+    .menu-close:hover {
+      background: rgba(13, 49, 90, 0.12);
+      border-color: rgba(13, 49, 90, 0.2);
+    }
+    
+    .menu-panel::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .menu-panel::-webkit-scrollbar-track {
+      background: rgba(13, 49, 90, 0.05);
+      border-radius: 10px;
+    }
+    
+    .menu-panel::-webkit-scrollbar-thumb {
+      background: rgba(102, 126, 234, 0.3);
+      border-radius: 10px;
+    }
+    
+    .menu-panel::-webkit-scrollbar-thumb:hover {
+      background: rgba(102, 126, 234, 0.5);
+    }
+    
+    .premium-container {
+      max-width: 900px;
+      margin: 40px auto 80px;
+      padding: 0 20px;
+    }
+    .premium-hero {
       text-align: center;
+      margin-bottom: 60px;
+      animation: fadeInUp 0.8s ease;
     }
-  }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .premium-badge {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 20px;
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    .premium-hero h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      color: #0d315a;
+      margin-bottom: 16px;
+    }
+    .premium-hero p {
+      font-size: clamp(1rem, 3vw, 1.3rem);
+      color: #0d315a;
+      opacity: 0.85;
+    }
 
-  .pricing-cards {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
-    margin-top: 40px;
-  }
+    /* Pricing Card Container */
+    .pricing-card-container {
+      max-width: 600px;
+      margin: 0 auto;
+      animation: fadeInUp 0.8s ease 0.2s both;
+    }
 
-  .pricing-card {
-    background: #f9f9f9;
-    border-radius: 12px;
-    padding: 24px;
-    width: 260px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    text-align: left;
-    transition: transform 0.3s ease;
-    opacity: 0;
-    animation: fadeInUp 0.8s ease forwards;
-  }
+    /* Tab Navigation */
+    .pricing-tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      background: rgba(255, 255, 255, 0.5);
+      padding: 6px;
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+    }
 
-  .pricing-card h2 {
-    font-size: 1.5rem;
-    margin-bottom: 8px;
-  }
+    .tab-btn {
+      flex: 1;
+      padding: 14px 24px;
+      background: transparent;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #0d315a;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+      position: relative;
+    }
 
-  .pricing-card .price {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #2d3436;
-    margin-bottom: 16px;
-  }
+    .tab-btn.active {
+      background: white;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      color: #ff6f61;
+    }
 
-  .pricing-card ul {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 16px;
-  }
+    .tab-btn:hover:not(.active) {
+      background: rgba(255, 255, 255, 0.7);
+    }
 
-  .pricing-card ul li {
-    margin: 10px 0;
-    font-size: 0.95rem;
-  }
+    .popular-badge-tab {
+      position: absolute;
+      top: -8px;
+      right: 8px;
+      background: linear-gradient(135deg, #ff9770, #ff6f61);
+      color: white;
+      padding: 3px 8px;
+      border-radius: 10px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
 
-  .pricing-card button {
-    width: 100%;
-    padding: 12px;
-    background: linear-gradient(135deg, #ff9770, #ff6f61);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-  }
+    /* Main Pricing Card */
+    .pricing-card-main {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      padding: 40px;
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+      position: relative;
+      overflow: hidden;
+    }
 
-  .pricing-card button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
-  }
+    .pricing-card-main::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, #ff9770, #ff6f61);
+    }
 
-  @keyframes popIn {
-    from { transform: scale(0.92); opacity: 0; }
-    to   { transform: scale(1); opacity: 1; }
-  }
+    /* Tab Content */
+    .tab-content {
+      display: none;
+    }
 
-  .auth-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(6px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 3000;
-}
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.4s ease;
+    }
 
-.auth-modal.hidden {
-  display: none;
-}
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-.modal-window {
-  background: #ffffff; /* solid white */
-  color: #000000; /* black text */
-  font-family: 'Poppins', sans-serif;
-  padding: 25px;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-  width: 90%;
-  max-width: 420px;
-  text-align: center;
-  animation: fadeIn 0.25s ease;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-}
+    /* Price Display */
+    .price-header {
+      text-align: center;
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+    }
 
-.modal-window h2 {
-  font-size: 1.5rem;
-  margin-bottom: 10px;
-  font-weight: 600;
-  color: #000;
-}
+    .price-original {
+      font-size: 1.3rem;
+      color: #999;
+      text-decoration: line-through;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
 
-.modal-window p {
-  font-size: 1rem;
-  margin-bottom: 20px;
-  color: #333;
-}
+    .price-current {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: #ff6f61;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
 
-.close-auth-modal {
-  position: absolute;
-  top: 10px;
-  right: 14px;
-  background: none;
-  border: none;
-  font-size: 22px;
-  color: #333;
-  cursor: pointer;
-}
+    .price-period {
+      font-size: 1.1rem;
+      color: #666;
+      font-weight: 500;
+    }
 
-.btn-auth {
-  background: linear-gradient(135deg, #ff9770, #ff6f61);
-  border: none;
-  border-radius: 10px;
-  padding: 12px;
-  color: white;
-  font-weight: bold;
-  font-size: 1rem;
-  width: 100%;
-  cursor: pointer;
-  transition: opacity 0.3s ease;
-}
+    .savings-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
 
-.btn-auth:hover {
-  opacity: 0.9;
-}
+    /* Benefits List */
+    .benefits-list {
+      list-style: none;
+      margin: 0 0 32px;
+      padding: 0;
+    }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-</style>
+    .benefit-item-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
 
+    .benefit-item-card:last-child {
+      border-bottom: none;
+    }
 
+    .benefit-icon-card {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
 
-  
+    .benefit-text-card {
+      flex: 1;
+    }
+
+    .benefit-text-card h4 {
+      font-size: 1rem;
+      color: #0d315a;
+      margin-bottom: 2px;
+      font-weight: 600;
+    }
+
+    .benefit-text-card p {
+      font-size: 0.85rem;
+      color: #666;
+      margin: 0;
+    }
+
+    /* CTA Button */
+    .cta-btn {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 24px rgba(255, 151, 112, 0.4);
+    }
+
+    .cta-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 32px rgba(255, 151, 112, 0.5);
+    }
+
+    .cta-btn:active {
+      transform: translateY(-1px);
+    }
+
+    /* Already Premium */
+    .already-premium {
+      max-width: 600px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+      border: 3px solid #10b981;
+      border-radius: 24px;
+      padding: 48px;
+      text-align: center;
+      animation: fadeInUp 0.8s ease;
+    }
+
+    .already-premium h2 {
+      font-size: 2.5rem;
+      color: #10b981;
+      margin-bottom: 16px;
+      font-weight: 800;
+    }
+
+    .already-premium p {
+      font-size: 1.2rem;
+      color: #0d315a;
+      margin-bottom: 32px;
+    }
+
+    .return-home-btn {
+      display: inline-block;
+      padding: 16px 48px;
+      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 16px rgba(255, 151, 112, 0.3);
+    }
+
+    .return-home-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(255, 151, 112, 0.4);
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .pricing-card-main {
+        padding: 32px 24px;
+      }
+
+      .price-current {
+        font-size: 3rem;
+      }
+
+      .tab-btn {
+        padding: 12px 16px;
+        font-size: 1rem;
+      }
+
+      .already-premium {
+        padding: 32px 24px;
+      }
+
+      .already-premium h2 {
+        font-size: 2rem;
+      }
+    }
+    .auth-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      padding: 20px;
+    }
+    .auth-modal.hidden { display: none; }
+    .modal-window {
+      background: white;
+      border-radius: 24px;
+      padding: 40px;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+    }
+    .close-auth-modal {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    .modal-window h2 {
+      font-size: 1.8rem;
+      color: #0d315a;
+      margin-bottom: 12px;
+    }
+    .modal-window p {
+      font-size: 1.1rem;
+      color: #666;
+      margin-bottom: 24px;
+    }
+    .btn-auth {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+    }
+    @media (max-width: 768px) {
+      .benefits-grid { grid-template-columns: 1fr; }
+      .pricing-cards { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
 
-<!-- ========== ACCOUNT REQUIRED MODAL ========== -->
-<div class="auth-modal hidden" id="accountRequiredModal">
-  <div class="modal-window">
-    <button class="close-auth-modal" id="closeAccountRequired">×</button>
-    <h2>Create an Account</h2>
-    <p>You must sign in or create an account before upgrading to Premium.</p>
-    <button class="btn-auth" id="goToLoginPage">Continue</button>
-  </div>
-</div>
-
-<!-- ========== HEADER (Leaderboard Style) ========== -->
 <header class="home-glass-header">
   <div class="logo-header">
-    <a href="index.html" class="logo-link">
-      <img src="assets/logo.png" alt="GeoRanks Logo" />
-    </a>
+    <a href="index.html"><img src="assets/logo.png" alt="GeoRanks" /></a>
   </div>
-  <div class="hamburger-menu">
-    <div class="menu-icon" id="menuToggle">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
+  <div class="menu-icon" id="menuToggle">
+    <span></span>
+    <span></span>
+    <span></span>
   </div>
 </header>
 
-<!-- Hamburger Overlay Menu -->
 <div class="menu-overlay" id="menuOverlay">
   <div class="menu-panel">
     <h2>Menu</h2>
     <button class="menu-btn menu-daily-challenge" onclick="window.location.href='daily-challenge.html'" id="dailyChallengeMenuBtn">
-  <div class="daily-bg" id="dailyChallengeBg"></div>
-  <div class="daily-overlay"></div>
-  <div class="daily-content">
-    <h3 class="daily-title">📅 Daily Challenge</h3>
-    <span class="daily-category" id="dailyChallengeCategory">Loading...</span>
-  </div>
-</button>
+      <div class="daily-bg" id="dailyChallengeBg"></div>
+      <div class="daily-overlay"></div>
+      <div class="daily-content">
+        <h3 class="daily-title">📅 Daily Challenge</h3>
+        <span class="daily-category" id="dailyChallengeCategory">Loading...</span>
+      </div>
+    </button>
     <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
     <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
     <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
@@ -353,102 +646,244 @@
     <button class="menu-btn" onclick="window.location.href='how-to-play.html'">💡 How to Play</button>
     <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
     <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
+    <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'">🔓 Unlock All Categories</button>
     <button class="menu-btn menu-close" id="closeMenu">Close</button>
   </div>
 </div>
 
-<div class="premium-wrapper fade-in">
-  <div class="premium-header">
-    <img src="assets/georanks-premium.png" alt="Premium Badge" />
-    <h1>Unlock GeoRanks Premium 🔓</h1>
-  </div>
-  <p>Subscribe to get unlimited access to all Categories and Features:</p>
-
-      <div class="pricing-cards">
-  <div class="pricing-card">
-    <h2>Monthly</h2>
-    <p class="price">$2.99 / month</p>
-    <ul>
-      <li>🔓 Unlock all game categories</li>
-      <li>📊 Access full Stats dashboard</li>
-      <li>⏱️ Unlimited daily plays</li>
-      <li>🎟️ Entry to the monthly raffle</li>
-      <li>❤️ Support GeoRanks development</li>
-      <li>🍔 Cheaper than a Big Mac</li>
-    </ul>
-    <button onclick="startCheckout('monthly')">Get Monthly Access</button>
-  </div>
-
-  <div class="pricing-card">
-    <h2>Yearly</h2>
-    <p class="price">$24.99 / year</p>
-    <ul>
-      <li>🔓 Unlock all game categories</li>
-      <li>📊 Access full Stats dashboard</li>
-      <li>⏱️ Unlimited daily plays</li>
-      <li>🎁 7-Day Free Trial</li>
-      <li>❤️ Support GeoRanks development</li>
-      <li>🏷️ Save 30%</li>
-    </ul>
-    <button onclick="startCheckout('yearly')">Get Yearly Access</button>
+<div class="auth-modal hidden" id="accountRequiredModal">
+  <div class="modal-window">
+    <button class="close-auth-modal" id="closeAccountRequired">×</button>
+    <h2>Create an Account</h2>
+    <p>You must sign in or create an account before upgrading to Premium.</p>
+    <button class="btn-auth" id="goToLoginPage">Continue to Sign In</button>
   </div>
 </div>
 
+<div class="premium-container">
+  <div class="premium-hero">
+    <img src="assets/georanks-premium.png" alt="Premium" class="premium-badge" />
+    <h1>Unlock GeoRanks Premium 🔓</h1>
+    <p>Get unlimited access to all 36 categories and exclusive features</p>
+  </div>
 
-<!-- ============================= -->
-<!-- ========== SCRIPTS ========== -->
-<!-- ============================= -->
+  <div class="pricing-card-container" id="pricingContainer">
+    <!-- Pricing Tabs -->
+    <div class="pricing-tabs">
+      <button class="tab-btn active" data-tab="monthly">
+        Monthly
+      </button>
+      <button class="tab-btn" data-tab="yearly">
+        Yearly
+      </button>
+    </div>
 
-<!-- ============================= -->
-<!-- ========== SCRIPTS ========== -->
-<!-- ============================= -->
+    <!-- Pricing Card -->
+    <div class="pricing-card-main">
+      <!-- Monthly Tab Content -->
+      <div class="tab-content active" id="monthly-content">
+        <div class="price-header">
+          <div class="price-original">$4.99</div>
+          <div class="price-current">$2.99</div>
+          <div class="price-period">per month</div>
+        </div>
 
-<!-- ✅ HAMBURGER MENU -->
+        <ul class="benefits-list">
+          <li class="benefit-item-card">
+            <div class="benefit-icon-card">🔓</div>
+            <div class="benefit-text-card">
+              <h4>All 36 Categories</h4>
+              <p>Access every category</p>
+            </div>
+          </li>
+          <li class="benefit-item-card">
+            <div class="benefit-icon-card">📊</div>
+            <div class="benefit-text-card">
+              <h4>Full Stats Dashboard</h4>
+              <p>Track your progress</p>
+            </div>
+          </li>
+          <li class="benefit-item-card">
+            <div class="benefit-icon-card">⏱️</div>
+            <div class="benefit-text-card">
+              <h4>Unlimited Plays</h4>
+              <p>Play anytime</p>
+            </div>
+          </li>
+          <li class="benefit-item-card">
+            <div class="benefit-icon-card">🎟️</div>
+            <div class="benefit-text-card">
+              <h4>Monthly Raffle</h4>
+              <p>Prize draws</p>
+            </div>
+          </li>
+          <li class="benefit-item-card">
+            <div class="benefit-icon-card">❤️</div>
+            <div class="benefit-text-card">
+              <h4>Support Development</h4>
+              <p>Help us grow</p>
+            </div>
+          </li>
+          <li class="benefit-item-card">
+            <div class="benefit-icon-card">🌟</div>
+            <div class="benefit-text-card">
+              <h4>Premium Badge</h4>
+              <p>Show your status</p>
+            </div>
+          </li>
+          <li class="benefit-item-card">
+            <div class="benefit-icon-card">🍔</div>
+            <div class="benefit-text-card">
+              <h4>Cheaper than a Big Mac</h4>
+              <p>Great value</p>
+            </div>
+          </li>
+        </ul>
+
+        <button class="cta-btn" onclick="startCheckout('monthly')">
+          Get Monthly Access
+        </button>
+      </div>
+
+      <!-- Yearly Tab Content -->
+      <div class="tab-content" id="yearly-content">
+        <div class="price-header">
+          <div class="price-original">$49.99</div>
+          <div class="price-current">$24.99</div>
+          <div class="price-period">per year</div>
+          <div class="savings-badge">💰 Save 30% vs Monthly</div>
+        </div>
+
+        <ul class="benefits-list">
+          <li class="benefit-item-card">
+            <div class="benefit-icon-card">🔓</div>
+            <div class="benefit-text-card">
+              <h4>All 36 Categories</h4>
+              <p>Access every category</p>
+            </div>
+          </li>
+          <li class="benefit-item-card">
+            <div class="benefit-icon-card">📊</div>
+            <div class="benefit-text-card">
+              <h4>Full Stats Dashboard</h4>
+              <p>Track your progress</p>
+            </div>
+          </li>
+          <li class="benefit-item-card">
+            <div class="benefit-icon-card">⏱️</div>
+            <div class="benefit-text-card">
+              <h4>Unlimited Plays</h4>
+              <p>Play anytime</p>
+            </div>
+          </li>
+          <li class="benefit-item-card">
+            <div class="benefit-icon-card">🎟️</div>
+            <div class="benefit-text-card">
+              <h4>Monthly Raffle</h4>
+              <p>Prize draws</p>
+            </div>
+          </li>
+          <li class="benefit-item-card">
+            <div class="benefit-icon-card">❤️</div>
+            <div class="benefit-text-card">
+              <h4>Support Development</h4>
+              <p>Help us grow</p>
+            </div>
+          </li>
+          <li class="benefit-item-card">
+            <div class="benefit-icon-card">🌟</div>
+            <div class="benefit-text-card">
+              <h4>Premium Badge</h4>
+              <p>Show your status</p>
+            </div>
+          </li>
+          <li class="benefit-item-card">
+            <div class="benefit-icon-card">🏷️</div>
+            <div class="benefit-text-card">
+              <h4>Save 30% vs Monthly</h4>
+              <p>Best value option</p>
+            </div>
+          </li>
+        </ul>
+
+        <button class="cta-btn" onclick="startCheckout('yearly')">
+          Get Yearly Access
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tab Switching Script -->
 <script>
-const toggleBtn = document.getElementById("menuToggle");
-const overlay = document.getElementById("menuOverlay");
-const closeBtn = document.getElementById("closeMenu");
+document.addEventListener('DOMContentLoaded', function() {
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const tabContents = document.querySelectorAll('.tab-content');
 
-toggleBtn?.addEventListener("click", () => overlay.classList.add("active"));
-closeBtn?.addEventListener("click", () => overlay.classList.remove("active"));
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tabName = btn.dataset.tab;
 
-overlay.addEventListener("click", (e) => {
-  if (e.target === overlay) overlay.classList.remove("active");
+      // Remove active from all tabs and contents
+      tabBtns.forEach(b => b.classList.remove('active'));
+      tabContents.forEach(c => c.classList.remove('active'));
+
+      // Add active to clicked tab and corresponding content
+      btn.classList.add('active');
+      document.getElementById(`${tabName}-content`).classList.add('active');
+    });
+  });
+});
+document.addEventListener('DOMContentLoaded', function() {
+  const menuToggle = document.getElementById('menuToggle');
+  const menuOverlay = document.getElementById('menuOverlay');
+  const closeMenu = document.getElementById('closeMenu');
+  let scrollPosition = 0;
+
+  menuToggle?.addEventListener('click', () => {
+    scrollPosition = window.pageYOffset;
+    document.body.classList.add('menu-open');
+    document.body.style.top = `-${scrollPosition}px`;
+    menuOverlay.classList.add('active');
+  });
+
+  function closeMenuHandler() {
+    document.body.classList.remove('menu-open');
+    document.body.style.top = '';
+    window.scrollTo(0, scrollPosition);
+    menuOverlay.classList.remove('active');
+  }
+
+  closeMenu?.addEventListener('click', closeMenuHandler);
+  menuOverlay.addEventListener('click', (e) => {
+    if (e.target === menuOverlay) closeMenuHandler();
+  });
 });
 </script>
 
-<!-- ✅ MENU ACCOUNT/PREMIUM LOGIC -->
 <script type="module">
   import { supabase } from './js/supabase-client.js';
 
   const { data: { session } } = await supabase.auth.getSession();
 
-  // Hide Account if user not logged in
-  if (!session || !session.user) {
+  if (!session?.user) {
     document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
   }
 
-  // Check premium status
-  if (session && session.user) {
-    const { data: profile } = await supabase
-      .from('users')
-      .select('is_premium')
-      .eq('id', session.user.id)
-      .single();
+  if (session?.user) {
+    const { data: profile } = await supabase.from('users').select('is_premium').eq('id', session.user.id).single();
 
     if (profile?.is_premium) {
-      // Hide upgrade buttons from menu
+      // Remove upgrade button from menu
       document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
       
-      // Hide pricing cards and show "Already Premium" message
-      const pricingCards = document.querySelector('.pricing-cards');
-      
-      if (pricingCards) {
-        pricingCards.innerHTML = `
-          <div style="text-align: center; padding: 2rem;">
-            <h2 style="color: #16a34a; font-size: 2rem;">✅ You're already Premium!</h2>
-            <p style="font-size: 1.1rem; margin-top: 1rem;">Thanks for supporting GeoRanks!</p>
-            <a href="index.html" style="display: inline-block; margin-top: 1.5rem; padding: 0.8rem 1.5rem; background: linear-gradient(135deg, #ff9770, #ff6f61); color: white; text-decoration: none; border-radius: 10px; font-weight: bold;">Return to Home</a>
+      const pricingContainer = document.getElementById('pricingContainer');
+      if (pricingContainer) {
+        pricingContainer.innerHTML = `
+          <div class="already-premium">
+            <h2>✅ You're Already Premium!</h2>
+            <p>Thanks for supporting GeoRanks!</p>
+            <a href="index.html" class="return-home-btn">Return to Home</a>
           </div>
         `;
       }
@@ -456,29 +891,20 @@ overlay.addEventListener("click", (e) => {
   }
 </script>
 
-<!-- ✅ CHECKOUT SCRIPT -->
 <script type="module">
   import { supabase } from './js/supabase-client.js';
 
-  // Safely trigger checkout only when called
   async function startCheckout(plan) {
     const { data: { session } } = await supabase.auth.getSession();
-
-    if (!session || !session.user) {
+    if (!session?.user) {
       document.getElementById("accountRequiredModal")?.classList.remove("hidden");
       return;
     }
-
-    // Proceed to Stripe
-    if (window.startStripeCheckout) {
-      window.startStripeCheckout(plan);
-    }
+    if (window.startStripeCheckout) window.startStripeCheckout(plan);
   }
 
-  // Make globally accessible for onclick handlers
   window.startCheckout = startCheckout;
 
-  // Modal handlers
   document.getElementById("closeAccountRequired")?.addEventListener("click", () => {
     document.getElementById("accountRequiredModal")?.classList.add("hidden");
   });
@@ -489,24 +915,15 @@ overlay.addEventListener("click", (e) => {
 </script>
 
 <script type="module">
-  import {
-    getTodaysDailyChallenge,
-    modeDisplayNames,
-    categoryDisplayNames,
-    categoryEmojis
-  } from './js/daily-challenge.js';
-
+  import { getTodaysDailyChallenge, modeDisplayNames, categoryDisplayNames, categoryEmojis } from './js/daily-challenge.js';
   document.addEventListener('DOMContentLoaded', () => {
     const categorySpan = document.getElementById('dailyChallengeCategory');
     const bg = document.getElementById('dailyChallengeBg');
-
     const today = getTodaysDailyChallenge();
-
     if (today && categorySpan && bg) {
       const modeName = modeDisplayNames[today.mode] || today.mode.toUpperCase();
       const categoryName = categoryDisplayNames[today.category] || today.category;
       const emoji = categoryEmojis[today.category] || '';
-
       categorySpan.textContent = `${modeName}: ${categoryName} ${emoji}`;
       bg.style.backgroundImage = `url('images/categories/${today.category}.jpg')`;
     }

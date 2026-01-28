@@ -58,24 +58,18 @@
       z-index: 1000;
     }
     
-    .logo-header {
-      display: flex;
-      align-items: center;
-    }
-
-    .logo-header img,
-    .logo-link img {
-      height: 40px;
-      width: auto;
-      object-fit: contain;
-      margin-left: 0.8rem;
-      transition: transform 0.2s ease, opacity 0.2s ease;
+    .sign-in-text {
+      font-weight: 600;
+      color: #0d315a;
+      font-size: 1.1rem;
       cursor: pointer;
+      margin-left: 1.2rem;
+      text-decoration: none;
+      transition: opacity 0.2s ease;
     }
 
-    .logo-link:hover img {
-      transform: scale(1.05);
-      opacity: 0.85;
+    .sign-in-text:hover {
+      opacity: 0.8;
     }
     
     /* ========================================
@@ -424,9 +418,6 @@
     .category-item:nth-child(4) { animation-delay: 0.60s; }
     .category-item:nth-child(5) { animation-delay: 0.75s; }
     .category-item:nth-child(6) { animation-delay: 0.90s; }
-    .category-item:nth-child(7) { animation-delay: 1.05s; }
-    .category-item:nth-child(8) { animation-delay: 1.20s; }
-    .category-item:nth-child(9) { animation-delay: 1.35s; }
 
     @keyframes stompIn {
       0% {
@@ -739,11 +730,7 @@
 
 <!-- ========== HEADER ========== -->
 <header class="home-glass-header">
-  <div class="logo-header">
-    <a href="index.html" class="logo-link">
-      <img src="assets/logo.png" alt="GeoRanks Logo" />
-    </a>
-  </div>
+  <a href="auth.html" id="signInText" class="sign-in-text">Loading...</a>
   <div class="menu-icon" id="menuToggle">
     <span></span>
     <span></span>
@@ -834,10 +821,7 @@
     { category: "altitude", display: "Highest Altitude", emoji: "🏔️", image: "altitude.jpg" },
     { category: "forest", display: "Forest Cover", emoji: "🌲", image: "forest.jpg" },
     { category: "olympic", display: "Olympic Medals", emoji: "🥇", image: "olympic.jpg" },
-    { category: "landmass", display: "Land Mass", emoji: "🌍", image: "landmass.jpg" },
-    { category: "passport", display: "Passport Strength", emoji: "🛂", image: "passport.jpg" },
-    { category: "beer", display: "Beer Consumption", emoji: "🍺", image: "beer.jpg" },
-    { category: "bigmac", display: "BigMac Index", emoji: "🍔", image: "bigmac.jpg" }
+    { category: "landmass", display: "Land Mass", emoji: "🌍", image: "landmass.jpg" }
   ];
 
   // Store scroll position for mode selector
@@ -908,6 +892,49 @@
       closeMenuHandler();
     }
   });
+</script>
+
+<!-- Sign-In Text Update -->
+<script type="module">
+  import { supabase } from './js/supabase-client.js';
+
+  const signInText = document.getElementById('signInText');
+  signInText.textContent = "Loading...";
+  signInText.style.opacity = "0.6";
+
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if (session && session.user) {
+    const userMeta = session.user.user_metadata;
+    
+    // Try to fetch username from the users table in database
+    let displayName = userMeta.full_name || userMeta.username;
+    
+    // If no username in metadata, try fetching from users table
+    if (!displayName) {
+      try {
+        const { data: userData, error } = await supabase
+          .from('users')
+          .select('username')
+          .eq('id', session.user.id)
+          .single();
+        
+        if (!error && userData && userData.username) {
+          displayName = userData.username;
+        }
+      } catch (err) {
+        console.log('Could not fetch username from database');
+      }
+    }
+    
+    // Final fallback to "Account" (no email shown)
+    signInText.textContent = displayName || "Account";
+    signInText.href = "account.html";
+  } else {
+    signInText.textContent = "Sign In | Create Account";
+    signInText.href = "auth.html";
+  }
+  signInText.style.opacity = "1";
 </script>
 
 <!-- Account/Premium Button Removal -->
