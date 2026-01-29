@@ -345,7 +345,7 @@
       border-radius: 16px;
       box-shadow: 0 8px 30px rgba(0,0,0,0.12);
       text-align: center;
-      overflow: hidden;
+      overflow: visible;
       opacity: 0;
       animation: fadeInContainer 0.5s ease-out forwards;
     }
@@ -398,6 +398,7 @@
       box-sizing: border-box;
       opacity: 0;
       animation: fadeIn 0.5s ease-out 0.4s forwards;
+      z-index: 100;
     }
 
     .search-bar-wrapper input {
@@ -438,7 +439,7 @@
       box-shadow: 0 12px 48px rgba(0,0,0,0.2);
       max-height: 400px;
       overflow-y: auto;
-      z-index: 1000;
+      z-index: 10000;
       display: none;
     }
 
@@ -583,6 +584,8 @@
       box-shadow: 0 2px 12px rgba(0,0,0,0.06);
       opacity: 0;
       animation: fadeIn 0.5s ease-out 0.8s forwards;
+      position: relative;
+      z-index: 1;
     }
 
     .leaderboard-table th {
@@ -1029,7 +1032,12 @@ document.addEventListener('DOMContentLoaded', function() {
       'michelin', 'bigmac', 'lifeexpectancy', 'marriageage', 'sexratio', 'tallestbuilding',
       'density', 'carexports', 'militarypersonel', 'rent', 'poorestgdp', 'university', 'volcano',
       'flamingo', 'disasterrisk', 'longestriver', 'renewableenergy', 'millionaires', 'gm'];
-    const allCategories = [...top10ValidCategories, 'olympic', 'worldcup', 'cuisine'];
+    const allCategories = ['population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
+  'olympic', 'worldcup', 'passport', 'beer', 'nobelprize', 'hightemp', 'rainfall',
+  'crimerate', 'happiness', 'cuisine', 'tourism', 'michelin', 'bigmac', 'lifeexpectancy',
+  'marriageage', 'sexratio', 'tallestbuilding', 'density', 'carexports',
+  'militarypersonel', 'rent', 'poorestgdp', 'university', 'volcano',
+  'flamingo', 'disasterrisk', 'longestriver', 'renewableenergy', 'millionaires', 'gm'];
     
     const modeIndex = Math.floor(seededRandom(seed) * gameModes.length);
     const selectedMode = gameModes[modeIndex];
