@@ -300,16 +300,37 @@ body.menu-open {
 }
 
 .menu-close {
-  margin-top: auto;
-  background: rgba(13, 49, 90, 0.06);
-  border-color: rgba(13, 49, 90, 0.12);
-  color: #0d315a;
-  font-weight: 500;
+  display: none; /* Hide old close button */
 }
 
-.menu-close:hover {
-  background: rgba(13, 49, 90, 0.12);
-  border-color: rgba(13, 49, 90, 0.2);
+/* ========================================
+   CLOSE X BUTTON - TOP RIGHT
+======================================== */
+.menu-close-x {
+  position: absolute;
+  top: 24px;
+  right: 32px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+  color: #0d315a;
+  font-size: 32px;
+  font-weight: 300;
+  line-height: 1;
+  z-index: 10;
+}
+
+.menu-close-x:hover {
+  transform: scale(1.2);
+}
+
+.menu-close-x:active {
+  transform: scale(1) rotate(90deg);
 }
 
 /* ========================================
