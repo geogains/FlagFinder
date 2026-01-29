@@ -5,21 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Arena Upload — GeoRanks Battle Royale</title>
 
-  <!-- Global styles -->
-  <link rel="stylesheet" href="css/home.css"/>
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/page.css"/>
   <link rel="stylesheet" href="css/game-modes.css"/>
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-
-    html, body {
-      min-height: 100vh;
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(135deg, #a7f3d0 0%, #38bdf8 100%);
-      font-family: 'Poppins', sans-serif;
-    }
-
     .upload-wrapper {
       max-width: 720px;
       margin: 120px auto 60px;
@@ -1009,6 +1002,42 @@
       bg.style.backgroundImage = `url('images/categories/${today.category}.jpg')`;
     }
   });
+</script>
+
+<script type="module">
+  import { supabase } from './js/supabase-client.js';
+
+  (async () => {
+    console.log('--- BEGIN SESSION DEBUG ---');
+    const { data: { session }, error } = await supabase.auth.getSession();
+    console.log('Session object:', session);
+    if (error) console.error('Session error:', error);
+
+    console.log('LocalStorage keys:', Object.keys(localStorage));
+    if (navigator.storage?.estimate) {
+      const estimate = await navigator.storage.estimate();
+      console.log('Storage estimate:', estimate);
+    }
+    console.log('--- END SESSION DEBUG ---');
+
+    // Hide Account if user not logged in
+    if (!session || !session.user) {
+      document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+    }
+
+    // Hide Unlock All Categories if user is premium
+    if (session && session.user) {
+      const { data: profile } = await supabase
+        .from('users')
+        .select('is_premium')
+        .eq('id', session.user.id)
+        .single();
+
+      if (profile?.is_premium) {
+        document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+      }
+    }
+  })();
 </script>
 
 </body>
