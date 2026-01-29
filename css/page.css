@@ -125,7 +125,7 @@ body {
   max-width: 420px;
   height: 100vh;
   max-height: 100vh;
-  background: linear-gradient(180deg, #ffffff 0%, #f8fafcec 100%);
+  background: linear-gradient(180deg, #f9f9f9 0%, #ededed 100%);
   box-shadow: -8px 0 40px rgba(0, 0, 0, 0.25);
   transform: translateX(100%);
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -133,7 +133,7 @@ body {
   z-index: 9999;
   display: flex;
   flex-direction: column;
-  padding: 100px 32px 40px;
+  padding: 24px 32px 40px;
 }
 
 .menu-overlay.active .menu-panel {
@@ -225,7 +225,7 @@ body.menu-open {
 ======================================== */
 .menu-daily-challenge {
   position: relative;
-  height: 190px;
+  height: 240px;
   padding: 0;
   margin-bottom: 16px;
   overflow: hidden;
@@ -387,11 +387,15 @@ body.menu-open {
   .logo-link img {
     height: 35px;
   }
+
+  .menu-daily-challenge {
+    height: 800px;
+  }
 }
 
 @media (max-width: 480px) {
   .menu-panel {
-    padding: 80px 24px 32px;
+    padding: 24px 24px 32px;
   }
 
   .menu-panel h2 {
@@ -404,7 +408,7 @@ body.menu-open {
   }
 
   .menu-daily-challenge {
-    height: 170px;
+    height: 210px;
   }
 
   .menu-daily-challenge .daily-title {
