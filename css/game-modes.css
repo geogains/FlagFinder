@@ -36,6 +36,13 @@ body {
   -webkit-backdrop-filter: blur(12px);
 }
 
+@media (max-width: 480px) {
+  .top-card {
+    padding: 0.6rem 1rem 1.4rem;
+    width: 95%;
+  }
+}
+
 .top-card-title {
   font-size: 1.3rem;
   font-weight: 700;
@@ -51,14 +58,49 @@ body {
   justify-items: center;
 }
 
+@media (max-width: 768px) {
+  .country-pool-panel {
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .country-pool-panel {
+    gap: 0.4rem;
+  }
+}
+
 .country-flag-item {
-  width: 55px;
-  height: 35px;
+  width: 100%;
+  max-width: 55px;
+  aspect-ratio: 3/2;
+  min-width: 40px;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.2s, opacity 0.2s;
+}
+
+@media (max-width: 768px) {
+  .country-flag-item {
+    max-width: 45px;
+    min-width: 35px;
+  }
+}
+
+@media (max-width: 480px) {
+  .country-flag-item {
+    max-width: 38px;
+    min-width: 30px;
+  }
+}
+
+@media (max-width: 380px) {
+  .country-flag-item {
+    max-width: 34px;
+    min-width: 28px;
+  }
 }
 
 .country-flag-item img {
@@ -472,5 +514,38 @@ html {
   100% {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+/* -------------------------------
+   Responsive Styles for Flags
+---------------------------------- */
+@media (max-width: 480px) {
+  .country-pool-panel {
+    gap: 0.5rem;
+  }
+  
+  .top-card {
+    padding: 0.8rem 1rem 1.5rem;
+  }
+  
+  .top-card-title {
+    font-size: 1.15rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .country-pool-panel {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.4rem;
+  }
+  
+  .country-flag-item {
+    max-width: 50px;
+    min-width: 35px;
+  }
+  
+  .top-card {
+    padding: 0.8rem 0.8rem 1.5rem;
   }
 }
