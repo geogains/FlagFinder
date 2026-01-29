@@ -392,6 +392,100 @@ body.menu-open {
 }
 
 /* ========================================
+   FOOTER STYLES
+======================================== */
+.home-footer {
+  background: #0e2c50;
+  padding: 2.5rem 1rem;
+  text-align: center;
+}
+
+.footer-socials {
+  max-width: 600px;
+  margin: 0 auto;
+  opacity: 0;
+  animation: footerFadeIn 0.8s ease-out 0.6s forwards;
+}
+
+@keyframes footerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Frosted glass container for social icons */
+.icon-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding: 1.5rem 2rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.icon-row a {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.icon-row a:hover {
+  transform: scale(1.15) translateY(-2px);
+  opacity: 0.9;
+}
+
+.icon-row img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  filter: brightness(1.1);
+}
+
+.divider {
+  width: 1px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.footer-socials p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Mobile responsive footer */
+@media (max-width: 640px) {
+  .icon-row {
+    padding: 1.2rem 1.5rem;
+    gap: 1.2rem;
+    width: calc(100% - 2rem); /* Almost full width with 1rem margin on each side */
+    max-width: 100%;
+  }
+
+  .icon-row img {
+    width: 32px;
+    height: 32px;
+  }
+
+  .divider {
+    height: 24px;
+  }
+}
+
+/* ========================================
    RESPONSIVE DESIGN
 ======================================== */
 

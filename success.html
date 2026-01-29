@@ -63,14 +63,14 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
-      filter: drop-shadow(0 8px 16px rgba(255, 151, 112, 0.4));
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
     }
 
     .premium-badge-container::before {
       content: '';
       position: absolute;
       inset: -20px;
-      background: radial-gradient(circle, rgba(255, 151, 112, 0.15) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(102, 126, 234, 0.12) 0%, transparent 70%);
       border-radius: 50%;
       animation: pulse 2s ease-in-out infinite;
     }
@@ -239,6 +239,55 @@
         height: 100px;
       }
     }
+
+    /* Footer Styles */
+    .home-footer {
+      background: rgba(255, 255, 255, 0.5);
+      padding: 2rem 1rem;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .footer-socials {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .icon-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .icon-row a {
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .icon-row a:hover {
+      transform: scale(1.1);
+      opacity: 0.8;
+    }
+
+    .icon-row img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
+
+    .divider {
+      width: 1px;
+      height: 24px;
+      background: rgba(0, 0, 0, 0.15);
+    }
+
+    .footer-socials p {
+      color: #666;
+      font-size: 0.9rem;
+      margin: 0;
+    }
   </style>
 </head>
 
@@ -268,14 +317,13 @@
   </div>
 </button>
       <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
-      <button class="menu-btn" onclick="window.location.href='categories.html'">🎮 Categories</button>
       <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
       <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
       <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
       <button class="menu-btn" onclick="window.location.href='how-to-play.html'">💡 How to Play</button>
       <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
       <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
-      <button class="menu-close-x" id="closeMenu">×</button>
+      <button class="menu-btn menu-close" id="closeMenu">Close</button>
     </div>
   </div>
 
