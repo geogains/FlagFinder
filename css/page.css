@@ -426,7 +426,7 @@ body.menu-open {
   gap: 1.5rem;
   margin-bottom: 1.5rem;
   padding: 1.5rem 2rem;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.67);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-radius: 20px;
@@ -456,7 +456,7 @@ body.menu-open {
 .divider {
   width: 1px;
   height: 28px;
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(109, 108, 108, 0.525);
 }
 
 .footer-socials p {
@@ -465,6 +465,29 @@ body.menu-open {
   margin: 0;
   font-weight: 500;
 }
+
+ .footer-links {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      color: #ffffff;
+    }
+
+    .footer-links span {
+      color: rgba(255, 255, 255, 0.5);
+    }
 
 /* Mobile responsive footer */
 @media (max-width: 640px) {
