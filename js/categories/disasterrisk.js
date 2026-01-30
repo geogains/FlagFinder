@@ -60,7 +60,6 @@ export const disasterRiskData = [
   { name: 'South Africa', code: 'ZA', disasterRank: 59, disasterrisk: 9.60 },
   { name: 'Saudi Arabia', code: 'SA', disasterRank: 60, disasterrisk: 9.34 },
   { name: 'Nigeria', code: 'NG', disasterRank: 61, disasterrisk: 9.33 },
-  { name: 'Mauritania', code: 'MR', disasterRank: 62, disasterrisk: 9.32 },
   { name: 'Iraq', code: 'IQ', disasterRank: 63, disasterrisk: 9.24 },
   { name: 'Greece', code: 'GR', disasterRank: 64, disasterrisk: 8.61 },
   { name: 'Cambodia', code: 'KH', disasterRank: 65, disasterrisk: 8.15 },

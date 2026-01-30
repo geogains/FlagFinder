@@ -241,7 +241,7 @@ function handleRankClick(event) {
     usedFlag.classList.remove("active");
   }
 
-  slot.innerHTML = `<img src="flags/${country.code}.png" alt="${country.name}" /> ${country.name}`;
+  slot.innerHTML = `<img src="flags/${country.code}.png" alt="${country.name}" /><span class="country-name">${country.name}</span>`;
   soundManager.play('pop');
   slot.classList.remove("empty-slot");
   slot.classList.add("stomp");
@@ -413,7 +413,8 @@ function endGame() {
     if (!c) return;
     slot.innerHTML = `
       <img src="flags/${c.code}.png" alt="${c.name}" />
-      ${metricKey ? `${formatMetric(c[metricKey])}` : ""}
+      <span class="country-name">${c.name}</span>
+      ${metricKey ? `<span class="metric-value">${formatMetric(c[metricKey])}</span>` : ""}
     `;
   });
 
