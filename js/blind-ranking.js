@@ -270,24 +270,52 @@ function handleRankClick(event) {
   totalScore += roundPoints;
 
   //
-  // --- AUTO‑SELECT NEXT COUNTRY ---
+  // --- AUTO-SELECT NEXT UNUSED FLAG (SEQUENTIAL) ---
   //
-  const nextCountry = selectedCountries.find(
-    (c) => !usedCountries.has(c.code)
-  );
+  // Find the index of the currently PLACED country
+  const currentIndex = selectedCountries.findIndex(c => c.code === country.code);
+  console.log(`Placed country: ${country.name} at index ${currentIndex}`);
+  
+  // Look for the next unused country starting from current position + 1
+  let nextCountry = null;
+  for (let i = currentIndex + 1; i < selectedCountries.length; i++) {
+    if (!usedCountries.has(selectedCountries[i].code)) {
+      nextCountry = selectedCountries[i];
+      console.log(`Next unused country found: ${nextCountry.name} at index ${i}`);
+      break;
+    }
+  }
+  
+  // If no unused country found after current position, wrap around to beginning
+  if (!nextCountry) {
+    for (let i = 0; i < currentIndex; i++) {
+      if (!usedCountries.has(selectedCountries[i].code)) {
+        nextCountry = selectedCountries[i];
+        console.log(`Wrapped around, found: ${nextCountry.name} at index ${i}`);
+        break;
+      }
+    }
+  }
 
   if (nextCountry) {
     selectedCountry = nextCountry;
     updateFlagPreview(nextCountry);
 
+    // Remove active class from all flags
     document
       .querySelectorAll(".country-flag-item")
       .forEach((el) => el.classList.remove("active"));
 
+    // Add active class to next flag
     const nextFlagEl = document.querySelector(
       `.country-flag-item[data-code="${nextCountry.code}"]`
     );
-    if (nextFlagEl) nextFlagEl.classList.add("active");
+    if (nextFlagEl) {
+      nextFlagEl.classList.add("active");
+      console.log(`Activated flag for: ${nextCountry.name}`);
+    }
+  } else {
+    console.log('No next country found - all used');
   }
 
   //
@@ -422,7 +450,7 @@ function endGame() {
   breakdownDiv.innerHTML = `
     <table class="result-table" style="width:100%;border-collapse:separate;border-spacing:0 6px;text-align:center;table-layout:fixed;">
       <thead>
-        <tr style="background:#7c3aed;color:white;font-weight:600;font-size:13px;">
+        <tr style="background:#667eea;color:white;font-weight:600;font-size:13px;">
           <th style="padding:8px;border-radius:8px 0 0 8px;width:45%;">Country</th>
           <th style="padding:8px;width:18%;">Best</th>
           <th style="padding:8px;width:18%;">Your</th>
@@ -495,7 +523,7 @@ function endGame() {
       </td>
       <td style="font-weight:600;font-size:13px;padding:4px;">${range.min === range.max ? range.min : `${range.min}–${range.max}`}</td>
       <td style="font-size:13px;padding:4px;">${userTier}</td>
-      <td style="color:${isPerfect ? "#22c55e" : "#7c3aed"};font-weight:700;font-size:15px;padding:4px;">${roundPoints}</td>
+      <td style="color:${isPerfect ? "#22c55e" : "#667eea"};font-weight:700;font-size:15px;padding:4px;">${roundPoints}</td>
     `;
     tbody.appendChild(tr);
   });

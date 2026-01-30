@@ -384,7 +384,7 @@ async function initGame() {
           const formattedValue = formatValue(country.value, currentCategory.unit, country);
           slot.innerHTML = `
             <img src="${country.flag}" alt="${country.name}" class="rank-flag">
-            <span class="rank-data">${formattedValue}</span>
+            <span class="rank-data" style="color: white;">${formattedValue}</span>
           `;
         }
       }
@@ -717,7 +717,7 @@ async function selectCountry(country) {
     
     slot.innerHTML = `
       <img src="${country.flag}" alt="${country.name}" class="rank-flag">
-      <span class="rank-data">${formattedValue}</span>
+      <span class="rank-data" style="color: white;">${formattedValue}</span>
     `;
     
     // Score is calculated at the end of the game
@@ -1111,12 +1111,13 @@ function buildResultsTable() {
     row.className = `table-row ${isGuessed ? 'correct' : ''}`;
     
     const formattedValue = formatValue(country.value, currentCategory.unit, country);
+    const valueColor = isGuessed ? 'white' : '#667eea';
     
     row.innerHTML = `
       <span class="table-rank">#${country.rank}</span>
       <img src="${country.flag}" alt="${country.name}" class="table-flag">
       <span class="table-country">${country.name}</span>
-      <span class="table-data">${formattedValue}</span>
+      <span class="table-data" style="color: ${valueColor};">${formattedValue}</span>
     `;
     table.appendChild(row);
   });
