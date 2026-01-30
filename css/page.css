@@ -395,7 +395,7 @@ body.menu-open {
    FOOTER STYLES
 ======================================== */
 .home-footer {
-  background: #0e2c50;
+  background: linear-gradient(135deg, #0d315a 0%, #1a4d7a 100%);
   padding: 2.5rem 1rem;
   text-align: center;
 }
@@ -426,11 +426,11 @@ body.menu-open {
   gap: 1.5rem;
   margin-bottom: 1.5rem;
   padding: 1.5rem 2rem;
-  background: rgba(255, 255, 255, 0.67);
+
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   width: fit-content;
   margin-left: auto;
@@ -492,19 +492,13 @@ body.menu-open {
 /* Mobile responsive footer */
 @media (max-width: 640px) {
   .icon-row {
-    padding: 1.2rem 1.5rem;
-    gap: 1.2rem;
-    width: calc(100% - 2rem); /* Almost full width with 1rem margin on each side */
-    max-width: 100%;
-  }
-
-  .icon-row img {
-    width: 32px;
-    height: 32px;
+    gap: 0; /* Remove fixed gap */
+    justify-content: space-between; /* Spread evenly across container */
+    width: calc(100% - 2rem);
   }
 
   .divider {
-    height: 24px;
+    flex-shrink: 0; /* Prevent dividers from collapsing */
   }
 }
 
