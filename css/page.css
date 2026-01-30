@@ -426,11 +426,9 @@ body.menu-open {
   gap: 1.5rem;
   margin-bottom: 1.5rem;
   padding: 1.5rem 2rem;
-
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-radius: 20px;
-
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   width: fit-content;
   margin-left: auto;

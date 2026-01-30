@@ -168,6 +168,7 @@
       align-items: center;
       gap: 16px;
       flex-wrap: wrap;
+      box-shadow: none; /* Override page.css box-shadow */
     }
 
     .social-link {
@@ -238,11 +239,12 @@
 
     @media (max-width: 768px) {
       .contact-wrapper {
-        margin: 100px auto 40px;
+        margin: 100px 0.75rem 40px; /* Reduce horizontal margin */
+        padding: 0;
       }
 
       .contact-card {
-        padding: 2.5rem 1.75rem;
+        padding: 2.5rem 1.5rem;
       }
 
       .contact-card h1 {
@@ -256,11 +258,42 @@
       .contact-method {
         padding: 1.5rem 1.25rem;
       }
+
+      /* Force social icons in one horizontal row */
+      .icon-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: nowrap; /* Prevent wrapping */
+        padding: 0 4px;
+      }
+
+      .social-link {
+        flex: 0 0 auto; /* Don't grow or shrink */
+        width: 50px;
+        height: 50px;
+        min-width: 50px;
+        padding: 10px;
+      }
+
+      .social-link img {
+        width: 28px;
+        height: 28px;
+        max-width: 28px;
+        max-height: 28px;
+      }
+
+      .social-divider {
+        flex: 0 0 2px; /* Fixed width */
+        height: 32px;
+      }
     }
 
     @media (max-width: 480px) {
       .contact-wrapper {
-        margin: 90px 1rem 30px;
+        margin: 90px 0.5rem 30px; /* Even narrower side margins */
+        padding: 0;
       }
 
       .contact-card {
@@ -275,22 +308,30 @@
         font-size: 1.75rem;
       }
 
+      /* Tighter spacing for 4 icons in one row on small screens */
       .icon-row {
-        gap: 12px;
+        gap: 4px;
+        padding: 0 2px;
       }
 
       .social-link {
-        width: 48px;
-        height: 48px;
+        width: 46px;
+        height: 46px;
+        min-width: 46px;
+        min-height: 46px;
+        padding: 9px;
       }
 
       .social-link img {
-        width: 28px;
-        height: 28px;
+        width: 26px;
+        height: 26px;
+        max-width: 26px;
+        max-height: 26px;
       }
 
       .social-divider {
-        height: 32px;
+        flex: 0 0 1px;
+        height: 28px;
       }
     }
   </style>
@@ -353,7 +394,7 @@
         <div class="contact-method-icon">📧</div>
         <div class="contact-method-label">Email Support</div>
         <div class="contact-method-value">
-          <a href="mailto:support@geo-ranks.com">support@geo-ranks.com</a>
+          <a href="/cdn-cgi/l/email-protection#03707673736c71774364666c2e71626d68702d606c6e"><span class="__cf_email__" data-cfemail="fd8e888d8d928f89bd9a9892d08f9c93968ed39e9290">support@geo-ranks.com</span></a>
         </div>
       </div>
 
@@ -399,7 +440,7 @@
 </footer>
 
 <!-- ========== JAVASCRIPT ========== -->
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 document.addEventListener('DOMContentLoaded', function() {
   const menuToggle = document.getElementById('menuToggle');
   const menuOverlay = document.getElementById('menuOverlay');
@@ -461,6 +502,3 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 </script>
-
-</body>
-</html>
