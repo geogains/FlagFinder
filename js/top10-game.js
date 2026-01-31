@@ -53,7 +53,8 @@ async function initializeGame() {
       score: 0,
       timeRemaining: 120, // 2 minutes
       incorrectGuesses: [],
-      startTime: Date.now()
+      startTime: Date.now(),
+      isGameOver: false // Prevent multiple endGame calls
     };
     
     // Continue with game initialization
@@ -421,13 +422,17 @@ async function initGame() {
   // Check if game already ended (0 lives or 0 time)
   if (gameState.lives === 0) {
     console.log('Game already ended (0 lives) - triggering endGame');
-    setTimeout(() => endGame(false), 500);
+    setTimeout(() => {
+      if (!gameState.isGameOver) endGame(false);
+    }, 500);
     return;
   }
   
   if (gameState.timeRemaining <= 0) {
     console.log('Game already ended (0 time) - triggering endGame');
-    setTimeout(() => endGame(false), 500);
+    setTimeout(() => {
+      if (!gameState.isGameOver) endGame(false);
+    }, 500);
     return;
   }
   
@@ -663,7 +668,12 @@ async function selectCountryByName(countryName) {
     }
     
     if (gameState.lives === 0) {
-      setTimeout(() => endGame(false), 500);
+      setTimeout(() => {
+        if (!gameState.isGameOver) {
+          console.log('💔 No lives left (incorrect guess) - ending game');
+          endGame(false);
+        }
+      }, 500);
     }
     return;
   }
@@ -724,7 +734,12 @@ async function selectCountry(country) {
     
      // Check for win (consider only available countries, not locked slots)
     if (gameState.guessedCountries.size === currentCategory.countries.length) {
-      setTimeout(() => endGame(true), 500);
+      setTimeout(() => {
+        if (!gameState.isGameOver) {
+          console.log('🎉 All countries guessed - YOU WIN!');
+          endGame(true);
+        }
+      }, 500);
     }
   } else {
     console.log('Incorrect guess');
@@ -735,7 +750,12 @@ async function selectCountry(country) {
     updateLives();
     
     if (gameState.lives === 0) {
-      setTimeout(() => endGame(false), 500);
+      setTimeout(() => {
+        if (!gameState.isGameOver) {
+          console.log('💔 No lives left (selectCountry) - ending game');
+          endGame(false);
+        }
+      }, 500);
     }
   }
 }
@@ -886,7 +906,10 @@ function startTimer() {
     
     if (gameState.timeRemaining <= 0) {
       clearInterval(interval);
-      endGame(false);
+      if (!gameState.isGameOver) {
+        console.log('⏰ Time ran out - ending game');
+        endGame(false);
+      }
     }
   }, 1000);
   
@@ -895,6 +918,13 @@ function startTimer() {
 }
 
 async function endGame(won) {
+  // Prevent multiple calls to endGame
+  if (gameState.isGameOver) {
+    console.log('⚠️ endGame already called, skipping');
+    return;
+  }
+  gameState.isGameOver = true;
+  
   console.log('🎮 endGame called with won:', won);
   
   // Clear timer

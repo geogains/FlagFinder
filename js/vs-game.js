@@ -44,6 +44,7 @@ let gameState = {
   timeRemaining: 120, // 2 minutes
   timerInterval: null,
   isProcessing: false, // Prevent multiple clicks during transition
+  isGameOver: false, // Prevent multiple endGame calls
   countries: [], // Will be loaded from category file
   recentCountries: [] // Track recently used countries to avoid repetition
 };
@@ -128,7 +129,10 @@ function startTimer() {
     
     if (gameState.timeRemaining <= 0) {
       clearInterval(gameState.timerInterval);
-      endGame();
+      if (!gameState.isGameOver) {
+        console.log('⏰ Time ran out - ending game');
+        endGame();
+      }
     }
   }, 1000);
 }
@@ -334,8 +338,11 @@ function handleSelection(optionNumber) {
     // Check if game over (no lives)
     if (gameState.lives === 0) {
       setTimeout(() => {
-        clearInterval(gameState.timerInterval);
-        endGame();
+        if (!gameState.isGameOver) {
+          console.log('💔 No lives left - ending game');
+          clearInterval(gameState.timerInterval);
+          endGame();
+        }
       }, 2000);
       return;
     }
@@ -541,6 +548,13 @@ function formatValue(value, unit, country = null) {
 
 // End game and show results
 async function endGame() {
+  // Prevent multiple calls to endGame
+  if (gameState.isGameOver) {
+    console.log('⚠️ endGame already called, skipping');
+    return;
+  }
+  gameState.isGameOver = true;
+  
   console.log('Game ended!');
   
   // Clear timer
