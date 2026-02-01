@@ -19,6 +19,7 @@ body {
   gap: 1.5rem;
   padding: 1rem;
   padding-top: 80px; /* Space for fixed header */
+  padding-bottom: 80px;
 }
 
 /* -------------------------------

@@ -760,29 +760,18 @@ async function selectCountry(country) {
   }
 }
 
-function formatValue(value, unit, country = null) {
-  // Debug logging
-  if (unit === 'm' && country) {
-    console.log('formatValue DEBUG:', {
-      value,
-      unit,
-      country,
-      hasBuildingName: !!country.tallestBuildingName,
-      hasMountainName: !!country.highestPointName
-    });
-  }
-  
-  // Special handling for tallest building - show building name
-  if (unit === 'm' && country && country.tallestBuildingName) {
+function formatValue(value, unit, country = null, includeNames = false) {
+  // Special handling for tallest building - only include name if requested
+  if (unit === 'm' && country && country.tallestBuildingName && includeNames) {
     return `${value.toLocaleString()} m (${country.tallestBuildingName})`;
   }
   
-  // Special handling for altitude - show mountain name
-  if (unit === 'm' && country && country.highestPointName) {
+  // Special handling for altitude - only include name if requested
+  if (unit === 'm' && country && country.highestPointName && includeNames) {
     return `${value.toLocaleString()} m (${country.highestPointName})`;
   }
   
-  // Format numbers based on unit type
+  // Format numbers based on unit type (NO NAMES in rank slots)
   switch(unit) {
     case 'M': // Million (with B/M/K support)
   if (value >= 1000) {
@@ -1143,13 +1132,76 @@ function buildResultsTable() {
     const formattedValue = formatValue(country.value, currentCategory.unit, country);
     const valueColor = isGuessed ? 'white' : '#667eea';
     
+    // Check if this country has a building/mountain name
+    const hasExtraInfo = country.tallestBuildingName || country.highestPointName;
+    const extraInfoName = country.tallestBuildingName || country.highestPointName;
+    const infoType = country.tallestBuildingName ? 'Building' : 'Mountain';
+    
     row.innerHTML = `
       <span class="table-rank">#${country.rank}</span>
       <img src="${country.flag}" alt="${country.name}" class="table-flag">
       <span class="table-country">${country.name}</span>
-      <span class="table-data" style="color: ${valueColor};">${formattedValue}</span>
+      <div class="table-data-container">
+        <span class="table-data" style="color: ${valueColor};">${formattedValue}</span>
+        ${hasExtraInfo ? `
+          <button class="expand-btn" data-rank="${country.rank}" aria-label="Show details">
+            <svg class="chevron-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M3 5L7 9L11 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        ` : ''}
+      </div>
     `;
+    
     table.appendChild(row);
+    
+    // Add dropdown card as separate element if there's extra info
+    if (hasExtraInfo) {
+      const dropdownCard = document.createElement('div');
+      dropdownCard.className = `table-dropdown-card ${isGuessed ? 'correct' : ''}`;
+      dropdownCard.dataset.rank = country.rank;
+      dropdownCard.innerHTML = `
+        <div class="dropdown-card-inner">
+          <span class="dropdown-label">${infoType}:</span>
+          <span class="dropdown-value">${extraInfoName}</span>
+        </div>
+      `;
+      table.appendChild(dropdownCard);
+    }
+  });
+  
+  // Add click handlers for expand buttons
+  document.querySelectorAll('.expand-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const rank = btn.dataset.rank;
+      const dropdown = document.querySelector(`.table-dropdown-card[data-rank="${rank}"]`);
+      const allDropdowns = document.querySelectorAll('.table-dropdown-card');
+      const allButtons = document.querySelectorAll('.expand-btn');
+      
+      // Close all other dropdowns
+      allDropdowns.forEach(d => {
+        if (d.dataset.rank !== rank) {
+          d.classList.remove('active');
+        }
+      });
+      
+      // Reset all other buttons
+      allButtons.forEach(b => {
+        if (b.dataset.rank !== rank) {
+          b.classList.remove('active');
+        }
+      });
+      
+      // Toggle current dropdown
+      if (dropdown.classList.contains('active')) {
+        dropdown.classList.remove('active');
+        btn.classList.remove('active');
+      } else {
+        dropdown.classList.add('active');
+        btn.classList.add('active');
+      }
+    });
   });
 }
 

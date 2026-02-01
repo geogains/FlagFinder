@@ -1,0 +1,157 @@
+/* ========================================
+   TOP 10 MODE SPECIFIC STYLES
+   Expandable dropdown card for building/mountain names
+======================================== */
+
+/* Table data container with expand button */
+.table-data-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.table-data {
+  font-weight: 600;
+}
+
+/* Styled expand button with icon */
+.expand-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  padding: 0;
+  color: inherit;
+}
+
+.expand-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.expand-btn:active {
+  transform: translateY(0);
+}
+
+/* Chevron icon rotation when active */
+.expand-btn .chevron-icon {
+  transition: transform 0.3s ease;
+}
+
+.expand-btn.active .chevron-icon {
+  transform: rotate(180deg);
+}
+
+/* Dropdown card - separate element underneath row */
+.table-dropdown-card {
+  width: 100%;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin: 0;
+  border-radius: 12px;
+}
+
+.table-dropdown-card.active {
+  max-height: 100px;
+  opacity: 1;
+  margin: 0.75rem 0;
+}
+
+/* Inner card with gradient background */
+.dropdown-card-inner {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.12), rgba(118, 75, 162, 0.12));
+  border: 1.5px solid rgba(102, 126, 234, 0.2);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Correct answer dropdown (green) */
+.table-dropdown-card.correct .dropdown-card-inner {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.15));
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+/* Label styling */
+.dropdown-label {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #667eea;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.table-dropdown-card.correct .dropdown-label {
+  color: #10b981;
+}
+
+/* Value styling */
+.dropdown-value {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #1e293b;
+  flex: 1;
+  line-height: 1.4;
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  .expand-btn {
+    width: 26px;
+    height: 26px;
+  }
+
+  .expand-btn .chevron-icon {
+    width: 12px;
+    height: 12px;
+  }
+
+  .dropdown-card-inner {
+    padding: 0.85rem 1rem;
+    gap: 0.6rem;
+  }
+
+  .dropdown-label {
+    font-size: 0.75rem;
+  }
+
+  .dropdown-value {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .expand-btn {
+    width: 24px;
+    height: 24px;
+  }
+
+  .dropdown-card-inner {
+    padding: 0.75rem 0.9rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
+
+  .dropdown-label {
+    font-size: 0.7rem;
+  }
+
+  .dropdown-value {
+    font-size: 0.8rem;
+  }
+}
