@@ -948,15 +948,17 @@ async function endGame(won) {
   // Update the final score
   gameState.score = finalScore;
   
-  // Save score to database (only if logged in) - but don't let it block results
-  try {
-    await Promise.race([
-      saveDailyScore(finalScore, correctGuesses, timeElapsed),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('Save timeout')), 5000))
-    ]);
-  } catch (error) {
-    console.error('⚠️ Score save failed or timed out:', error);
-    // Continue anyway - show results even if save failed
+  // Save score to database ONLY for Daily Challenge mode (and only if logged in)
+  if (isDailyChallenge) {
+    try {
+      await Promise.race([
+        saveDailyScore(finalScore, correctGuesses, timeElapsed),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Save timeout')), 5000))
+      ]);
+    } catch (error) {
+      console.error('⚠️ Score save failed or timed out:', error);
+      // Continue anyway - show results even if save failed
+    }
   }
   
   // ALWAYS show results overlay, even if save failed
