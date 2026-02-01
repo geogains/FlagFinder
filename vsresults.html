@@ -11,7 +11,6 @@
   
   <!-- Styles -->
   <link rel="stylesheet" href="css/page.css" />
-  <link rel="stylesheet" href="css/top10.css" />
   
   <style>
     body {
@@ -69,46 +68,12 @@
     .results-category {
       font-size: 1.3rem;
       font-weight: 600;
-      color: #667eea;
-    }
-
-    /* Action Buttons - 2x2 Grid */
-    .results-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-top: 2rem;
-    }
-
-    .btn {
-      padding: 14px;
-      border: none;
-      border-radius: 12px;
-      font-weight: 700;
-      font-size: 1.05rem;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      font-family: 'Poppins', sans-serif;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #ff9770, #ff6f61);
-      color: white;
-    }
-
-    .btn-secondary {
-      background: #e5e7eb;
-      color: #374151;
+      color: #3b82f6;
     }
 
     /* Stats Section */
     .results-stats {
-      background: linear-gradient(135deg, #e0f7f1 0%, #e8f5e9 100%);
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1));
       border-radius: 16px;
       padding: 1.5rem;
       margin-bottom: 2rem;
@@ -128,7 +93,7 @@
 
     .stat-label {
       font-weight: 600;
-      color: #374151;
+      color: #6b7280;
       font-size: 1.05rem;
     }
 
@@ -136,78 +101,6 @@
       font-weight: 700;
       color: #0d315a;
       font-size: 1.15rem;
-    }
-
-    /* Results Table */
-    .results-table {
-      margin-bottom: 2rem;
-    }
-
-    .table-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 11px;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-    }
-
-    .table-row.correct {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
-      border-radius: 10px;
-      margin-bottom: 5px;
-      border: none;
-    }
-
-    .table-rank {
-      font-weight: 700;
-      min-width: 45px;
-      font-family: 'Rubik', sans-serif;
-    }
-
-    .table-flag {
-      width: 40px;
-      height: 30px;
-      object-fit: cover;
-      border-radius: 4px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-    }
-
-    .table-country {
-      flex: 1;
-      font-weight: 600;
-    }
-
-    .table-data {
-      font-weight: 700;
-      min-width: 80px;
-      text-align: right;
-    }
-
-    /* Incorrect Guesses */
-    .incorrect-guesses {
-      margin-top: 2rem;
-      padding-top: 1.5rem;
-      border-top: 2px solid rgba(0, 0, 0, 0.08);
-    }
-
-    .incorrect-title {
-      font-weight: 700;
-      color: #0d315a;
-      margin-bottom: 1rem;
-      font-size: 1.1rem;
-    }
-
-    .incorrect-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px;
-      color: #ef4444;
-      font-weight: 600;
-      background: rgba(239, 68, 68, 0.08);
-      border-radius: 8px;
-      margin-bottom: 6px;
     }
 
     /* Try Other Modes Section */
@@ -254,6 +147,48 @@
       color: white;
     }
 
+    /* Action Buttons */
+    .results-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 2rem;
+    }
+
+    .results-actions .btn:nth-child(1) {
+      grid-column: 1 / -1;
+    }
+
+    .results-actions .btn:nth-child(4) {
+      grid-column: 1 / -1;
+    }
+
+    .btn {
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #ff9770, #ff6f61);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
     /* Mobile Responsive */
     @media (max-width: 640px) {
       .results-card {
@@ -272,31 +207,13 @@
         grid-template-columns: 1fr;
       }
 
+      .results-actions .btn:nth-child(1),
+      .results-actions .btn:nth-child(4) {
+        grid-column: 1;
+      }
+
       .mode-buttons {
         grid-template-columns: 1fr;
-      }
-
-      .table-row {
-        gap: 8px;
-      }
-
-      .table-rank {
-        min-width: 40px;
-        font-size: 0.9rem;
-      }
-
-      .table-flag {
-        width: 36px;
-        height: 27px;
-      }
-
-      .table-country {
-        font-size: 0.9rem;
-      }
-
-      .table-data {
-        font-size: 0.9rem;
-        min-width: 70px;
       }
     }
 
@@ -316,30 +233,6 @@
       .mode-btn {
         font-size: 1rem;
         padding: 1rem;
-      }
-
-      .table-row {
-        gap: 6px;
-        padding: 10px 8px;
-      }
-
-      .table-rank {
-        min-width: 35px;
-        font-size: 0.85rem;
-      }
-
-      .table-flag {
-        width: 32px;
-        height: 24px;
-      }
-
-      .table-country {
-        font-size: 0.85rem;
-      }
-
-      .table-data {
-        font-size: 0.85rem;
-        min-width: 65px;
       }
     }
   </style>
@@ -400,7 +293,7 @@
 
       <div class="results-stats">
         <div class="stat-row">
-          <span class="stat-label">Your Score:</span>
+          <span class="stat-label">Final Score:</span>
           <span class="stat-value" id="finalScore">0</span>
         </div>
         <div class="stat-row">
@@ -408,20 +301,17 @@
           <span class="stat-value" id="finalLives">❤️❤️❤️</span>
         </div>
         <div class="stat-row">
-          <span class="stat-label">Time:</span>
-          <span class="stat-value" id="finalTime">0:00 / 2:00</span>
+          <span class="stat-label">Correct Answers:</span>
+          <span class="stat-value" id="finalCorrect">0/0</span>
         </div>
         <div class="stat-row">
           <span class="stat-label">Accuracy:</span>
-          <span class="stat-value" id="finalAccuracy">0/10 correct</span>
+          <span class="stat-value" id="finalAccuracy">0%</span>
         </div>
-      </div>
-
-      <div class="results-table" id="resultsTable"></div>
-
-      <div class="incorrect-guesses" id="incorrectSection" style="display: none;">
-        <div class="incorrect-title">Incorrect Guesses</div>
-        <div id="incorrectList"></div>
+        <div class="stat-row">
+          <span class="stat-label">Time Played:</span>
+          <span class="stat-value" id="finalTime">0:00</span>
+        </div>
       </div>
 
       <!-- Try Other Modes Section -->
@@ -429,7 +319,7 @@
         <h3 id="tryModesTitle">🎮 Try other game modes</h3>
         <div class="mode-buttons">
           <button class="mode-btn" id="classicModeBtn">🎯 Classic</button>
-          <button class="mode-btn" id="vsModeBtn">⚔️ VS Mode</button>
+          <button class="mode-btn" id="top10ModeBtn">🔟 Top 10</button>
         </div>
       </div>
 
@@ -443,13 +333,13 @@
     </div>
   </div>
 
-  <!-- ========== FOOTER ========== -->
+    <!-- ========== FOOTER ========== -->
 <footer class="home-footer">
   <div class="footer-socials">
   </div>
 </footer>
 
-  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="module">
+  <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
     const supabase = createClient(
@@ -457,16 +347,16 @@
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRudGlmeXd5b2Z1cWVzcG9kaGFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU5MTQxODQsImV4cCI6MjA1MTQ5MDE4NH0.BbHN1kYS8d9xvZAEP3-D_Xva9q3JdHkB0LfXUzjI4B0'
     );
 
-    // Get URL parameters
     const params = new URLSearchParams(window.location.search);
     const categoryKey = params.get('category') || 'population';
     const score = parseInt(params.get('score')) || 0;
     const correct = parseInt(params.get('correct')) || 0;
+    const total = parseInt(params.get('total')) || 0;
+    const accuracy = parseInt(params.get('accuracy')) || 0;
     const timeUsed = parseInt(params.get('time')) || 0;
     const lives = parseInt(params.get('lives')) || 0;
 
-    // Try to get results from localStorage as backup
-    const savedResults = localStorage.getItem('top10Results');
+    const savedResults = localStorage.getItem('vsResults');
     let resultsData = null;
 
     if (savedResults) {
@@ -477,16 +367,14 @@
       }
     }
 
-    // Use URL params or saved data
     const finalScore = resultsData?.score || score;
     const finalCorrect = resultsData?.correct || correct;
+    const finalTotal = resultsData?.total || total;
+    const finalAccuracy = resultsData?.accuracy || accuracy;
     const finalTime = resultsData?.timeUsed || timeUsed;
     const finalLives = resultsData?.lives || lives;
     const categoryName = resultsData?.categoryName || getCategoryDisplayName(categoryKey);
-    const resultsTable = resultsData?.resultsTable || [];
-    const incorrectGuesses = resultsData?.incorrectGuesses || [];
 
-    // Display results
     displayResults();
 
     function getCategoryDisplayName(key) {
@@ -517,147 +405,54 @@
     }
 
     function displayResults() {
-      // Update emoji and title based on performance
-      const emoji = finalCorrect >= 8 ? '🏆' : finalCorrect >= 5 ? '🎉' : '💪';
-      const title = finalCorrect >= 8 ? 'Excellent!' : finalCorrect >= 5 ? 'Great Job!' : 'Try Again!';
+      let emoji, title;
+      if (finalCorrect >= 20) {
+        emoji = '🏆';
+        title = 'Amazing!';
+      } else if (finalCorrect >= 10) {
+        emoji = '🌟';
+        title = 'Great Job!';
+      } else if (finalLives === 0) {
+        emoji = '💪';
+        title = 'Game Over!';
+      } else {
+        emoji = '👍';
+        title = 'Good Try!';
+      }
       
       document.getElementById('resultsEmoji').textContent = emoji;
       document.getElementById('resultsTitle').textContent = title;
       document.getElementById('resultsCategory').textContent = categoryName;
 
-      // Update stats
       document.getElementById('finalScore').textContent = finalScore;
+      
       const maxLives = 3;
       const redHearts = '❤️'.repeat(finalLives);
       const whiteHearts = '🤍'.repeat(maxLives - finalLives);
       document.getElementById('finalLives').textContent = whiteHearts + redHearts;
       
+      document.getElementById('finalCorrect').textContent = `${finalCorrect}/${finalTotal}`;
+      document.getElementById('finalAccuracy').textContent = `${finalAccuracy}%`;
+      
       const minutes = Math.floor(finalTime / 60);
       const seconds = finalTime % 60;
-      document.getElementById('finalTime').textContent = `${minutes}:${seconds.toString().padStart(2, '0')} / 2:00`;
-      document.getElementById('finalAccuracy').textContent = `${finalCorrect}/10 correct`;
+      document.getElementById('finalTime').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
-      // Build results table
-      buildResultsTable();
-
-      // Show incorrect guesses if any
-      if (incorrectGuesses.length > 0) {
-        document.getElementById('incorrectSection').style.display = 'block';
-        const incorrectList = document.getElementById('incorrectList');
-        incorrectList.innerHTML = incorrectGuesses
-          .map(name => `<div class="incorrect-item">❌ ${name}</div>`)
-          .join('');
-      }
-
-      // Update "Try Other Modes" section
       document.getElementById('tryModesTitle').textContent = `🎮 Try other ${categoryName} game modes`;
       
       document.getElementById('classicModeBtn').onclick = () => {
         window.location.href = `blind-ranking.html?mode=${categoryKey}`;
       };
       
-      document.getElementById('vsModeBtn').onclick = () => {
-        window.location.href = `vs.html?mode=${categoryKey}`;
-      };
-
-      // Play Again button
-      document.getElementById('playAgainBtn').onclick = () => {
+      document.getElementById('top10ModeBtn').onclick = () => {
         window.location.href = `top10.html?mode=${categoryKey}`;
       };
 
-      // Share button
+      document.getElementById('playAgainBtn').onclick = () => {
+        window.location.href = `vs.html?mode=${categoryKey}`;
+      };
+
       document.getElementById('shareBtn').onclick = shareResults;
-    }
-
-    function buildResultsTable() {
-      const table = document.getElementById('resultsTable');
-      
-      if (resultsTable.length === 0) {
-        table.innerHTML = '<p style="text-align: center; color: #9ca3af;">No results data available</p>';
-        return;
-      }
-
-      // Clear table
-      table.innerHTML = '';
-
-      resultsTable.forEach(country => {
-        const isGuessed = country.guessed;
-        const rowClass = isGuessed ? 'table-row correct' : 'table-row';
-        
-        // Check if country has building/mountain name
-        const hasExtraInfo = country.tallestBuildingName || country.highestPointName;
-        const extraInfoName = country.tallestBuildingName || country.highestPointName;
-        const infoType = country.tallestBuildingName ? 'Building' : 'Mountain';
-        
-        // Create row
-        const row = document.createElement('div');
-        row.className = rowClass;
-        row.innerHTML = `
-          <span class="table-rank">#${country.rank}</span>
-          <img src="${country.flag}" alt="${country.name}" class="table-flag">
-          <span class="table-country">${country.name}</span>
-          <div class="table-data-container">
-            <span class="table-data" style="color: ${isGuessed ? 'white' : '#667eea'};">${country.value}</span>
-            ${hasExtraInfo ? `
-              <button class="expand-btn" data-rank="${country.rank}" aria-label="Show details">
-                <svg class="chevron-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <path d="M3 5L7 9L11 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </button>
-            ` : ''}
-          </div>
-        `;
-        
-        table.appendChild(row);
-        
-        // Add dropdown card if there's extra info
-        if (hasExtraInfo) {
-          const dropdownCard = document.createElement('div');
-          dropdownCard.className = `table-dropdown-card ${isGuessed ? 'correct' : ''}`;
-          dropdownCard.dataset.rank = country.rank;
-          dropdownCard.innerHTML = `
-            <div class="dropdown-card-inner">
-              <span class="dropdown-label">${infoType}:</span>
-              <span class="dropdown-value">${extraInfoName}</span>
-            </div>
-          `;
-          table.appendChild(dropdownCard);
-        }
-      });
-      
-      // Add click handlers for expand buttons
-      document.querySelectorAll('.expand-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const rank = btn.dataset.rank;
-          const dropdown = document.querySelector(`.table-dropdown-card[data-rank="${rank}"]`);
-          const allDropdowns = document.querySelectorAll('.table-dropdown-card');
-          const allButtons = document.querySelectorAll('.expand-btn');
-          
-          // Close all other dropdowns
-          allDropdowns.forEach(d => {
-            if (d.dataset.rank !== rank) {
-              d.classList.remove('active');
-            }
-          });
-          
-          // Reset all other buttons
-          allButtons.forEach(b => {
-            if (b.dataset.rank !== rank) {
-              b.classList.remove('active');
-            }
-          });
-          
-          // Toggle current dropdown
-          if (dropdown.classList.contains('active')) {
-            dropdown.classList.remove('active');
-            btn.classList.remove('active');
-          } else {
-            dropdown.classList.add('active');
-            btn.classList.add('active');
-          }
-        });
-      });
     }
 
     function shareResults() {
@@ -666,8 +461,8 @@
       const whiteHearts = '🤍'.repeat(maxLives - finalLives);
       const livesDisplay = whiteHearts + redHearts;
       
-      const text = `🌍 GeoRanks - ${categoryName}
-Score: ${finalScore} | ${finalCorrect}/10 correct
+      const text = `🌍 GeoRanks - ${categoryName} VS Mode
+Score: ${finalScore} | ${finalCorrect}/${finalTotal} correct (${finalAccuracy}%)
 Lives: ${livesDisplay}
 
 Can you beat my score? Play at geo-ranks.com`;
@@ -683,7 +478,6 @@ Can you beat my score? Play at geo-ranks.com`;
       }
     }
 
-    // Menu toggle
     document.getElementById('menuToggle').addEventListener('click', () => {
       document.getElementById('menuOverlay').classList.add('active');
       document.body.classList.add('menu-open');
@@ -702,7 +496,6 @@ Can you beat my score? Play at geo-ranks.com`;
     });
   </script>
 
-  <!-- Account/Premium Button Removal -->
   <script type="module">
     import { supabase } from './js/supabase-client.js';
     (async () => {
@@ -715,7 +508,6 @@ Can you beat my score? Play at geo-ranks.com`;
     })();
   </script>
 
-  <!-- Daily Challenge Menu Button -->
   <script type="module">
     import { getTodaysDailyChallenge, modeDisplayNames, categoryDisplayNames, categoryEmojis } from './js/daily-challenge.js';
     document.addEventListener('DOMContentLoaded', () => {

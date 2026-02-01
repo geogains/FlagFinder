@@ -864,8 +864,10 @@ function formatValue(value, unit, country = null, includeNames = false) {
 
 function updateLives() {
   const livesDisplay = document.getElementById('livesDisplay');
-  const hearts = '❤️'.repeat(gameState.lives);
-  livesDisplay.innerHTML = hearts;
+  const maxLives = 3;
+  const redHearts = '❤️'.repeat(gameState.lives);
+  const whiteHearts = '🤍'.repeat(maxLives - gameState.lives);
+  livesDisplay.innerHTML = whiteHearts + redHearts;
   
   // Trigger shake animation
   livesDisplay.classList.add('shake');

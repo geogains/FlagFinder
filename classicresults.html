@@ -72,43 +72,10 @@
       color: #667eea;
     }
 
-    /* Action Buttons - 2x2 Grid */
-    .results-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-top: 2rem;
-    }
-
-    .btn {
-      padding: 14px;
-      border: none;
-      border-radius: 12px;
-      font-weight: 700;
-      font-size: 1.05rem;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      font-family: 'Poppins', sans-serif;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #ff9770, #ff6f61);
-      color: white;
-    }
-
-    .btn-secondary {
-      background: #e5e7eb;
-      color: #374151;
-    }
-
     /* Stats Section */
     .results-stats {
-      background: linear-gradient(135deg, #e0f7f1 0%, #e8f5e9 100%);
+      background: linear-gradient(135deg, rgba(167, 243, 208, 0.15), rgba(5, 150, 105, 0.15));
+      border: 2px solid rgba(167, 243, 208, 0.3);
       border-radius: 16px;
       padding: 1.5rem;
       margin-bottom: 2rem;
@@ -118,24 +85,17 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.75rem 0;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-    }
-
-    .stat-row:last-child {
-      border-bottom: none;
+      font-size: 1.05rem;
     }
 
     .stat-label {
-      font-weight: 600;
-      color: #374151;
-      font-size: 1.05rem;
+      color: #6b7280;
+      font-weight: 500;
     }
 
     .stat-value {
       font-weight: 700;
       color: #0d315a;
-      font-size: 1.15rem;
     }
 
     /* Results Table */
@@ -149,6 +109,7 @@
       gap: 12px;
       padding: 11px;
       border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      background: white;
     }
 
     .table-row.correct {
@@ -182,32 +143,6 @@
       font-weight: 700;
       min-width: 80px;
       text-align: right;
-    }
-
-    /* Incorrect Guesses */
-    .incorrect-guesses {
-      margin-top: 2rem;
-      padding-top: 1.5rem;
-      border-top: 2px solid rgba(0, 0, 0, 0.08);
-    }
-
-    .incorrect-title {
-      font-weight: 700;
-      color: #0d315a;
-      margin-bottom: 1rem;
-      font-size: 1.1rem;
-    }
-
-    .incorrect-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px;
-      color: #ef4444;
-      font-weight: 600;
-      background: rgba(239, 68, 68, 0.08);
-      border-radius: 8px;
-      margin-bottom: 6px;
     }
 
     /* Try Other Modes Section */
@@ -254,6 +189,44 @@
       color: white;
     }
 
+    /* Action Buttons */
+    .results-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 2rem;
+    }
+
+    .results-actions .btn:nth-child(1) {
+      grid-column: 1 / -1;
+    }
+
+    .btn {
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #ff9770, #ff6f61);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
     /* Mobile Responsive */
     @media (max-width: 640px) {
       .results-card {
@@ -272,31 +245,12 @@
         grid-template-columns: 1fr;
       }
 
+      .results-actions .btn:nth-child(1) {
+        grid-column: 1;
+      }
+
       .mode-buttons {
         grid-template-columns: 1fr;
-      }
-
-      .table-row {
-        gap: 8px;
-      }
-
-      .table-rank {
-        min-width: 40px;
-        font-size: 0.9rem;
-      }
-
-      .table-flag {
-        width: 36px;
-        height: 27px;
-      }
-
-      .table-country {
-        font-size: 0.9rem;
-      }
-
-      .table-data {
-        font-size: 0.9rem;
-        min-width: 70px;
       }
     }
 
@@ -316,30 +270,6 @@
       .mode-btn {
         font-size: 1rem;
         padding: 1rem;
-      }
-
-      .table-row {
-        gap: 6px;
-        padding: 10px 8px;
-      }
-
-      .table-rank {
-        min-width: 35px;
-        font-size: 0.85rem;
-      }
-
-      .table-flag {
-        width: 32px;
-        height: 24px;
-      }
-
-      .table-country {
-        font-size: 0.85rem;
-      }
-
-      .table-data {
-        font-size: 0.85rem;
-        min-width: 65px;
       }
     }
   </style>
@@ -401,55 +331,38 @@
       <div class="results-stats">
         <div class="stat-row">
           <span class="stat-label">Your Score:</span>
-          <span class="stat-value" id="finalScore">0</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Lives:</span>
-          <span class="stat-value" id="finalLives">❤️❤️❤️</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Time:</span>
-          <span class="stat-value" id="finalTime">0:00 / 2:00</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Accuracy:</span>
-          <span class="stat-value" id="finalAccuracy">0/10 correct</span>
+          <span class="stat-value" id="finalScore">0/100</span>
         </div>
       </div>
 
       <div class="results-table" id="resultsTable"></div>
 
-      <div class="incorrect-guesses" id="incorrectSection" style="display: none;">
-        <div class="incorrect-title">Incorrect Guesses</div>
-        <div id="incorrectList"></div>
-      </div>
-
       <!-- Try Other Modes Section -->
       <div class="try-other-modes" id="tryOtherModes">
         <h3 id="tryModesTitle">🎮 Try other game modes</h3>
         <div class="mode-buttons">
-          <button class="mode-btn" id="classicModeBtn">🎯 Classic</button>
           <button class="mode-btn" id="vsModeBtn">⚔️ VS Mode</button>
+          <button class="mode-btn" id="top10ModeBtn">🔟 Top 10</button>
         </div>
       </div>
 
       <!-- Action Buttons -->
       <div class="results-actions">
         <button class="btn btn-primary" id="playAgainBtn">Play Again</button>
-        <button class="btn btn-secondary" onclick="window.location.href='index.html'">Home</button>
+        <button class="btn btn-secondary" id="playRandomBtn">Play Random</button>
         <button class="btn btn-secondary" onclick="window.location.href='leaderboard.html'">Leaderboard</button>
-        <button class="btn btn-secondary" id="shareBtn">Share</button>
+        <button class="btn btn-secondary" id="shareBtn">Share Results</button>
       </div>
     </div>
   </div>
 
-  <!-- ========== FOOTER ========== -->
+    <!-- ========== FOOTER ========== -->
 <footer class="home-footer">
   <div class="footer-socials">
   </div>
 </footer>
 
-  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="module">
+  <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
     const supabase = createClient(
@@ -460,13 +373,11 @@
     // Get URL parameters
     const params = new URLSearchParams(window.location.search);
     const categoryKey = params.get('category') || 'population';
-    const score = parseInt(params.get('score')) || 0;
-    const correct = parseInt(params.get('correct')) || 0;
-    const timeUsed = parseInt(params.get('time')) || 0;
-    const lives = parseInt(params.get('lives')) || 0;
+    const score = params.get('score') || '0';
+    const maxScore = params.get('maxScore') || '100';
 
     // Try to get results from localStorage as backup
-    const savedResults = localStorage.getItem('top10Results');
+    const savedResults = localStorage.getItem('classicResults');
     let resultsData = null;
 
     if (savedResults) {
@@ -479,12 +390,9 @@
 
     // Use URL params or saved data
     const finalScore = resultsData?.score || score;
-    const finalCorrect = resultsData?.correct || correct;
-    const finalTime = resultsData?.timeUsed || timeUsed;
-    const finalLives = resultsData?.lives || lives;
+    const finalMaxScore = resultsData?.maxScore || maxScore;
     const categoryName = resultsData?.categoryName || getCategoryDisplayName(categoryKey);
     const resultsTable = resultsData?.resultsTable || [];
-    const incorrectGuesses = resultsData?.incorrectGuesses || [];
 
     // Display results
     displayResults();
@@ -517,52 +425,53 @@
     }
 
     function displayResults() {
-      // Update emoji and title based on performance
-      const emoji = finalCorrect >= 8 ? '🏆' : finalCorrect >= 5 ? '🎉' : '💪';
-      const title = finalCorrect >= 8 ? 'Excellent!' : finalCorrect >= 5 ? 'Great Job!' : 'Try Again!';
+      // Calculate percentage for emoji/title
+      const percentage = (parseInt(finalScore) / parseInt(finalMaxScore)) * 100;
+      
+      let emoji, title;
+      if (percentage >= 90) {
+        emoji = '🏆';
+        title = 'Perfect!';
+      } else if (percentage >= 70) {
+        emoji = '🌟';
+        title = 'Excellent!';
+      } else if (percentage >= 50) {
+        emoji = '🎉';
+        title = 'Great Job!';
+      } else {
+        emoji = '💪';
+        title = 'Keep Trying!';
+      }
       
       document.getElementById('resultsEmoji').textContent = emoji;
       document.getElementById('resultsTitle').textContent = title;
       document.getElementById('resultsCategory').textContent = categoryName;
 
-      // Update stats
-      document.getElementById('finalScore').textContent = finalScore;
-      const maxLives = 3;
-      const redHearts = '❤️'.repeat(finalLives);
-      const whiteHearts = '🤍'.repeat(maxLives - finalLives);
-      document.getElementById('finalLives').textContent = whiteHearts + redHearts;
-      
-      const minutes = Math.floor(finalTime / 60);
-      const seconds = finalTime % 60;
-      document.getElementById('finalTime').textContent = `${minutes}:${seconds.toString().padStart(2, '0')} / 2:00`;
-      document.getElementById('finalAccuracy').textContent = `${finalCorrect}/10 correct`;
+      // Update score
+      document.getElementById('finalScore').textContent = `${finalScore}/${finalMaxScore}`;
 
       // Build results table
       buildResultsTable();
 
-      // Show incorrect guesses if any
-      if (incorrectGuesses.length > 0) {
-        document.getElementById('incorrectSection').style.display = 'block';
-        const incorrectList = document.getElementById('incorrectList');
-        incorrectList.innerHTML = incorrectGuesses
-          .map(name => `<div class="incorrect-item">❌ ${name}</div>`)
-          .join('');
-      }
-
       // Update "Try Other Modes" section
       document.getElementById('tryModesTitle').textContent = `🎮 Try other ${categoryName} game modes`;
-      
-      document.getElementById('classicModeBtn').onclick = () => {
-        window.location.href = `blind-ranking.html?mode=${categoryKey}`;
-      };
       
       document.getElementById('vsModeBtn').onclick = () => {
         window.location.href = `vs.html?mode=${categoryKey}`;
       };
+      
+      document.getElementById('top10ModeBtn').onclick = () => {
+        window.location.href = `top10.html?mode=${categoryKey}`;
+      };
 
       // Play Again button
       document.getElementById('playAgainBtn').onclick = () => {
-        window.location.href = `top10.html?mode=${categoryKey}`;
+        window.location.href = `blind-ranking.html?mode=${categoryKey}`;
+      };
+
+      // Play Random button
+      document.getElementById('playRandomBtn').onclick = () => {
+        window.location.href = `blind-ranking.html`;
       };
 
       // Share button
@@ -572,7 +481,7 @@
     function buildResultsTable() {
       const table = document.getElementById('resultsTable');
       
-      if (resultsTable.length === 0) {
+      if (!resultsTable || resultsTable.length === 0) {
         table.innerHTML = '<p style="text-align: center; color: #9ca3af;">No results data available</p>';
         return;
       }
@@ -581,8 +490,7 @@
       table.innerHTML = '';
 
       resultsTable.forEach(country => {
-        const isGuessed = country.guessed;
-        const rowClass = isGuessed ? 'table-row correct' : 'table-row';
+        const isPerfect = country.isPerfect;
         
         // Check if country has building/mountain name
         const hasExtraInfo = country.tallestBuildingName || country.highestPointName;
@@ -591,13 +499,13 @@
         
         // Create row
         const row = document.createElement('div');
-        row.className = rowClass;
+        row.className = isPerfect ? 'table-row correct' : 'table-row';
         row.innerHTML = `
           <span class="table-rank">#${country.rank}</span>
           <img src="${country.flag}" alt="${country.name}" class="table-flag">
           <span class="table-country">${country.name}</span>
           <div class="table-data-container">
-            <span class="table-data" style="color: ${isGuessed ? 'white' : '#667eea'};">${country.value}</span>
+            <span class="table-data" style="color: ${isPerfect ? 'white' : '#667eea'};">${country.value}</span>
             ${hasExtraInfo ? `
               <button class="expand-btn" data-rank="${country.rank}" aria-label="Show details">
                 <svg class="chevron-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -613,7 +521,7 @@
         // Add dropdown card if there's extra info
         if (hasExtraInfo) {
           const dropdownCard = document.createElement('div');
-          dropdownCard.className = `table-dropdown-card ${isGuessed ? 'correct' : ''}`;
+          dropdownCard.className = `table-dropdown-card ${isPerfect ? 'correct' : ''}`;
           dropdownCard.dataset.rank = country.rank;
           dropdownCard.innerHTML = `
             <div class="dropdown-card-inner">
@@ -661,14 +569,8 @@
     }
 
     function shareResults() {
-      const maxLives = 3;
-      const redHearts = '❤️'.repeat(finalLives);
-      const whiteHearts = '🤍'.repeat(maxLives - finalLives);
-      const livesDisplay = whiteHearts + redHearts;
-      
-      const text = `🌍 GeoRanks - ${categoryName}
-Score: ${finalScore} | ${finalCorrect}/10 correct
-Lives: ${livesDisplay}
+      const text = `🌍 GeoRanks - ${categoryName} Classic Mode
+Score: ${finalScore}/${finalMaxScore}
 
 Can you beat my score? Play at geo-ranks.com`;
 

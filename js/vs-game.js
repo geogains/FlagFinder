@@ -140,7 +140,10 @@ function startTimer() {
 // Update lives display
 function updateLives() {
   const livesDisplay = document.getElementById('livesDisplay');
-  livesDisplay.innerHTML = '❤️'.repeat(gameState.lives);
+  const maxLives = 3;
+  const redHearts = '❤️'.repeat(gameState.lives);
+  const whiteHearts = '🤍'.repeat(maxLives - gameState.lives);
+  livesDisplay.innerHTML = whiteHearts + redHearts;
   
   // Trigger shake animation
   livesDisplay.classList.add('shake');
@@ -566,43 +569,37 @@ async function endGame() {
   const totalGuesses = gameState.correct + gameState.incorrect;
   const accuracy = totalGuesses > 0 ? Math.round((gameState.correct / totalGuesses) * 100) : 0;
   const timePlayed = 120 - gameState.timeRemaining;
-  const minutes = Math.floor(timePlayed / 60);
-  const seconds = timePlayed % 60;
   
   // Save to database
   await saveScore();
   
-  // Show results
-  const overlay = document.getElementById('resultsOverlay');
-  const emoji = document.getElementById('resultsEmoji');
-  const title = document.getElementById('resultsTitle');
+  // Prepare results data for results page
+  const resultsData = {
+    score: gameState.score,
+    correct: gameState.correct,
+    total: totalGuesses,
+    accuracy: accuracy,
+    timePlayed: timePlayed,
+    lives: gameState.lives,
+    categoryName: categoryConfig.title,
+    categoryKey: categoryKey
+  };
   
-  // Set emoji based on performance
-if (gameState.correct >= 20) {
-  emoji.textContent = '🏆';
-  title.textContent = 'Amazing!';
-  soundManager.play('perfect');
-} else if (gameState.correct >= 10) {
-  emoji.textContent = '🌟';
-  title.textContent = 'Great Job!';
-  soundManager.play('pop');
-} else if (gameState.lives === 0) {
-  emoji.textContent = '💪';
-  title.textContent = 'Game Over!';
-  soundManager.play('tryagain');
-} else {
-  emoji.textContent = '👍';
-  title.textContent = 'Good Try!';
-  soundManager.play('tryagain');
-}
+  // Save to localStorage as backup
+  localStorage.setItem('vsResults', JSON.stringify(resultsData));
   
-  document.getElementById('resultsCategory').textContent = categoryConfig.title;
-  document.getElementById('finalScore').textContent = gameState.score;
-  document.getElementById('finalCorrect').textContent = `${gameState.correct}/${totalGuesses}`;
-  document.getElementById('finalAccuracy').textContent = `${accuracy}%`;
-  document.getElementById('finalTime').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  // Redirect to results page with URL parameters
+  const params = new URLSearchParams({
+    category: categoryKey,
+    score: gameState.score,
+    correct: gameState.correct,
+    total: totalGuesses,
+    accuracy: accuracy,
+    time: timePlayed,
+    lives: gameState.lives
+  });
   
-  overlay.classList.add('active');
+  window.location.href = `vsresults.html?${params.toString()}`;
 }
 
 // Save score to database

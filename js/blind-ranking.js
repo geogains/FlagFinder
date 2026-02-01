@@ -420,48 +420,11 @@ if (metricKey === "gdp") {
 
 function endGame() {
   isGameOver = true;
-  const res = document.querySelector(".result-panel");
-  res.style.display = "flex";
-  setTimeout(() => res.classList.add("visible"), 10);
 
   const maxScore = selectedCountries.length * 10;
-  document.querySelector(
-    ".result-score-value"
-  ).textContent = `${totalScore}/${maxScore}`;
-
-  setTimeout(() => {
-    res.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, 600);
-
-  document.querySelectorAll(".ranking-row").forEach((row) => {
-    const slot = row.querySelector(".rank-slot");
-    if (!slot.innerHTML.trim()) return;
-    const code = slot.querySelector("img")?.src?.split("/").pop()?.split(".")[0];
-    const c = selectedCountries.find((x) => x.code === code);
-    if (!c) return;
-    slot.innerHTML = `
-      <img src="flags/${c.code}.png" alt="${c.name}" />
-      <span class="country-name">${c.name}</span>
-      ${metricKey ? `<span class="metric-value">${formatMetric(c[metricKey])}</span>` : ""}
-    `;
-  });
-
-   const breakdownDiv = document.querySelector(".result-breakdown");
-  breakdownDiv.innerHTML = `
-    <table class="result-table" style="width:100%;border-collapse:separate;border-spacing:0 6px;text-align:center;table-layout:fixed;">
-      <thead>
-        <tr style="background:#667eea;color:white;font-weight:600;font-size:13px;">
-          <th style="padding:8px;border-radius:8px 0 0 8px;width:45%;">Country</th>
-          <th style="padding:8px;width:18%;">Best</th>
-          <th style="padding:8px;width:18%;">Your</th>
-          <th style="padding:8px;border-radius:0 8px 8px 0;width:19%;">Pts</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  `;
-
-  const tbody = breakdownDiv.querySelector("tbody");
+  
+  // Prepare results table data
+  const resultsTable = [];
   const rows = document.querySelectorAll(".ranking-row");
 
   rows.forEach((row, idx) => {
@@ -476,166 +439,122 @@ function endGame() {
     const range = c.rankRange || { min: c.bestRankInRound, max: c.bestRankInRound };
     const withinTieRange = userTier >= range.min && userTier <= range.max;
 
-    const diff =
-      userTier < range.min
-        ? range.min - userTier
-        : userTier > range.max
-        ? userTier - range.max
-        : 0;
-
-    let roundPoints = Math.max(10 - diff, 1);
-    const isPerfect = withinTieRange;
-
-    if (isPerfect) {
-      slot.classList.add("correct-slot");
-      row.style.background = "rgba(34,197,94,0.12)";
-    }
-
-    const tr = document.createElement("tr");
-    tr.style.background = isPerfect ? "rgba(34,197,94,0.12)" : "#f8f7fc";
-   // Debug logging
-    console.log('Classic mode DEBUG:', {
-      metricKey,
-      country: c.name,
-      hasHighestPointName: !!c.highestPointName,
-      hasTallestBuildingName: !!c.tallestBuildingName,
-      highestPointName: c.highestPointName,
-      tallestBuildingName: c.tallestBuildingName
+    resultsTable.push({
+      rank: userTier,
+      name: c.name,
+      flag: `flags/${c.code}.png`,
+      value: formatMetric(c[metricKey]),
+      isPerfect: withinTieRange,
+      tallestBuildingName: c.tallestBuildingName || null,
+      highestPointName: c.highestPointName || null
     });
-    
-    const metricDisplay = metricKey === "highestPoint" && c.highestPointName
-      ? `${formatMetric(c[metricKey])} (${c.highestPointName})`
-      : metricKey === "height" && c.tallestBuildingName
-      ? `${formatMetric(c[metricKey])} (${c.tallestBuildingName})`
-      : metricKey ? formatMetric(c[metricKey]) : "";
-    
-    tr.innerHTML = `
-      <td style="padding:6px;">
-        <div style="display:flex;align-items:center;gap:6px;">
-          <div style="width:40px;height:28px;flex-shrink:0;border-radius:6px;overflow:hidden;box-shadow:0 2px 4px rgba(0,0,0,0.2);">
-            <img src="flags/${c.code}.png" alt="${c.name}" style="width:100%;height:100%;object-fit:cover;" />
-          </div>
-          <div style="text-align:left;min-width:0;flex:1;overflow:hidden;">
-            <div style="font-weight:600;font-size:13px;line-height:1.2;">${c.name}</div>
-            <div style="font-size:10px;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;">${metricDisplay}</div>
-          </div>
-        </div>
-      </td>
-      <td style="font-weight:600;font-size:13px;padding:4px;">${range.min === range.max ? range.min : `${range.min}–${range.max}`}</td>
-      <td style="font-size:13px;padding:4px;">${userTier}</td>
-      <td style="color:${isPerfect ? "#22c55e" : "#667eea"};font-weight:700;font-size:15px;padding:4px;">${roundPoints}</td>
-    `;
-    tbody.appendChild(tr);
   });
 
-// ✅ Save highest score using upsert RPC
-(async () => {
-  const { data: { session }, error: sessionErr } = await supabase.auth.getSession();
-  if (session?.user) {
-    const currentCategory = new URLSearchParams(window.location.search).get("mode");
+  // Get category name
+  const categoryParam = new URLSearchParams(window.location.search).get("mode") || 'population';
+  const categoryNames = {
+    population: 'Population',
+    altitude: 'Highest Altitude',
+    gdp: 'GDP per Capita',
+    tallestbuilding: 'Tallest Buildings',
+    landmass: 'Landmass',
+    forest: 'Forest Coverage',
+    coastline: 'Coastline Length',
+    happiness: 'Happiness Index',
+    passport: 'Passport Power',
+    beer: 'Beer Consumption',
+    nobelprize: 'Nobel Prizes',
+    hightemp: 'Hottest Countries',
+    rainfall: 'Annual Rainfall',
+    crimerate: 'Crime Rate',
+    olympic: 'Olympic Medals',
+    cuisine: 'Cuisine Quality',
+    worldcup: 'World Cup Wins',
+    tourism: 'Most Visited Countries',
+    michelin: 'Michelin Restaurants',
+    bigmac: 'Most Expensive Big Mac',
+    lifeexpectancy: 'Life Expectancy'
+  };
+  const categoryName = categoryNames[categoryParam] || categoryParam;
 
-    // Step 1: Get category_id from CATEGORY_ID_MAP instead of database query
-    const categoryId = CATEGORY_ID_MAP[currentCategory];
+  // Prepare results data for results page
+  const resultsData = {
+    score: totalScore,
+    maxScore: maxScore,
+    categoryName: categoryName,
+    categoryKey: categoryParam,
+    resultsTable: resultsTable
+  };
+  
+  // Save to localStorage as backup
+  localStorage.setItem('classicResults', JSON.stringify(resultsData));
+  
+  // Save highest score using upsert RPC
+  (async () => {
+    const { data: { session }, error: sessionErr } = await supabase.auth.getSession();
+    if (session?.user) {
+      const currentCategory = categoryParam;
 
-    if (!categoryId) {
-      console.error("❌ Could not find category ID for:", currentCategory);
-      console.log("Available categories:", Object.keys(CATEGORY_ID_MAP));
-      return;
-    }
+      // Get category_id from CATEGORY_ID_MAP
+      const categoryId = CATEGORY_ID_MAP[currentCategory];
 
-    console.log("✅ Found category ID:", categoryId, "for category:", currentCategory);
-
-    // Step 2: Call the stored procedure (function)
-    const { error: rpcError } = await supabase.rpc('upsert_high_score', {
-      category_id_input: categoryId,
-      new_score: totalScore,
-      is_daily_challenge: isDailyChallenge  // Pass daily challenge flag for premium bypass
-    });
-
-    if (rpcError) {
-      console.error("❌ Error updating high score:", rpcError);
-    } else {
-      console.log("✅ High score upserted:", totalScore);
-    }
-    
-    // Step 3: If daily challenge, also save to daily_challenge_scores
-    if (isDailyChallenge) {
-      const today = new Date().toISOString().split('T')[0];
-      
-      const { data: dailyData, error: dailyError } = await supabase
-        .from('daily_challenge_scores')
-        .upsert({
-          user_id: session.user.id,
-          category_id: categoryId,
-          played_date: today,
-          score: totalScore,
-          completed: true
-        })
-        .select();
-      
-      if (dailyError) {
-        console.error("❌ Error saving daily challenge score:", dailyError);
-      } else {
-        console.log("✅ Daily challenge score saved:", dailyData);
+      if (!categoryId) {
+        console.error("❌ Could not find category ID for:", currentCategory);
+        console.log("Available categories:", Object.keys(CATEGORY_ID_MAP));
+        return;
       }
+
+      console.log("✅ Found category ID:", categoryId, "for category:", currentCategory);
+
+      // Call the stored procedure
+      const { error: rpcError } = await supabase.rpc('upsert_high_score', {
+        category_id_input: categoryId,
+        new_score: totalScore,
+        is_daily_challenge: isDailyChallenge
+      });
+
+      if (rpcError) {
+        console.error("❌ Error updating high score:", rpcError);
+      } else {
+        console.log("✅ High score upserted:", totalScore);
+      }
+      
+      // If daily challenge, also save to daily_challenge_scores
+      if (isDailyChallenge) {
+        const today = new Date().toISOString().split('T')[0];
+        
+        const { data: dailyData, error: dailyError } = await supabase
+          .from('daily_challenge_scores')
+          .upsert({
+            user_id: session.user.id,
+            category_id: categoryId,
+            played_date: today,
+            score: totalScore,
+            completed: true
+          })
+          .select();
+        
+        if (dailyError) {
+          console.error("❌ Error saving daily challenge score:", dailyError);
+        } else {
+          console.log("✅ Daily challenge score saved:", dailyData);
+        }
+      }
+    } else {
+      console.warn("⚠️ No active session found.");
     }
-  } else {
-    console.warn("⚠️ No active session found.");
-  }
-})();
+  })();
 
-
-
-
-  const playAgain = document.querySelector(".action-play-again");
-  const playRandom = document.querySelector(".action-play-random");
-  const shareBtn = document.querySelector(".action-share");
-
-  shareBtn.onclick = () => {
-  const maxScore = selectedCountries.length * 10;
-  const scoreLine = `GeoRanks 🌍 - ${currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1)} Challenge\nScore: ${totalScore}/${maxScore}\n`;
-
-  const results = document.querySelectorAll(".ranking-row");
-  const markers = Array.from(results).map(row => {
-    const slot = row.querySelector(".rank-slot");
-    if (!slot.innerHTML.trim()) return "❌";
-
-    const code = slot.querySelector("img")?.src?.split("/").pop()?.split(".")[0];
-    const c = selectedCountries.find(x => x.code === code);
-    if (!c) return "❌";
-
-    const userTier = [...results].indexOf(row) + 1;
-    const range = c.rankRange || { min: c.bestRankInRound, max: c.bestRankInRound };
-    return userTier >= range.min && userTier <= range.max ? "✅" : "❌";
+  // Redirect to results page with URL parameters
+  const params = new URLSearchParams({
+    category: categoryParam,
+    score: totalScore,
+    maxScore: maxScore
   });
-
-  const shareText = `${scoreLine}\n${markers.join(" ")}\n\nPlay at: https://geo-ranks.com\n\n`;
-
-  navigator.clipboard.writeText(shareText)
-    .then(() => alert("📋 Copied your results to clipboard!"))
-    .catch(err => alert("❌ Failed to copy results."));
-};
-
-playAgain.onclick = () => {
-  const wrapper = document.querySelector(".blind-ranking-wrapper");
-  if (!wrapper) return;
-
-  wrapper.classList.add("fade-out");
-
+  
   setTimeout(() => {
-    res.classList.remove("visible");
-    res.style.display = "none";
-    startBlindRankingGame();
-    wrapper.classList.remove("fade-out");
-  }, 400); // match CSS transition duration
-};
-
-playRandom.onclick = () => {
-  const allModes = Object.keys(datasets);
-  const otherModes = allModes.filter((m) => m !== currentCategory);
-  const randomMode = otherModes[Math.floor(Math.random() * otherModes.length)];
-  window.location.href = `game.html?mode=${randomMode}`;
-};
+    window.location.href = `classicresults.html?${params.toString()}`;
+  }, 500); // Small delay to ensure score is saved
 }
 
 export function setupRankButtons() {
