@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Results | GeoRanks</title>
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/page.css" />
+  <link rel="stylesheet" href="css/top10.css" />
+  
+  <style>
+    body {
+      padding-top: 80px;
+      padding-bottom: 60px;
+    }
+
+    .results-container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .results-card {
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+      padding: 3rem 2.5rem;
+      animation: fadeInUp 0.5s ease;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .results-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .results-emoji {
+      font-size: 5rem;
+      margin-bottom: 1rem;
+      animation: bounce 0.8s ease;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .results-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #0d315a;
+      margin-bottom: 0.5rem;
+    }
+
+    .results-category {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #667eea;
+      margin-bottom: 2rem;
+    }
+
+    /* Action Buttons - 2x2 Grid */
+    .results-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 2.5rem;
+    }
+
+    .btn {
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #ff9770, #ff6f61);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    /* Stats Section */
+    .results-stats {
+      background: linear-gradient(135deg, #e0f7f1 0%, #e8f5e9 100%);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .stat-row:last-child {
+      border-bottom: none;
+    }
+
+    .stat-label {
+      font-weight: 600;
+      color: #374151;
+      font-size: 1.05rem;
+    }
+
+    .stat-value {
+      font-weight: 700;
+      color: #0d315a;
+      font-size: 1.15rem;
+    }
+
+    /* Results Table */
+    .results-table {
+      margin-bottom: 2rem;
+    }
+
+    .table-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .table-row.correct {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      border-radius: 10px;
+      margin-bottom: 5px;
+      border: none;
+    }
+
+    .table-rank {
+      font-weight: 700;
+      min-width: 45px;
+      font-family: 'Rubik', sans-serif;
+    }
+
+    .table-flag {
+      width: 40px;
+      height: 30px;
+      object-fit: cover;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    }
+
+    .table-country {
+      flex: 1;
+      font-weight: 600;
+    }
+
+    .table-data {
+      font-weight: 700;
+      min-width: 80px;
+      text-align: right;
+    }
+
+    /* Incorrect Guesses */
+    .incorrect-guesses {
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 2px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .incorrect-title {
+      font-weight: 700;
+      color: #0d315a;
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+
+    .incorrect-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      color: #ef4444;
+      font-weight: 600;
+      background: rgba(239, 68, 68, 0.08);
+      border-radius: 8px;
+      margin-bottom: 6px;
+    }
+
+    /* Try Other Modes Section */
+    .try-other-modes {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+      border: 2px solid rgba(102, 126, 234, 0.2);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-top: 2.5rem;
+      text-align: center;
+    }
+
+    .try-other-modes h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #0d315a;
+      margin-bottom: 1.5rem;
+    }
+
+    .mode-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .mode-btn {
+      padding: 1.2rem 1.5rem;
+      border: 2px solid rgba(102, 126, 234, 0.3);
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+      background: white;
+      color: #667eea;
+    }
+
+    .mode-btn:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.25);
+      border-color: #667eea;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 640px) {
+      .results-card {
+        padding: 2rem 1.5rem;
+      }
+
+      .results-title {
+        font-size: 1.8rem;
+      }
+
+      .results-category {
+        font-size: 1.1rem;
+      }
+
+      .results-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .mode-buttons {
+        grid-template-columns: 1fr;
+      }
+
+      .table-row {
+        gap: 8px;
+      }
+
+      .table-rank {
+        min-width: 40px;
+        font-size: 0.9rem;
+      }
+
+      .table-flag {
+        width: 36px;
+        height: 27px;
+      }
+
+      .table-country {
+        font-size: 0.9rem;
+      }
+
+      .table-data {
+        font-size: 0.9rem;
+        min-width: 70px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .results-emoji {
+        font-size: 4rem;
+      }
+
+      .results-title {
+        font-size: 1.5rem;
+      }
+
+      .try-other-modes h3 {
+        font-size: 1.2rem;
+      }
+
+      .mode-btn {
+        font-size: 1rem;
+        padding: 1rem;
+      }
+
+      .table-row {
+        gap: 6px;
+        padding: 10px 8px;
+      }
+
+      .table-rank {
+        min-width: 35px;
+        font-size: 0.85rem;
+      }
+
+      .table-flag {
+        width: 32px;
+        height: 24px;
+      }
+
+      .table-country {
+        font-size: 0.85rem;
+      }
+
+      .table-data {
+        font-size: 0.85rem;
+        min-width: 65px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="home-glass-header">
+    <div class="logo-header">
+      <a href="index.html" class="logo-link">
+        <img src="assets/logo.png" alt="GeoRanks Logo">
+      </a>
+    </div>
+    <div class="hamburger-menu">
+      <button class="menu-icon" id="menuToggle" aria-label="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Menu Overlay -->
+  <div class="menu-overlay" id="menuOverlay">
+    <div class="menu-panel">
+      <button class="menu-close-x" id="menuClose">×</button>
+      <h2>Menu</h2>
+      <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
+      <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
+      <button class="menu-btn" onclick="window.location.href='profile.html'">👤 Profile</button>
+      <button class="menu-btn" onclick="window.location.href='how-to-play.html'">💡 How to Play</button>
+      <button class="upgrade-access-btn menu-btn" onclick="window.location.href='premium.html'">⭐ Upgrade Access</button>
+    </div>
+  </div>
+
+  <!-- Results Container -->
+  <div class="results-container">
+    <div class="results-card">
+      <div class="results-header">
+        <div class="results-emoji" id="resultsEmoji">🎉</div>
+        <div class="results-title" id="resultsTitle">Great Job!</div>
+        <div class="results-category" id="resultsCategory"></div>
+        
+        <!-- Action Buttons -->
+        <div class="results-actions">
+          <button class="btn btn-primary" id="playAgainBtn">Play Again</button>
+          <button class="btn btn-secondary" onclick="window.location.href='index.html'">Home</button>
+          <button class="btn btn-secondary" onclick="window.location.href='leaderboard.html'">Leaderboard</button>
+          <button class="btn btn-secondary" id="shareBtn">Share</button>
+        </div>
+      </div>
+
+      <div class="results-stats">
+        <div class="stat-row">
+          <span class="stat-label">Your Score:</span>
+          <span class="stat-value" id="finalScore">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Lives:</span>
+          <span class="stat-value" id="finalLives">❤️❤️❤️</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Time:</span>
+          <span class="stat-value" id="finalTime">0:00 / 2:00</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Accuracy:</span>
+          <span class="stat-value" id="finalAccuracy">0/10 correct</span>
+        </div>
+      </div>
+
+      <div class="results-table" id="resultsTable"></div>
+
+      <div class="incorrect-guesses" id="incorrectSection" style="display: none;">
+        <div class="incorrect-title">Incorrect Guesses</div>
+        <div id="incorrectList"></div>
+      </div>
+
+      <!-- Try Other Modes Section -->
+      <div class="try-other-modes" id="tryOtherModes">
+        <h3 id="tryModesTitle">🎮 Try other game modes</h3>
+        <div class="mode-buttons">
+          <button class="mode-btn" id="classicModeBtn">🎯 Classic</button>
+          <button class="mode-btn" id="vsModeBtn">⚔️ VS Mode</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="home-footer">
+    <div class="footer-socials">
+      <div class="icon-row">
+        <a href="https://www.instagram.com/georanks" target="_blank"><img src="assets/instagram.png" alt="Instagram"></a>
+        <div class="divider"></div>
+        <a href="https://www.tiktok.com/@geo.ranks" target="_blank"><img src="assets/tiktok.png" alt="TikTok"></a>
+        <div class="divider"></div>
+        <a href="/cdn-cgi/l/email-protection#5a292f2a2a35282e1a3d3f3577283b34312974393537"><img src="assets/email.png" alt="Email"></a>
+      </div>
+      <p>&copy; 2025 GeoRanks. All rights reserved.</p>
+      <div class="footer-links">
+        <a href="privacy.html">Privacy Policy</a>
+        <span>|</span>
+        <a href="terms.html">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
+
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+    const supabase = createClient(
+      'https://api.geo-ranks.com',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRudGlmeXd5b2Z1cWVzcG9kaGFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU5MTQxODQsImV4cCI6MjA1MTQ5MDE4NH0.BbHN1kYS8d9xvZAEP3-D_Xva9q3JdHkB0LfXUzjI4B0'
+    );
+
+    // Get URL parameters
+    const params = new URLSearchParams(window.location.search);
+    const categoryKey = params.get('category') || 'population';
+    const score = parseInt(params.get('score')) || 0;
+    const correct = parseInt(params.get('correct')) || 0;
+    const timeUsed = parseInt(params.get('time')) || 0;
+    const lives = parseInt(params.get('lives')) || 0;
+
+    // Try to get results from localStorage as backup
+    const savedResults = localStorage.getItem('top10Results');
+    let resultsData = null;
+
+    if (savedResults) {
+      try {
+        resultsData = JSON.parse(savedResults);
+      } catch (e) {
+        console.error('Error parsing saved results:', e);
+      }
+    }
+
+    // Use URL params or saved data
+    const finalScore = resultsData?.score || score;
+    const finalCorrect = resultsData?.correct || correct;
+    const finalTime = resultsData?.timeUsed || timeUsed;
+    const finalLives = resultsData?.lives || lives;
+    const categoryName = resultsData?.categoryName || getCategoryDisplayName(categoryKey);
+    const resultsTable = resultsData?.resultsTable || [];
+    const incorrectGuesses = resultsData?.incorrectGuesses || [];
+
+    // Display results
+    displayResults();
+
+    function getCategoryDisplayName(key) {
+      const names = {
+        population: 'Population',
+        altitude: 'Highest Altitude',
+        gdp: 'GDP per Capita',
+        tallestbuilding: 'Tallest Buildings',
+        landmass: 'Landmass',
+        forest: 'Forest Coverage',
+        coastline: 'Coastline Length',
+        happiness: 'Happiness Index',
+        passport: 'Passport Power',
+        beer: 'Beer Consumption',
+        nobelprize: 'Nobel Prizes',
+        hightemp: 'Hottest Countries',
+        rainfall: 'Annual Rainfall',
+        crimerate: 'Crime Rate',
+        olympic: 'Olympic Medals',
+        cuisine: 'Cuisine Quality',
+        worldcup: 'World Cup Wins',
+        tourism: 'Most Visited Countries',
+        michelin: 'Michelin Restaurants',
+        bigmac: 'Most Expensive Big Mac',
+        lifeexpectancy: 'Life Expectancy'
+      };
+      return names[key] || key.charAt(0).toUpperCase() + key.slice(1);
+    }
+
+    function displayResults() {
+      // Update emoji and title based on performance
+      const emoji = finalCorrect >= 8 ? '🏆' : finalCorrect >= 5 ? '🎉' : '💪';
+      const title = finalCorrect >= 8 ? 'Excellent!' : finalCorrect >= 5 ? 'Great Job!' : 'Try Again!';
+      
+      document.getElementById('resultsEmoji').textContent = emoji;
+      document.getElementById('resultsTitle').textContent = title;
+      document.getElementById('resultsCategory').textContent = categoryName;
+
+      // Update stats
+      document.getElementById('finalScore').textContent = finalScore;
+      document.getElementById('finalLives').textContent = '❤️'.repeat(finalLives);
+      
+      const minutes = Math.floor(finalTime / 60);
+      const seconds = finalTime % 60;
+      document.getElementById('finalTime').textContent = `${minutes}:${seconds.toString().padStart(2, '0')} / 2:00`;
+      document.getElementById('finalAccuracy').textContent = `${finalCorrect}/10 correct`;
+
+      // Build results table
+      buildResultsTable();
+
+      // Show incorrect guesses if any
+      if (incorrectGuesses.length > 0) {
+        document.getElementById('incorrectSection').style.display = 'block';
+        const incorrectList = document.getElementById('incorrectList');
+        incorrectList.innerHTML = incorrectGuesses
+          .map(name => `<div class="incorrect-item">❌ ${name}</div>`)
+          .join('');
+      }
+
+      // Update "Try Other Modes" section
+      document.getElementById('tryModesTitle').textContent = `🎮 Try other ${categoryName} game modes`;
+      
+      document.getElementById('classicModeBtn').onclick = () => {
+        window.location.href = `blind-ranking.html?mode=${categoryKey}`;
+      };
+      
+      document.getElementById('vsModeBtn').onclick = () => {
+        window.location.href = `vs.html?mode=${categoryKey}`;
+      };
+
+      // Play Again button
+      document.getElementById('playAgainBtn').onclick = () => {
+        window.location.href = `top10.html?mode=${categoryKey}`;
+      };
+
+      // Share button
+      document.getElementById('shareBtn').onclick = shareResults;
+    }
+
+    function buildResultsTable() {
+      const table = document.getElementById('resultsTable');
+      
+      if (resultsTable.length === 0) {
+        table.innerHTML = '<p style="text-align: center; color: #9ca3af;">No results data available</p>';
+        return;
+      }
+
+      // Clear table
+      table.innerHTML = '';
+
+      resultsTable.forEach(country => {
+        const isGuessed = country.guessed;
+        const rowClass = isGuessed ? 'table-row correct' : 'table-row';
+        
+        // Check if country has building/mountain name
+        const hasExtraInfo = country.tallestBuildingName || country.highestPointName;
+        const extraInfoName = country.tallestBuildingName || country.highestPointName;
+        const infoType = country.tallestBuildingName ? 'Building' : 'Mountain';
+        
+        // Create row
+        const row = document.createElement('div');
+        row.className = rowClass;
+        row.innerHTML = `
+          <span class="table-rank">#${country.rank}</span>
+          <img src="${country.flag}" alt="${country.name}" class="table-flag">
+          <span class="table-country">${country.name}</span>
+          <div class="table-data-container">
+            <span class="table-data" style="color: ${isGuessed ? 'white' : '#667eea'};">${country.value}</span>
+            ${hasExtraInfo ? `
+              <button class="expand-btn" data-rank="${country.rank}" aria-label="Show details">
+                <svg class="chevron-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M3 5L7 9L11 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            ` : ''}
+          </div>
+        `;
+        
+        table.appendChild(row);
+        
+        // Add dropdown card if there's extra info
+        if (hasExtraInfo) {
+          const dropdownCard = document.createElement('div');
+          dropdownCard.className = `table-dropdown-card ${isGuessed ? 'correct' : ''}`;
+          dropdownCard.dataset.rank = country.rank;
+          dropdownCard.innerHTML = `
+            <div class="dropdown-card-inner">
+              <span class="dropdown-label">${infoType}:</span>
+              <span class="dropdown-value">${extraInfoName}</span>
+            </div>
+          `;
+          table.appendChild(dropdownCard);
+        }
+      });
+      
+      // Add click handlers for expand buttons
+      document.querySelectorAll('.expand-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const rank = btn.dataset.rank;
+          const dropdown = document.querySelector(`.table-dropdown-card[data-rank="${rank}"]`);
+          const allDropdowns = document.querySelectorAll('.table-dropdown-card');
+          const allButtons = document.querySelectorAll('.expand-btn');
+          
+          // Close all other dropdowns
+          allDropdowns.forEach(d => {
+            if (d.dataset.rank !== rank) {
+              d.classList.remove('active');
+            }
+          });
+          
+          // Reset all other buttons
+          allButtons.forEach(b => {
+            if (b.dataset.rank !== rank) {
+              b.classList.remove('active');
+            }
+          });
+          
+          // Toggle current dropdown
+          if (dropdown.classList.contains('active')) {
+            dropdown.classList.remove('active');
+            btn.classList.remove('active');
+          } else {
+            dropdown.classList.add('active');
+            btn.classList.add('active');
+          }
+        });
+      });
+    }
+
+    function shareResults() {
+      const text = `🌍 GeoRanks - ${categoryName}
+Score: ${finalScore} | ${finalCorrect}/10 correct
+Lives: ${'❤️'.repeat(finalLives)}
+
+Can you beat my score? Play at geo-ranks.com`;
+
+      if (navigator.share) {
+        navigator.share({
+          title: 'GeoRanks Results',
+          text: text
+        }).catch(err => console.log('Share failed:', err));
+      } else {
+        navigator.clipboard.writeText(text);
+        alert('Results copied to clipboard!');
+      }
+    }
+
+    // Menu toggle
+    document.getElementById('menuToggle').addEventListener('click', () => {
+      document.getElementById('menuOverlay').classList.add('active');
+      document.body.classList.add('menu-open');
+    });
+
+    document.getElementById('menuClose').addEventListener('click', () => {
+      document.getElementById('menuOverlay').classList.remove('active');
+      document.body.classList.remove('menu-open');
+    });
+
+    document.getElementById('menuOverlay').addEventListener('click', (e) => {
+      if (e.target.id === 'menuOverlay') {
+        document.getElementById('menuOverlay').classList.remove('active');
+        document.body.classList.remove('menu-open');
+      }
+    });
+  </script>
+</body>
+</html>

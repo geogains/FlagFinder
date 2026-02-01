@@ -1070,172 +1070,45 @@ async function saveDailyScore(score, correctGuesses, timeElapsed) {
 }
 
 function showResults(won, correctGuesses, timeElapsed) {
-  const overlay = document.getElementById('resultsOverlay');
-  const emoji = document.getElementById('resultsEmoji');
-  const title = document.getElementById('resultsTitle');
-  const category = document.getElementById('resultsCategory');
+  // Prepare results data for results page
+  const resultsData = {
+    score: gameState.score,
+    correct: correctGuesses,
+    timeUsed: timeElapsed,
+    lives: gameState.lives,
+    categoryName: currentCategory.title,
+    categoryKey: categoryKey,
+    incorrectGuesses: gameState.incorrectGuesses,
+    resultsTable: currentCategory.countries.map(country => ({
+      rank: country.rank,
+      name: country.name,
+      flag: country.flag,
+      value: formatValue(country.value, currentCategory.unit, country),
+      guessed: gameState.guessedCountries.has(country.name),
+      tallestBuildingName: country.tallestBuildingName || null,
+      highestPointName: country.highestPointName || null
+    }))
+  };
   
-  // Set emoji and title based on performance
-  if (won) {
-    emoji.textContent = '🎉';
-    title.textContent = 'Perfect!';
-    soundManager.play('perfect');
-  } else if (correctGuesses >= 7) {
-    emoji.textContent = '🌟';
-    title.textContent = 'Great Job!';
-    soundManager.play('pop');
-  } else if (correctGuesses >= 5) {
-    emoji.textContent = '👍';
-    title.textContent = 'Good Effort!';
-    soundManager.play('pop');
-  } else {
-    emoji.textContent = '💪';
-    title.textContent = 'Try Again!';
-    soundManager.play('tryagain');
-  }
+  // Save to localStorage as backup
+  localStorage.setItem('top10Results', JSON.stringify(resultsData));
   
-  category.textContent = currentCategory.title;
-  
-  // Update stats
-  document.getElementById('finalScore').textContent = gameState.score;
-  document.getElementById('finalLives').textContent = '❤️'.repeat(gameState.lives);
-  
-  const minutes = Math.floor(timeElapsed / 60);
-  const seconds = timeElapsed % 60;
-  document.getElementById('finalTime').textContent = 
-    `${minutes}:${seconds.toString().padStart(2, '0')} / 2:00`;
-  
-  document.getElementById('finalAccuracy').textContent = `${correctGuesses}/10 correct`;
-  
-  // Build results table
-  buildResultsTable();
-  
-  // Show incorrect guesses if any
-  if (gameState.incorrectGuesses.length > 0) {
-    document.getElementById('incorrectSection').style.display = 'block';
-    const incorrectList = document.getElementById('incorrectList');
-    incorrectList.innerHTML = gameState.incorrectGuesses
-      .map(name => `<div class="incorrect-item">❌ ${name}</div>`)
-      .join('');
-  }
-  
-  overlay.classList.add('active');
-}
-
-function buildResultsTable() {
-  const table = document.getElementById('resultsTable');
-  table.innerHTML = '';
-  
-  currentCategory.countries.forEach(country => {
-    const isGuessed = gameState.guessedCountries.has(country.name);
-    const row = document.createElement('div');
-    row.className = `table-row ${isGuessed ? 'correct' : ''}`;
-    
-    const formattedValue = formatValue(country.value, currentCategory.unit, country);
-    const valueColor = isGuessed ? 'white' : '#667eea';
-    
-    // Check if this country has a building/mountain name
-    const hasExtraInfo = country.tallestBuildingName || country.highestPointName;
-    const extraInfoName = country.tallestBuildingName || country.highestPointName;
-    const infoType = country.tallestBuildingName ? 'Building' : 'Mountain';
-    
-    row.innerHTML = `
-      <span class="table-rank">#${country.rank}</span>
-      <img src="${country.flag}" alt="${country.name}" class="table-flag">
-      <span class="table-country">${country.name}</span>
-      <div class="table-data-container">
-        <span class="table-data" style="color: ${valueColor};">${formattedValue}</span>
-        ${hasExtraInfo ? `
-          <button class="expand-btn" data-rank="${country.rank}" aria-label="Show details">
-            <svg class="chevron-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M3 5L7 9L11 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-        ` : ''}
-      </div>
-    `;
-    
-    table.appendChild(row);
-    
-    // Add dropdown card as separate element if there's extra info
-    if (hasExtraInfo) {
-      const dropdownCard = document.createElement('div');
-      dropdownCard.className = `table-dropdown-card ${isGuessed ? 'correct' : ''}`;
-      dropdownCard.dataset.rank = country.rank;
-      dropdownCard.innerHTML = `
-        <div class="dropdown-card-inner">
-          <span class="dropdown-label">${infoType}:</span>
-          <span class="dropdown-value">${extraInfoName}</span>
-        </div>
-      `;
-      table.appendChild(dropdownCard);
-    }
+  // Redirect to results page with URL parameters
+  const params = new URLSearchParams({
+    category: categoryKey,
+    score: gameState.score,
+    correct: correctGuesses,
+    time: timeElapsed,
+    lives: gameState.lives
   });
   
-  // Add click handlers for expand buttons
-  document.querySelectorAll('.expand-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const rank = btn.dataset.rank;
-      const dropdown = document.querySelector(`.table-dropdown-card[data-rank="${rank}"]`);
-      const allDropdowns = document.querySelectorAll('.table-dropdown-card');
-      const allButtons = document.querySelectorAll('.expand-btn');
-      
-      // Close all other dropdowns
-      allDropdowns.forEach(d => {
-        if (d.dataset.rank !== rank) {
-          d.classList.remove('active');
-        }
-      });
-      
-      // Reset all other buttons
-      allButtons.forEach(b => {
-        if (b.dataset.rank !== rank) {
-          b.classList.remove('active');
-        }
-      });
-      
-      // Toggle current dropdown
-      if (dropdown.classList.contains('active')) {
-        dropdown.classList.remove('active');
-        btn.classList.remove('active');
-      } else {
-        dropdown.classList.add('active');
-        btn.classList.add('active');
-      }
-    });
-  });
+  window.location.href = `top10results.html?${params.toString()}`;
 }
 
-// Share functionality
-window.shareResults = function() {
-  // Read from the DOM since gameState might not be populated when viewing completed results
-  const scoreElement = document.getElementById('finalScore');
-  const accuracyElement = document.getElementById('finalAccuracy');
-  const livesElement = document.getElementById('finalLives');
-  
-  const score = scoreElement ? scoreElement.textContent : '0';
-  const accuracy = accuracyElement ? accuracyElement.textContent : '0/10 correct';
-  const lives = livesElement ? livesElement.textContent : '❤️❤️❤️';
-  
-  const text = `🌍 GeoRanks - ${currentCategory.title}
-Score: ${score} | ${accuracy}
-Lives: ${lives}
+// Removed buildResultsTable - now handled in top10results.html
+// Removed shareResults - now handled in top10results.html
 
-Can you beat my score? Play at geo-ranks.com`;
-  
-  if (navigator.share) {
-    navigator.share({
-      title: 'GeoRanks Result',
-      text: text
-    }).catch(() => {});
-  } else {
-    // Fallback: copy to clipboard
-    navigator.clipboard.writeText(text).then(() => {
-      alert('Results copied to clipboard!');
-    });
-  }
-};
+console.log('Top 10 game loaded');
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', initializeGame);
