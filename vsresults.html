@@ -142,8 +142,8 @@
     .mode-btn:hover {
       transform: translateY(-4px);
       box-shadow: 0 8px 20px rgba(102, 126, 234, 0.25);
-      border-color: #667eea;
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-color: #fa5d4f;
+      background: linear-gradient(135deg, #ff9770, #ff6f61);
       color: white;
     }
 
@@ -316,9 +316,9 @@
 
       <!-- Try Other Modes Section -->
       <div class="try-other-modes" id="tryOtherModes">
-        <h3 id="tryModesTitle">🎮 Try other game modes</h3>
+        <h3 id="tryModesTitle">Try other game modes</h3>
         <div class="mode-buttons">
-          <button class="mode-btn" id="classicModeBtn">🎯 Classic</button>
+          <button class="mode-btn" id="classicModeBtn">🌍 Classic</button>
           <button class="mode-btn" id="top10ModeBtn">🔟 Top 10</button>
         </div>
       </div>
@@ -438,10 +438,10 @@
       const seconds = finalTime % 60;
       document.getElementById('finalTime').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
-      document.getElementById('tryModesTitle').textContent = `🎮 Try other ${categoryName} game modes`;
+      document.getElementById('tryModesTitle').textContent = `Try other ${categoryName} game modes`;
       
       document.getElementById('classicModeBtn').onclick = () => {
-        window.location.href = `blind-ranking.html?mode=${categoryKey}`;
+        window.location.href = `game.html?mode=${categoryKey}`;
       };
       
       document.getElementById('top10ModeBtn').onclick = () => {

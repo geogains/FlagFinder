@@ -441,6 +441,7 @@ function endGame() {
 
     resultsTable.push({
       rank: userTier,
+      bestRank: range.min === range.max ? range.min : `${range.min}-${range.max}`,
       name: c.name,
       flag: `flags/${c.code}.png`,
       value: formatMetric(c[metricKey]),

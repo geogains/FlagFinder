@@ -184,8 +184,8 @@
     .mode-btn:hover {
       transform: translateY(-4px);
       box-shadow: 0 8px 20px rgba(102, 126, 234, 0.25);
-      border-color: #667eea;
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-color: #fa5d4f;
+      background: linear-gradient(135deg, #ff9770, #ff6f61);
       color: white;
     }
 
@@ -198,7 +198,11 @@
     }
 
     .results-actions .btn:nth-child(1) {
-      grid-column: 1 / -1;
+      grid-column: 1 / -1; /* Play Again - full width */
+    }
+
+    .results-actions .btn:nth-child(4) {
+      grid-column: 1 / -1; /* Share Results - full width */
     }
 
     .btn {
@@ -245,7 +249,8 @@
         grid-template-columns: 1fr;
       }
 
-      .results-actions .btn:nth-child(1) {
+      .results-actions .btn:nth-child(1),
+      .results-actions .btn:nth-child(4) {
         grid-column: 1;
       }
 
@@ -339,7 +344,7 @@
 
       <!-- Try Other Modes Section -->
       <div class="try-other-modes" id="tryOtherModes">
-        <h3 id="tryModesTitle">🎮 Try other game modes</h3>
+        <h3 id="tryModesTitle">Try other game modes</h3>
         <div class="mode-buttons">
           <button class="mode-btn" id="vsModeBtn">⚔️ VS Mode</button>
           <button class="mode-btn" id="top10ModeBtn">🔟 Top 10</button>
@@ -454,7 +459,7 @@
       buildResultsTable();
 
       // Update "Try Other Modes" section
-      document.getElementById('tryModesTitle').textContent = `🎮 Try other ${categoryName} game modes`;
+      document.getElementById('tryModesTitle').textContent = `Try other ${categoryName} game modes`;
       
       document.getElementById('vsModeBtn').onclick = () => {
         window.location.href = `vs.html?mode=${categoryKey}`;
@@ -466,12 +471,12 @@
 
       // Play Again button
       document.getElementById('playAgainBtn').onclick = () => {
-        window.location.href = `blind-ranking.html?mode=${categoryKey}`;
+        window.location.href = `game.html?mode=${categoryKey}`;
       };
 
       // Play Random button
       document.getElementById('playRandomBtn').onclick = () => {
-        window.location.href = `blind-ranking.html`;
+        window.location.href = `game.html`;
       };
 
       // Share button

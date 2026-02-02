@@ -9,13 +9,13 @@ const SMALL_CATEGORIES = [];
 // Mode configurations
 const MODES = {
   classic: {
-    icon: '🎮',
+    icon: '🌍',
     name: 'CLASSIC',
     description: 'Rank 10 randomly assigned countries',
     gameFile: 'game.html'
   },
   top10: {
-    icon: '🎯',
+    icon: '🔟',
     name: 'TOP 10',
     description: 'Name the top 10 countries in under 2 minutes',
     gameFile: 'top10.html'
