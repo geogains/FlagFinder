@@ -12,11 +12,26 @@
   
   <style>
     /* ========================================
+       BODY & PAGE LAYOUT
+    ======================================== */
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .leaderboard-page-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* ========================================
        LEADERBOARD SPECIFIC STYLES
     ======================================== */
     .leaderboard-container {
       max-width: 720px;
-      margin: 120px auto 40px;
+      margin: 120px auto 60px;
       padding: 2rem;
       background: rgba(255, 255, 255, 0.75);
       backdrop-filter: blur(14px);
@@ -434,6 +449,9 @@
   </div>
 </div>
 
+<!-- ========== MAIN CONTENT WRAPPER ========== -->
+<div class="leaderboard-page-wrapper">
+
 <!-- ========== LEADERBOARD CONTENT ========== -->
 <div class="leaderboard-container">
   <h1 class="page-title">🏆 <span class="page-title-text">Leaderboard</span></h1>
@@ -475,8 +493,17 @@
     </tbody>
   </table>
 
-  <a href="index.html" class="back-home">🏠 Return Home</a>
+  <a href="index.html" class="back-home">Return Home</a>
 </div>
+
+</div>
+<!-- ========== END MAIN CONTENT WRAPPER ========== -->
+
+<!-- ========== FOOTER ========== -->
+<footer class="home-footer">
+  <div class="footer-socials">
+  </div>
+</footer>
 
 <!-- ========== JAVASCRIPT ========== -->
 <script>

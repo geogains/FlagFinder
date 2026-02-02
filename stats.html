@@ -49,6 +49,12 @@
       }
     }
     
+    /* Footer fade-in animation */
+    .home-footer {
+      opacity: 0;
+      animation: fadeIn 0.6s ease-out 0.3s forwards;
+    }
+    
     /* Header Section */
     .stats-header {
       text-align: center;
@@ -194,6 +200,10 @@
       border-bottom: 1px solid rgba(0, 0, 0, 0.06);
     }
     
+    .category-stats-table td:first-child {
+      font-weight: 700;
+    }
+    
     .category-stats-table tbody tr {
       transition: all 0.2s ease;
     }
@@ -327,8 +337,9 @@
     /* Mobile Responsive */
     @media (max-width: 768px) {
       .stats-container {
-        margin: 90px 16px 40px;
-        padding: 32px 24px;
+        margin: 90px 12px 40px;
+        padding: 32px 20px;
+        max-width: calc(100% - 24px);
       }
       
       .page-title {
@@ -347,8 +358,8 @@
       
       .category-stats-table th,
       .category-stats-table td {
-        padding: 12px 14px;
-        font-size: 0.9rem;
+        padding: 10px 8px;
+        font-size: 0.85rem;
       }
       
       .premium-window {
@@ -357,6 +368,30 @@
       
       .premium-window h2 {
         font-size: 1.8rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .stats-container {
+        margin: 90px 8px 40px;
+        padding: 24px 16px;
+        max-width: calc(100% - 16px);
+      }
+      
+      .category-stats-table th,
+      .category-stats-table td {
+        padding: 8px 4px;
+        font-size: 0.8rem;
+      }
+      
+      .category-stats-table th:first-child,
+      .category-stats-table td:first-child {
+        padding-left: 8px;
+      }
+      
+      .category-stats-table th:last-child,
+      .category-stats-table td:last-child {
+        padding-right: 8px;
       }
     }
   </style>
@@ -452,6 +487,12 @@
     <button id="closePremiumBtn" class="premium-btn cancel">Return Home</button>
   </div>
 </div>
+
+<!-- ========== FOOTER ========== -->
+<footer class="home-footer">
+  <div class="footer-socials">
+  </div>
+</footer>
 
 <!-- ========== JAVASCRIPT ========== -->
 <script>
@@ -703,10 +744,22 @@ document.addEventListener('DOMContentLoaded', function() {
           progressLabel = `${progressPercent}%`;
         }
 
+        // Convert rank to medal emoji for top 3
+        let rankDisplay;
+        if (rank === 1) {
+          rankDisplay = '🥇';
+        } else if (rank === 2) {
+          rankDisplay = '🥈';
+        } else if (rank === 3) {
+          rankDisplay = '🥉';
+        } else {
+          rankDisplay = `#${rank}`;
+        }
+
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>${categoryName}</td>
-          <td>#${rank}</td>
+          <td>${rankDisplay}</td>
           <td>${score}</td>
           <td>
             <div class="progress-bar-container">
