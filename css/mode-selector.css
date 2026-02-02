@@ -62,22 +62,28 @@
 .mode-selector-modal::before {
   content: '';
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
   z-index: 0;
-  border-radius: 32px;
+  border-radius: inherit;
 }
 
 /* Subtle gradient overlay for depth */
 .mode-selector-modal::after {
   content: '';
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: linear-gradient(180deg, rgba(13, 49, 90, 0.15) 0%, transparent 50%, rgba(13, 49, 90, 0.2) 100%);
   z-index: 0;
-  border-radius: 32px;
+  border-radius: inherit;
   pointer-events: none;
 }
 
@@ -364,6 +370,43 @@
 }
 
 /* ========== RESPONSIVE DESIGN ========== */
+
+/* Disable hover effects on touch devices to prevent sticky hover states */
+@media (hover: none) and (pointer: coarse) {
+  .mode-card:hover {
+    transform: none;
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  
+  .mode-card:hover::before {
+    transform: scaleX(0);
+  }
+  
+  .mode-card:hover::after {
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  }
+  
+  .mode-card:hover .mode-icon {
+    transform: none;
+    filter: drop-shadow(0 4px 12px rgba(102, 126, 234, 0.2));
+  }
+  
+  .mode-card:hover .mode-name {
+    background: none;
+    -webkit-background-clip: unset;
+    -webkit-text-fill-color: unset;
+    background-clip: unset;
+    color: #0d315a;
+  }
+  
+  /* Active state for touch */
+  .mode-card:active {
+    transform: scale(0.98);
+    background: rgba(255, 255, 255, 0.95);
+  }
+}
 
 /* Tablet */
 @media (max-width: 1024px) {

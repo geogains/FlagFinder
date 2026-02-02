@@ -183,7 +183,7 @@
     
     .category-stats-table th {
       padding: 16px 20px;
-      text-align: left;
+      text-align: center;
       font-weight: 700;
       font-size: 0.95rem;
       color: #0d315a;
@@ -632,9 +632,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (mode === 'classic') {
       progressHeader.textContent = 'Progress';
     } else if (mode === 'top10') {
-      progressHeader.textContent = 'Accuracy (/10)';
+      progressHeader.textContent = 'Accuracy';
     } else if (mode === 'vs') {
-      progressHeader.textContent = 'Accuracy (%)';
+      progressHeader.textContent = 'Accuracy';
     }
     
     categoryStatsBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 40px;">Loading...</td></tr>';
