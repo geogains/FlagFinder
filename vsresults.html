@@ -316,9 +316,9 @@
 
       <!-- Try Other Modes Section -->
       <div class="try-other-modes" id="tryOtherModes">
-        <h3 id="tryModesTitle">Try other game modes</h3>
+        <h3 id="tryModesTitle">🎮 Try other game modes</h3>
         <div class="mode-buttons">
-          <button class="mode-btn" id="classicModeBtn">🌍 Classic</button>
+          <button class="mode-btn" id="classicModeBtn">🎯 Classic</button>
           <button class="mode-btn" id="top10ModeBtn">🔟 Top 10</button>
         </div>
       </div>
@@ -333,13 +333,26 @@
     </div>
   </div>
 
-    <!-- ========== FOOTER ========== -->
-<footer class="home-footer">
-  <div class="footer-socials">
-  </div>
-</footer>
+  <!-- Footer -->
+  <footer class="home-footer">
+    <div class="footer-socials">
+      <div class="icon-row">
+        <a href="https://www.instagram.com/georanks" target="_blank"><img src="assets/instagram.png" alt="Instagram"></a>
+        <div class="divider"></div>
+        <a href="https://www.tiktok.com/@geo.ranks" target="_blank"><img src="assets/tiktok.png" alt="TikTok"></a>
+        <div class="divider"></div>
+        <a href="/cdn-cgi/l/email-protection#ff8c8a8f8f908d8bbf989a90d28d9e91948cd19c9092"><img src="assets/email.png" alt="Email"></a>
+      </div>
+      <p>&copy; 2025 GeoRanks. All rights reserved.</p>
+      <div class="footer-links">
+        <a href="privacy.html">Privacy Policy</a>
+        <span>|</span>
+        <a href="terms.html">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
 
-  <script type="module">
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
     const supabase = createClient(
@@ -438,7 +451,7 @@
       const seconds = finalTime % 60;
       document.getElementById('finalTime').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
-      document.getElementById('tryModesTitle').textContent = `Try other ${categoryName} game modes`;
+      document.getElementById('tryModesTitle').textContent = `🎮 Try other ${categoryName} game modes`;
       
       document.getElementById('classicModeBtn').onclick = () => {
         window.location.href = `game.html?mode=${categoryKey}`;
@@ -465,7 +478,7 @@
 Score: ${finalScore} | ${finalCorrect}/${finalTotal} correct (${finalAccuracy}%)
 Lives: ${livesDisplay}
 
-Can you beat my score? Play at geo-ranks.com`;
+Can you beat my score? Play at geo-ranks.com/vs.html?mode=${categoryKey}`;
 
       if (navigator.share) {
         navigator.share({
