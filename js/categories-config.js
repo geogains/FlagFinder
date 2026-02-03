@@ -101,7 +101,7 @@ export const categoriesConfig = {
     dataFile: "beer",
     dataKey: "beerData",
     valueField: "beer",
-    questionText: "WHICH COUNTRY ANUALLY CONSUMES MORE BEER PER CAPITA?"
+    questionText: "WHICH COUNTRY CONSUMES MORE BEER PER CAPITA?"
   },
   
   nobelprize: {
@@ -170,7 +170,7 @@ export const categoriesConfig = {
     dataFile: "cuisine",
     dataKey: "cuisineData",
     valueField: "cuisine",
-    questionText: "WHICH COUNTRY HAS A HIGHER CUISINE SCORE?"
+    questionText: "WHICH COUNTRY HAS A HIGHER CUISINE RATING?"
   },
 
   tourism: {
@@ -180,7 +180,7 @@ export const categoriesConfig = {
   dataFile: "tourism",
   dataKey: "tourismData",
   valueField: "touristArrivals",
-  questionText: "WHICH COUNTRY RECEIVES MORE TOURISTS?"
+  questionText: "WHICH COUNTRY RECEIVED MORE TOURISTS IN 2025?"
 },
 
 michelin: {
@@ -236,7 +236,7 @@ tallestbuilding: {
   dataFile: "tallestbuilding",
   dataKey: "tallestbuildingData",
   valueField: "height",
-  questionText: "WHICH COUNTRY HAS A TALLER BUILDING?"
+  questionText: "WHICH COUNTRY HAS THE TALLEST BUILDING?"
 },
 density: {
   title: "Population Density",
@@ -272,7 +272,7 @@ rent: {
   dataFile: "rent",
   dataKey: "rentData",
   valueField: "rentUsd",
-  questionText: "WHICH COUNTRY HAS HIGHER RENT PRICES?"
+  questionText: "WHICH COUNTRY HAS HIGHER CAPTAL CITY RENT PRICES?"
 },
 poorestgdp: {
   title: "Poorest Countries",
@@ -335,7 +335,7 @@ renewableenergy: {
   dataFile: "renewableenergy",
   dataKey: "renewableShareData",
   valueField: "sharepercent",
-  questionText: "WHICH COUNTRY USES MORE RENEWABLE ENERGY?"
+  questionText: "WHICH COUNTRY HAS A HIGHER % OF RENEWABLE ENERGY USAGES?"
 },
 millionaires: {
   title: "Millionaires",

@@ -5,11 +5,11 @@ import { supabase } from './supabase-client.js';
 
 // Initialize sound manager
 const SOUND_MAP = {
-  'correct': '../sounds/correct.mp3',
-  'wrong': '../sounds/wrong.mp3',
-   'perfect': '../sounds/perfect.mp3',
-  'tryagain': '../sounds/tryagain.mp3',
-  'pop': '../sounds/pop.mp3'
+  'correct': '/sounds/correct.mp3',
+  'wrong': '/sounds/wrong.mp3',
+   'perfect': '/sounds/perfect.mp3',
+  'tryagain': '/sounds/tryagain.mp3',
+  'pop': '/sounds/pop.mp3'
 };
 
 soundManager.init(SOUND_MAP).then(() => {
