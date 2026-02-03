@@ -42,6 +42,19 @@
   <link rel="stylesheet" href="css/page.css"/>
   
   <style>
+/* Body & Page Layout - Fix footer gap */
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.vs-game-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 /* Loading overlay to prevent access during auth check */
 #authLoadingOverlay {
   position: fixed;
@@ -435,7 +448,7 @@
     </div>
   </header>
 
-  <div class="home-wrapper">
+  <div class="vs-game-wrapper">
     <!-- Hamburger Overlay Menu -->
     <div class="menu-overlay" id="menuOverlay">
       <div class="menu-panel">
@@ -531,6 +544,9 @@
       </div>
     </div>
   </div>
+
+</div>
+<!-- ========== END VS GAME WRAPPER ========== -->
 
 <!-- ========== FOOTER ========== -->
 <footer class="home-footer">
