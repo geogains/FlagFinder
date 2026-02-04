@@ -397,6 +397,18 @@
 
   <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+    import soundManager from './js/sound-manager.js';
+
+    // Initialize sounds
+    const SOUND_MAP = {
+      'perfect': '/sounds/perfect.mp3',
+      'correct': '/sounds/correct.mp3',
+      'tryagain': '/sounds/tryagain.mp3'
+    };
+    
+    soundManager.init(SOUND_MAP).then(() => {
+      console.log('✅ Sounds loaded on results page');
+    });
 
     const supabase = createClient(
       'https://api.geo-ranks.com',
@@ -408,6 +420,16 @@
     const categoryKey = params.get('category') || 'population';
     const score = params.get('score') || '0';
     const maxScore = params.get('maxScore') || '100';
+    
+    // Calculate score percentage and play appropriate sound
+    const scorePercentage = (parseInt(score) / parseInt(maxScore)) * 100;
+    if (scorePercentage >= 90) {
+      soundManager.play('perfect'); // 90%+ = perfect!
+    } else if (scorePercentage >= 70) {
+      soundManager.play('correct');  // 70-89% = good job
+    } else {
+      soundManager.play('tryagain'); // <70% = try again
+    }
 
     // Try to get results from localStorage as backup
     const savedResults = localStorage.getItem('classicResults');

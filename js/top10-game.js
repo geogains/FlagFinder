@@ -11,11 +11,11 @@ console.log('Top10 game script loaded');
 
 // Initialize sound manager with sounds
 const SOUND_MAP = {
-  'wrong': '../sounds/wrong.mp3',
-  'correct': '../sounds/correct.mp3',
-  'perfect': '../sounds/perfect.mp3',
-  'tryagain': '../sounds/tryagain.mp3',
-  'pop': '../sounds/pop.mp3'
+  'wrong': '/sounds/wrong.mp3',
+  'correct': '/sounds/correct.mp3',
+  'perfect': '/sounds/perfect.mp3',
+  'tryagain': '/sounds/tryagain.mp3',
+  'pop': '/sounds/pop.mp3'
 };
 
 soundManager.init(SOUND_MAP).then(() => {

@@ -492,6 +492,18 @@
 
   <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+    import soundManager from './js/sound-manager.js';
+
+    // Initialize sounds
+    const SOUND_MAP = {
+      'perfect': '/sounds/perfect.mp3',
+      'correct': '/sounds/correct.mp3',
+      'tryagain': '/sounds/tryagain.mp3'
+    };
+    
+    soundManager.init(SOUND_MAP).then(() => {
+      console.log('✅ Sounds loaded on results page');
+    });
 
     const supabase = createClient(
       'https://api.geo-ranks.com',
@@ -505,6 +517,15 @@
     const correct = parseInt(params.get('correct')) || 0;
     const timeUsed = parseInt(params.get('time')) || 0;
     const lives = parseInt(params.get('lives')) || 0;
+    
+    // Play appropriate sound based on performance
+    if (correct >= 8) {
+      soundManager.play('perfect'); // 8+ correct = excellent!
+    } else if (correct >= 5) {
+      soundManager.play('correct');  // 5-7 correct = good job
+    } else {
+      soundManager.play('tryagain'); // <5 correct = try again
+    }
 
     // Try to get results from localStorage as backup
     const savedResults = localStorage.getItem('top10Results');

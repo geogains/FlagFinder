@@ -14,7 +14,10 @@ import { CATEGORY_ID_MAP } from './top10-categories-loader.js';
 
 // Initialize sound manager
 const SOUND_MAP = {
-  'pop': '../sounds/pop.mp3'
+  'pop': '/sounds/pop.mp3',
+  'perfect': '/sounds/perfect.mp3',
+  'correct': '/sounds/correct.mp3',
+  'tryagain': '/sounds/tryagain.mp3'
 };
 
 soundManager.init(SOUND_MAP).then(() => {
@@ -555,7 +558,7 @@ function endGame() {
   
   setTimeout(() => {
     window.location.href = `classicresults.html?${params.toString()}`;
-  }, 500); // Small delay to ensure score is saved
+  }, 300); // Small delay to ensure score is saved
 }
 
 export function setupRankButtons() {
