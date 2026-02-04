@@ -50,56 +50,6 @@
     .game-modes-section {
       margin-bottom: 2rem;
     }
-    
-    /* Hide swipe indicators on desktop */
-    .swipe-indicators {
-      display: none;
-    }
-    
-    /* Mobile swipe carousel */
-    @media (max-width: 768px) {
-      .game-modes-section {
-        position: relative;
-        overflow: hidden;
-        padding: 0 1rem;
-      }
-      
-      .modes-carousel {
-        display: flex;
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        touch-action: pan-y pinch-zoom;
-      }
-      
-      .mode-card {
-        flex: 0 0 100%;
-        margin: 0 0.5rem;
-        scroll-snap-align: center;
-      }
-      
-      /* Swipe indicators */
-      .swipe-indicators {
-        display: flex;
-        justify-content: center;
-        gap: 8px;
-        margin-top: 1.5rem;
-        margin-bottom: 2rem;
-      }
-      
-      .swipe-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: rgba(102, 126, 234, 0.3);
-        transition: all 0.3s ease;
-        cursor: pointer;
-      }
-      
-      .swipe-dot.active {
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        width: 30px;
-        border-radius: 5px;
-      }
-    }
 
     .mode-card {
       background: rgba(255, 255, 255, 0.9);
@@ -480,109 +430,100 @@
 
   <!-- Game Modes -->
   <section class="game-modes-section">
-    <div class="modes-carousel" id="modesCarousel">
-      <!-- Classic Mode -->
-      <div class="mode-card">
-        <div class="mode-header">
-          <span class="mode-icon">🌍</span>
-          <div>
-            <h2 class="mode-title">Classic Mode</h2>
-            <p class="mode-subtitle">Rank all countries from highest to lowest</p>
-          </div>
-        </div>
-        
-        <p class="mode-description">
-          The original GeoRanks experience! You'll receive 10 countries and must arrange them in order from highest to lowest based on the selected category (like population, GDP, happiness score, or beer consumption).
-        </p>
-
-        <div class="mode-features">
-          <h3>How it Works:</h3>
-          <ul>
-            <li>10 countries appear with their flags</li>
-            <li>Arrange countries in the correct order</li>
-            <li>Answers are locked in, so rank carefuly</li>
-            <li>See your score and the correct rankings instantly</li>
-          </ul>
-        </div>
-
-        <div class="scoring-box">
-          <h4>📊 Scoring System</h4>
-          <p><strong>+10 point</strong> for each country in the correct position. Perfect score: <strong>100/100</strong>. The closer each country is to its correct position, the better your overall accuracy!</p>
+    <!-- Classic Mode -->
+    <div class="mode-card">
+      <div class="mode-header">
+        <span class="mode-icon">🌍</span>
+        <div>
+          <h2 class="mode-title">Classic Mode</h2>
+          <p class="mode-subtitle">Rank all countries from highest to lowest</p>
         </div>
       </div>
+      
+      <p class="mode-description">
+        The original GeoRanks experience! You'll receive 10 countries and must arrange them in order from highest to lowest based on the selected category (like population, GDP, happiness score, or beer consumption).
+      </p>
 
-      <!-- Top 10 Mode -->
-      <div class="mode-card">
-        <div class="mode-header">
-          <span class="mode-icon">🔟</span>
-          <div>
-            <h2 class="mode-title">Top 10 Mode</h2>
-            <p class="mode-subtitle">Identify the top 10 countries</p>
-          </div>
-        </div>
-        
-        <p class="mode-description">
-          Think you know the world's extremes? Your task here is to name the top 10 ranking countries in a variety of categories from Car Exports to Rent Prices!
-        </p>
-
-        <div class="mode-features">
-          <h3>How it Works:</h3>
-          <ul>
-            <li>Activate the search bar to begin</li>
-            <li>Select the 10 countries that rank highest in your selected category</li>
-            <li>Each incorrect guesses will deducuct 1 of your 3 lives</li>
-            <li>Name all 10 countries before the 2 minute timer ends!</li>
-          </ul>
-        </div>
-
-        <div class="scoring-box">
-          <h4>📊 Scoring System</h4>
-          <p>Each correct country is worth <strong>100 points</strong> — accuracy is the foundation of your score.
-          If you find at least 5 countries, you earn <strong>+2 points</strong> for every second left on the timer.
-          Each remaining life adds <strong>+50 bonus points</strong>, rewarding careful guessing.</p>
-        </div>
+      <div class="mode-features">
+        <h3>How it Works:</h3>
+        <ul>
+          <li>10 countries appear with their flags</li>
+          <li>Arrange countries in the correct order</li>
+          <li>Answers are locked in, so rank carefuly</li>
+          <li>See your score and the correct rankings instantly</li>
+        </ul>
       </div>
 
-      <!-- VS Mode -->
-      <div class="mode-card">
-        <div class="mode-header">
-          <span class="mode-icon">⚔️</span>
-          <div>
-            <h2 class="mode-title">VS Mode</h2>
-            <p class="mode-subtitle">Quick-fire head-to-head comparisons</p>
-          </div>
-        </div>
-        
-        <p class="mode-description">
-          Fast-paced and addictive! Two countries face off, and you choose which one ranks higher in the given category. Make your choice quickly and rack up your streak – how many can you get in a row?
-        </p>
-
-        <div class="mode-features">
-          <h3>How it Works:</h3>
-          <ul>
-            <li>Two countries appear side by side</li>
-            <li>Click the country you think ranks higher</li>
-            <li>Get instant feedback – correct or incorrect</li>
-            <li>Keep going to build your streak!</li>
-          </ul>
-        </div>
-
-        <div class="scoring-box">
-          <h4>📊 Scoring System</h4>
-          <p>Each correct choice earns <strong>100 points</strong>.
-  There are no bonuses — your score is simply how many correct answers you make.
-
-  You have <strong>2 minutes</strong> and <strong>3 lives</strong>.
-  Every wrong answer costs a life. When you run out of time or lives, the game ends.</p>
+      <div class="scoring-box">
+        <h4>📊 Scoring System</h4>
+        <p><strong>+10 point</strong> for each country in the correct position. Perfect score: <strong>100/100</strong>. The closer each country is to its correct position, the better your overall accuracy!</p>
       </div>
     </div>
+
+    <!-- Top 10 Mode -->
+    <div class="mode-card">
+      <div class="mode-header">
+        <span class="mode-icon">🔟</span>
+        <div>
+          <h2 class="mode-title">Top 10 Mode</h2>
+          <p class="mode-subtitle">Identify the top 10 countries</p>
+        </div>
+      </div>
+      
+      <p class="mode-description">
+        Think you know the world's extremes? Your task here is to name the top 10 ranking countries in a variety of categories from Car Exports to Rent Prices!
+      </p>
+
+      <div class="mode-features">
+        <h3>How it Works:</h3>
+        <ul>
+          <li>Activate the search bar to begin</li>
+          <li>Select the 10 countries that rank highest in your selected category</li>
+          <li>Each incorrect guesses will deducuct 1 of your 3 lives</li>
+          <li>Name all 10 countries before the 2 minute timer ends!</li>
+        </ul>
+      </div>
+
+      <div class="scoring-box">
+        <h4>📊 Scoring System</h4>
+        <p>Each correct country is worth <strong>100 points</strong> — accuracy is the foundation of your score.
+        If you find at least 5 countries, you earn <strong>+2 points</strong> for every second left on the timer.
+        Each remaining life adds <strong>+50 bonus points</strong>, rewarding careful guessing.</p>
+      </div>
     </div>
-    
-    <!-- Swipe Indicators (mobile only) -->
-    <div class="swipe-indicators">
-      <div class="swipe-dot active" data-index="0"></div>
-      <div class="swipe-dot" data-index="1"></div>
-      <div class="swipe-dot" data-index="2"></div>
+
+    <!-- VS Mode -->
+    <div class="mode-card">
+      <div class="mode-header">
+        <span class="mode-icon">⚔️</span>
+        <div>
+          <h2 class="mode-title">VS Mode</h2>
+          <p class="mode-subtitle">Quick-fire head-to-head comparisons</p>
+        </div>
+      </div>
+      
+      <p class="mode-description">
+        Fast-paced and addictive! Two countries face off, and you choose which one ranks higher in the given category. Make your choice quickly and rack up your streak – how many can you get in a row?
+      </p>
+
+      <div class="mode-features">
+        <h3>How it Works:</h3>
+        <ul>
+          <li>Two countries appear side by side</li>
+          <li>Click the country you think ranks higher</li>
+          <li>Get instant feedback – correct or incorrect</li>
+          <li>Keep going to build your streak!</li>
+        </ul>
+      </div>
+
+      <div class="scoring-box">
+        <h4>📊 Scoring System</h4>
+        <p>Each correct choice earns <strong>100 points</strong>.
+There are no bonuses — your score is simply how many correct answers you make.
+
+You have <strong>2 minutes</strong> and <strong>3 lives</strong>.
+Every wrong answer costs a life. When you run out of time or lives, the game ends.</p>
+      </div>
     </div>
   </section>
 
@@ -696,108 +637,6 @@ document.addEventListener('DOMContentLoaded', function() {
       bg.style.backgroundImage = `url('images/categories/${today.category}.jpg')`;
     }
   });
-</script>
-
-<!-- Swipe Carousel JavaScript -->
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  // Only enable swipe on mobile
-  if (window.innerWidth > 768) return;
-  
-  const carousel = document.getElementById('modesCarousel');
-  const dots = document.querySelectorAll('.swipe-dot');
-  const cards = carousel.querySelectorAll('.mode-card');
-  
-  let currentIndex = 0;
-  let startX = 0;
-  let currentX = 0;
-  let isDragging = false;
-  let startTime = 0;
-  
-  function updateCarousel(animate = true) {
-    const cardWidth = cards[0].offsetWidth + 16; // card width + margin
-    carousel.style.transition = animate ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none';
-    carousel.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
-    
-    // Update dots
-    dots.forEach((dot, index) => {
-      dot.classList.toggle('active', index === currentIndex);
-    });
-  }
-  
-  function goToSlide(index) {
-    currentIndex = Math.max(0, Math.min(index, cards.length - 1));
-    updateCarousel();
-  }
-  
-  // Touch events
-  carousel.addEventListener('touchstart', (e) => {
-    startX = e.touches[0].clientX;
-    currentX = startX;
-    isDragging = true;
-    startTime = Date.now();
-    carousel.style.transition = 'none';
-  });
-  
-  carousel.addEventListener('touchmove', (e) => {
-    if (!isDragging) return;
-    
-    currentX = e.touches[0].clientX;
-    const diff = currentX - startX;
-    const cardWidth = cards[0].offsetWidth + 16;
-    const offset = -currentIndex * cardWidth + diff;
-    
-    carousel.style.transform = `translateX(${offset}px)`;
-  });
-  
-  carousel.addEventListener('touchend', (e) => {
-    if (!isDragging) return;
-    
-    isDragging = false;
-    const diff = currentX - startX;
-    const threshold = 50;
-    const timeDiff = Date.now() - startTime;
-    const velocity = Math.abs(diff) / timeDiff;
-    
-    // Fast swipe (velocity > 0.5) or drag past threshold
-    if (velocity > 0.5 || Math.abs(diff) > threshold) {
-      if (diff > 0) {
-        // Swiped right - go to previous
-        goToSlide(currentIndex - 1);
-      } else {
-        // Swiped left - go to next
-        goToSlide(currentIndex + 1);
-      }
-    } else {
-      // Snap back to current
-      updateCarousel();
-    }
-  });
-  
-  // Click on dots
-  dots.forEach((dot, index) => {
-    dot.addEventListener('click', () => {
-      goToSlide(index);
-    });
-  });
-  
-  // Handle window resize
-  let resizeTimeout;
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(() => {
-      if (window.innerWidth <= 768) {
-        updateCarousel(false);
-      } else {
-        carousel.style.transform = '';
-        carousel.style.transition = '';
-      }
-    }, 200);
-  });
-  
-  // Initial setup
-  updateCarousel(false);
-});
 </script>
 
 </body>
