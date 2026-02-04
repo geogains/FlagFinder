@@ -927,9 +927,9 @@
     // Check for OAuth success/error in URL parameters
     window.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
-      const success = urlParams.get('success');
+      const success = urlParams.get('success') || urlParams.get('connected'); // Check both parameter names
       const error = urlParams.get('error');
-      const provider = urlParams.get('provider');
+      const provider = urlParams.get('provider') || urlParams.get('platform'); // Check both parameter names
 
       // Get or create notification container
       let notificationContainer = document.getElementById('oauthNotification');
