@@ -14,9 +14,9 @@
 
   <style>
     .upload-wrapper {
-      max-width: 720px;
+      max-width: 640px;
       margin: 120px auto 60px;
-      padding: 1.5rem;
+      padding: 1.5rem 2rem;
       background: rgba(255, 255, 255, 0.75);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
@@ -285,6 +285,50 @@
       padding: 20px;
       color: #777;
       font-size: 0.9rem;
+      margin-bottom: 0;
+    }
+    
+    /* Fix footer gap WITHOUT flexbox */
+    html {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      min-height: 100%;
+      margin: 0 !important;
+      padding: 0 !important;
+      position: relative;
+      padding-bottom: 200px !important; /* Space for footer */
+    }
+    
+    .home-footer {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      margin: 0 !important;
+    }
+
+    /* Fix: Remove any transparent overlay in top right */
+    body::before,
+    body::after,
+    .upload-wrapper::before,
+    .upload-wrapper::after {
+      display: none !important;
+    }
+    
+    /* Ensure notification is hidden by default */
+    #oauthNotification {
+      display: none !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+    }
+    
+    #oauthNotification.show {
+      display: block !important;
+      opacity: 1 !important;
+      visibility: visible !important;
     }
 
     /* Instagram Manual Form - NEW */
@@ -958,7 +1002,7 @@
         notificationContainer.style.background = 'linear-gradient(135deg, #10b981, #059669)';
         notificationContainer.style.color = 'white';
         notificationContainer.innerHTML = `✅ Successfully signed up with ${providerName}! Welcome to the battle!`;
-        notificationContainer.style.display = 'block';
+        notificationContainer.classList.add('show');
 
         // Hide after 10 seconds
         setTimeout(() => {
@@ -986,7 +1030,7 @@
         notificationContainer.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
         notificationContainer.style.color = 'white';
         notificationContainer.innerHTML = `❌ Sign-up failed: ${errorMessage}`;
-        notificationContainer.style.display = 'block';
+        notificationContainer.classList.add('show');
 
         // Hide after 8 seconds
         setTimeout(() => {
