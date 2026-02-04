@@ -960,13 +960,13 @@
         notificationContainer.innerHTML = `✅ Successfully signed up with ${providerName}! Welcome to the battle!`;
         notificationContainer.style.display = 'block';
 
-        // Hide after 5 seconds
+        // Hide after 10 seconds
         setTimeout(() => {
           notificationContainer.style.animation = 'slideOutRight 0.3s ease';
           setTimeout(() => {
             notificationContainer.style.display = 'none';
           }, 300);
-        }, 5000);
+        }, 10000);
 
         // Clean URL
         window.history.replaceState({}, document.title, window.location.pathname);
@@ -1091,10 +1091,11 @@
             <div class="upload-text">Click to upload your photo</div>
           `;
 
-          // Close form after 2 seconds
+          // Close form after 3 seconds (increased from 2)
           setTimeout(() => {
             instagramForm.classList.remove("active");
-          }, 2000);
+            successMessage.classList.remove("active");
+          }, 3000);
         } else {
           throw new Error(data.error || "Signup failed");
         }
