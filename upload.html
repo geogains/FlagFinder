@@ -923,7 +923,108 @@
       const returnUrl = encodeURIComponent('https://geo-ranks.com/upload.html');
       window.location.href = `https://auth.geo-ranks.com/api/tiktok/start?return=${returnUrl}`;
     });
+
+    // Check for OAuth success/error in URL parameters
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const success = urlParams.get('success');
+      const error = urlParams.get('error');
+      const provider = urlParams.get('provider');
+
+      // Get or create notification container
+      let notificationContainer = document.getElementById('oauthNotification');
+      if (!notificationContainer) {
+        notificationContainer = document.createElement('div');
+        notificationContainer.id = 'oauthNotification';
+        notificationContainer.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          padding: 16px 24px;
+          border-radius: 12px;
+          font-family: 'Poppins', sans-serif;
+          font-weight: 600;
+          font-size: 0.95rem;
+          z-index: 10000;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+          animation: slideInRight 0.3s ease;
+          max-width: 320px;
+        `;
+        document.body.appendChild(notificationContainer);
+      }
+
+      if (success === '1') {
+        const providerName = provider === 'tiktok' ? 'TikTok' : provider || 'OAuth';
+        notificationContainer.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+        notificationContainer.style.color = 'white';
+        notificationContainer.innerHTML = `✅ Successfully signed up with ${providerName}! Welcome to the battle!`;
+        notificationContainer.style.display = 'block';
+
+        // Hide after 5 seconds
+        setTimeout(() => {
+          notificationContainer.style.animation = 'slideOutRight 0.3s ease';
+          setTimeout(() => {
+            notificationContainer.style.display = 'none';
+          }, 300);
+        }, 5000);
+
+        // Clean URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else if (error) {
+        const errorMessages = {
+          'missing_oauth_code': 'OAuth code is missing',
+          'bad_state': 'Invalid OAuth state',
+          'code_not_verified': 'Verification code not found',
+          'token_exchange_failed': 'Failed to exchange OAuth token',
+          'token_missing_fields': 'Token response is incomplete',
+          'userinfo_failed': 'Failed to fetch user information',
+          'missing_profile_data': 'Profile data is incomplete',
+          'db_upsert_failed': 'Failed to save your information'
+        };
+
+        const errorMessage = errorMessages[error] || 'An unknown error occurred';
+        notificationContainer.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+        notificationContainer.style.color = 'white';
+        notificationContainer.innerHTML = `❌ Sign-up failed: ${errorMessage}`;
+        notificationContainer.style.display = 'block';
+
+        // Hide after 8 seconds
+        setTimeout(() => {
+          notificationContainer.style.animation = 'slideOutRight 0.3s ease';
+          setTimeout(() => {
+            notificationContainer.style.display = 'none';
+          }, 300);
+        }, 8000);
+
+        // Clean URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    });
   </script>
+
+  <style>
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(100px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes slideOutRight {
+      from {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateX(100px);
+      }
+    }
+  </style>
 
   <!-- Instagram form handlers -->
   <script>
