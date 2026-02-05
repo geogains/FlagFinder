@@ -146,7 +146,7 @@ export const coastlineData = [
   { name: 'Togo', code: 'TG', coastlineRank: 145, coastline: 56 },
   { name: 'Slovenia', code: 'SI', coastlineRank: 146, coastline: 47 },
   { name: 'Macau', code: 'MO', coastlineRank: 147, coastline: 41 },
-  { name: 'Gaza Strip', code: 'PS', coastlineRank: 148, coastline: 40 },
+  { name: 'Palestine', code: 'PS', coastlineRank: 148, coastline: 40 },
   { name: 'DR Congo', code: 'CD', coastlineRank: 149, coastline: 37 },
   { name: 'Nauru', code: 'NR', coastlineRank: 150, coastline: 30 },
   { name: 'Jordan', code: 'JO', coastlineRank: 151, coastline: 26 },

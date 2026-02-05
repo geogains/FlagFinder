@@ -402,33 +402,29 @@ setTimeout(() => {
 
 // Format value with proper units and commas
 function formatValue(value, unit, country = null) {
-  // Debug logging
-  if (unit === 'm' && country) {
-    console.log('VS formatValue DEBUG:', {
-      value,
-      unit,
-      country,
-      hasBuildingName: !!country.tallestBuildingName,
-      hasMountainName: !!country.highestPointName
-    });
-  }
+  // Debug logging for all calls
+  console.log('VS formatValue called:', { value, unit, country: country?.name });
   
   let formatted;
   
   // Special handling for tallest building - show building name underneath
+  // Check BEFORE normalization since we need exact case
   if (unit === 'm' && country && country.tallestBuildingName) {
     formatted = `${value.toLocaleString()} m<br><span style="font-size: 0.85em; opacity: 0.8;">${country.tallestBuildingName}</span>`;
     return formatted;
   }
   
-  // Special handling for altitude - show mountain name underneath
+  // Special handling for altitude - show mountain name underneath  
   if (unit === 'm' && country && country.highestPointName) {
     formatted = `${value.toLocaleString()} m<br><span style="font-size: 0.85em; opacity: 0.8;">${country.highestPointName}</span>`;
     return formatted;
   }
   
-  switch (unit) {
-    case 'M': // Population (already in millions)
+  // Normalize unit to lowercase for comparison
+  const normalizedUnit = (unit || '').toLowerCase().trim();
+  
+  switch (normalizedUnit) {
+    case 'm': // Population (already in millions)
       if (value >= 1000) {
         // Billions (1B+)
         formatted = (value / 1000).toFixed(1) + 'B';
@@ -445,37 +441,49 @@ function formatValue(value, unit, country = null) {
         formatted = raw.toLocaleString();
       }
       break;           
-    case 'USD':
+    case 'usd':
       formatted = '$' + value.toLocaleString('en-US');
       break;
     case 'km²':
-    case 'm': // altitude in meters
+      // Format large landmass values with K/M notation
+      if (value >= 1000000) {
+        formatted = (value / 1000000).toFixed(1) + 'M km²';
+      } else if (value >= 1000) {
+        formatted = (value / 1000).toFixed(0) + 'K km²';
+      } else {
+        formatted = value.toLocaleString('en-US') + ' km²';
+      }
+      break;
+    case 'm': // altitude in meters (when no mountain name)
     case 'km': // coastline
     case 'mm': // rainfall
       formatted = value.toLocaleString('en-US') + ' ' + unit;
       break;
-    case 'hectares':  // ← aligned with other cases
-      if (value >= 1000000) {  // ← properly indented
-        formatted = (value / 1000000).toFixed(1) + 'M hectares';
+    case 'hectares':
+    case 'hectare':  // Also match singular form
+      if (value >= 1000000) {
+        formatted = (value / 1000000).toFixed(1) + 'M Hectares';
       } else if (value >= 1000) {
-        formatted = (value / 1000).toFixed(1) + 'K hectares';
+        formatted = (value / 1000).toFixed(1) + 'K Hectares';
       } else {
-        formatted = value.toLocaleString('en-US') + ' hectares';
+        formatted = value.toLocaleString('en-US') + ' Hectares';
       }
       break;
     case '%':
       formatted = value.toLocaleString('en-US', { maximumFractionDigits: 1 }) + '%';
       break;
-    case 'medals':
+    case 'medals': // Olympic medals - show only raw number
+      formatted = value.toLocaleString('en-US');
+      break;
     case 'trophies':
     case 'prizes':
     case 'countries': // passport
       formatted = value.toLocaleString('en-US') + ' ' + unit;
       break;
-    case 'L':
+    case 'l':
       formatted = value.toLocaleString('en-US', { maximumFractionDigits: 1 }) + ' L';
       break;
-    case '°C':
+    case '°c':
       formatted = value.toLocaleString('en-US', { maximumFractionDigits: 1 }) + '°C';
       break;
     case '/100k':
@@ -487,14 +495,11 @@ function formatValue(value, unit, country = null) {
     case 'score':
       formatted = value.toLocaleString('en-US') + ' pts';
       break;
-    case 'M Tourists':
+    case 'm tourists':
       formatted = value.toLocaleString('en-US', { maximumFractionDigits: 1 }) + 'M Tourists';
       break;
     case 'restaurants':
       formatted = value.toLocaleString('en-US') + ' Restaurants';
-      break;
-    case 'USD':
-      formatted = '$' + value.toFixed(2);
       break;
     case 'years':
       formatted = value.toFixed(1) + ' Years';
@@ -503,13 +508,10 @@ function formatValue(value, unit, country = null) {
     case 'ratio': // sex ratio
       formatted = value.toLocaleString('en-US');
       break;
-    case 'm': // tallest building (already handled above for altitude, but keep explicit)
-      formatted = value.toLocaleString('en-US') + 'm';
-      break;
     case 'per km²': // density
       formatted = value.toLocaleString('en-US') + ' per km²';
       break;
-    case '$B': // car exports
+    case '$b': // car exports
       formatted = '$' + value.toLocaleString('en-US', { maximumFractionDigits: 1 }) + 'B';
       break;
     case '': // military personnel (no unit, just number)

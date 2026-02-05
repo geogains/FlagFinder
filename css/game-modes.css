@@ -531,12 +531,9 @@ html {
   opacity: 0.85;
 }
 
-/* Hamburger menu positioning */
-.hamburger-menu {
-  display: flex;
-  align-items: center;
-  margin-right: 0.8rem;
-}
+/* Hamburger menu positioning - handled by page.css */
+/* Removed to prevent conflict with page.css styling */
+
 
 /* -------------------------------
    Flag Preview & Submit Button

@@ -787,7 +787,14 @@ function formatValue(value, unit, country = null, includeNames = false) {
     case 'USD':
       return `$${value.toLocaleString()}`;
     case 'km²':
-      return `${value.toLocaleString()} km²`;
+      // Format large landmass values with K/M notation
+      if (value >= 1000000) {
+        return `${(value / 1000000).toFixed(1)}M km²`;
+      } else if (value >= 1000) {
+        return `${(value / 1000).toFixed(0)}K km²`;
+      } else {
+        return `${value.toLocaleString()} km²`;
+      }
     case 'km':
       return `${value.toLocaleString()} km`;
     case 'm':
