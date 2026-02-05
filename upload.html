@@ -15,15 +15,31 @@
   <style>
     .upload-wrapper {
       max-width: 640px;
+      width: calc(100% - 32px); /* Add padding on sides for smaller screens */
       margin: 120px auto 60px;
       padding: 1.5rem 2rem;
-      background: rgba(255, 255, 255, 0.75);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+      background: rgba(255, 255, 255, 0.85); /* Match account.html container */
+      backdrop-filter: blur(16px); /* Match account.html */
+      -webkit-backdrop-filter: blur(16px);
       border-radius: 16px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12); /* Match account.html shadow */
       box-sizing: border-box;
       animation: fadeInUp 0.8s ease-out;
+    }
+
+    /* Responsive adjustments for smaller screens */
+    @media (max-width: 768px) {
+      .upload-wrapper {
+        width: calc(100% - 24px); /* Slightly less padding on tablets */
+        padding: 1.25rem 1.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .upload-wrapper {
+        width: calc(100% - 20px); /* Minimal padding on small mobile */
+        padding: 1rem 1.25rem;
+      }
     }
 
     .page-title {
