@@ -18,7 +18,7 @@ async function redirectToCheckout(priceId) {
   }
 
   try {
-    const functionUrl = `https://ajwxgdaninuzcpfwawug.supabase.co/functions/v1/create-checkout-session`;
+    const functionUrl = `https://api.geo-ranks.com/functions/v1/create-checkout-session`;
     
     const response = await fetch(functionUrl, {
       method: "POST",
