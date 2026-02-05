@@ -385,7 +385,7 @@ async function initGame() {
           const formattedValue = formatValue(country.value, currentCategory.unit, country);
           slot.innerHTML = `
             <img src="${country.flag}" alt="${country.name}" class="rank-flag">
-            <span class="rank-data" style="color: white;">${formattedValue}</span>
+            <span class="rank-data" style="color: white;">${country.name}</span>
           `;
         }
       }
@@ -727,7 +727,7 @@ async function selectCountry(country) {
     
     slot.innerHTML = `
       <img src="${country.flag}" alt="${country.name}" class="rank-flag">
-      <span class="rank-data" style="color: white;">${formattedValue}</span>
+      <span class="rank-data" style="color: white;">${country.name}</span>
     `;
     
     // Score is calculated at the end of the game
