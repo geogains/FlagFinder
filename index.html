@@ -683,60 +683,56 @@
   import { supabase } from './js/supabase-client.js';
 
   const signInText = document.getElementById('signInText');
+  signInText.textContent = "Loading...";
+  signInText.style.opacity = "0.6";
 
-  // Instant default (NO blocking)
-  signInText.textContent = "Sign In | Create Account";
-  signInText.href = "auth.html";
-  signInText.style.opacity = "1";
+  const { data: { session } } = await supabase.auth.getSession();
 
-  // Resolve auth asynchronously
-  supabase.auth.getSession().then(async ({ data: { session } }) => {
-    if (!session?.user) return;
-
-    let displayName =
-      session.user.user_metadata?.full_name ||
-      session.user.user_metadata?.username;
-
+  if (session && session.user) {
+    const userMeta = session.user.user_metadata;
+    
+    // Try to fetch username from the users table in database
+    let displayName = userMeta.full_name || userMeta.username;
+    
+    // If no username in metadata, try fetching from users table
     if (!displayName) {
       try {
-        const { data } = await supabase
+        const { data: userData, error } = await supabase
           .from('users')
           .select('username')
           .eq('id', session.user.id)
           .single();
-
-        if (data?.username) displayName = data.username;
-      } catch {}
+        
+        if (!error && userData && userData.username) {
+          displayName = userData.username;
+        }
+      } catch (err) {
+        console.log('Could not fetch username from database');
+      }
     }
-
+    
+    // Final fallback to "Account" (no email shown)
     signInText.textContent = displayName || "Account";
     signInText.href = "account.html";
-  });
+  } else {
+    signInText.textContent = "Sign In | Create Account";
+    signInText.href = "auth.html";
+  }
+  signInText.style.opacity = "1";
 </script>
-
 
 <!-- Account/Premium Button Removal -->
 <script type="module">
   import { supabase } from './js/supabase-client.js';
-
-  supabase.auth.getSession().then(async ({ data: { session } }) => {
-    if (!session?.user) {
-      document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
-      return;
+  (async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      const { data: profile } = await supabase.from('users').select('is_premium').eq('id', session.user.id).single();
+      if (profile?.is_premium) document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
     }
-
-    const { data: profile } = await supabase
-      .from('users')
-      .select('is_premium')
-      .eq('id', session.user.id)
-      .single();
-
-    if (profile?.is_premium) {
-      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
-    }
-  });
+    if (!session?.user) document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+  })();
 </script>
-
 
 <!-- Daily Challenge Menu Button -->
 <script type="module">
