@@ -78,8 +78,9 @@ gameState.countries = data.map(country => {
     code: country.code,
     flag: `flags/${country.code}.png`,
     value: value,
-    highestPointName: country.highestPointName,        // ← ADD THIS
-    tallestBuildingName: country.tallestBuildingName   // ← ADD THIS
+    highestPointName: country.highestPointName,        // For altitude
+    tallestBuildingName: country.tallestBuildingName,  // For tallest buildings
+    riverName: country.riverName                       // For longest rivers
   };
 });
     
@@ -208,10 +209,12 @@ function loadNewRound() {
   document.getElementById('option1').dataset.country = country1.name;
   document.getElementById('option1').dataset.buildingName = country1.tallestBuildingName || '';
   document.getElementById('option1').dataset.mountainName = country1.highestPointName || '';
+  document.getElementById('option1').dataset.riverName = country1.riverName || '';
   document.getElementById('option2').dataset.value = country2.value;
   document.getElementById('option2').dataset.country = country2.name;
   document.getElementById('option2').dataset.buildingName = country2.tallestBuildingName || '';
   document.getElementById('option2').dataset.mountainName = country2.highestPointName || '';
+  document.getElementById('option2').dataset.riverName = country2.riverName || '';
   
   // Get country options (not flags, but the wrapper divs)
   const option1 = document.getElementById('option1');
@@ -306,11 +309,13 @@ function handleSelection(optionNumber) {
   const country2Value = parseFloat(option2Element.dataset.value);
   const country1Data = {
     tallestBuildingName: option1Element.dataset.buildingName,
-    highestPointName: option1Element.dataset.mountainName
+    highestPointName: option1Element.dataset.mountainName,
+    riverName: option1Element.dataset.riverName
   };
   const country2Data = {
     tallestBuildingName: option2Element.dataset.buildingName,
-    highestPointName: option2Element.dataset.mountainName
+    highestPointName: option2Element.dataset.mountainName,
+    riverName: option2Element.dataset.riverName
   };
   
   value1Element.innerHTML = formatValue(country1Value, categoryConfig.unit, country1Data);
@@ -417,6 +422,12 @@ function formatValue(value, unit, country = null) {
   // Special handling for altitude - show mountain name underneath  
   if (unit === 'm' && country && country.highestPointName) {
     formatted = `${value.toLocaleString()} m<br><span style="font-size: 0.85em; opacity: 0.8;">${country.highestPointName}</span>`;
+    return formatted;
+  }
+  
+  // Special handling for longest rivers - show river name underneath
+  if (unit === 'km' && country && country.riverName) {
+    formatted = `${value.toLocaleString()} km<br><span style="font-size: 0.85em; opacity: 0.8;">${country.riverName}</span>`;
     return formatted;
   }
   

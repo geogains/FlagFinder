@@ -435,8 +435,9 @@ export async function loadTop10CategoryData(categoryKey) {
         code: country.code,
         flag: `flags/${country.code}.png`,
         value: value,
-        highestPointName: country.highestPointName,        // ← ADD THIS
-        tallestBuildingName: country.tallestBuildingName   // ← ADD THIS
+        highestPointName: country.highestPointName,        // For altitude
+        tallestBuildingName: country.tallestBuildingName,  // For tallest buildings
+        riverName: country.riverName                       // For longest rivers
       };
     });
     

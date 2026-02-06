@@ -460,7 +460,8 @@ function endGame() {
       value: formatMetric(c[metricKey]),
       isPerfect: withinTieRange,
       tallestBuildingName: c.tallestBuildingName || null,
-      highestPointName: c.highestPointName || null
+      highestPointName: c.highestPointName || null,
+      riverName: c.riverName || null
     });
   });
 

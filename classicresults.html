@@ -547,10 +547,10 @@
       resultsTable.forEach(country => {
         const isPerfect = country.isPerfect;
         
-        // Check if country has building/mountain name
-        const hasExtraInfo = country.tallestBuildingName || country.highestPointName;
-        const extraInfoName = country.tallestBuildingName || country.highestPointName;
-        const infoType = country.tallestBuildingName ? 'Building' : 'Mountain';
+        // Check if country has building/mountain/river name
+        const hasExtraInfo = country.tallestBuildingName || country.highestPointName || country.riverName;
+        const extraInfoName = country.tallestBuildingName || country.highestPointName || country.riverName;
+        const infoType = country.tallestBuildingName ? 'Building' : (country.highestPointName ? 'Mountain' : 'River');
         
         // Create row
         const row = document.createElement('div');

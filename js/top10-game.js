@@ -835,6 +835,7 @@ function formatValue(value, unit, country = null, includeNames = false) {
     case 'USD':
       return `$${value.toFixed(2)}`;  // ← UPDATE to use .toFixed(2)
     case 'years':
+    case 'Years': // life expectancy (capital Y from config)
       return `${value.toFixed(1)} Years`;
     // NEW CATEGORIES
     case 'ratio': // sex ratio
@@ -1104,7 +1105,8 @@ function showResults(won, correctGuesses, timeElapsed) {
       value: formatValue(country.value, currentCategory.unit, country),
       guessed: gameState.guessedCountries.has(country.name),
       tallestBuildingName: country.tallestBuildingName || null,
-      highestPointName: country.highestPointName || null
+      highestPointName: country.highestPointName || null,
+      riverName: country.riverName || null
     }))
   };
   
