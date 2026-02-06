@@ -581,14 +581,18 @@
 
   menuToggle?.addEventListener('click', () => {
     scrollPosition = window.pageYOffset;
-    document.body.classList.add('menu-open');
+    document.body.style.position = 'fixed';
     document.body.style.top = `-${scrollPosition}px`;
+    document.body.style.width = '100%';
+    document.body.classList.add('menu-open');
     menuOverlay.classList.add('active');
   });
 
   function closeMenuHandler() {
-    document.body.classList.remove('menu-open');
+    document.body.style.position = '';
     document.body.style.top = '';
+    document.body.style.width = '';
+    document.body.classList.remove('menu-open');
     window.scrollTo(0, scrollPosition);
     menuOverlay.classList.remove('active');
   }
