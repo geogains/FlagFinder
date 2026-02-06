@@ -335,6 +335,7 @@ function formatMetric(num) {
   if (metricKey === "michelinTotal") return `${num.toLocaleString()} restaurants`;
   if (metricKey === "bigMacPrice") return `$${num.toFixed(2)}`; 
   if (metricKey === "lifeExpectancy") return `${num.toFixed(1)} years`;
+  if (metricKey === "score") return `${num.toFixed(1)}/10`; // happiness index - round to 1 decimal
   
   // NEW CATEGORIES
   if (metricKey === "marriageAge") return `${num} years`;
@@ -347,7 +348,16 @@ function formatMetric(num) {
   if (metricKey === "gdpPerCapita") return `$${num.toLocaleString()}`; // poorest GDP
   if (metricKey === "university") return `${num.toLocaleString()} universities`;
   if (metricKey === "volcanos") return `${num} volcanoes`;
-  if (metricKey === "flamingos") return num.toLocaleString();
+  if (metricKey === "flamingos") {
+    if (num >= 1000000) {
+      const millions = (num / 1000000).toFixed(1);
+      return millions.endsWith('.0') ? `${millions.slice(0, -2)}M` : `${millions}M`;
+    } else if (num >= 1000) {
+      const thousands = (num / 1000).toFixed(1);
+      return thousands.endsWith('.0') ? `${thousands.slice(0, -2)}K` : `${thousands}K`;
+    }
+    return num.toLocaleString();
+  }
   if (metricKey === "disasterrisk") return `${num.toFixed(2)}`;
   if (metricKey === "longestriver") return `${num.toLocaleString()} km`;
   if (metricKey === "sharepercent") return `${num}%`; // renewable energy

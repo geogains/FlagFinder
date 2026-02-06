@@ -526,8 +526,16 @@ function formatValue(value, unit, country = null) {
     case 'volcanoes': // volcanoes
       formatted = value.toLocaleString('en-US') + ' volcanoes';
       break;
-    case 'flamingos': // flamingos
-      formatted = value.toLocaleString('en-US') + ' flamingos';
+    case 'flamingos': // flamingos - use M/K notation
+      if (value >= 1000000) {
+        const millions = (value / 1000000).toFixed(1);
+        formatted = millions.endsWith('.0') ? `${millions.slice(0, -2)}M` : `${millions}M`;
+      } else if (value >= 1000) {
+        const thousands = (value / 1000).toFixed(1);
+        formatted = thousands.endsWith('.0') ? `${thousands.slice(0, -2)}K` : `${thousands}K`;
+      } else {
+        formatted = value.toLocaleString('en-US');
+      }
       break;
     case 'risk index': // disaster risk
       formatted = value.toFixed(2);
@@ -541,8 +549,8 @@ function formatValue(value, unit, country = null) {
         formatted = value.toLocaleString('en-US');
       }
       break;
-    case 'grandmasters': // chess grandmasters
-      formatted = value.toLocaleString('en-US') + ' grandmasters';
+    case 'grandmasters': // chess grandmasters - show only number in VS mode
+      formatted = value.toLocaleString('en-US');
       break;
     default:
       formatted = value.toLocaleString('en-US');

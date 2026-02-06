@@ -812,6 +812,8 @@ function formatValue(value, unit, country = null, includeNames = false) {
       return `${value}°C`;
     case 'mm/year':
       return `${value} mm`;
+    case '/10': // happiness index - round to 1 decimal
+      return `${value.toFixed(1)}/10`;
     case 'index':
       return `${value}`;
     case 'score':
@@ -849,8 +851,15 @@ function formatValue(value, unit, country = null, includeNames = false) {
       return `${value.toLocaleString()} universities`;
     case 'volcanoes': // volcanoes
       return `${value} volcanoes`;
-    case 'flamingos': // flamingos
-      return `${value.toLocaleString()} flamingos`;
+    case 'flamingos': // flamingos - use M/K notation
+      if (value >= 1000000) {
+        const millions = (value / 1000000).toFixed(1);
+        return millions.endsWith('.0') ? `${millions.slice(0, -2)}M` : `${millions}M`;
+      } else if (value >= 1000) {
+        const thousands = (value / 1000).toFixed(1);
+        return thousands.endsWith('.0') ? `${thousands.slice(0, -2)}K` : `${thousands}K`;
+      }
+      return `${value.toLocaleString()}`;
     case 'risk index': // disaster risk
       return `${value.toFixed(2)}`;
     case '%': // renewable energy
