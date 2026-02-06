@@ -305,32 +305,35 @@
   // Check if this mode requires premium (only bypass if VALID daily challenge)
   const requiresPremium = PREMIUM_MODES.includes(mode) && !isValidDaily;
 
-  if (requiresPremium) {
-    // Get user session and premium status
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    let isPremium = false;
-    
-    if (session && session.user) {
-      const { data: profile } = await supabase
-        .from('users')
-        .select('is_premium')
-        .eq('id', session.user.id)
-        .single();
+  // Async IIFE for premium check (clearer pattern)
+  (async () => {
+    if (requiresPremium) {
+      // Get user session and premium status
+      const { data: { session } } = await supabase.auth.getSession();
       
-      isPremium = profile?.is_premium === true;
+      let isPremium = false;
+      
+      if (session && session.user) {
+        const { data: profile } = await supabase
+          .from('users')
+          .select('is_premium')
+          .eq('id', session.user.id)
+          .single();
+        
+        isPremium = profile?.is_premium === true;
+      }
+      
+      // If user is not premium, redirect to premium page
+      if (!isPremium) {
+        window.location.href = 'premium.html';
+        // Stop execution here
+        throw new Error('Premium required');
+      }
     }
     
-    // If user is not premium, redirect to premium page
-    if (!isPremium) {
-      window.location.href = 'premium.html';
-      // Stop execution here
-      throw new Error('Premium required');
-    }
-  }
-  
-  // Remove loading overlay after validation
-  document.getElementById('authLoadingOverlay').style.display = 'none';
+    // Remove loading overlay after validation
+    document.getElementById('authLoadingOverlay').style.display = 'none';
+  })();
 
   // ========================================
   // 🎮 GAME INITIALIZATION (only if validated)
@@ -381,25 +384,30 @@
 <script type="module">
   import { supabase } from './js/supabase-client.js';
 
-  const { data: { session } } = await supabase.auth.getSession();
+  // NON-BLOCKING: Menu button management
+  supabase.auth.getSession()
+    .then(async ({ data: { session } }) => {
+      // Hide Account if user not logged in
+      if (!session || !session.user) {
+        document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+      }
 
-  // Hide Account if user not logged in
-  if (!session || !session.user) {
-    document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
-  }
+      // Hide Unlock All Categories if user is premium
+      if (session && session.user) {
+        const { data: profile } = await supabase
+          .from('users')
+          .select('is_premium')
+          .eq('id', session.user.id)
+          .single();
 
-  // Hide Unlock All Categories if user is premium
-  if (session && session.user) {
-    const { data: profile } = await supabase
-      .from('users')
-      .select('is_premium')
-      .eq('id', session.user.id)
-      .single();
-
-    if (profile?.is_premium) {
-      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
-    }
-  }
+        if (profile?.is_premium) {
+          document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+        }
+      }
+    })
+    .catch(err => {
+      console.error('Menu button check failed:', err);
+    });
 </script>
 
 <script type="module">

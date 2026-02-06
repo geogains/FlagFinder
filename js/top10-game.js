@@ -835,7 +835,13 @@ function formatValue(value, unit, country = null, includeNames = false) {
     case 'USD':
       return `$${value.toFixed(2)}`;  // ← UPDATE to use .toFixed(2)
     case 'years':
-    case 'Years': // life expectancy (capital Y from config)
+    case 'Years': // marriage age and life expectancy
+      // Marriage age: no decimal (32 Years)
+      // Life expectancy: 1 decimal (84.8 Years)
+      if (categoryKey === 'marriageage') {
+        return `${Math.round(value)} Years`;
+      }
+      // Life expectancy or other years
       return `${value.toFixed(1)} Years`;
     // NEW CATEGORIES
     case 'ratio': // sex ratio

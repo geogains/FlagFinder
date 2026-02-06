@@ -624,53 +624,56 @@ body {
       console.warn('⚠️ Invalid daily challenge attempt detected - mode/category mismatch');
     }
 
-    // Get user session ONCE at the top
-    const { data: { session } } = await supabase.auth.getSession();
-
     // Check if this mode requires premium (only bypass if VALID daily challenge)
     const requiresPremium = PREMIUM_CATEGORIES.includes(mode) && !isValidDaily;
 
-    if (requiresPremium) {
-      let isPremium = false;
+    // Async IIFE for auth/premium checks
+    (async () => {
+      // Get user session ONCE at the top
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (requiresPremium) {
+        let isPremium = false;
+        
+        if (session && session.user) {
+          const { data: profile } = await supabase
+            .from('users')
+            .select('is_premium')
+            .eq('id', session.user.id)
+            .single();
+          
+          isPremium = profile?.is_premium === true;
+        }
+        
+        // If user is not premium, redirect to premium page
+        if (!isPremium) {
+          window.location.href = 'premium.html';
+          // Stop execution here
+          throw new Error('Premium required');
+        }
+      }
       
+      // Remove loading overlay after validation
+      document.getElementById('authLoadingOverlay').style.display = 'none';
+
+      // Hide Account if user not logged in
+      if (!session || !session.user) {
+        document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+      }
+
+      // Hide Unlock All Categories if user is premium
       if (session && session.user) {
         const { data: profile } = await supabase
           .from('users')
           .select('is_premium')
           .eq('id', session.user.id)
           .single();
-        
-        isPremium = profile?.is_premium === true;
-      }
-      
-      // If user is not premium, redirect to premium page
-      if (!isPremium) {
-        window.location.href = 'premium.html';
-        // Stop execution here
-        throw new Error('Premium required');
-      }
-    }
-    
-    // Remove loading overlay after validation
-    document.getElementById('authLoadingOverlay').style.display = 'none';
 
-    // Hide Account if user not logged in
-    if (!session || !session.user) {
-      document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
-    }
-
-    // Hide Unlock All Categories if user is premium
-    if (session && session.user) {
-      const { data: profile } = await supabase
-        .from('users')
-        .select('is_premium')
-        .eq('id', session.user.id)
-        .single();
-
-      if (profile?.is_premium) {
-        document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+        if (profile?.is_premium) {
+          document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+        }
       }
-    }
+    })();
   </script>
 
 <script type="module">

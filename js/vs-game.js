@@ -513,7 +513,13 @@ function formatValue(value, unit, country = null) {
       formatted = value.toLocaleString('en-US') + ' Restaurants';
       break;
     case 'years':
-      formatted = value.toFixed(1) + ' Years';
+      // Marriage age: no decimal (32 Years)
+      // Life expectancy: 1 decimal (84.8 Years)
+      if (categoryKey === 'marriageage') {
+        formatted = Math.round(value) + ' Years';
+      } else {
+        formatted = value.toFixed(1) + ' Years';
+      }
       break;
     // NEW CATEGORIES
     case 'ratio': // sex ratio
