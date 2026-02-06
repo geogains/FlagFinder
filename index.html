@@ -450,7 +450,7 @@
         <span class="daily-category" id="dailyChallengeCategory">Loading...</span>
       </div>
     </button>
-    <button class="menu-btn" onclick="window.location.href='upload.html'">⚔️ Battle Royale</button>
+  
     <button class="menu-btn" onclick="window.location.href='categories.html'">🎮 Categories</button>
     <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
     <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
@@ -581,18 +581,14 @@
 
   menuToggle?.addEventListener('click', () => {
     scrollPosition = window.pageYOffset;
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${scrollPosition}px`;
-    document.body.style.width = '100%';
     document.body.classList.add('menu-open');
+    document.body.style.top = `-${scrollPosition}px`;
     menuOverlay.classList.add('active');
   });
 
   function closeMenuHandler() {
-    document.body.style.position = '';
-    document.body.style.top = '';
-    document.body.style.width = '';
     document.body.classList.remove('menu-open');
+    document.body.style.top = '';
     window.scrollTo(0, scrollPosition);
     menuOverlay.classList.remove('active');
   }
