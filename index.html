@@ -43,6 +43,51 @@
   <link rel="stylesheet" href="css/page.css">
   
   <style>
+    /* ========================================
+       BATTLE ROYALE BANNER
+    ======================================== */
+    .battle-banner {
+      background: linear-gradient(135deg, #0d315a25 0%, #1a4d7a1d 100%);
+      color: #0d315a25;
+      -webkit-backdrop-filter: blur(16px);
+      padding: 14px 20px;
+      text-align: center;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: fixed;
+      top: 64px; /* Exactly header height - no gap! */
+      left: 0;
+      width: 100%;
+      z-index: 999; /* Just below header (which is 1000) */
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .battle-banner:hover {
+      background: linear-gradient(135deg, #0a2847 0%, #163d63 100%);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+    
+    .battle-banner:active {
+      transform: scale(0.99);
+    }
+    
+    .battle-banner-text {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .battle-banner-emoji {
+      font-size: 1.2rem;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
     @keyframes pulse {
       0%, 100% {
         transform: scale(1);
@@ -52,13 +97,36 @@
       }
     }
     
-    @media (max-width: 768px) {  
+    /* Adjust hero section to account for header + banner */
+    .hero-section {
+      margin-top: 90px !important; /* Reduced from 110px - smaller gap between banner and logo */
+    }
+    
+    @media (max-width: 768px) {
+      .battle-banner {
+        padding: 12px 16px;
+        top: 64px;
+      }
+      
+      .battle-banner-text {
+        font-size: 0.9rem;
+      }
+      
       .hero-section {
         margin-top: 85px !important; /* Reduced from 100px for mobile */
       }
     }
     
     @media (max-width: 480px) {
+      .battle-banner {
+        padding: 10px 14px;
+        top: 64px;
+      }
+      
+      .battle-banner-text {
+        font-size: 0.85rem;
+      }
+      
       .hero-section {
         margin-top: 100px !important; /* Much smaller gap for small mobile screens */
         padding: 50px 16px 30px !important; /* Reduced padding for small screens */
@@ -437,6 +505,15 @@
   </div>
 </header>
 
+<!-- ========== BATTLE ROYALE BANNER ========== -->
+<div class="battle-banner" onclick="window.location.href='upload.html'">
+  <p class="battle-banner-text">
+    <span class="battle-banner-emoji">⚔️</span>
+    Join the Battle Royale Arena!
+    <span class="battle-banner-emoji">🏆</span>
+  </p>
+</div>
+
 <!-- ========== HAMBURGER MENU ========== -->
 <div class="menu-overlay" id="menuOverlay">
   <div class="menu-panel">
@@ -450,7 +527,7 @@
         <span class="daily-category" id="dailyChallengeCategory">Loading...</span>
       </div>
     </button>
-  
+    
     <button class="menu-btn" onclick="window.location.href='categories.html'">🎮 Categories</button>
     <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
     <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
