@@ -778,7 +778,7 @@
     const timeoutId = setTimeout(() => {
       console.warn('⏱️ Auth check timed out after 3s - rendering as non-premium');
       if (!categoriesRendered) {
-        renderCategories();
+        renderCategories(); // Timeout fallback
       }
     }, 3000); // 3 second timeout
     
@@ -798,15 +798,14 @@
           }
         }
         
-        // Re-render categories with updated premium status
-        if (categoriesRendered) {
-          renderCategories(); // Refresh with premium status
-        }
+        // Render categories ONCE with correct premium status
+        renderCategories();
       })
       .catch(err => {
         clearTimeout(timeoutId); // Cancel timeout on error
         console.error('Premium check failed:', err);
-        // Already rendered as non-premium
+        // Render as non-premium
+        renderCategories();
       });
   }
   
@@ -1029,10 +1028,9 @@
   // Make showPremiumModal global
   window.showPremiumModal = showPremiumModal;
 
-  // Initialize - RENDER IMMEDIATELY, auth check happens in background
-  console.log('🚀 Rendering categories immediately...');
-  renderCategories(); // Show content NOW
-  checkPremiumStatus(); // Then check premium in background
+  // Initialize - Wait for premium status, THEN render once
+  console.log('🚀 Checking premium status...');
+  checkPremiumStatus(); // Check premium, then render
 </script>
 
 <!-- Account/Premium Button Removal -->
