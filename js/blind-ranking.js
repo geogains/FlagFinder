@@ -114,7 +114,11 @@ function scrollToTop() {
 function computeBestRanks(list) {
   if (!metricKey) return;
 
-  const sorted = [...list].sort((a, b) => b[metricKey] - a[metricKey]);
+  // For "poorest GDP", sort ascending (lowest first)
+  // For all other categories, sort descending (highest first)
+  const sorted = metricKey === "gdpPerCapita"
+    ? [...list].sort((a, b) => a[metricKey] - b[metricKey])  // Ascending (lower is better)
+    : [...list].sort((a, b) => b[metricKey] - a[metricKey]); // Descending (higher is better)
 
   let currentRank = 1;
   for (let i = 0; i < sorted.length; i++) {
@@ -331,8 +335,8 @@ function handleRankClick(event) {
 function formatMetric(num) {
   if (metricKey === "temperature") return `${num}°C`;
   if (metricKey === "beerConsumption") return `${num} Litres`;
-  if (metricKey === "touristArrivals") return `${num}M Tourists`;
-  if (metricKey === "michelinTotal") return `${num.toLocaleString()} restaurants`;
+  if (metricKey === "touristArrivals") return `${num}M`;
+  if (metricKey === "michelinTotal") return `${num.toLocaleString()}`;
   if (metricKey === "bigMacPrice") return `$${num.toFixed(2)}`; 
   if (metricKey === "lifeExpectancy") return `${num.toFixed(1)} years`;
   if (metricKey === "score") return `${num.toFixed(1)}/10`; // happiness index - round to 1 decimal
@@ -346,8 +350,8 @@ function formatMetric(num) {
   if (metricKey === "personnel") return num.toLocaleString(); // military personnel
   if (metricKey === "rentUsd") return `$${num.toLocaleString()}`;
   if (metricKey === "gdpPerCapita") return `$${num.toLocaleString()}`; // poorest GDP
-  if (metricKey === "university") return `${num.toLocaleString()} universities`;
-  if (metricKey === "volcanos") return `${num} volcanoes`;
+  if (metricKey === "university") return `${num.toLocaleString()}`;
+  if (metricKey === "volcanos") return `${num}`;
   if (metricKey === "flamingos") {
     if (num >= 1000000) {
       const millions = (num / 1000000).toFixed(1);

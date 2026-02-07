@@ -811,7 +811,7 @@ function formatValue(value, unit, country = null, includeNames = false) {
     case '°C':
       return `${value}°C`;
     case 'mm/year':
-      return `${value} mm`;
+      return `${value.toLocaleString()} mm`;
     case '/10': // happiness index - round to 1 decimal
       return `${value.toFixed(1)}/10`;
     case 'index':
@@ -829,7 +829,7 @@ function formatValue(value, unit, country = null, includeNames = false) {
     case 'rating':
       return `${value}/5`;
     case 'M Tourists':
-      return `${value.toFixed(1)}M Tourists`;
+      return `${value.toFixed(1)}M`;
      case 'restaurants':
       return `${value.toLocaleString()} Restaurants`;
     case 'USD':
@@ -854,10 +854,10 @@ function formatValue(value, unit, country = null, includeNames = false) {
       return `${value.toLocaleString()}`;
     case '$': // rent, poorest GDP
       return `$${value.toLocaleString()}`;
-    case 'universities': // universities
-      return `${value.toLocaleString()} universities`;
-    case 'volcanoes': // volcanoes
-      return `${value} volcanoes`;
+    case 'universities': // universities - show raw number only
+      return `${value.toLocaleString()}`;
+    case 'volcanoes': // volcanoes - show raw number only
+      return `${value}`;
     case 'flamingos': // flamingos - use M/K notation
       if (value >= 1000000) {
         const millions = (value / 1000000).toFixed(1);

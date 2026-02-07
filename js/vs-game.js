@@ -298,7 +298,10 @@ function handleSelection(optionNumber) {
   const otherValue = parseFloat(otherOption.dataset.value);
   
   // Determine if correct
-  const isCorrect = selectedValue >= otherValue;
+  // For "poorest GDP" category, LOWER values win (inverted logic)
+  const isCorrect = categoryKey === 'poorestgdp' 
+    ? selectedValue <= otherValue  // Lower is better
+    : selectedValue >= otherValue; // Higher is better (normal)
   
   // Show values with animation
   const value1Element = document.getElementById('value1');
@@ -486,10 +489,14 @@ function formatValue(value, unit, country = null) {
     case 'medals': // Olympic medals - show only raw number
       formatted = value.toLocaleString('en-US');
       break;
-    case 'trophies':
-    case 'prizes':
+    case 'trophies': // world cup - show raw number only
+      formatted = value.toLocaleString('en-US');
+      break;
     case 'countries': // passport
       formatted = value.toLocaleString('en-US') + ' ' + unit;
+      break;
+    case 'prizes': // nobel prizes - show raw number only
+      formatted = value.toLocaleString('en-US');
       break;
     case 'l':
       formatted = value.toLocaleString('en-US', { maximumFractionDigits: 1 }) + ' L';
@@ -507,10 +514,10 @@ function formatValue(value, unit, country = null) {
       formatted = value.toLocaleString('en-US') + ' pts';
       break;
     case 'm tourists':
-      formatted = value.toLocaleString('en-US', { maximumFractionDigits: 1 }) + 'M Tourists';
+      formatted = value.toLocaleString('en-US', { maximumFractionDigits: 1 }) + 'M';
       break;
     case 'restaurants':
-      formatted = value.toLocaleString('en-US') + ' Restaurants';
+      formatted = value.toLocaleString('en-US');
       break;
     case 'years':
       // Marriage age: no decimal (32 Years)
@@ -537,11 +544,11 @@ function formatValue(value, unit, country = null) {
     case '$': // rent, poorest GDP
       formatted = '$' + value.toLocaleString('en-US');
       break;
-    case 'universities': // universities
-      formatted = value.toLocaleString('en-US') + ' universities';
+    case 'universities': // universities - show raw number only
+      formatted = value.toLocaleString('en-US');
       break;
-    case 'volcanoes': // volcanoes
-      formatted = value.toLocaleString('en-US') + ' volcanoes';
+    case 'volcanoes': // volcanoes - show raw number only
+      formatted = value.toLocaleString('en-US');
       break;
     case 'flamingos': // flamingos - use M/K notation
       if (value >= 1000000) {
