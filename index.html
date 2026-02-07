@@ -616,9 +616,19 @@
   signInText.textContent = "Loading...";
   signInText.style.opacity = "0.6";
 
+  // Set timeout fallback - if auth takes too long, show default
+  const authTimeout = setTimeout(() => {
+    console.warn('⏱️ Auth check timed out - showing default');
+    signInText.textContent = "Sign In | Create Account";
+    signInText.href = "auth.html";
+    signInText.style.opacity = "1";
+  }, 3000); // 3 second timeout
+
   // NON-BLOCKING: Don't await, use .then() instead
   supabase.auth.getSession()
     .then(async ({ data: { session } }) => {
+      clearTimeout(authTimeout); // Cancel timeout if successful
+      
       if (session && session.user) {
         const userMeta = session.user.user_metadata;
         
@@ -652,6 +662,7 @@
       signInText.style.opacity = "1";
     })
     .catch(err => {
+      clearTimeout(authTimeout); // Cancel timeout on error
       console.error('Auth check failed:', err);
       signInText.textContent = "Sign In | Create Account";
       signInText.href = "auth.html";
@@ -665,9 +676,16 @@
 <script type="module">
   import { supabase } from './js/supabase-client.js';
   
+  // Set timeout fallback for button removal
+  const buttonTimeout = setTimeout(() => {
+    console.warn('⏱️ Premium check timed out - keeping default buttons');
+  }, 3000); // 3 second timeout
+  
   // NON-BLOCKING: Use .then() instead of await
   supabase.auth.getSession()
     .then(async ({ data: { session } }) => {
+      clearTimeout(buttonTimeout); // Cancel timeout if successful
+      
       if (session?.user) {
         const { data: profile } = await supabase.from('users').select('is_premium').eq('id', session.user.id).single();
         if (profile?.is_premium) document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
@@ -675,6 +693,7 @@
       if (!session?.user) document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
     })
     .catch(err => {
+      clearTimeout(buttonTimeout); // Cancel timeout on error
       console.error('Premium check failed:', err);
     });
 </script>

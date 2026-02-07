@@ -772,10 +772,20 @@
     window.scrollTo(0, modeSelectorScrollPosition);
   });
 
-  // Check premium status (NON-BLOCKING)
+  // Check premium status (NON-BLOCKING with timeout)
   function checkPremiumStatus() {
+    // Set a timeout to ensure we render even if auth fails/hangs
+    const timeoutId = setTimeout(() => {
+      console.warn('⏱️ Auth check timed out after 3s - rendering as non-premium');
+      if (!categoriesRendered) {
+        renderCategories();
+      }
+    }, 3000); // 3 second timeout
+    
     supabase.auth.getSession()
       .then(async ({ data: { session } }) => {
+        clearTimeout(timeoutId); // Cancel timeout if auth succeeds
+        
         if (session?.user) {
           const { data: profile } = await supabase
             .from('users')
@@ -788,15 +798,20 @@
           }
         }
         
-        // Render categories after checking premium status
-        renderCategories();
+        // Re-render categories with updated premium status
+        if (categoriesRendered) {
+          renderCategories(); // Refresh with premium status
+        }
       })
       .catch(err => {
+        clearTimeout(timeoutId); // Cancel timeout on error
         console.error('Premium check failed:', err);
-        // Render anyway as non-premium
-        renderCategories();
+        // Already rendered as non-premium
       });
   }
+  
+  // Track if categories have been rendered
+  let categoriesRendered = false;
 
   // Premium modal handlers
   function showPremiumModal() {
@@ -821,6 +836,7 @@
 
   // Render categories
   function renderCategories() {
+    categoriesRendered = true; // Track that we've rendered
     const container = document.getElementById('categoriesGrid');
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     const end = start + ITEMS_PER_PAGE;
@@ -1013,8 +1029,10 @@
   // Make showPremiumModal global
   window.showPremiumModal = showPremiumModal;
 
-  // Initialize
-  checkPremiumStatus();
+  // Initialize - RENDER IMMEDIATELY, auth check happens in background
+  console.log('🚀 Rendering categories immediately...');
+  renderCategories(); // Show content NOW
+  checkPremiumStatus(); // Then check premium in background
 </script>
 
 <!-- Account/Premium Button Removal -->
