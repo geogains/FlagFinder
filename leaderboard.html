@@ -807,37 +807,45 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   async function loadCategories() {
-    const params = new URLSearchParams(window.location.search);
-    const { data: categories } = await supabase.from("categories").select("*").order("name");
-    if (!categories?.length) return;
-
-    // Sort categories alphabetically by display name
-    const sortedCategories = categories
-      .map(cat => ({
-        name: cat.name,
-        display: displayNameMap[cat.name.toLowerCase()] || formatCategoryName(cat.name)
-      }))
-      .sort((a, b) => a.display.localeCompare(b.display));
-
-    const initial = params.get("mode") || sortedCategories[0].name;
-    currentCategory = initial;
-    
-    if (currentMode === 'classic' || currentMode === 'top10' || currentMode === 'vs') {
-      categorySearchWrapper.style.display = 'block';
-      dailyChallengeTitle.style.display = 'none';
-      dateSelector.classList.remove('active');
-      loadLeaderboard(initial);
-      const displayName = displayNameMap[initial.toLowerCase()] || formatCategoryName(initial);
-      document.getElementById("categorySearchInput").value = displayName;
-    } else if (currentMode === 'daily-challenge') {
-      categorySearchWrapper.style.display = 'none';
-      dailyChallengeTitle.style.display = 'block';
-      dateSelector.classList.add('active');
-      populateDateDropdown();
-      if (dateDropdown.value) {
-        currentDate = dateDropdown.value;
-        loadDailyChallengeLeaderboardForDate(currentDate);
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const { data: categories } = await supabase.from("categories").select("*").order("name");
+      if (!categories?.length) {
+        console.warn('No categories loaded');
+        return;
       }
+
+      // Sort categories alphabetically by display name
+      const sortedCategories = categories
+        .map(cat => ({
+          name: cat.name,
+          display: displayNameMap[cat.name.toLowerCase()] || formatCategoryName(cat.name)
+        }))
+        .sort((a, b) => a.display.localeCompare(b.display));
+
+      const initial = params.get("mode") || sortedCategories[0].name;
+      currentCategory = initial;
+      
+      if (currentMode === 'classic' || currentMode === 'top10' || currentMode === 'vs') {
+        categorySearchWrapper.style.display = 'block';
+        dailyChallengeTitle.style.display = 'none';
+        dateSelector.classList.remove('active');
+        loadLeaderboard(initial);
+        const displayName = displayNameMap[initial.toLowerCase()] || formatCategoryName(initial);
+        document.getElementById("categorySearchInput").value = displayName;
+      } else if (currentMode === 'daily-challenge') {
+        categorySearchWrapper.style.display = 'none';
+        dailyChallengeTitle.style.display = 'block';
+        dateSelector.classList.add('active');
+        populateDateDropdown();
+        if (dateDropdown.value) {
+          currentDate = dateDropdown.value;
+          loadDailyChallengeLeaderboardForDate(currentDate);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load categories:', error);
+      leaderboardBody.innerHTML = '<tr><td colspan="4">Failed to load leaderboard. Please refresh the page.</td></tr>';
     }
   }
 
@@ -950,7 +958,22 @@ document.addEventListener('DOMContentLoaded', function() {
     set: (value) => { currentCategory = value; }
   });
 
-  loadCategories();
+  // Initialize with timeout protection
+  const initTimeout = setTimeout(() => {
+    console.warn('⏱️ Leaderboard initialization timed out after 5s');
+    leaderboardBody.innerHTML = '<tr><td colspan="4">Loading is taking longer than expected. Please refresh the page.</td></tr>';
+  }, 5000); // 5 second timeout for leaderboard (needs more time for database queries)
+
+  loadCategories()
+    .then(() => {
+      clearTimeout(initTimeout);
+      console.log('✅ Leaderboard loaded successfully');
+    })
+    .catch(err => {
+      clearTimeout(initTimeout);
+      console.error('❌ Leaderboard initialization failed:', err);
+      leaderboardBody.innerHTML = '<tr><td colspan="4">Failed to load leaderboard. Please refresh the page.</td></tr>';
+    });
 </script>
 
 <!-- ========================================
