@@ -124,6 +124,17 @@ export const categoriesConfig = {
     questionText: "WHICH COUNTRY HAS A HIGHER AVERAGE TEMPERATURE?"
   },
   
+  // ✅ ALIAS for temperature (used by daily challenge and other parts of the app)
+  hightemp: {
+    title: "Average Temperature",
+    emoji: "🌡️",
+    unit: "°C",
+    dataFile: "temperature",
+    dataKey: "temperatureData",
+    valueField: "temperature",
+    questionText: "WHICH COUNTRY HAS A HIGHER AVERAGE TEMPERATURE?"
+  },
+  
    rainfall: {
     title: "Annual Rainfall",
     emoji: "🌧️",
@@ -133,7 +144,7 @@ export const categoriesConfig = {
     valueField: "rainfall",
     questionText: "WHICH COUNTRY HAS MORE ANNUAL RAINFALL?"
   },
-  precipitation: {  // ✅ ADD THIS - alias
+  precipitation: {  // ✅ ALIAS for rainfall
     title: "Annual Rainfall",
     emoji: "🌧️",
     unit: "mm",
@@ -373,7 +384,9 @@ export const CATEGORY_ID_MAP = {
   beer: 13,
   nobelprize: 14,
   temperature: 15,
+  hightemp: 15,  // ✅ ALIAS - maps to same ID as temperature
   rainfall: 16,
+  precipitation: 16,  // ✅ ALIAS - maps to same ID as rainfall
   tourism: 17,
   michelin: 18,
   bigmac: 19,
