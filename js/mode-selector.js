@@ -123,7 +123,9 @@ export function openModeSelector(categoryKey, categoryDisplayName, categoryEmoji
     nobelprize: "nobelprize.jpg",
     worldcup: "worldcup.jpg",
     hightemp: "hightemp.jpg",
+    temperature: "hightemp.jpg",  // ✅ ALIAS - points to same image as hightemp
     rainfall: "rainfall.jpg",
+    precipitation: "rainfall.jpg",  // ✅ ALIAS - points to same image as rainfall
     crimerate: "crimerate.jpg",
     happiness: "happiness.jpg",
     cuisine: "cuisine.jpg",
@@ -151,8 +153,15 @@ export function openModeSelector(categoryKey, categoryDisplayName, categoryEmoji
   };
 
   const bgImage = bgMap[categoryKey];
-  if (bgImage && modal) {
-    modal.style.backgroundImage = `url('images/categories/${bgImage}')`;
+  if (modal) {
+    if (bgImage) {
+      // Set the background image for this category
+      modal.style.backgroundImage = `url('images/categories/${bgImage}')`;
+    } else {
+      // ✅ FIX: Clear background if no image found (prevents showing previous category's image)
+      modal.style.backgroundImage = '';
+      console.warn(`No background image found for category: ${categoryKey}`);
+    }
   }
 
   // Generate mode cards
