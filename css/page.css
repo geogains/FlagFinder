@@ -226,7 +226,7 @@ body.menu-open {
 ======================================== */
 .menu-daily-challenge {
   position: relative;
-  height: 240px;
+  height: 170px;
   padding: 0;
   margin-bottom: 16px;
   overflow: hidden;
@@ -520,7 +520,7 @@ body.menu-open {
   }
 
   .menu-daily-challenge {
-    height: 800px;
+    height: 180px;
   }
 }
 
@@ -539,7 +539,7 @@ body.menu-open {
   }
 
   .menu-daily-challenge {
-    height: 210px;
+    height: 170px;
   }
 
   .menu-daily-challenge .daily-title {
