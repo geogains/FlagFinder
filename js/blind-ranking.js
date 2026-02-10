@@ -435,7 +435,7 @@ if (metricKey === "gdp") {
   return num.toLocaleString();
 }
 
-function endGame() {
+async function endGame() {
   isGameOver = true;
 
   const maxScore = selectedCountries.length * 10;
@@ -492,7 +492,23 @@ function endGame() {
     tourism: 'Most Visited Countries',
     michelin: 'Michelin Restaurants',
     bigmac: 'Most Expensive Big Mac',
-    lifeexpectancy: 'Life Expectancy'
+    lifeexpectancy: 'Life Expectancy',
+    // New categories added
+    flamingo: 'Flamingo Population',
+    volcano: 'Volcanoes',
+    millionaires: 'Millionaires',
+    density: 'Population Density',
+    university: 'Universities',
+    gm: 'Chess Grandmasters',
+    marriageage: 'Marriage Age',
+    sexratio: 'Gender Ratio',
+    carexports: 'Car Exports',
+    militarypersonel: 'Military Personnel',
+    rent: 'Rent Prices',
+    poorestgdp: 'Poorest Countries',
+    disasterrisk: 'Natural Disasters',
+    longestriver: 'Longest River',
+    renewableenergy: 'Renewable Energy'
   };
   const categoryName = categoryNames[categoryParam] || categoryParam;
 
@@ -508,9 +524,11 @@ function endGame() {
   // Save to localStorage as backup
   localStorage.setItem('classicResults', JSON.stringify(resultsData));
   
-  // Save highest score using upsert RPC
-  (async () => {
+  // Save highest score with proper async/await (CRITICAL FIX for race condition)
+  console.log('💾 Saving score to database...');
+  try {
     const { data: { session }, error: sessionErr } = await supabase.auth.getSession();
+    
     if (session?.user) {
       const currentCategory = categoryParam;
 
@@ -520,60 +538,69 @@ function endGame() {
       if (!categoryId) {
         console.error("❌ Could not find category ID for:", currentCategory);
         console.log("Available categories:", Object.keys(CATEGORY_ID_MAP));
-        return;
-      }
-
-      console.log("✅ Found category ID:", categoryId, "for category:", currentCategory);
-
-      // Call the stored procedure
-      const { error: rpcError } = await supabase.rpc('upsert_high_score', {
-        category_id_input: categoryId,
-        new_score: totalScore,
-        is_daily_challenge: isDailyChallenge
-      });
-
-      if (rpcError) {
-        console.error("❌ Error updating high score:", rpcError);
+        // Don't return - still redirect to results even if save fails
       } else {
-        console.log("✅ High score upserted:", totalScore);
-      }
-      
-      // If daily challenge, also save to daily_challenge_scores
-      if (isDailyChallenge) {
-        const today = new Date().toISOString().split('T')[0];
+        console.log("✅ Found category ID:", categoryId, "for category:", currentCategory);
+
+        // Call the stored procedure
+        const { error: rpcError } = await supabase.rpc('upsert_high_score', {
+          category_id_input: categoryId,
+          new_score: totalScore,
+          is_daily_challenge: isDailyChallenge
+        });
+
+        if (rpcError) {
+          console.error("❌ Error updating high score:", rpcError);
+        } else {
+          console.log("✅ High score upserted:", totalScore);
+        }
         
-        const { data: dailyData, error: dailyError } = await supabase
-          .from('daily_challenge_scores')
-          .upsert({
+        // If daily challenge, also save to daily_challenge_scores
+        if (isDailyChallenge) {
+          const today = new Date().toISOString().split('T')[0];
+          
+          console.log('💾 Saving daily challenge score...', {
             user_id: session.user.id,
             category_id: categoryId,
             played_date: today,
-            score: totalScore,
-            completed: true
-          })
-          .select();
-        
-        if (dailyError) {
-          console.error("❌ Error saving daily challenge score:", dailyError);
-        } else {
-          console.log("✅ Daily challenge score saved:", dailyData);
+            score: totalScore
+          });
+          
+          const { data: dailyData, error: dailyError } = await supabase
+            .from('daily_challenge_scores')
+            .upsert({
+              user_id: session.user.id,
+              category_id: categoryId,
+              played_date: today,
+              score: totalScore,
+              completed: true
+            })
+            .select();
+          
+          if (dailyError) {
+            console.error("❌ Error saving daily challenge score:", dailyError);
+            console.error("Error details:", dailyError);
+          } else {
+            console.log("✅ Daily challenge score saved:", dailyData);
+          }
         }
       }
     } else {
       console.warn("⚠️ No active session found.");
     }
-  })();
+  } catch (error) {
+    console.error("❌ Unexpected error saving score:", error);
+  }
 
-  // Redirect to results page with URL parameters
+  // Redirect to results page (happens AFTER save completes)
+  console.log('🔀 Redirecting to results...');
   const params = new URLSearchParams({
     category: categoryParam,
     score: totalScore,
     maxScore: maxScore
   });
   
-  setTimeout(() => {
-    window.location.href = `classicresults.html?${params.toString()}`;
-  }, 300); // Small delay to ensure score is saved
+  window.location.href = `classicresults.html?${params.toString()}`;
 }
 
 export function setupRankButtons() {

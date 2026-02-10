@@ -686,8 +686,8 @@
 
     function displayResults() {
       // Update emoji and title based on performance
-      const emoji = finalCorrect >= 8 ? '🏆' : finalCorrect >= 5 ? '🎉' : '💪';
-      const title = finalCorrect >= 8 ? 'Excellent!' : finalCorrect >= 5 ? 'Great Job!' : 'Try Again!';
+      const emoji = finalCorrect >= 10 ? '🏆' : finalCorrect >= 8 ? '🌟' : finalCorrect >= 5 ? '🎉' : '💪';
+      const title = finalCorrect >= 10 ? 'Perfect!' : finalCorrect >= 8 ? 'Excellent!' : finalCorrect >= 5 ? 'Great Job!' : 'Try Again!';
       
       document.getElementById('resultsEmoji').textContent = emoji;
       document.getElementById('resultsTitle').textContent = title;
