@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About Us | GeoRanks</title>
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Shared Page Styles -->
+  <link rel="stylesheet" href="css/page.css">
+  
+  <style>
+    /* Container & Layout */
+    .about-container {
+      max-width: 1100px;
+      margin: 40px auto 80px;
+      margin-top: 120px;
+      padding: 0 20px;
+    }
+
+    /* Hero Section */
+    .about-hero {
+      text-align: center;
+      margin-bottom: 80px;
+      animation: fadeInUp 0.8s ease;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .about-hero h1 {
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, #0d315a 0%, #1a4d7a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 16px;
+      letter-spacing: -1px;
+    }
+
+    .about-hero .subtitle {
+      font-size: clamp(1.1rem, 3vw, 1.4rem);
+      color: #0d315a;
+      opacity: 0.75;
+      font-weight: 500;
+    }
+
+    /* Content Grid */
+    .about-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      animation: fadeInUp 0.8s ease 0.2s both;
+    }
+
+    /* Image Section */
+    .about-image-section {
+      position: relative;
+    }
+
+    .about-image-wrapper {
+      position: relative;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      transform: translateZ(0);
+      transition: transform 0.5s ease, box-shadow 0.5s ease;
+    }
+
+    .about-image-wrapper:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2);
+    }
+
+    .about-image {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: cover;
+      aspect-ratio: 4/5;
+    }
+
+    /* Decorative Elements */
+    .image-decoration {
+      position: absolute;
+      z-index: -1;
+    }
+
+    .decoration-circle-1 {
+      width: 200px;
+      height: 200px;
+      background: linear-gradient(135deg, rgba(255, 151, 112, 0.15), rgba(255, 111, 97, 0.15));
+      border-radius: 50%;
+      top: -40px;
+      right: -40px;
+      filter: blur(40px);
+    }
+
+    .decoration-circle-2 {
+      width: 150px;
+      height: 150px;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+      border-radius: 50%;
+      bottom: -30px;
+      left: -30px;
+      filter: blur(40px);
+    }
+
+    /* Story Section */
+    .about-story {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 24px;
+      padding: 48px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .about-story::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #ff9770, #ff6f61, #667eea, #764ba2);
+    }
+
+    .story-header {
+      margin-bottom: 32px;
+    }
+
+    .story-label {
+      display: inline-block;
+      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
+      color: white;
+      padding: 8px 20px;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    .story-title {
+      font-size: clamp(1.8rem, 4vw, 2.4rem);
+      font-weight: 800;
+      color: #0d315a;
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
+    .story-subtitle {
+      font-size: 1.1rem;
+      color: #667eea;
+      font-weight: 600;
+    }
+
+    .story-content p {
+      font-size: 1.1rem;
+      line-height: 1.8;
+      color: #374151;
+      margin-bottom: 24px;
+      font-weight: 400;
+    }
+
+    .story-content p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Highlight Text */
+    .highlight {
+      color: #ff6f61;
+      font-weight: 600;
+    }
+
+    /* Footer CTA */
+    .about-footer {
+      text-align: center;
+      margin-top: 80px;
+      padding: 60px 40px;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+      border-radius: 24px;
+      animation: fadeInUp 0.8s ease 0.4s both;
+    }
+
+    .footer-emoji {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      display: block;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .footer-text {
+      font-size: 1.3rem;
+      color: #0d315a;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .footer-subtext {
+      font-size: 1rem;
+      color: #6b7280;
+      margin-bottom: 32px;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .cta-btn {
+      padding: 16px 36px;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s ease;
+      border: none;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .cta-btn-primary {
+      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
+      color: white;
+      box-shadow: 0 6px 24px rgba(255, 111, 97, 0.35);
+    }
+
+    .cta-btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 32px rgba(255, 111, 97, 0.45);
+    }
+
+    .cta-btn-secondary {
+      background: white;
+      color: #0d315a;
+      border: 2px solid rgba(13, 49, 90, 0.2);
+    }
+
+    .cta-btn-secondary:hover {
+      background: rgba(13, 49, 90, 0.05);
+      border-color: rgba(13, 49, 90, 0.4);
+      transform: translateY(-2px);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 968px) {
+      .about-content {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+
+      .about-image-section {
+        max-width: 500px;
+        margin: 0 auto;
+      }
+
+      .about-story {
+        padding: 36px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .about-container {
+        margin-top: 100px;
+      }
+
+      .about-hero {
+        margin-bottom: 48px;
+      }
+
+      .about-story {
+        padding: 28px;
+      }
+
+      .story-content p {
+        font-size: 1rem;
+        line-height: 1.7;
+      }
+
+      .about-footer {
+        padding: 40px 24px;
+        margin-top: 60px;
+      }
+
+      .cta-buttons {
+        flex-direction: column;
+      }
+
+      .cta-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header with Hamburger Menu -->
+<header class="home-glass-header">
+  <div class="logo-header">
+    <a href="index.html"><img src="assets/logo.png" alt="GeoRanks" /></a>
+  </div>
+  <div class="menu-icon" id="menuToggle">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</header>
+
+<!-- Hamburger Menu Overlay -->
+<div class="menu-overlay" id="menuOverlay">
+  <div class="menu-panel">
+    <h2>Menu</h2>
+    <button class="menu-btn menu-daily-challenge" onclick="window.location.href='daily-challenge.html'" id="dailyChallengeMenuBtn">
+      <div class="daily-bg" id="dailyChallengeBg"></div>
+      <div class="daily-overlay"></div>
+      <div class="daily-content">
+        <h3 class="daily-title">📅 Daily Challenge</h3>
+        <span class="daily-category" id="dailyChallengeCategory">Loading...</span>
+      </div>
+    </button>
+    <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
+    <button class="menu-btn" onclick="window.location.href='categories.html'">🎮 Categories</button>
+    <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
+    <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
+    <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
+    <button class="menu-btn" onclick="window.location.href='how-to-play.html'">💡 How to Play</button>
+    <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
+    <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
+    <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'">🔓 Unlock All Categories</button>
+    <button class="menu-close-x" id="closeMenu">×</button>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="about-container">
+  
+  <!-- Hero Section -->
+  <div class="about-hero">
+    <h1>About GeoRanks</h1>
+    <p class="subtitle">From bartender to programmer, building games that make the world more fun</p>
+  </div>
+
+  <!-- Content Grid -->
+  <div class="about-content">
+    
+    <!-- Image Section -->
+    <div class="about-image-section">
+      <div class="about-image-wrapper">
+        <img 
+          src="images/kieron.jpg" 
+          alt="Kieron - Creator of GeoRanks" 
+          class="about-image"
+          onerror="this.src='assets/placeholder-profile.png'"
+        />
+      </div>
+      <div class="decoration-circle-1 image-decoration"></div>
+      <div class="decoration-circle-2 image-decoration"></div>
+    </div>
+
+    <!-- Story Section -->
+    <div class="about-story">
+      <div class="story-header">
+        <span class="story-label">The Story</span>
+        <h2 class="story-title">Hi, I'm Kieron</h2>
+        <p class="story-subtitle">Creator of GeoRanks</p>
+      </div>
+
+      <div class="story-content">
+        <p>
+          At school, I had zero interest in geography — it was taught in a way that made the world feel small, flat, and boring.
+        </p>
+
+        <p>
+          That changed when I started working as a bartender onboard <span class="highlight">Disney Cruise Line</span>.
+        </p>
+
+        <p>
+          Traveling from country to country, meeting people from everywhere, and seeing how different the world really is completely rewired how I saw the planet.
+        </p>
+
+        <p>
+          That's where my passion for travel, culture, and geography was born.
+        </p>
+
+        <p>
+          Now, after nearly a decade behind the bar, I'm transitioning into a new career as a <span class="highlight">programmer</span>, building interactive games instead of cocktails.
+        </p>
+
+        <p>
+          <strong>GeoRanks</strong> is the first of many projects I'll be creating — a way to turn the world into something competitive, social, and fun to explore.
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer CTA -->
+  <div class="about-footer">
+    <span class="footer-emoji">🌍</span>
+    <div class="footer-text">More coming soon</div>
+    <div class="footer-subtext">Follow along on the journey</div>
+    
+    <div class="cta-buttons">
+      <a href="categories.html" class="cta-btn cta-btn-primary">Start Playing</a>
+      <a href="contact.html" class="cta-btn cta-btn-secondary">Contact Us</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- ========== FOOTER ========== -->
+<footer class="home-footer">
+  <div class="footer-socials">
+    <div class="icon-row">
+      <a href="https://www.instagram.com/geo_ranks/" target="_blank" rel="noopener">
+        <img src="assets/instagram.png" alt="Instagram" />
+      </a>
+      <div class="divider"></div>
+      <a href="https://www.tiktok.com/@georanks" target="_blank" rel="noopener">
+        <img src="assets/tik-tok.png" alt="TikTok" />
+      </a>
+      <div class="divider"></div>
+      <a href="https://www.youtube.com/channel/UC8jrsBpCn09u0mHQle_O3Rw" target="_blank" rel="noopener">
+        <img src="assets/youtube.png" alt="YouTube" />
+      </a>
+      <div class="divider"></div>
+      <a href="https://x.com/Kieroncroo66687" target="_blank" rel="noopener">
+        <img src="assets/x.png" alt="X" />
+      </a>
+      <div class="divider"></div>
+      <a href="https://www.threads.net/@geo_ranks" target="_blank" rel="noopener">
+        <img src="assets/threads.png" alt="Threads" />
+      </a>
+      <div class="divider"></div>
+      <a href="https://www.buymeacoffee.com/GeoRanks" target="_blank" rel="noopener">
+        <img src="assets/buymeacoffee.png" alt="Coffee" />
+      </a>
+    </div>
+    <p>© 2026 GeoRanks</p>
+    <div class="footer-links">
+      <a href="terms.html">Terms of Service</a>
+      <span>•</span>
+      <a href="privacy.html">Privacy Policy</a>
+    </div>
+  </div>
+</footer>
+
+<!-- Menu Toggle Scripts -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const menuToggle = document.getElementById('menuToggle');
+  const menuOverlay = document.getElementById('menuOverlay');
+  const closeMenu = document.getElementById('closeMenu');
+  let scrollPosition = 0;
+
+  if (menuToggle && menuOverlay) {
+    menuToggle.addEventListener('click', () => {
+      scrollPosition = window.pageYOffset;
+      document.body.classList.add('menu-open');
+      document.body.style.top = `-${scrollPosition}px`;
+      menuOverlay.classList.add('active');
+    });
+
+    function closeMenuHandler() {
+      document.body.classList.remove('menu-open');
+      document.body.style.top = '';
+      window.scrollTo(0, scrollPosition);
+      menuOverlay.classList.remove('active');
+    }
+
+    closeMenu?.addEventListener('click', closeMenuHandler);
+
+    menuOverlay.addEventListener('click', (e) => {
+      if (e.target === menuOverlay) {
+        closeMenuHandler();
+      }
+    });
+  }
+});
+</script>
+
+<!-- Account/Premium Button Removal -->
+<script type="module">
+  import { supabase } from './js/supabase-client.js';
+  (async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      const { data: profile } = await supabase.from('users').select('is_premium').eq('id', session.user.id).single();
+      if (profile?.is_premium) document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+    }
+    if (!session?.user) document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+  })();
+</script>
+
+<!-- Daily Challenge Preview in Menu -->
+<script type="module">
+  import { getTodaysDailyChallenge, categoryDisplayNames, categoryEmojis } from './js/daily-challenge.js';
+  
+  const challenge = getTodaysDailyChallenge();
+  const categoryElement = document.getElementById('dailyChallengeCategory');
+  const dailyChallengeBg = document.getElementById('dailyChallengeBg');
+  
+  if (categoryElement && challenge) {
+    const displayName = categoryDisplayNames[challenge.category] || challenge.category;
+    const emoji = categoryEmojis[challenge.category] || '🌍';
+    categoryElement.textContent = `${emoji} ${displayName}`;
+    
+    // Set background image
+    if (dailyChallengeBg) {
+      dailyChallengeBg.style.backgroundImage = `url('images/categories/${challenge.category}.jpg')`;
+    }
+  }
+</script>
+
+</body>
+</html>
