@@ -154,7 +154,7 @@ export function startBlindRankingGame() {
     return;
   }
 
-  window.plausible('game_started', { props: { mode: 'classic', category: currentCategory } });
+  if (typeof window.plausible === 'function') window.plausible('game_started', { props: { mode: 'classic', category: currentCategory } });
 
   selectedCountries = shuffle([...countries]).slice(0, 10);
   computeBestRanks(selectedCountries);
@@ -442,7 +442,7 @@ if (metricKey === "gdp") {
 async function endGame() {
   isGameOver = true;
 
-  window.plausible('game_completed', { props: { mode: 'classic', category: currentCategory } });
+  if (typeof window.plausible === 'function') window.plausible('game_completed', { props: { mode: 'classic', category: currentCategory } });
 
   const maxScore = selectedCountries.length * 10;
   
