@@ -18,6 +18,8 @@ const SOUND_MAP = {
   'pop': '/sounds/pop.mp3'
 };
 
+window.addEventListener("pointerdown", () => soundManager.unlock(), { once: true });
+
 soundManager.init(SOUND_MAP).then(() => {
   console.log('✅ Sounds loaded for Top 10 mode');
 }).catch(err => {

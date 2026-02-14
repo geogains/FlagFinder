@@ -20,6 +20,8 @@ const SOUND_MAP = {
   'tryagain': '/sounds/tryagain.mp3'
 };
 
+window.addEventListener("pointerdown", () => soundManager.unlock(), { once: true });
+
 soundManager.init(SOUND_MAP).then(() => {
   console.log('✅ Sounds loaded for Classic mode');
 }).catch(err => {
