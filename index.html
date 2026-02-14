@@ -465,7 +465,7 @@
     <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
     <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
     <button class="menu-btn" onclick="location.href='about.html'">🌍 About Us</button>
-    <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'">🔓 Unlock All Categories</button>
+    <button class="menu-btn upgrade-access-btn" onclick="plausible('premium_clicked'); window.location.href='premium.html'">🔓 Unlock All Categories</button>
    <button class="menu-close-x" id="closeMenu">×</button>
   </div>
 </div>
@@ -546,6 +546,7 @@
   window.openModeSelector = function(category, display, emoji) {
     modeSelectorScrollPosition = window.pageYOffset;
     document.body.style.top = `-${modeSelectorScrollPosition}px`;
+    plausible('category_selected', { props: { category: display } });
     originalOpenModeSelector(category, display, emoji);
   };
 
