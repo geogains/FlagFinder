@@ -546,7 +546,7 @@
   window.openModeSelector = function(category, display, emoji) {
     modeSelectorScrollPosition = window.pageYOffset;
     document.body.style.top = `-${modeSelectorScrollPosition}px`;
-    window.plausible('category_selected', { props: { category: display } });
+    window.plausible('category_selected', { props: { category: category } });
     originalOpenModeSelector(category, display, emoji);
   };
 
