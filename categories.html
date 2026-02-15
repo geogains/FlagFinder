@@ -840,6 +840,7 @@
   });
 
   document.getElementById('goPremiumBtn')?.addEventListener('click', () => {
+    window.plausible('premium_clicked');
     window.location.href = 'premium.html';
   });
 
