@@ -154,6 +154,19 @@
       font-family: 'Rubik', sans-serif;
     }
 
+    .table-best-rank {
+      font-weight: 600;
+      font-size: 0.75rem;
+      min-width: 32px;
+      text-align: center;
+      color: #9ca3af;
+      font-family: 'Rubik', sans-serif;
+    }
+
+    .table-row.correct .table-best-rank {
+      color: rgba(255, 255, 255, 0.75);
+    }
+
     .table-flag {
       width: 40px;
       height: 30px;
@@ -560,6 +573,7 @@
         row.className = isPerfect ? 'table-row correct' : 'table-row';
         row.innerHTML = `
           <span class="table-rank">#${country.rank}</span>
+          <span class="table-best-rank">${country.bestRank || country.rank}</span>
           <img src="${country.flag}" alt="${country.name}" class="table-flag">
           <span class="table-country">${country.name}</span>
           <div class="table-data-container">
