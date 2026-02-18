@@ -646,7 +646,14 @@
       // Clear table
       table.innerHTML = '';
 
-      resultsTable.forEach(country => {
+      // Sort by correct rank order (bestRank) instead of user's placement
+      const sortedResults = [...resultsTable].sort((a, b) => {
+        const aRank = parseInt(String(a.bestRank).split('-')[0]) || a.rank;
+        const bRank = parseInt(String(b.bestRank).split('-')[0]) || b.rank;
+        return aRank - bRank;
+      });
+
+      sortedResults.forEach((country, idx) => {
         const isPerfect = country.isPerfect;
         
         // Check if country has building/mountain/river name
@@ -658,8 +665,8 @@
         const row = document.createElement('div');
         row.className = isPerfect ? 'table-row correct' : 'table-row';
         row.innerHTML = `
-          <span class="table-rank">#${country.rank}</span>
-          <span class="table-best-rank">${country.bestRank || country.rank}</span>
+          <span class="table-rank">#${country.bestRank || country.rank}</span>
+          <span class="table-best-rank">${country.rank}</span>
           <img src="${country.flag}" alt="${country.name}" class="table-flag">
           <span class="table-country">${country.name}</span>
           <div class="table-data-container">
