@@ -756,21 +756,10 @@
       // Clear table
       table.innerHTML = '';
 
-      // Sort by correct rank order (bestRank) instead of user's placement
-      const sortedResults = [...resultsTable].sort((a, b) => {
-        const aRank = parseInt(String(a.bestRank).split('-')[0]) || a.rank;
-        const bRank = parseInt(String(b.bestRank).split('-')[0]) || b.rank;
-        return aRank - bRank;
-      });
+      // Sort by user's placement order
+      const sortedResults = [...resultsTable].sort((a, b) => a.rank - b.rank);
 
-      // Add column headers
-      const headerRow = document.createElement('div');
-      headerRow.className = 'table-row table-header';
-      headerRow.innerHTML = `
-        <span class="table-rank table-header-emoji">⭐️</span>
-        <span class="table-best-rank table-header-emoji">👤</span>
-      `;
-      table.appendChild(headerRow);
+ 
 
       sortedResults.forEach((country, idx) => {
         const isPerfect = country.isPerfect;
@@ -784,8 +773,8 @@
         const row = document.createElement('div');
         row.className = isPerfect ? 'table-row correct' : 'table-row';
         row.innerHTML = `
-          <span class="table-rank">#${country.bestRank || country.rank}</span>
-          <span class="table-best-rank">${country.rank}</span>
+          <span class="table-rank">#${country.rank}</span>
+          <span class="table-best-rank">${country.bestRank || country.rank}</span>
           <img src="${country.flag}" alt="${country.name}" class="table-flag">
           <span class="table-country">${country.name}</span>
           <div class="table-data-container">
