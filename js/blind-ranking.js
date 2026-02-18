@@ -462,6 +462,9 @@ async function endGame() {
     const range = c.rankRange || { min: c.bestRankInRound, max: c.bestRankInRound };
     const withinTieRange = userTier >= range.min && userTier <= range.max;
 
+    const diff = userTier < range.min ? range.min - userTier : userTier > range.max ? userTier - range.max : 0;
+    const points = Math.max(10 - diff, 1);
+
     resultsTable.push({
       rank: userTier,
       bestRank: range.min === range.max ? range.min : `${range.min}-${range.max}`,
@@ -469,6 +472,7 @@ async function endGame() {
       flag: `flags/${c.code}.png`,
       value: formatMetric(c[metricKey]),
       isPerfect: withinTieRange,
+      points: points,
       tallestBuildingName: c.tallestBuildingName || null,
       highestPointName: c.highestPointName || null,
       riverName: c.riverName || null

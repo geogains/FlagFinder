@@ -126,6 +126,86 @@
       color: #0d315a;
     }
 
+    .score-dropdown-toggle {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 2px 6px;
+      display: inline-flex;
+      align-items: center;
+      margin-left: 6px;
+    }
+
+    .score-dropdown-toggle svg {
+      transition: transform 0.3s ease;
+      color: #667eea;
+    }
+
+    .score-dropdown-toggle.open svg {
+      transform: rotate(180deg);
+    }
+
+    .score-breakdown {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease;
+    }
+
+    .score-breakdown.open {
+      max-height: 600px;
+    }
+
+    .breakdown-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 4px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .breakdown-row:last-child {
+      border-bottom: none;
+    }
+
+    .breakdown-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .breakdown-rank {
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: #9ca3af;
+      min-width: 24px;
+      font-family: 'Rubik', sans-serif;
+    }
+
+    .breakdown-flag {
+      width: 28px;
+      height: 20px;
+      object-fit: cover;
+      border-radius: 3px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    }
+
+    .breakdown-name {
+      font-weight: 500;
+      font-size: 0.85rem;
+      color: #374151;
+    }
+
+    .breakdown-pts {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: #9ca3af;
+      font-family: 'Rubik', sans-serif;
+    }
+
+    .breakdown-pts.perfect {
+      color: #10b981;
+    }
+
     /* Results Table */
     .results-table {
       margin-bottom: 2rem;
@@ -148,10 +228,23 @@
       border: none;
     }
 
+    .table-row.table-header {
+      background: transparent;
+      border-bottom: none;
+      padding-bottom: 2px;
+      padding-top: 4px;
+    }
+
+    .table-header-emoji {
+  font-size: 1.3rem !important;
+  text-align: center;
+}
+
     .table-rank {
       font-weight: 700;
       min-width: 45px;
       font-family: 'Rubik', sans-serif;
+       text-align: center;
     }
 
     .table-best-rank {
@@ -455,8 +548,16 @@
       <div class="results-stats">
         <div class="stat-row">
           <span class="stat-label">Your Score:</span>
-          <span class="stat-value" id="finalScore">0/100</span>
+          <span>
+            <span class="stat-value" id="finalScore">0/100</span>
+            <button class="score-dropdown-toggle" id="scoreDropdownToggle" aria-label="Show score breakdown">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </span>
         </div>
+        <div class="score-breakdown" id="scoreBreakdown"></div>
       </div>
 
       <div class="results-table" id="resultsTable"></div>
@@ -610,6 +711,15 @@
       // Build results table
       buildResultsTable();
 
+      // Build score breakdown
+      buildScoreBreakdown();
+
+      // Score dropdown toggle
+      document.getElementById('scoreDropdownToggle')?.addEventListener('click', () => {
+        document.getElementById('scoreDropdownToggle').classList.toggle('open');
+        document.getElementById('scoreBreakdown').classList.toggle('open');
+      });
+
       // Update "Try Other Modes" section
       document.getElementById('tryModesTitle').textContent = `Try other ${categoryName} game modes`;
       
@@ -652,6 +762,15 @@
         const bRank = parseInt(String(b.bestRank).split('-')[0]) || b.rank;
         return aRank - bRank;
       });
+
+      // Add column headers
+      const headerRow = document.createElement('div');
+      headerRow.className = 'table-row table-header';
+      headerRow.innerHTML = `
+        <span class="table-rank table-header-emoji">⭐️</span>
+        <span class="table-best-rank table-header-emoji">👤</span>
+      `;
+      table.appendChild(headerRow);
 
       sortedResults.forEach((country, idx) => {
         const isPerfect = country.isPerfect;
@@ -731,6 +850,29 @@
           }
         });
       });
+    }
+
+    function buildScoreBreakdown() {
+      const container = document.getElementById('scoreBreakdown');
+      if (!container || !resultsTable || resultsTable.length === 0) return;
+
+      // Show in user's placement order
+      const sorted = [...resultsTable].sort((a, b) => a.rank - b.rank);
+
+      container.innerHTML = sorted.map(country => {
+        const pts = country.points != null ? country.points : '—';
+        const isPerfect = country.isPerfect;
+        return `
+          <div class="breakdown-row">
+            <div class="breakdown-left">
+              <span class="breakdown-rank">#${country.rank}</span>
+              <img src="${country.flag}" alt="${country.name}" class="breakdown-flag">
+              <span class="breakdown-name">${country.name}</span>
+            </div>
+            <span class="breakdown-pts ${isPerfect ? 'perfect' : ''}">${pts}/10</span>
+          </div>
+        `;
+      }).join('');
     }
 
     function shareResults() {
