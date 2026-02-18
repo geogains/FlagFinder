@@ -263,9 +263,86 @@
         padding: 1rem;
       }
     }
+
+    #loadingOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #a7f3d0 0%, #38bdf8 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+
+    #loadingOverlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .spinner {
+      width: 80px;
+      height: 80px;
+      border: 8px solid rgba(255, 255, 255, 0.2);
+      border-top: 8px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      margin-top: 24px;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .loading-emoji {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      animation: bounceLoading 0.8s ease infinite;
+    }
+
+    @keyframes bounceLoading {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+
+    #mainContent {
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    #mainContent.visible {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
+
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay">
+    <div class="loading-emoji">🌍</div>
+    <div class="spinner"></div>
+    <div class="loading-text">Loading your results...</div>
+  </div>
+
+  <div id="mainContent">
 
   <!-- Header -->
   <header class="home-glass-header">
@@ -429,6 +506,15 @@
 
     displayResults();
 
+    // Hide loading overlay and show content
+    function hideLoading() {
+      const overlay = document.getElementById('loadingOverlay');
+      const content = document.getElementById('mainContent');
+      overlay.classList.add('hidden');
+      content.classList.add('visible');
+    }
+    setTimeout(hideLoading, 300);
+
     function getCategoryDisplayName(key) {
       const names = {
         population: 'Population',
@@ -575,5 +661,6 @@ Can you beat my score? Play at geo-ranks.com/vs.html?mode=${categoryKey}`;
       }
     });
   </script>
+  </div> <!-- end #mainContent -->
 </body>
 </html>
