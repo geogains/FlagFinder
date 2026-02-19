@@ -206,6 +206,48 @@
       color: #10b981;
     }
 
+    .breakdown-best {
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: #667eea;
+      font-family: 'Rubik', sans-serif;
+      min-width: 32px;
+      text-align: center;
+    }
+
+    .breakdown-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .breakdown-header {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 6px 4px 2px;
+      gap: 14px;
+    }
+
+    .breakdown-header-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: 'Rubik', sans-serif;
+    }
+
+    .breakdown-header-label.pts-label {
+      min-width: 40px;
+      text-align: right;
+    }
+
+    .breakdown-header-label.best-label {
+      min-width: 32px;
+      text-align: center;
+    }
+
     /* Results Table */
     .results-table {
       margin-bottom: 2rem;
@@ -759,8 +801,6 @@
       // Sort by user's placement order
       const sortedResults = [...resultsTable].sort((a, b) => a.rank - b.rank);
 
- 
-
       sortedResults.forEach((country, idx) => {
         const isPerfect = country.isPerfect;
         
@@ -774,7 +814,6 @@
         row.className = isPerfect ? 'table-row correct' : 'table-row';
         row.innerHTML = `
           <span class="table-rank">#${country.rank}</span>
-          <span class="table-best-rank">${country.bestRank || country.rank}</span>
           <img src="${country.flag}" alt="${country.name}" class="table-flag">
           <span class="table-country">${country.name}</span>
           <div class="table-data-container">
@@ -848,7 +887,14 @@
       // Show in user's placement order
       const sorted = [...resultsTable].sort((a, b) => a.rank - b.rank);
 
-      container.innerHTML = sorted.map(country => {
+      const header = `
+        <div class="breakdown-header">
+          <span class="breakdown-header-label pts-label">pts</span>
+          <span class="breakdown-header-label best-label">best</span>
+        </div>
+      `;
+
+      const rows = sorted.map(country => {
         const pts = country.points != null ? country.points : '—';
         const isPerfect = country.isPerfect;
         return `
@@ -858,10 +904,15 @@
               <img src="${country.flag}" alt="${country.name}" class="breakdown-flag">
               <span class="breakdown-name">${country.name}</span>
             </div>
-            <span class="breakdown-pts ${isPerfect ? 'perfect' : ''}">${pts}/10</span>
+            <div class="breakdown-right">
+              <span class="breakdown-pts ${isPerfect ? 'perfect' : ''}">${pts}/10</span>
+              <span class="breakdown-best">${country.bestRank || country.rank}</span>
+            </div>
           </div>
         `;
       }).join('');
+
+      container.innerHTML = header + rows;
     }
 
     function shareResults() {
