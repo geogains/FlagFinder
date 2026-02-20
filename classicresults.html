@@ -228,9 +228,8 @@
     .breakdown-header {
       display: flex;
       align-items: center;
-      justify-content: flex-end;
+      justify-content: space-between;
       padding: 6px 4px 2px;
-      gap: 14px;
     }
 
     .breakdown-header-label {
@@ -243,13 +242,11 @@
     }
 
     .breakdown-header-label.pts-label {
-      min-width: 40px;
-      text-align: center;
+      text-align: right;
     }
 
     .breakdown-header-label.best-label {
-      min-width: 32px;
-      text-align: center;
+      margin-left: 28px;
     }
 
     /* Results Table */
@@ -893,8 +890,8 @@
 
       const header = `
         <div class="breakdown-header">
-          <span class="breakdown-header-label pts-label">pts</span>
           <span class="breakdown-header-label best-label">best</span>
+          <span class="breakdown-header-label pts-label">pts</span>
         </div>
       `;
 
@@ -905,12 +902,12 @@
           <div class="breakdown-row">
             <div class="breakdown-left">
               <span class="breakdown-rank">#${country.rank}</span>
+              <span class="breakdown-best ${isPerfect ? 'perfect' : ''}">${country.bestRank || country.rank}</span>
               <img src="${country.flag}" alt="${country.name}" class="breakdown-flag">
               <span class="breakdown-name">${country.name}</span>
             </div>
             <div class="breakdown-right">
               <span class="breakdown-pts ${isPerfect ? 'perfect' : ''}">${pts}/10</span>
-              <span class="breakdown-best ${isPerfect ? 'perfect' : ''}">${country.bestRank || country.rank}</span>
             </div>
           </div>
         `;
