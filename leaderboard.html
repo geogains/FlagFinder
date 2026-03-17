@@ -405,6 +405,102 @@
         max-width: calc(100% - 1.5rem);
       }
     }
+
+    /* ── Load More & Find My Rank ── */
+
+    /* Row highlight for current user */
+    .leaderboard-table tbody tr.user-highlight td {
+      background: rgba(255, 111, 97, 0.06) !important;
+    }
+
+    /* First and last cell get the rounded pill outline */
+    .leaderboard-table tbody tr.user-highlight td:first-child {
+      border-left: none;
+      box-shadow: inset 3px 0 0 #ff6f61;
+    }
+
+    /* Separator row that appears between top-20 and user's neighbourhood */
+    .leaderboard-table tbody tr.rank-gap td {
+      background: rgba(13,49,90,0.03);
+      color: #aab4c0;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px dashed rgba(13,49,90,0.12);
+    }
+
+    /* Fade-in for appended rows */
+    @keyframes rowAppend {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .row-append { animation: rowAppend 0.25s ease both; }
+
+    /* Table footer action area */
+    .leaderboard-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .lb-action-btn {
+      flex: 1;
+      min-width: 140px;
+      max-width: 220px;
+      padding: 13px 18px;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+    }
+
+    .lb-action-btn:hover  { transform: translateY(-2px); }
+    .lb-action-btn:active { transform: translateY(0); }
+
+    .lb-action-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-find-me {
+      background: linear-gradient(135deg, #ff9770, #ff6f61);
+      color: white;
+      box-shadow: 0 4px 14px rgba(255,111,97,0.35);
+    }
+    .btn-find-me:hover { box-shadow: 0 7px 20px rgba(255,111,97,0.45); }
+
+    /* "Your rank" toast that floats above the table when user is out of view */
+    .my-rank-toast {
+      display: none;
+      position: sticky;
+      bottom: 16px;
+      left: 0; right: 0;
+      margin: 10px auto 0;
+      width: fit-content;
+      background: linear-gradient(135deg, #ff9770, #ff6f61);
+      color: white;
+      border-radius: 50px;
+      padding: 10px 22px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      box-shadow: 0 6px 20px rgba(255,111,97,0.4);
+      cursor: pointer;
+      z-index: 50;
+      animation: toastIn 0.35s cubic-bezier(0.34,1.4,0.64,1) both;
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.95); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .my-rank-toast.visible { display: block; }
   </style>
 </head>
 <body>
@@ -493,6 +589,14 @@
       <tr><td colspan="4">Loading...</td></tr>
     </tbody>
   </table>
+
+  <!-- Action buttons: Find My Rank -->
+  <div class="leaderboard-actions" id="leaderboardActions">
+    <button class="lb-action-btn btn-find-me" id="findMyRankBtn" style="display:none;">📍 Find My Rank</button>
+  </div>
+
+  <!-- Sticky toast shown when the user's highlighted row is off-screen -->
+  <div class="my-rank-toast" id="myRankToast"></div>
 
   <a href="index.html" class="back-home">Return Home</a>
 </div>
@@ -664,15 +768,39 @@ document.addEventListener('DOMContentLoaded', function() {
 <script type="module">
   import { supabase } from './js/supabase-client.js';
 
-  const leaderboardBody = document.getElementById("leaderboardBody");
-  const dateDropdown = document.getElementById("dateDropdown");
-  const dateSelector = document.getElementById("dateSelector");
-  const categorySearchWrapper = document.getElementById("categorySearchWrapper");
-  const dailyChallengeTitle = document.getElementById("dailyChallengeTitle");
-  
-  let currentMode = 'daily-challenge';
-  let currentDate = null;
-  let currentCategory = null;
+  const leaderboardBody        = document.getElementById("leaderboardBody");
+  const dateDropdown           = document.getElementById("dateDropdown");
+  const dateSelector           = document.getElementById("dateSelector");
+  const categorySearchWrapper  = document.getElementById("categorySearchWrapper");
+  const dailyChallengeTitle    = document.getElementById("dailyChallengeTitle");
+  const findMyRankBtn          = document.getElementById("findMyRankBtn");
+  const myRankToast            = document.getElementById("myRankToast");
+
+  const PAGE_SIZE = 20;
+
+  let currentMode      = 'daily-challenge';
+  let currentDate      = null;
+  let currentCategory  = null;
+  let currentOffset    = 0;
+  let totalCount       = 0;
+  let loggedInUserId   = null;
+  let loggedInUsername = null;
+  let userHighlightRow = null;
+
+  // daily challenge context needed for Find My Rank
+  let _dailyCategoryId = null;
+  let _dailyDate       = null;
+
+  // ── Auth: get logged-in user so we can show Find My Rank ──────────────────
+  supabase.auth.getSession().then(async ({ data: { session } }) => {
+    if (session?.user) {
+      loggedInUserId = session.user.id;
+      const { data: profile } = await supabase
+        .from('users').select('username').eq('id', session.user.id).single();
+      loggedInUsername = profile?.username || null;
+      findMyRankBtn.style.display = '';   // show the button now we know who they are
+    }
+  });
 
   const displayNameMap = {
     'hightemp': 'Highest Temperature', 'rainfall': 'Annual Rainfall', 'altitude': 'Highest Altitude',
@@ -690,90 +818,169 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 
   function formatCategoryName(name) {
-    return name.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    return name.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   }
 
+  // ── Row builder ────────────────────────────────────────────────────────────
+  function buildRow(entry, globalIndex, animate = false) {
+    const user = entry.users || {};
+    const isMe = loggedInUserId && user.id === loggedInUserId;
+    const rankDisplay =
+      globalIndex === 0 ? '<span class="medal">🥇</span>' :
+      globalIndex === 1 ? '<span class="medal">🥈</span>' :
+      globalIndex === 2 ? '<span class="medal">🥉</span>' :
+      `#${globalIndex + 1}`;
+
+    const row = document.createElement('tr');
+    if (animate) row.classList.add('row-append');
+    if (isMe) {
+      row.classList.add('user-highlight');
+      userHighlightRow = row;
+    }
+    row.innerHTML = `
+      <td class="leaderboard-rank">${rankDisplay}</td>
+      <td>
+        <div class="avatar-wrapper" style="width:50px;height:50px;">
+          <img src="${user.avatar_url || 'assets/profile-icon.jpg'}" loading="lazy"
+               class="leaderboard-avatar avatar" style="width:50px;height:50px;border-radius:50%;" />
+          ${user.is_premium ? '<img src="assets/GeoRanksPremium.png" class="premium-badge" />' : ''}
+        </div>
+      </td>
+      <td>${user.username || 'Anonymous'}</td>
+      <td>${entry.score}</td>
+    `;
+    return row;
+  }
+
+  // ── Reset state on each fresh load ────────────────────────────────────────
+  function resetState() {
+    currentOffset    = 0;
+    totalCount       = 0;
+    userHighlightRow = null;
+    _dailyCategoryId = null;
+    _dailyDate       = null;
+    myRankToast.classList.remove('visible');
+    myRankToast.textContent = '';
+  }
+
+  // ── Find My Rank button ────────────────────────────────────────────────────
+  findMyRankBtn.addEventListener('click', async () => {
+    if (!loggedInUserId) return;
+
+    // If already highlighted and visible, just scroll to it
+    if (userHighlightRow) {
+      userHighlightRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    findMyRankBtn.disabled    = true;
+    findMyRankBtn.textContent = '📍 Finding…';
+
+    try {
+      if (currentMode === 'daily-challenge') {
+        await jumpToMyRankDaily();
+      } else {
+        await jumpToMyRank();
+      }
+    } finally {
+      findMyRankBtn.disabled    = false;
+      findMyRankBtn.textContent = '📍 Find My Rank';
+    }
+  });
+
+  // ── Sticky toast: show when user's row is off-screen ──────────────────────
+  function setupToastObserver() {
+    if (!userHighlightRow) return;
+    myRankToast.classList.remove('visible');
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        myRankToast.classList.remove('visible');
+      } else {
+        myRankToast.classList.add('visible');
+      }
+    }, { threshold: 0.1 });
+
+    observer.observe(userHighlightRow);
+    myRankToast.onclick = () => userHighlightRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // ── Mode toggle ────────────────────────────────────────────────────────────
   document.querySelectorAll('.mode-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       currentMode = btn.dataset.mode;
-      
+
       if (currentMode === 'daily-challenge') {
         dateSelector.classList.add('active');
         categorySearchWrapper.style.display = 'none';
-        dailyChallengeTitle.style.display = 'block';
+        dailyChallengeTitle.style.display   = 'block';
         populateDateDropdown();
         if (currentDate) loadDailyChallengeLeaderboardForDate(currentDate);
       } else {
         dateSelector.classList.remove('active');
         categorySearchWrapper.style.display = 'block';
-        dailyChallengeTitle.style.display = 'none';
+        dailyChallengeTitle.style.display   = 'none';
         if (currentCategory) {
           loadLeaderboard(currentCategory);
-          // Update search bar with current category name
-          const displayName = displayNameMap[currentCategory.toLowerCase()] || formatCategoryName(currentCategory);
-          document.getElementById("categorySearchInput").value = displayName;
+          const dn = displayNameMap[currentCategory.toLowerCase()] || formatCategoryName(currentCategory);
+          document.getElementById("categorySearchInput").value = dn;
         }
       }
     });
   });
 
-  dateDropdown?.addEventListener('change', (e) => {
+  dateDropdown?.addEventListener('change', e => {
     currentDate = e.target.value;
     loadDailyChallengeLeaderboardForDate(currentDate);
   });
 
-  function seededRandom(seed) {
-    const x = Math.sin(seed) * 10000;
-    return x - Math.floor(x);
-  }
+  // ── Seeded daily challenge logic ───────────────────────────────────────────
+  function seededRandom(seed) { const x = Math.sin(seed) * 10000; return x - Math.floor(x); }
 
   function getDailyChallengeForDate(dateString) {
     const date = new Date(dateString + 'T00:00:00Z');
     const seed = date.getUTCFullYear() * 10000 + (date.getUTCMonth() + 1) * 100 + date.getUTCDate();
-    
     const gameModes = ['classic', 'top10', 'vs'];
-    const top10ValidCategories = ['population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
-      'passport', 'beer', 'nobelprize', 'hightemp', 'rainfall', 'crimerate', 'happiness','tourism',
-      'michelin', 'bigmac', 'lifeexpectancy', 'marriageage', 'sexratio', 'tallestbuilding',
-      'density', 'carexports', 'militarypersonel', 'rent', 'poorestgdp', 'university', 'volcano',
-      'flamingo', 'disasterrisk', 'longestriver', 'renewableenergy', 'millionaires', 'gm'];
-    const allCategories = ['population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
-  'olympic', 'worldcup', 'passport', 'beer', 'nobelprize', 'hightemp', 'rainfall',
-  'crimerate', 'happiness', 'cuisine', 'tourism', 'michelin', 'bigmac', 'lifeexpectancy',
-  'marriageage', 'sexratio', 'tallestbuilding', 'density', 'carexports',
-  'militarypersonel', 'rent', 'poorestgdp', 'university', 'volcano',
-  'flamingo', 'disasterrisk', 'longestriver', 'renewableenergy', 'millionaires', 'gm'];
-    
+    const top10Valid = ['population','gdp','landmass','altitude','forest','coastline','passport','beer',
+      'nobelprize','hightemp','rainfall','crimerate','happiness','tourism','michelin','bigmac',
+      'lifeexpectancy','marriageage','sexratio','tallestbuilding','density','carexports',
+      'militarypersonel','rent','poorestgdp','university','volcano','flamingo','disasterrisk',
+      'longestriver','renewableenergy','millionaires','gm'];
+    const allCats = ['population','gdp','landmass','altitude','forest','coastline','olympic','worldcup',
+      'passport','beer','nobelprize','hightemp','rainfall','crimerate','happiness','cuisine','tourism',
+      'michelin','bigmac','lifeexpectancy','marriageage','sexratio','tallestbuilding','density',
+      'carexports','militarypersonel','rent','poorestgdp','university','volcano','flamingo',
+      'disasterrisk','longestriver','renewableenergy','millionaires','gm'];
     const modeIndex = Math.floor(seededRandom(seed) * gameModes.length);
     const selectedMode = gameModes[modeIndex];
-    const validCategories = selectedMode === 'top10' ? top10ValidCategories : allCategories;
-    const categoryIndex = Math.floor(seededRandom(seed + 1000) * validCategories.length);
-    
-    return { mode: selectedMode, category: validCategories[categoryIndex] };
+    const valid = selectedMode === 'top10' ? top10Valid : allCats;
+    return { mode: selectedMode, category: valid[Math.floor(seededRandom(seed + 1000) * valid.length)] };
   }
 
+  // ── Daily Challenge loader ─────────────────────────────────────────────────
   async function loadDailyChallengeLeaderboardForDate(date) {
+    resetState();
     leaderboardBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
-    if (!date) {
-      leaderboardBody.innerHTML = '<tr><td colspan="4">❌ No date selected</td></tr>';
-      return;
-    }
+    if (!date) { leaderboardBody.innerHTML = '<tr><td colspan="4">❌ No date selected</td></tr>'; return; }
 
     const dailyChallenge = getDailyChallengeForDate(date);
     const { CATEGORY_ID_MAP } = await import('./js/top10-categories-loader.js');
     const categoryId = CATEGORY_ID_MAP[dailyChallenge.category];
-    
     if (!categoryId) {
       leaderboardBody.innerHTML = '<tr><td colspan="4">❌ Category not found</td></tr>';
       dailyChallengeTitle.textContent = '';
       return;
     }
 
+    // Store for Find My Rank
+    _dailyCategoryId = categoryId;
+    _dailyDate       = date;
+
     const modeNames = { classic: 'Classic', top10: 'Top 10', vs: 'VS' };
-    const displayName = displayNameMap[dailyChallenge.category] || formatCategoryName(dailyChallenge.category);
-    dailyChallengeTitle.textContent = `${modeNames[dailyChallenge.mode]} - ${displayName}`;
+    dailyChallengeTitle.textContent =
+      `${modeNames[dailyChallenge.mode]} - ${displayNameMap[dailyChallenge.category] || formatCategoryName(dailyChallenge.category)}`;
 
     const { data: scores, error } = await supabase
       .from("daily_challenge_scores")
@@ -781,120 +988,125 @@ document.addEventListener('DOMContentLoaded', function() {
       .eq("category_id", categoryId)
       .eq("played_date", date)
       .order("score", { ascending: false })
-      .limit(20);
+      .limit(PAGE_SIZE);
 
     if (error) {
-      console.error('Error loading Daily Challenge scores:', error);
       leaderboardBody.innerHTML = '<tr><td colspan="4">❌ Error loading scores</td></tr>';
       return;
     }
-    renderLeaderboard(scores || []);
+    renderFirstPage(scores || []);
   }
 
-  function populateDateDropdown() {
-    const today = new Date();
-    dateDropdown.innerHTML = '';
-    for (let i = 0; i < 30; i++) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      const dateStr = date.toISOString().split('T')[0];
-      const displayDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-      const option = document.createElement('option');
-      option.value = dateStr;
-      option.textContent = i === 0 ? `Today (${displayDate})` : displayDate;
-      dateDropdown.appendChild(option);
-    }
-    currentDate = dateDropdown.value;
-  }
-
+  // ── Category loaders ───────────────────────────────────────────────────────
   async function loadCategories() {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const { data: categories } = await supabase.from("categories").select("*").order("name");
-      if (!categories?.length) {
-        console.warn('No categories loaded');
-        return;
-      }
+    const params = new URLSearchParams(window.location.search);
+    const { data: categories } = await supabase.from("categories").select("*").order("name");
+    if (!categories?.length) return;
 
-      // Sort categories alphabetically by display name
-      const sortedCategories = categories
-        .map(cat => ({
-          name: cat.name,
-          display: displayNameMap[cat.name.toLowerCase()] || formatCategoryName(cat.name)
-        }))
-        .sort((a, b) => a.display.localeCompare(b.display));
+    const sorted = categories
+      .map(cat => ({ name: cat.name, display: displayNameMap[cat.name.toLowerCase()] || formatCategoryName(cat.name) }))
+      .sort((a, b) => a.display.localeCompare(b.display));
 
-      const initial = params.get("mode") || sortedCategories[0].name;
-      currentCategory = initial;
-      
-      if (currentMode === 'classic' || currentMode === 'top10' || currentMode === 'vs') {
-        categorySearchWrapper.style.display = 'block';
-        dailyChallengeTitle.style.display = 'none';
-        dateSelector.classList.remove('active');
-        loadLeaderboard(initial);
-        const displayName = displayNameMap[initial.toLowerCase()] || formatCategoryName(initial);
-        document.getElementById("categorySearchInput").value = displayName;
-      } else if (currentMode === 'daily-challenge') {
-        categorySearchWrapper.style.display = 'none';
-        dailyChallengeTitle.style.display = 'block';
-        dateSelector.classList.add('active');
-        populateDateDropdown();
-        if (dateDropdown.value) {
-          currentDate = dateDropdown.value;
-          loadDailyChallengeLeaderboardForDate(currentDate);
-        }
+    const initial = params.get("mode") || sorted[0].name;
+    currentCategory = initial;
+
+    if (currentMode === 'classic' || currentMode === 'top10' || currentMode === 'vs') {
+      categorySearchWrapper.style.display = 'block';
+      dailyChallengeTitle.style.display   = 'none';
+      dateSelector.classList.remove('active');
+      loadLeaderboard(initial);
+      document.getElementById("categorySearchInput").value =
+        displayNameMap[initial.toLowerCase()] || formatCategoryName(initial);
+    } else {
+      categorySearchWrapper.style.display = 'none';
+      dailyChallengeTitle.style.display   = 'block';
+      dateSelector.classList.add('active');
+      populateDateDropdown();
+      if (dateDropdown.value) {
+        currentDate = dateDropdown.value;
+        loadDailyChallengeLeaderboardForDate(currentDate);
       }
-    } catch (error) {
-      console.error('Failed to load categories:', error);
-      leaderboardBody.innerHTML = '<tr><td colspan="4">Failed to load leaderboard. Please refresh the page.</td></tr>';
     }
   }
 
   async function loadLeaderboard(categoryName) {
+    resetState();
     leaderboardBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
     currentCategory = categoryName;
-    if (currentMode === 'classic') await loadClassicLeaderboard(categoryName);
-    else if (currentMode === 'top10') await loadTop10BestLeaderboard(categoryName);
-    else if (currentMode === 'vs') await loadVSLeaderboard(categoryName);
+    if (currentMode === 'classic')      await loadClassicLeaderboard(categoryName);
+    else if (currentMode === 'top10')   await loadTop10BestLeaderboard(categoryName);
+    else if (currentMode === 'vs')      await loadVSLeaderboard(categoryName);
   }
 
+  // store query context for load-more & find-my-rank
+  let _classicCategoryId = null;
+  let _top10CategoryId   = null;
+  let _vsAllScores       = null;   // full sorted array for VS (client-side paged)
+  let _vsOffset          = 0;
+
   async function loadClassicLeaderboard(categoryName) {
-    const { data: categoryData } = await supabase.from("categories").select("id").eq("name", categoryName).single();
-    if (!categoryData) {
-      leaderboardBody.innerHTML = '<tr><td colspan="4">❌ Category not found</td></tr>';
-      return;
-    }
+    const { data: cat } = await supabase.from("categories").select("id").eq("name", categoryName).single();
+    if (!cat) { leaderboardBody.innerHTML = '<tr><td colspan="4">❌ Category not found</td></tr>'; return; }
+    _classicCategoryId = cat.id;
 
     const { data: scores } = await supabase.from("category_scores")
       .select('score, user_id, users!inner(id, username, avatar_url, is_premium)')
-      .eq("category_id", categoryData.id)
+      .eq("category_id", cat.id)
       .order("score", { ascending: false })
-      .limit(20);
-    renderLeaderboard(scores || []);
+      .range(0, PAGE_SIZE - 1);
+
+    // Get total for jumpToMyRank paging
+    const { count } = await supabase.from("category_scores")
+      .select('*', { count: 'exact', head: true }).eq("category_id", cat.id);
+    totalCount = count || 0;
+
+    renderFirstPage(scores || []);
+  }
+
+  async function appendClassicPage() {
+    const { data: scores } = await supabase.from("category_scores")
+      .select('score, user_id, users!inner(id, username, avatar_url, is_premium)')
+      .eq("category_id", _classicCategoryId)
+      .order("score", { ascending: false })
+      .range(currentOffset, currentOffset + PAGE_SIZE - 1);
+    appendRows(scores || []);
   }
 
   async function loadTop10BestLeaderboard(categoryName) {
     const { CATEGORY_ID_MAP } = await import('./js/top10-categories-loader.js');
-    const categoryId = CATEGORY_ID_MAP[categoryName.toLowerCase()];
-    if (!categoryId) {
-      leaderboardBody.innerHTML = '<tr><td colspan="4">❌ Category not available for Top 10</td></tr>';
-      return;
+    _top10CategoryId = CATEGORY_ID_MAP[categoryName.toLowerCase()];
+    if (!_top10CategoryId) {
+      leaderboardBody.innerHTML = '<tr><td colspan="4">❌ Category not available for Top 10</td></tr>'; return;
     }
 
     const { data: scores } = await supabase.from("top10_best_scores")
       .select('score, user_id, users!fk_user(id, username, avatar_url, is_premium)')
-      .eq("category_id", categoryId)
+      .eq("category_id", _top10CategoryId)
       .order("score", { ascending: false })
-      .limit(20);
-    renderLeaderboard(scores || []);
+      .range(0, PAGE_SIZE - 1);
+
+    // Get total for jumpToMyRank paging
+    const { count } = await supabase.from("top10_best_scores")
+      .select('*', { count: 'exact', head: true }).eq("category_id", _top10CategoryId);
+    totalCount = count || 0;
+
+    renderFirstPage(scores || []);
+  }
+
+  async function appendTop10Page() {
+    const { data: scores } = await supabase.from("top10_best_scores")
+      .select('score, user_id, users!fk_user(id, username, avatar_url, is_premium)')
+      .eq("category_id", _top10CategoryId)
+      .order("score", { ascending: false })
+      .range(currentOffset, currentOffset + PAGE_SIZE - 1);
+    appendRows(scores || []);
   }
 
   async function loadVSLeaderboard(categoryName) {
     const { CATEGORY_ID_MAP } = await import('./js/top10-categories-loader.js');
     const categoryId = CATEGORY_ID_MAP[categoryName.toLowerCase()];
     if (!categoryId) {
-      leaderboardBody.innerHTML = '<tr><td colspan="4">❌ Category not available for VS</td></tr>';
-      return;
+      leaderboardBody.innerHTML = '<tr><td colspan="4">❌ Category not available for VS</td></tr>'; return;
     }
 
     const { data: scores } = await supabase.from("vs_scores")
@@ -902,77 +1114,142 @@ document.addEventListener('DOMContentLoaded', function() {
       .eq("category_id", categoryId)
       .order("score", { ascending: false });
 
-    const bestScoresMap = new Map();
-    scores?.forEach(score => {
-      const existing = bestScoresMap.get(score.user_id);
-      if (!existing || score.score > existing.score) bestScoresMap.set(score.user_id, score);
+    // Deduplicate to each user's best score
+    const bestMap = new Map();
+    scores?.forEach(s => {
+      const ex = bestMap.get(s.user_id);
+      if (!ex || s.score > ex.score) bestMap.set(s.user_id, s);
     });
-    renderLeaderboard(Array.from(bestScoresMap.values()).sort((a, b) => b.score - a.score).slice(0, 20));
+    _vsAllScores = Array.from(bestMap.values()).sort((a, b) => b.score - a.score);
+    _vsOffset    = 0;
+    totalCount   = _vsAllScores.length;
+
+    renderFirstPage(_vsAllScores.slice(0, PAGE_SIZE));
   }
 
-  function renderLeaderboard(scores) {
-    leaderboardBody.innerHTML = "";
-    if (!scores || scores.length === 0) {
+  async function appendVSPage() {
+    const slice = _vsAllScores.slice(currentOffset, currentOffset + PAGE_SIZE);
+    appendRows(slice);
+  }
+
+  // ── Render helpers ─────────────────────────────────────────────────────────
+  function renderFirstPage(scores) {
+    leaderboardBody.innerHTML = '';
+    userHighlightRow = null;
+
+    if (!scores.length) {
       leaderboardBody.innerHTML = '<tr><td colspan="4">👤 No scores yet for this category</td></tr>';
       return;
     }
 
-    scores.forEach((entry, index) => {
-      const user = entry.users || {};
-      const rankDisplay = index === 0 ? '<span class="medal">🥇</span>' :
-        index === 1 ? '<span class="medal">🥈</span>' :
-        index === 2 ? '<span class="medal">🥉</span>' : `#${index + 1}`;
+    scores.forEach((entry, i) => leaderboardBody.appendChild(buildRow(entry, i)));
+    currentOffset = scores.length;
 
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td class="leaderboard-rank">${rankDisplay}</td>
-        <td>
-          <div class="avatar-wrapper" style="width: 50px; height: 50px;">
-            <img src="${user.avatar_url || 'assets/profile-icon.jpg'}" loading="lazy"
-                 class="leaderboard-avatar avatar" style="width: 50px; height: 50px; border-radius: 50%;" />
-            ${user.is_premium ? '<img src="assets/GeoRanksPremium.png" class="premium-badge" />' : ''}
-          </div>
-        </td>
-        <td>${user.username || "Anonymous"}</td>
-        <td>${entry.score}</td>
-      `;
-      leaderboardBody.appendChild(row);
-    });
+    if (userHighlightRow) setupToastObserver();
+  }
+
+  function appendRows(scores) {
+    if (!scores.length) return;
+    const startIndex = currentOffset;
+    scores.forEach((entry, i) => leaderboardBody.appendChild(buildRow(entry, startIndex + i, true)));
+    currentOffset += scores.length;
+
+    if (userHighlightRow) setupToastObserver();
+  }
+
+  async function appendNextPage() {
+    if (currentMode === 'classic')    await appendClassicPage();
+    else if (currentMode === 'top10') await appendTop10Page();
+    else if (currentMode === 'vs')    await appendVSPage();
+  }
+
+  // ── Find My Rank (Classic / Top10 / VS) ───────────────────────────────────
+  async function jumpToMyRank() {
+    if (!loggedInUserId) return;
+
+    while (currentOffset < totalCount) {
+      const prevOffset = currentOffset;
+      await appendNextPage();
+
+      if (userHighlightRow) {
+        setTimeout(() => {
+          userHighlightRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setupToastObserver();
+          const rank = Array.from(leaderboardBody.querySelectorAll('tr')).indexOf(userHighlightRow) + 1;
+          myRankToast.textContent = `📍 You're #${rank} — tap to jump back`;
+        }, 100);
+        return;
+      }
+
+      if (currentOffset === prevOffset) break;
+    }
+
+    alert(`You haven't played this category yet!`);
+  }
+
+  // ── Find My Rank (Daily Challenge) ────────────────────────────────────────
+  async function jumpToMyRankDaily() {
+    if (!loggedInUserId || !_dailyCategoryId || !_dailyDate) return;
+
+    // Fetch ALL daily scores for this date/category so we can find the user anywhere
+    const { data: allScores } = await supabase
+      .from('daily_challenge_scores')
+      .select('score, user_id, users!fk_user(id, username, avatar_url, is_premium)')
+      .eq('category_id', _dailyCategoryId)
+      .eq('played_date', _dailyDate)
+      .order('score', { ascending: false });
+
+    if (!allScores?.length) { alert(`No scores for this daily challenge yet!`); return; }
+
+    const userIndex = allScores.findIndex(e => e.user_id === loggedInUserId);
+    if (userIndex === -1) { alert(`You haven't played today's challenge yet!`); return; }
+
+    // Re-render all rows so the user's row is definitely in the DOM
+    leaderboardBody.innerHTML = '';
+    userHighlightRow = null;
+    allScores.forEach((entry, i) => leaderboardBody.appendChild(buildRow(entry, i)));
+    currentOffset = allScores.length;
+
+    setTimeout(() => {
+      if (userHighlightRow) {
+        userHighlightRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setupToastObserver();
+        myRankToast.textContent = `📍 You're #${userIndex + 1} — tap to jump back`;
+      }
+    }, 100);
+  }
+
+  function populateDateDropdown() {
+    const today = new Date();
+    dateDropdown.innerHTML = '';
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const dateStr     = d.toISOString().split('T')[0];
+      const displayDate = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const opt = document.createElement('option');
+      opt.value       = dateStr;
+      opt.textContent = i === 0 ? `Today (${displayDate})` : displayDate;
+      dateDropdown.appendChild(opt);
+    }
+    currentDate = dateDropdown.value;
   }
 
   window.loadLeaderboard = loadLeaderboard;
   window.loadDailyChallengeLeaderboardForDate = loadDailyChallengeLeaderboardForDate;
-  
-  // Make these reactive - use getters/setters
-  Object.defineProperty(window, 'currentMode', {
-    get: () => currentMode,
-    set: (value) => { currentMode = value; }
-  });
-  
-  Object.defineProperty(window, 'currentDate', {
-    get: () => currentDate,
-    set: (value) => { currentDate = value; }
-  });
-  
-  Object.defineProperty(window, 'currentCategory', {
-    get: () => currentCategory,
-    set: (value) => { currentCategory = value; }
-  });
 
-  // Initialize with timeout protection
+  Object.defineProperty(window, 'currentMode',     { get: () => currentMode,     set: v => { currentMode = v; } });
+  Object.defineProperty(window, 'currentDate',     { get: () => currentDate,     set: v => { currentDate = v; } });
+  Object.defineProperty(window, 'currentCategory', { get: () => currentCategory, set: v => { currentCategory = v; } });
+
   const initTimeout = setTimeout(() => {
-    console.warn('⏱️ Leaderboard initialization timed out after 5s');
-    leaderboardBody.innerHTML = '<tr><td colspan="4">Loading is taking longer than expected. Please refresh the page.</td></tr>';
-  }, 5000); // 5 second timeout for leaderboard (needs more time for database queries)
+    leaderboardBody.innerHTML = '<tr><td colspan="4">Loading is taking longer than expected. Please refresh.</td></tr>';
+  }, 5000);
 
   loadCategories()
-    .then(() => {
-      clearTimeout(initTimeout);
-      console.log('✅ Leaderboard loaded successfully');
-    })
+    .then(() => clearTimeout(initTimeout))
     .catch(err => {
       clearTimeout(initTimeout);
-      console.error('❌ Leaderboard initialization failed:', err);
       leaderboardBody.innerHTML = '<tr><td colspan="4">Failed to load leaderboard. Please refresh the page.</td></tr>';
     });
 </script>
@@ -1015,6 +1292,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 </script>
+
 
 </body>
 </html>

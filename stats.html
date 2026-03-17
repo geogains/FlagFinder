@@ -394,6 +394,100 @@
         padding-right: 8px;
       }
     }
+
+    /* ── Sort Bar ── */
+    .sort-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      opacity: 0;
+      animation: fadeIn 0.5s ease-out 0.55s forwards;
+      flex-wrap: wrap;
+    }
+
+    .sort-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      white-space: nowrap;
+    }
+
+    .sort-select-wrapper {
+      position: relative;
+      flex: 1;
+      min-width: 180px;
+      max-width: 320px;
+    }
+
+    .sort-select {
+      width: 100%;
+      appearance: none;
+      -webkit-appearance: none;
+      background: white;
+      border: 2px solid rgba(13, 49, 90, 0.12);
+      border-radius: 12px;
+      padding: 10px 36px 10px 14px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #0d315a;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .sort-select:focus {
+      outline: none;
+      border-color: #ff6f61;
+      box-shadow: 0 0 0 3px rgba(255, 111, 97, 0.15);
+    }
+
+    .sort-select:hover {
+      border-color: rgba(13, 49, 90, 0.25);
+    }
+
+    /* Custom chevron arrow */
+    .sort-select-wrapper::after {
+      content: '';
+      position: absolute;
+      right: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 6px solid #0d315a;
+      pointer-events: none;
+    }
+
+    /* Row fade-in on re-sort */
+    @keyframes rowIn {
+      from { opacity: 0; transform: translateX(-6px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .sort-animating tr {
+      animation: rowIn 0.22s ease both;
+    }
+
+    .sort-animating tr:nth-child(1)  { animation-delay: 0.00s; }
+    .sort-animating tr:nth-child(2)  { animation-delay: 0.03s; }
+    .sort-animating tr:nth-child(3)  { animation-delay: 0.06s; }
+    .sort-animating tr:nth-child(4)  { animation-delay: 0.09s; }
+    .sort-animating tr:nth-child(5)  { animation-delay: 0.12s; }
+    .sort-animating tr:nth-child(6)  { animation-delay: 0.15s; }
+    .sort-animating tr:nth-child(7)  { animation-delay: 0.18s; }
+    .sort-animating tr:nth-child(8)  { animation-delay: 0.21s; }
+    .sort-animating tr:nth-child(n+9) { animation-delay: 0.24s; }
+
+    @media (max-width: 480px) {
+      .sort-select-wrapper { max-width: 100%; }
+      .sort-bar { gap: 6px; }
+    }
   </style>
 </head>
 <body>
@@ -458,6 +552,23 @@
     <button class="mode-btn active" data-mode="classic">Classic</button>
     <button class="mode-btn" data-mode="top10">Top 10</button>
     <button class="mode-btn" data-mode="vs">VS</button>
+  </div>
+
+  <!-- Sort Bar -->
+  <div class="sort-bar" id="sortBar">
+    <span class="sort-label">Sort by</span>
+    <div class="sort-select-wrapper">
+      <select class="sort-select" id="sortSelect">
+        <option value="alpha-az">Category A → Z</option>
+        <option value="alpha-za">Category Z → A</option>
+        <option value="score-hl">Score: High → Low</option>
+        <option value="score-lh">Score: Low → High</option>
+        <option value="rank-hl">Rank: Best → Worst</option>
+        <option value="rank-lh">Rank: Worst → Best</option>
+        <option value="acc-hl">Accuracy: High → Low</option>
+        <option value="acc-lh">Accuracy: Low → High</option>
+      </select>
+    </div>
   </div>
 
   <!-- Stats Table -->
@@ -564,11 +675,47 @@ document.addEventListener('DOMContentLoaded', function() {
   import { supabase } from './js/supabase-client.js';
 
   const { data: { session } } = await supabase.auth.getSession();
-  const modal = document.getElementById("premiumModal");
+  const modal          = document.getElementById("premiumModal");
   const statsContainer = document.getElementById("statsContainer");
-  let currentMode = 'classic';
-  let isLoading = false;
+  let currentMode      = 'classic';
+  let isLoading        = false;
 
+  // ── Stored data for client-side sorting ──────────────────────────────────
+  let currentStats = [];   // array of enriched entry objects (with rank, progressPercent, categoryName)
+  let currentMode_ = 'classic'; // track mode for accuracy label
+
+  // ── Sort select wiring ───────────────────────────────────────────────────
+  document.getElementById('sortSelect').addEventListener('change', () => {
+    if (currentStats.length) applySortAndRender();
+  });
+
+  // Strip leading emoji + whitespace so A→Z sorts on the actual word
+  function stripEmoji(str) {
+    return str.replace(/^[\p{Emoji_Presentation}\p{Extended_Pictographic}\uFE0F\u200D]+\s*/u, '').trim();
+  }
+
+  function getSortedStats(data, sortKey) {
+    const copy = [...data];
+    switch (sortKey) {
+      case 'alpha-az': return copy.sort((a, b) => stripEmoji(a.categoryName).localeCompare(stripEmoji(b.categoryName)));
+      case 'alpha-za': return copy.sort((a, b) => stripEmoji(b.categoryName).localeCompare(stripEmoji(a.categoryName)));
+      case 'score-hl': return copy.sort((a, b) => b.score - a.score);
+      case 'score-lh': return copy.sort((a, b) => a.score - b.score);
+      case 'rank-hl':  return copy.sort((a, b) => a.rank - b.rank);   // rank 1 = best
+      case 'rank-lh':  return copy.sort((a, b) => b.rank - a.rank);
+      case 'acc-hl':   return copy.sort((a, b) => b.progressPercent - a.progressPercent);
+      case 'acc-lh':   return copy.sort((a, b) => a.progressPercent - b.progressPercent);
+      default:         return copy;
+    }
+  }
+
+  function applySortAndRender() {
+    const sortKey = document.getElementById('sortSelect').value;
+    const sorted  = getSortedStats(currentStats, sortKey);
+    renderRows(sorted, currentMode_);
+  }
+
+  // ── Auth / premium gate ───────────────────────────────────────────────────
   if (!session || !session.user) {
     modal.classList.remove("hidden");
   } else {
@@ -587,11 +734,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // Mode toggle functionality
+  // ── Mode toggle ───────────────────────────────────────────────────────────
   document.querySelectorAll('.mode-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       if (isLoading) return;
-      
       document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       currentMode = btn.dataset.mode;
@@ -599,46 +745,37 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
+  // ── User info ─────────────────────────────────────────────────────────────
   async function loadUserInfo() {
     const { data: { session } } = await supabase.auth.getSession();
     const user = session.user;
-    
-    // Get user profile for username, avatar, and premium status
     const { data: profile } = await supabase
       .from('users')
       .select('username, avatar_url, is_premium')
       .eq('id', user.id)
       .single();
-    
+
     document.getElementById('userUsername').textContent = profile?.username || user.email.split('@')[0];
-    document.getElementById('userAvatar').src = profile?.avatar_url || 'assets/default-avatar.png';
-    document.getElementById('userSince').textContent = `Member since ${new Date(user.created_at).toDateString()}`;
-    
-    // Show premium badge if user is premium
+    document.getElementById('userAvatar').src           = profile?.avatar_url || 'assets/default-avatar.png';
+    document.getElementById('userSince').textContent    = `Member since ${new Date(user.created_at).toDateString()}`;
+
     const premiumBadge = document.getElementById('premiumBadge');
-    if (premiumBadge && profile?.is_premium) {
-      premiumBadge.style.display = 'block';
-    }
+    if (premiumBadge && profile?.is_premium) premiumBadge.style.display = 'block';
   }
 
+  // ── Load stats (fetch + rank) ─────────────────────────────────────────────
   async function loadStats(mode) {
     if (isLoading) return;
-    isLoading = true;
+    isLoading    = true;
+    currentMode_ = mode;
 
     const { data: { session } } = await supabase.auth.getSession();
-    const user = session.user;
-    const categoryStatsBody = document.getElementById('categoryStatsBody');
-    const progressHeader = document.getElementById('progressHeader');
-    
-    if (mode === 'classic') {
-      progressHeader.textContent = 'Progress';
-    } else if (mode === 'top10') {
-      progressHeader.textContent = 'Accuracy';
-    } else if (mode === 'vs') {
-      progressHeader.textContent = 'Accuracy';
-    }
-    
-    categoryStatsBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 40px;">Loading...</td></tr>';
+    const user               = session.user;
+    const categoryStatsBody  = document.getElementById('categoryStatsBody');
+    const progressHeader     = document.getElementById('progressHeader');
+
+    progressHeader.textContent = mode === 'classic' ? 'Progress' : 'Accuracy';
+    categoryStatsBody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:40px;">Loading...</td></tr>';
 
     let scoresData;
     let tableName;
@@ -665,19 +802,18 @@ document.addEventListener('DOMContentLoaded', function() {
           .select('category_id, score, correct_count, accuracy')
           .eq('user_id', user.id)
           .order('score', { ascending: false });
-        
+
         const bestScoresMap = new Map();
         data?.forEach(score => {
           const existing = bestScoresMap.get(score.category_id);
-          if (!existing || score.score > existing.score) {
-            bestScoresMap.set(score.category_id, score);
-          }
+          if (!existing || score.score > existing.score) bestScoresMap.set(score.category_id, score);
         });
         scoresData = Array.from(bestScoresMap.values());
       }
 
       if (!scoresData || scoresData.length === 0) {
-        categoryStatsBody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 40px;">No stats found yet for this mode.</td></tr>`;
+        categoryStatsBody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:40px;">No stats found yet for this mode.</td></tr>`;
+        currentStats = [];
         isLoading = false;
         return;
       }
@@ -685,138 +821,116 @@ document.addEventListener('DOMContentLoaded', function() {
       const statsWithRanks = await Promise.all(
         scoresData.map(async (entry) => {
           const { category_id, score } = entry;
-          
           let rank;
 
           if (mode === 'vs') {
             const { data: allScores } = await supabase
-              .from(tableName)
-              .select('user_id, score')
-              .eq('category_id', category_id);
-
-            const bestScoresMap = new Map();
+              .from(tableName).select('user_id, score').eq('category_id', category_id);
+            const bestMap = new Map();
             allScores?.forEach(s => {
-              const existing = bestScoresMap.get(s.user_id);
-              if (!existing || s.score > existing.score) {
-                bestScoresMap.set(s.user_id, s);
-              }
+              const ex = bestMap.get(s.user_id);
+              if (!ex || s.score > ex.score) bestMap.set(s.user_id, s);
             });
-
-            const usersWithHigherScores = Array.from(bestScoresMap.values())
-              .filter(s => s.score > score);
-            
-            rank = usersWithHigherScores.length + 1;
+            rank = Array.from(bestMap.values()).filter(s => s.score > score).length + 1;
           } else {
             const { data: higherScores } = await supabase
-              .from(tableName)
-              .select('user_id, score')
-              .gt('score', score)
-              .eq('category_id', category_id);
+              .from(tableName).select('user_id, score').gt('score', score).eq('category_id', category_id);
+            rank = new Set(higherScores?.map(s => s.user_id) || []).size + 1;
+          }
 
-            const uniqueUsers = new Set(higherScores?.map(s => s.user_id) || []);
-            rank = uniqueUsers.size + 1;
+          // Compute progressPercent once and store it for sorting
+          let progressPercent;
+          if (mode === 'classic') {
+            progressPercent = Math.min(Math.floor((score / 100) * 100), 100);
+          } else if (mode === 'top10') {
+            progressPercent = Math.floor(((entry.correct_count || 0) / 10) * 100);
+          } else if (mode === 'vs') {
+            progressPercent = Math.floor(entry.accuracy || 0);
           }
 
           return {
             ...entry,
-            rank
+            rank,
+            progressPercent,
+            categoryName: getCategoryNameById(category_id)
           };
         })
       );
 
-      categoryStatsBody.innerHTML = '';
-      
-      statsWithRanks.forEach(entry => {
-        const { category_id, score, rank } = entry;
-        const categoryName = getCategoryNameById(category_id);
-        
-        let progressPercent;
-        let progressLabel;
+      // Store for client-side sorting
+      currentStats = statsWithRanks;
 
-        if (mode === 'classic') {
-          progressPercent = Math.min(Math.floor((score / 100) * 100), 100);
-          progressLabel = `${score}%`;
-        } else if (mode === 'top10') {
-          const correct = entry.correct_count || 0;
-          progressPercent = Math.floor((correct / 10) * 100);
-          progressLabel = `${correct}/10`;
-        } else if (mode === 'vs') {
-          progressPercent = Math.floor(entry.accuracy || 0);
-          progressLabel = `${progressPercent}%`;
-        }
-
-        // Convert rank to medal emoji for top 3
-        let rankDisplay;
-        if (rank === 1) {
-          rankDisplay = '🥇';
-        } else if (rank === 2) {
-          rankDisplay = '🥈';
-        } else if (rank === 3) {
-          rankDisplay = '🥉';
-        } else {
-          rankDisplay = `#${rank}`;
-        }
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${categoryName}</td>
-          <td>${rankDisplay}</td>
-          <td>${score}</td>
-          <td>
-            <div class="progress-bar-container">
-              <div class="progress-bar-fill" style="width: ${progressPercent}%"></div>
-            </div>
-          </td>
-        `;
-        categoryStatsBody.appendChild(row);
-      });
+      // Apply current sort (default keeps load order)
+      applySortAndRender();
 
     } catch (error) {
       console.error('Error loading stats:', error);
-      categoryStatsBody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 40px; color: #dc2626;">Error loading stats</td></tr>`;
+      categoryStatsBody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:40px;color:#dc2626;">Error loading stats</td></tr>`;
     } finally {
       isLoading = false;
     }
   }
 
+  // ── Render rows (pure display, no fetch) ─────────────────────────────────
+  function renderRows(data, mode) {
+    const categoryStatsBody = document.getElementById('categoryStatsBody');
+    categoryStatsBody.innerHTML = '';
+    categoryStatsBody.classList.remove('sort-animating');
+    // Trigger reflow so animation re-plays
+    void categoryStatsBody.offsetWidth;
+    categoryStatsBody.classList.add('sort-animating');
+
+    data.forEach(entry => {
+      const { categoryName, score, rank, progressPercent } = entry;
+
+      let progressLabel;
+      if (mode === 'classic') {
+        progressLabel = `${score}%`;
+      } else if (mode === 'top10') {
+        progressLabel = `${entry.correct_count || 0}/10`;
+      } else {
+        progressLabel = `${progressPercent}%`;
+      }
+
+      let rankDisplay;
+      if (rank === 1)      rankDisplay = '🥇';
+      else if (rank === 2) rankDisplay = '🥈';
+      else if (rank === 3) rankDisplay = '🥉';
+      else                 rankDisplay = `#${rank}`;
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${categoryName}</td>
+        <td style="text-align:center">${rankDisplay}</td>
+        <td style="text-align:center">${score}</td>
+        <td>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" style="width: ${progressPercent}%"></div>
+          </div>
+        </td>
+      `;
+      categoryStatsBody.appendChild(row);
+    });
+
+    // Remove animation class after all animations complete
+    setTimeout(() => categoryStatsBody.classList.remove('sort-animating'), 600);
+  }
+
+  // ── Category name map ─────────────────────────────────────────────────────
   function getCategoryNameById(id) {
     const mapping = {
-      1: '👥 Population',
-      2: '🏔️ Altitude',
-      3: '💵 GDP',
-      4: '☺️ Happiness',
-      5: '🌲 Forest Cover',
-      6: '🏝️ Coastline',
-      7: '🍽️ Cuisine',
-      8: '🥇 Olympic Medals',
-      9: '⚽️ World Cup',
-      10: '🌍 Land Mass',
-      11: '🚨 Crime Rate',
-      12: '🛂 Passport',
-      13: '🍺 Beer Consumption',
-      14: '🕊️ Nobel Prize',
-      15: '☀️ Temperature',
-      16: '🌧️ Rainfall',
-      17: '✈️ Tourist Visits',
-      18: '⭐ Michelin Restaurants',
-      19: '🍔 BigMac Index',
-      20: '🤍 Life Expectancy',
-      21: '💍 Marriage Age',
-      22: '⚖️ Gender Ratio',
-      23: '🏙️ Tallest Building',
-      24: '👨‍👩‍👧‍👦 Population Density',
-      25: '🚗 Car Exports',
-      26: '🪖 Military Personnel',
-      27: '🏠 Rent Prices',
-      28: '📉 Poorest Countries',
-      29: '🎓 Universities',
-      30: '🌋 Volcanoes',
-      31: '🦩 Flamingos',
-      32: '🌪️ Natural Disasters',
-      33: '🌊 Longest River',
-      34: '♻️ Renewable Energy',
-      35: '💰 Millionaires',
-      36: '♟️ Chess Grandmasters'
+      1: '👥 Population',      2: '🏔️ Altitude',         3: '💵 GDP',
+      4: '☺️ Happiness',       5: '🌲 Forest Cover',      6: '🏝️ Coastline',
+      7: '🍽️ Cuisine',         8: '🥇 Olympic Medals',    9: '⚽️ World Cup',
+      10: '🌍 Land Mass',      11: '🚨 Crime Rate',       12: '🛂 Passport',
+      13: '🍺 Beer Consumption',14: '🕊️ Nobel Prize',     15: '☀️ Temperature',
+      16: '🌧️ Rainfall',       17: '✈️ Tourist Visits',  18: '⭐ Michelin Restaurants',
+      19: '🍔 BigMac Index',   20: '🤍 Life Expectancy',  21: '💍 Marriage Age',
+      22: '⚖️ Gender Ratio',   23: '🏙️ Tallest Building', 24: '👨‍👩‍👧‍👦 Population Density',
+      25: '🚗 Car Exports',    26: '🪖 Military Personnel',27: '🏠 Rent Prices',
+      28: '📉 Poorest Countries',29: '🎓 Universities',   30: '🌋 Volcanoes',
+      31: '🦩 Flamingos',      32: '🌪️ Natural Disasters', 33: '🌊 Longest River',
+      34: '♻️ Renewable Energy',35: '💰 Millionaires',    36: '♟️ Chess Grandmasters'
     };
     return mapping[id] || `Category ${id}`;
   }
