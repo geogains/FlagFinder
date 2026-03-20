@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GeoRanks — Leaderboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/game-modes.css" />
   
@@ -477,30 +479,6 @@
     }
     .btn-find-me:hover { box-shadow: 0 7px 20px rgba(255,111,97,0.45); }
 
-    /* "Your rank" toast that floats above the table when user is out of view */
-    .my-rank-toast {
-      display: none;
-      position: sticky;
-      bottom: 16px;
-      left: 0; right: 0;
-      margin: 10px auto 0;
-      width: fit-content;
-      background: linear-gradient(135deg, #ff9770, #ff6f61);
-      color: white;
-      border-radius: 50px;
-      padding: 10px 22px;
-      font-size: 0.9rem;
-      font-weight: 700;
-      box-shadow: 0 6px 20px rgba(255,111,97,0.4);
-      cursor: pointer;
-      z-index: 50;
-      animation: toastIn 0.35s cubic-bezier(0.34,1.4,0.64,1) both;
-    }
-    @keyframes toastIn {
-      from { opacity: 0; transform: translateY(10px) scale(0.95); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    .my-rank-toast.visible { display: block; }
   </style>
 </head>
 <body>
@@ -595,9 +573,6 @@
     <button class="lb-action-btn btn-find-me" id="findMyRankBtn" style="display:none;">📍 Find My Rank</button>
   </div>
 
-  <!-- Sticky toast shown when the user's highlighted row is off-screen -->
-  <div class="my-rank-toast" id="myRankToast"></div>
-
   <a href="index.html" class="back-home">Return Home</a>
 </div>
 
@@ -651,47 +626,22 @@ document.addEventListener('DOMContentLoaded', function() {
      SEARCH DROPDOWN JAVASCRIPT
 ======================================== -->
 <script type="module">
-  import { supabase } from './js/supabase-client.js';
+  import { categoriesConfig } from './js/categories-config.js';
 
   const searchInput = document.getElementById('categorySearchInput');
   const searchDropdown = document.getElementById('searchDropdown');
 
-  const displayNameMap = {
-    'temperature': 'Highest Temperature', 'precipitation': 'Rainfall', 'altitude': 'Highest Altitude',
-    'gdp': 'GDP Per Capita', 'population': 'Population', 'forest': 'Forest Cover',
-    'coastline': 'Longest Coastline', 'olympic': 'Olympic Medals', 'cuisine': 'Cuisine',
-    'worldcup': 'World Cup Trophies', 'landmass': 'Land Mass', 'crimerate': 'Crime Rate',
-    'happiness': 'Happiness', 'passport': 'Passport Strength', 'beer': 'Beer Consumption',
-    'nobelprize': 'Nobel Prize Winners', 'michelin': 'Michelin Restaurants', 'bigmac': 'BigMac Index',
-    'lifeexpectancy': 'Life Expectancy', 'tourism': 'Tourist Visits', 'marriageage': 'Marriage Age',
-    'sexratio': 'Gender Ratio', 'tallestbuilding': 'Tallest Building', 'density': 'Population Density',
-    'carexports': 'Car Exports', 'militarypersonel': 'Military Personnel', 'rent': 'Rent Prices',
-    'poorestgdp': 'Poorest Countries', 'university': 'Universities', 'volcano': 'Volcanoes',
-    'flamingo': 'Flamingos', 'disasterrisk': 'Natural Disasters', 'longestriver': 'Longest River',
-    'renewableenergy': 'Renewable Energy', 'millionaires': 'Millionaires', 'gm': 'Chess Grandmasters'
-  };
+  // Exclude alias keys — same two duplicates filtered in categories.html
+  const ALIAS_KEYS = new Set(['hightemp', 'rainfall']);
 
-  const imageMap = { temperature: 'hightemp', precipitation: 'rainfall' };
-
-  function formatCategoryName(name) {
-    return name.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-  }
-
-  let allCategories = [];
-
-  // Load categories
-  async function loadCategories() {
-    const { data: categories } = await supabase.from('categories').select('*').order('name');
-    if (categories) {
-      allCategories = categories.map(cat => ({
-        category: cat.name,
-        display: displayNameMap[cat.name.toLowerCase()] || formatCategoryName(cat.name),
-        image: imageMap[cat.name.toLowerCase()] || cat.name.toLowerCase() + '.jpg'
-      })).sort((a, b) => a.display.localeCompare(b.display));
-    }
-  }
-
-  loadCategories();
+  const allCategories = Object.entries(categoriesConfig)
+    .filter(([key]) => !ALIAS_KEYS.has(key))
+    .map(([key, cfg]) => ({
+      category: key,
+      display: cfg.title,
+      image: cfg.image
+    }))
+    .sort((a, b) => a.display.localeCompare(b.display));
 
   // Clear input and show all categories when clicked
   searchInput?.addEventListener('click', () => {
@@ -767,6 +717,7 @@ document.addEventListener('DOMContentLoaded', function() {
 ======================================== -->
 <script type="module">
   import { supabase } from './js/supabase-client.js';
+  import { categoriesConfig, CATEGORY_ID_MAP } from './js/categories-config.js';
 
   const leaderboardBody        = document.getElementById("leaderboardBody");
   const dateDropdown           = document.getElementById("dateDropdown");
@@ -774,7 +725,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const categorySearchWrapper  = document.getElementById("categorySearchWrapper");
   const dailyChallengeTitle    = document.getElementById("dailyChallengeTitle");
   const findMyRankBtn          = document.getElementById("findMyRankBtn");
-  const myRankToast            = document.getElementById("myRankToast");
 
   const PAGE_SIZE = 20;
 
@@ -802,20 +752,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  const displayNameMap = {
-    'hightemp': 'Highest Temperature', 'rainfall': 'Annual Rainfall', 'altitude': 'Highest Altitude',
-    'gdp': 'GDP Per Capita', 'population': 'Population', 'forest': 'Forest Coverage',
-    'coastline': 'Coastline Length', 'olympic': 'Olympic Medals', 'cuisine': 'Cuisine Popularity',
-    'worldcup': 'World Cup Wins', 'landmass': 'Landmass', 'crimerate': 'Crime Rate',
-    'happiness': 'Happiness Index', 'passport': 'Passport Power', 'beer': 'Beer Consumption',
-    'nobelprize': 'Nobel Prizes', 'michelin': 'Michelin Restaurants', 'bigmac': 'BigMac Index',
-    'lifeexpectancy': 'Life Expectancy', 'tourism': 'Tourist Visits', 'marriageage': 'Marriage Age',
-    'sexratio': 'Gender Ratio', 'tallestbuilding': 'Tallest Building', 'density': 'Population Density',
-    'carexports': 'Car Exports', 'militarypersonel': 'Military Personnel', 'rent': 'Rent Prices',
-    'poorestgdp': 'Poorest Countries', 'university': 'Universities', 'volcano': 'Volcanoes',
-    'flamingo': 'Flamingos', 'disasterrisk': 'Natural Disasters', 'longestriver': 'Longest River',
-    'renewableenergy': 'Renewable Energy', 'millionaires': 'Millionaires', 'gm': 'Chess Grandmasters'
-  };
+  const displayNameMap = Object.fromEntries(
+    Object.entries(categoriesConfig).map(([k, v]) => [k, v.title])
+  );
 
   function formatCategoryName(name) {
     return name.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
@@ -859,8 +798,6 @@ document.addEventListener('DOMContentLoaded', function() {
     userHighlightRow = null;
     _dailyCategoryId = null;
     _dailyDate       = null;
-    myRankToast.classList.remove('visible');
-    myRankToast.textContent = '';
   }
 
   // ── Find My Rank button ────────────────────────────────────────────────────
@@ -887,23 +824,6 @@ document.addEventListener('DOMContentLoaded', function() {
       findMyRankBtn.textContent = '📍 Find My Rank';
     }
   });
-
-  // ── Sticky toast: show when user's row is off-screen ──────────────────────
-  function setupToastObserver() {
-    if (!userHighlightRow) return;
-    myRankToast.classList.remove('visible');
-
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        myRankToast.classList.remove('visible');
-      } else {
-        myRankToast.classList.add('visible');
-      }
-    }, { threshold: 0.1 });
-
-    observer.observe(userHighlightRow);
-    myRankToast.onclick = () => userHighlightRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
 
   // ── Mode toggle ────────────────────────────────────────────────────────────
   document.querySelectorAll('.mode-btn').forEach(btn => {
@@ -966,7 +886,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!date) { leaderboardBody.innerHTML = '<tr><td colspan="4">❌ No date selected</td></tr>'; return; }
 
     const dailyChallenge = getDailyChallengeForDate(date);
-    const { CATEGORY_ID_MAP } = await import('./js/top10-categories-loader.js');
     const categoryId = CATEGORY_ID_MAP[dailyChallenge.category];
     if (!categoryId) {
       leaderboardBody.innerHTML = '<tr><td colspan="4">❌ Category not found</td></tr>';
@@ -1041,23 +960,18 @@ document.addEventListener('DOMContentLoaded', function() {
   // store query context for load-more & find-my-rank
   let _classicCategoryId = null;
   let _top10CategoryId   = null;
-  let _vsAllScores       = null;   // full sorted array for VS (client-side paged)
-  let _vsOffset          = 0;
+  let _vsCategoryId      = null;
 
   async function loadClassicLeaderboard(categoryName) {
     const { data: cat } = await supabase.from("categories").select("id").eq("name", categoryName).single();
     if (!cat) { leaderboardBody.innerHTML = '<tr><td colspan="4">❌ Category not found</td></tr>'; return; }
     _classicCategoryId = cat.id;
 
-    const { data: scores } = await supabase.from("category_scores")
-      .select('score, user_id, users!inner(id, username, avatar_url, is_premium)')
+    const { data: scores, count } = await supabase.from("category_scores")
+      .select('score, user_id, users!inner(id, username, avatar_url, is_premium)', { count: 'exact' })
       .eq("category_id", cat.id)
       .order("score", { ascending: false })
       .range(0, PAGE_SIZE - 1);
-
-    // Get total for jumpToMyRank paging
-    const { count } = await supabase.from("category_scores")
-      .select('*', { count: 'exact', head: true }).eq("category_id", cat.id);
     totalCount = count || 0;
 
     renderFirstPage(scores || []);
@@ -1073,21 +987,16 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   async function loadTop10BestLeaderboard(categoryName) {
-    const { CATEGORY_ID_MAP } = await import('./js/top10-categories-loader.js');
     _top10CategoryId = CATEGORY_ID_MAP[categoryName.toLowerCase()];
     if (!_top10CategoryId) {
       leaderboardBody.innerHTML = '<tr><td colspan="4">❌ Category not available for Top 10</td></tr>'; return;
     }
 
-    const { data: scores } = await supabase.from("top10_best_scores")
-      .select('score, user_id, users!fk_user(id, username, avatar_url, is_premium)')
+    const { data: scores, count } = await supabase.from("top10_best_scores")
+      .select('score, user_id, users!fk_user(id, username, avatar_url, is_premium)', { count: 'exact' })
       .eq("category_id", _top10CategoryId)
       .order("score", { ascending: false })
       .range(0, PAGE_SIZE - 1);
-
-    // Get total for jumpToMyRank paging
-    const { count } = await supabase.from("top10_best_scores")
-      .select('*', { count: 'exact', head: true }).eq("category_id", _top10CategoryId);
     totalCount = count || 0;
 
     renderFirstPage(scores || []);
@@ -1103,33 +1012,35 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   async function loadVSLeaderboard(categoryName) {
-    const { CATEGORY_ID_MAP } = await import('./js/top10-categories-loader.js');
-    const categoryId = CATEGORY_ID_MAP[categoryName.toLowerCase()];
-    if (!categoryId) {
+    _vsCategoryId = CATEGORY_ID_MAP[categoryName.toLowerCase()];
+    if (!_vsCategoryId) {
       leaderboardBody.innerHTML = '<tr><td colspan="4">❌ Category not available for VS</td></tr>'; return;
     }
 
-    const { data: scores } = await supabase.from("vs_scores")
-      .select('score, user_id, users!fk_user(id, username, avatar_url, is_premium)')
-      .eq("category_id", categoryId)
-      .order("score", { ascending: false });
+    const { data: scores, count } = await supabase.from('vs_leaderboard_scores')
+      .select('user_id, score, correct_count, accuracy, rank, username, avatar_url, is_premium', { count: 'exact' })
+      .eq('category_id', _vsCategoryId)
+      .order('score', { ascending: false })
+      .range(0, PAGE_SIZE - 1);
+    totalCount = count || 0;
 
-    // Deduplicate to each user's best score
-    const bestMap = new Map();
-    scores?.forEach(s => {
-      const ex = bestMap.get(s.user_id);
-      if (!ex || s.score > ex.score) bestMap.set(s.user_id, s);
-    });
-    _vsAllScores = Array.from(bestMap.values()).sort((a, b) => b.score - a.score);
-    _vsOffset    = 0;
-    totalCount   = _vsAllScores.length;
-
-    renderFirstPage(_vsAllScores.slice(0, PAGE_SIZE));
+    renderFirstPage(normalizeVsRows(scores || []));
   }
 
   async function appendVSPage() {
-    const slice = _vsAllScores.slice(currentOffset, currentOffset + PAGE_SIZE);
-    appendRows(slice);
+    const { data: scores } = await supabase.from('vs_leaderboard_scores')
+      .select('user_id, score, correct_count, accuracy, rank, username, avatar_url, is_premium')
+      .eq('category_id', _vsCategoryId)
+      .order('score', { ascending: false })
+      .range(currentOffset, currentOffset + PAGE_SIZE - 1);
+    appendRows(normalizeVsRows(scores || []));
+  }
+
+  function normalizeVsRows(rows) {
+    return rows.map(r => ({
+      ...r,
+      users: { id: r.user_id, username: r.username, avatar_url: r.avatar_url, is_premium: r.is_premium }
+    }));
   }
 
   // ── Render helpers ─────────────────────────────────────────────────────────
@@ -1144,8 +1055,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     scores.forEach((entry, i) => leaderboardBody.appendChild(buildRow(entry, i)));
     currentOffset = scores.length;
-
-    if (userHighlightRow) setupToastObserver();
   }
 
   function appendRows(scores) {
@@ -1153,8 +1062,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const startIndex = currentOffset;
     scores.forEach((entry, i) => leaderboardBody.appendChild(buildRow(entry, startIndex + i, true)));
     currentOffset += scores.length;
-
-    if (userHighlightRow) setupToastObserver();
   }
 
   async function appendNextPage() {
@@ -1174,9 +1081,6 @@ document.addEventListener('DOMContentLoaded', function() {
       if (userHighlightRow) {
         setTimeout(() => {
           userHighlightRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          setupToastObserver();
-          const rank = Array.from(leaderboardBody.querySelectorAll('tr')).indexOf(userHighlightRow) + 1;
-          myRankToast.textContent = `📍 You're #${rank} — tap to jump back`;
         }, 100);
         return;
       }
@@ -1213,8 +1117,6 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
       if (userHighlightRow) {
         userHighlightRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        setupToastObserver();
-        myRankToast.textContent = `📍 You're #${userIndex + 1} — tap to jump back`;
       }
     }, 100);
   }

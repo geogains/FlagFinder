@@ -586,8 +586,8 @@
   </div><!-- End #mainContent -->
 
   <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
     import soundManager from './js/sound-manager.js';
+    import { categoriesConfig } from './js/categories-config.js';
 
     // Initialize sounds
     const SOUND_MAP = {
@@ -601,11 +601,6 @@
     soundManager.init(SOUND_MAP).then(() => {
       console.log('✅ Sounds loaded on results page');
     });
-
-    const supabase = createClient(
-      'https://api.geo-ranks.com',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRudGlmeXd5b2Z1cWVzcG9kaGFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU5MTQxODQsImV4cCI6MjA1MTQ5MDE4NH0.BbHN1kYS8d9xvZAEP3-D_Xva9q3JdHkB0LfXUzjI4B0'
-    );
 
     // Get URL parameters
     const params = new URLSearchParams(window.location.search);
@@ -661,30 +656,7 @@
     setTimeout(hideLoading, 300);
 
     function getCategoryDisplayName(key) {
-      const names = {
-        population: 'Population',
-        altitude: 'Highest Altitude',
-        gdp: 'GDP per Capita',
-        tallestbuilding: 'Tallest Buildings',
-        landmass: 'Landmass',
-        forest: 'Forest Coverage',
-        coastline: 'Coastline Length',
-        happiness: 'Happiness Index',
-        passport: 'Passport Power',
-        beer: 'Beer Consumption',
-        nobelprize: 'Nobel Prizes',
-        hightemp: 'Hottest Countries',
-        rainfall: 'Annual Rainfall',
-        crimerate: 'Crime Rate',
-        olympic: 'Olympic Medals',
-        cuisine: 'Cuisine Quality',
-        worldcup: 'World Cup Wins',
-        tourism: 'Most Visited Countries',
-        michelin: 'Michelin Restaurants',
-        bigmac: 'Most Expensive Big Mac',
-        lifeexpectancy: 'Life Expectancy'
-      };
-      return names[key] || key.charAt(0).toUpperCase() + key.slice(1);
+      return categoriesConfig[key]?.title || key.charAt(0).toUpperCase() + key.slice(1);
     }
 
     function displayResults() {
@@ -871,6 +843,59 @@ Can you beat my score? Play at geo-ranks.com/top10.html?mode=${categoryKey}`;
         document.body.classList.remove('menu-open');
       }
     });
+  </script>
+
+  <!-- Pending Score Save -->
+  <script type="module">
+    import { supabase } from './js/supabase-client.js';
+    (async () => {
+      const raw = localStorage.getItem('top10PendingSave');
+      if (!raw) return;
+      let record;
+      try { record = JSON.parse(raw); } catch { localStorage.removeItem('top10PendingSave'); return; }
+      // Relevance guard: only process if record matches this page's game
+      const urlParams = new URLSearchParams(window.location.search);
+      if (!record.categoryKey || !record.categoryId || record.score == null) return;
+      if (record.categoryKey !== urlParams.get('category')) return;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return;
+      let allSucceeded = true;
+      // daily_challenge_scores — only for daily challenge games
+      if (record.isDailyChallenge) {
+        const today = new Date().toISOString().split('T')[0];
+        const { error: dailyError } = await supabase.from('daily_challenge_scores').upsert({
+          user_id: session.user.id,
+          category_id: record.categoryId,
+          played_date: today,
+          score: record.score,
+          correct_count: record.correctGuesses,
+          time_taken: record.timeElapsed,
+          completed: true
+        }, { onConflict: 'user_id,category_id,played_date' }).select();
+        if (dailyError) { console.error('❌ Top 10 daily save failed:', dailyError); allSucceeded = false; }
+        else console.log('✅ Top 10 daily challenge score saved.');
+      }
+      // top10_best_scores — all Top 10 games (this is what the leaderboard reads)
+      const { data: existingBest } = await supabase
+        .from('top10_best_scores')
+        .select('score')
+        .eq('user_id', session.user.id)
+        .eq('category_id', record.categoryId)
+        .maybeSingle();
+      if (!existingBest || record.score > existingBest.score) {
+        const { error: bestError } = await supabase.from('top10_best_scores').upsert({
+          user_id: session.user.id,
+          category_id: record.categoryId,
+          score: record.score,
+          correct_count: record.correctGuesses,
+          wrong_count: record.incorrectGuessCount,
+          time_remaining: record.timeRemaining
+        }, { onConflict: 'user_id,category_id' }).select();
+        if (bestError) { console.error('❌ Top 10 best score save failed:', bestError); allSucceeded = false; }
+        else console.log('✅ Top 10 best score saved/updated.');
+      }
+      if (allSucceeded) localStorage.removeItem('top10PendingSave');
+    })();
   </script>
 
   <!-- Account/Premium Button Removal -->

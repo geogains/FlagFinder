@@ -4,6 +4,7 @@ import soundManager from './sound-manager.js';
 import { loadTop10CategoryData, CATEGORY_ID_MAP } from './top10-categories-loader.js';
 import { allCountries } from './countries-list.js';
 import { supabase } from './supabase-client.js';
+import { formatValue as sharedFormatValue } from './format-metric.js';
 
 console.log('Top10 game script loaded');
 
@@ -764,129 +765,16 @@ async function selectCountry(country) {
   }
 }
 
+// Format value — location names rendered as plain text in parens (Top10-specific)
 function formatValue(value, unit, country = null, includeNames = false) {
-  // Special handling for tallest building - only include name if requested
-  if (unit === 'm' && country && country.tallestBuildingName && includeNames) {
-    return `${value.toLocaleString()} m (${country.tallestBuildingName})`;
+  if (includeNames && unit === 'm' && country) {
+    const name = country.tallestBuildingName || country.highestPointName;
+    if (name) return `${value.toLocaleString()} m (${name})`;
   }
-  
-  // Special handling for altitude - only include name if requested
-  if (unit === 'm' && country && country.highestPointName && includeNames) {
-    return `${value.toLocaleString()} m (${country.highestPointName})`;
+  if (includeNames && unit === 'km' && country && country.riverName) {
+    return `${value.toLocaleString()} km (${country.riverName})`;
   }
-  
-  // Format numbers based on unit type (NO NAMES in rank slots)
-  switch(unit) {
-    case 'M': // Million (with B/M/K support)
-  if (value >= 1000) {
-    // Billions
-    return `${(value / 1000).toFixed(1)}B`;
-  } else if (value >= 1) {
-    // Millions
-    return `${value.toFixed(1)}M`;
-  } else {
-    // Thousands
-    return `${(value * 1000).toFixed(1)}K`;
-  }
-    case 'USD':
-      return `$${value.toLocaleString()}`;
-    case 'km²':
-      // Format large landmass values with K/M notation
-      if (value >= 1000000) {
-        return `${(value / 1000000).toFixed(1)}M km²`;
-      } else if (value >= 1000) {
-        return `${(value / 1000).toFixed(0)}K km²`;
-      } else {
-        return `${value.toLocaleString()} km²`;
-      }
-    case 'km':
-      return `${value.toLocaleString()} km`;
-    case 'm':
-      return `${value.toLocaleString()} m`;
-    case 'hectares':
-      if (value >= 1000000) {
-        return `${(value / 1000000).toFixed(1)}M hectares`;
-      } else if (value >= 1000) {
-        return `${(value / 1000).toFixed(1)}K hectares`;
-      }
-      return `${value.toLocaleString()} hectares`;
-    case 'L':
-      return `${value} L`;
-    case '°C':
-      return `${value}°C`;
-    case 'mm/year':
-      return `${value.toLocaleString()} mm`;
-    case '/10': // happiness index - round to 1 decimal
-      return `${value.toFixed(1)}/10`;
-    case 'index':
-      return `${value}`;
-    case 'score':
-      return `${value}`;
-    case 'prizes':
-      return `${value}`;
-    case 'medals':
-      return `${value.toLocaleString()}`;
-    case 'titles':
-      return `${value}`;
-    case 'countries':
-      return `${value}`;
-    case 'rating':
-      return `${value}/5`;
-    case 'M Tourists':
-      return `${value.toFixed(1)}M`;
-     case 'restaurants':
-      return `${value.toLocaleString()} Restaurants`;
-    case 'USD':
-      return `$${value.toFixed(2)}`;  // ← UPDATE to use .toFixed(2)
-    case 'years':
-    case 'Years': // marriage age and life expectancy
-      // Marriage age: no decimal (32 Years)
-      // Life expectancy: 1 decimal (84.8 Years)
-      if (categoryKey === 'marriageage') {
-        return `${Math.round(value)} Years`;
-      }
-      // Life expectancy or other years
-      return `${value.toFixed(1)} Years`;
-    // NEW CATEGORIES
-    case 'ratio': // sex ratio
-      return `${value}`;
-    case 'per km²': // density
-      return `${value.toLocaleString()} per km²`;
-    case '$B': // car exports
-      return `$${value.toFixed(1)}B`;
-    case 'personnel': // military personnel
-      return `${value.toLocaleString()}`;
-    case '$': // rent, poorest GDP
-      return `$${value.toLocaleString()}`;
-    case 'universities': // universities - show raw number only
-      return `${value.toLocaleString()}`;
-    case 'volcanoes': // volcanoes - show raw number only
-      return `${value}`;
-    case 'flamingos': // flamingos - use M/K notation
-      if (value >= 1000000) {
-        const millions = (value / 1000000).toFixed(1);
-        return millions.endsWith('.0') ? `${millions.slice(0, -2)}M` : `${millions}M`;
-      } else if (value >= 1000) {
-        const thousands = (value / 1000).toFixed(1);
-        return thousands.endsWith('.0') ? `${thousands.slice(0, -2)}K` : `${thousands}K`;
-      }
-      return `${value.toLocaleString()}`;
-    case 'risk index': // disaster risk
-      return `${value.toFixed(2)}`;
-    case '%': // renewable energy
-      return `${value}%`;
-    case 'millionaires': // millionaires
-      if (value >= 1000000) {
-        return `${(value / 1000000).toFixed(1)}M`;
-      } else if (value >= 1000) {
-        return `${(value / 1000).toFixed(1)}K`;
-      }
-      return `${value.toLocaleString()}`;
-    case 'grandmasters': // chess grandmasters
-      return `${value} grandmasters`;
-    default:
-      return `${value}`;
-  }
+  return sharedFormatValue(value, unit, { categoryKey });
 }
 
 function updateLives() {
@@ -979,126 +867,11 @@ async function endGame(won) {
   // Update the final score
   gameState.score = finalScore;
   
-  // Save score to database ONLY for Daily Challenge mode (and only if logged in)
-  if (isDailyChallenge) {
-    try {
-      await Promise.race([
-        saveDailyScore(finalScore, correctGuesses, timeElapsed),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Save timeout')), 5000))
-      ]);
-    } catch (error) {
-      console.error('⚠️ Score save failed or timed out:', error);
-      // Continue anyway - show results even if save failed
-    }
-  }
-  
-  // ALWAYS show results overlay, even if save failed
-  console.log('📊 Showing results overlay...');
+  // Show results (which also writes pending-save record before navigating)
+  console.log('📊 Showing results...');
   showResults(won, correctGuesses, timeElapsed);
 }
 
-// Save daily challenge score to database
-async function saveDailyScore(score, correctGuesses, timeElapsed) {
-  try {
-    console.log('Attempting to save score...', { score, correctGuesses, timeElapsed });
-    
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session) {
-      console.log('Not logged in - score not saved');
-      return;
-    }
-    
-    console.log('User ID:', session.user.id);
-    console.log('Category ID:', categoryId);
-    console.log('Category Key:', categoryKey);
-    
-    // Get today's date in UTC
-    const today = new Date();
-    const utcDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
-    const todayString = utcDate.toISOString().split('T')[0]; // YYYY-MM-DD
-    
-    console.log('Playing date (UTC):', todayString);
-    
-    // ========================================
-    // 1. SAVE TO DAILY CHALLENGE SCORES
-    // ========================================
-    const dailyChallengeData = {
-      score: score,
-      correct_count: correctGuesses,
-      time_taken: timeElapsed,
-      completed: true
-    };
-    
-    console.log('Daily Challenge data to save:', dailyChallengeData);
-    
-    const { data: dailyData, error: dailyError } = await supabase
-      .from('daily_challenge_scores')
-      .upsert({
-        user_id: session.user.id,
-        category_id: categoryId,
-        played_date: todayString,
-        ...dailyChallengeData
-        }, {
-    onConflict: 'user_id,category_id,played_date'
-      })
-      .select();
-    
-    if (dailyError) {
-      console.error('❌ Error saving to daily_challenge_scores:', dailyError);
-      alert('Failed to save your daily challenge score.');
-    } else {
-      console.log('✅ Daily Challenge score saved:', dailyData);
-    }
-    
-    // ========================================
-    // 2. SAVE/UPDATE TO TOP10 BEST SCORES
-    // ========================================
-    // Check if user has existing best score for this category
-    const { data: existingBest } = await supabase
-      .from('top10_best_scores')
-      .select('score')
-      .eq('user_id', session.user.id)
-      .eq('category_id', categoryId)
-      .maybeSingle();
-    
-    // Only save if this is a new record OR beats existing score
-    if (!existingBest || score > existingBest.score) {
-      const top10BestData = {
-        user_id: session.user.id,
-        category_id: categoryId,
-        score: score,
-        correct_count: correctGuesses,
-        wrong_count: gameState.incorrectGuesses.length,
-        time_remaining: gameState.timeRemaining
-      };
-      
-      const { data: bestData, error: bestError } = await supabase
-        .from('top10_best_scores')
-        .upsert(top10BestData, {
-          onConflict: 'user_id,category_id'
-        })
-        .select();
-      
-      if (bestError) {
-        console.error('❌ Error saving to top10_best_scores:', bestError);
-      } else {
-        console.log('✅ Top 10 best score saved/updated:', bestData);
-        if (!existingBest) {
-          console.log('🎉 New personal best!');
-        } else {
-          console.log('🎉 Beat previous best of', existingBest.score);
-        }
-      }
-    } else {
-      console.log('ℹ️ Score did not beat existing best:', existingBest.score);
-    }
-    
-  } catch (err) {
-    console.error('❌ Exception saving score:', err);
-    console.error('Exception details:', err.message, err.stack);
-  }
-}
 
 function showResults(won, correctGuesses, timeElapsed) {
   // Prepare results data for results page
@@ -1124,7 +897,19 @@ function showResults(won, correctGuesses, timeElapsed) {
   
   // Save to localStorage as backup
   localStorage.setItem('top10Results', JSON.stringify(resultsData));
-  
+
+  // Write pending-save record — results page will execute the actual DB save
+  localStorage.setItem('top10PendingSave', JSON.stringify({
+    categoryKey,
+    categoryId,
+    score: gameState.score,
+    correctGuesses,
+    timeElapsed,
+    timeRemaining: gameState.timeRemaining,
+    incorrectGuessCount: gameState.incorrectGuesses.length,
+    isDailyChallenge
+  }));
+
   // Redirect to results page with URL parameters
   const params = new URLSearchParams({
     category: categoryKey,
@@ -1133,7 +918,8 @@ function showResults(won, correctGuesses, timeElapsed) {
     time: timeElapsed,
     lives: gameState.lives
   });
-  
+  if (isDailyChallenge) params.set('daily', '1');
+
   window.location.href = `top10results.html?${params.toString()}`;
 }
 

@@ -13,6 +13,8 @@
     plausible.init()
   </script>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/game-modes.css" />
   <link rel="stylesheet" href="css/mode-selector.css" />
@@ -716,50 +718,25 @@
 <script type="module">
   import { supabase } from './js/supabase-client.js';
   import { openModeSelector as originalOpenModeSelector } from './js/mode-selector.js';
+  import { categoriesConfig } from './js/categories-config.js';
 
-  // All 36 categories
-  const allCategoriesData = [
-    // FREE CATEGORIES (8)
-    { category: "population", display: "Population", emoji: "👥", premium: false, image: "population.jpg" },
-    { category: "gdp", display: "GDP Per Capita", emoji: "💵", premium: false, image: "gdp.jpg" },
-    { category: "altitude", display: "Highest Altitude", emoji: "🏔️", premium: false, image: "altitude.jpg" },
-    { category: "forest", display: "Forest Cover", emoji: "🌲", premium: false, image: "forest.jpg" },
-    { category: "olympic", display: "Olympic Medals", emoji: "🥇", premium: false, image: "olympic.jpg" },
-    { category: "landmass", display: "Land Mass", emoji: "🌍", premium: false, image: "landmass.jpg" },
-    { category: "passport", display: "Passport Strength", emoji: "🛂", premium: false, image: "passport.jpg" },
-    { category: "beer", display: "Beer Consumption", emoji: "🍺", premium: false, image: "beer.jpg" },
+  // Alias keys that share an ID with another canonical key — exclude from display
+  const ALIAS_KEYS = new Set(['hightemp', 'rainfall']);
 
-    
-    // PREMIUM CATEGORIES (28)
-    { category: "bigmac", display: "BigMac Index", emoji: "🍔", premium: true, image: "bigmac.jpg" },
-    { category: "carexports", display: "Car Exports", emoji: "🚗", premium: true, image: "carexports.jpg" },
-    { category: "coastline", display: "Longest Coastline", emoji: "🏝️", premium: true, image: "coastline.jpg" },
-    { category: "crimerate", display: "Crime Rate", emoji: "🚨", premium: true, image: "crimerate.jpg" },
-    { category: "cuisine", display: "Cuisine", emoji: "🍽️", premium: true, image: "cuisine.jpg" },
-    { category: "density", display: "Population Density", emoji: "👨‍👩‍👧‍👦", premium: true, image: "density.jpg" },
-    { category: "disasterrisk", display: "Natural Disasters", emoji: "🌪️", premium: true, image: "disasterrisk.jpg" },
-    { category: "flamingo", display: "Flamingos", emoji: "🦩", premium: true, image: "flamingo.jpg" },
-    { category: "gm", display: "Chess Grandmasters", emoji: "♟️", premium: true, image: "gm.jpg" },
-    { category: "happiness", display: "Happiness", emoji: "😊", premium: true, image: "happiness.jpg" },
-    { category: "lifeexpectancy", display: "Life Expectancy", emoji: "🤍", premium: true, image: "lifeexpectancy.jpg" },
-    { category: "longestriver", display: "Longest River", emoji: "🌊", premium: true, image: "longestriver.jpg" },
-    { category: "marriageage", display: "Marriage Age", emoji: "💍", premium: true, image: "marriageage.jpg" },
-    { category: "michelin", display: "Michelin Restaurants", emoji: "⭐", premium: true, image: "michelin.jpg" },
-    { category: "militarypersonel", display: "Military Personnel", emoji: "🪖", premium: true, image: "militarypersonel.jpg" },
-    { category: "millionaires", display: "Millionaires", emoji: "💰", premium: true, image: "millionaires.jpg" },
-    { category: "nobelprize", display: "Nobel Prize Winners", emoji: "🕊️", premium: true, image: "nobelprize.jpg" },
-    { category: "poorestgdp", display: "Poorest Countries", emoji: "📉", premium: true, image: "poorestgdp.jpg" },
-    { category: "precipitation", display: "Rainfall", emoji: "🌧️", premium: true, image: "precipitation.jpg" },
-    { category: "renewableenergy", display: "Renewable Energy", emoji: "♻️", premium: true, image: "renewableenergy.jpg" },
-    { category: "rent", display: "Rent Prices", emoji: "🏠", premium: true, image: "rent.jpg" },
-    { category: "sexratio", display: "Gender Ratio", emoji: "⚖️", premium: true, image: "sexratio.jpg" },
-    { category: "tallestbuilding", display: "Tallest Building", emoji: "🏙️", premium: true, image: "tallestbuilding.jpg" },
-    { category: "temperature", display: "Highest Temperature", emoji: "🌡️", premium: true, image: "hightemp.jpg" },
-    { category: "tourism", display: "Tourist Visits", emoji: "✈️", premium: true, image: "tourism.jpg" },
-    { category: "university", display: "Most Universities", emoji: "🎓", premium: true, image: "university.jpg" },
-    { category: "volcano", display: "Volcanoes", emoji: "🌋", premium: true, image: "volcano.jpg" },
-    { category: "worldcup", display: "World Cup Trophies", emoji: "⚽", premium: true, image: "worldcup.jpg" }
-  ];
+  // Derive all 36 display categories from config: free first, then premium alphabetically by title
+  const allCategoriesData = Object.entries(categoriesConfig)
+    .filter(([key]) => !ALIAS_KEYS.has(key))
+    .map(([key, cfg]) => ({
+      category: key,
+      display: cfg.title,
+      emoji: cfg.emoji,
+      premium: cfg.premium,
+      image: cfg.image
+    }))
+    .sort((a, b) => {
+      if (a.premium !== b.premium) return a.premium ? 1 : -1;
+      return a.display.localeCompare(b.display);
+    });
 
   let userIsPremium = false;
   let currentPage = 1;
@@ -781,46 +758,6 @@
     document.body.style.top = '';
     window.scrollTo(0, modeSelectorScrollPosition);
   });
-
-  // Check premium status (NON-BLOCKING with timeout)
-  function checkPremiumStatus() {
-    // Set a timeout to ensure we render even if auth fails/hangs
-    const timeoutId = setTimeout(() => {
-      console.warn('⏱️ Auth check timed out after 3s - rendering as non-premium');
-      if (!categoriesRendered) {
-        renderCategories(); // Timeout fallback
-      }
-    }, 3000); // 3 second timeout
-    
-    supabase.auth.getSession()
-      .then(async ({ data: { session } }) => {
-        clearTimeout(timeoutId); // Cancel timeout if auth succeeds
-        
-        if (session?.user) {
-          const { data: profile } = await supabase
-            .from('users')
-            .select('is_premium')
-            .eq('id', session.user.id)
-            .single();
-          
-          if (profile?.is_premium) {
-            userIsPremium = true;
-          }
-        }
-        
-        // Render categories ONCE with correct premium status
-        renderCategories();
-      })
-      .catch(err => {
-        clearTimeout(timeoutId); // Cancel timeout on error
-        console.error('Premium check failed:', err);
-        // Render as non-premium
-        renderCategories();
-      });
-  }
-  
-  // Track if categories have been rendered
-  let categoriesRendered = false;
 
   // Premium modal handlers
   function showPremiumModal() {
@@ -844,9 +781,26 @@
     window.location.href = 'premium.html';
   });
 
+  // Surgically unlock premium cards in-place — no full grid re-render
+  function unlockPremiumCards() {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+    const pageCategories = allCategoriesData.slice(start, end);
+    const items = Array.from(document.querySelectorAll('.category-item'));
+    document.querySelectorAll('.category-card-new.locked').forEach(card => {
+      const idx = items.indexOf(card.closest('.category-item'));
+      const cat = pageCategories[idx];
+      if (!cat) return;
+      card.classList.remove('locked');
+      card.querySelector('.lock-badge')?.remove();
+      card.setAttribute('onclick', `openModeSelector('${cat.category}', '${cat.display}', '${cat.emoji}')`);
+      const playBtn = card.querySelector('.category-play-btn');
+      if (playBtn) playBtn.innerHTML = '<span>Play</span><span></span>';
+    });
+  }
+
   // Render categories
   function renderCategories() {
-    categoriesRendered = true; // Track that we've rendered
     const container = document.getElementById('categoriesGrid');
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     const end = start + ITEMS_PER_PAGE;
@@ -854,7 +808,7 @@
 
     container.innerHTML = pageCategories.map(cat => {
       const isLocked = cat.premium && !userIsPremium;
-      const lockBadge = isLocked ? '<div class="lock-badge">🔒 Premium</div>' : '';
+      const lockBadge = isLocked ? '<div class="lock-badge">Premium</div>' : '';
       
       return `
         <div class="category-item">
@@ -868,7 +822,7 @@
               <div class="category-name">${cat.display}</div>
               <div class="category-play-btn">
                 <span>${isLocked ? 'Upgrade' : 'Play'}</span>
-                <span>${isLocked ? '🔒' : '▶'}</span>
+                <span>${isLocked ? '🔒' : ''}</span>
               </div>
             </div>
           </div>
@@ -1039,9 +993,28 @@
   // Make showPremiumModal global
   window.showPremiumModal = showPremiumModal;
 
-  // Initialize - Wait for premium status, THEN render once
-  console.log('🚀 Checking premium status...');
-  checkPremiumStatus(); // Check premium, then render
+  // Render immediately with non-premium defaults — no blank-grid wait
+  renderCategories();
+
+  // Hydrate premium state asynchronously — re-render only if user turns out to be premium
+  supabase.auth.getSession()
+    .then(async ({ data: { session } }) => {
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('users')
+          .select('is_premium')
+          .eq('id', session.user.id)
+          .single();
+        if (profile?.is_premium) {
+          userIsPremium = true;
+          unlockPremiumCards();
+        }
+      }
+    })
+    .catch(err => {
+      console.error('Premium check failed:', err);
+      // Already rendered as non-premium — nothing to update
+    });
 </script>
 
 <!-- Account/Premium Button Removal -->

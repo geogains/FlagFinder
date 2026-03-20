@@ -40,6 +40,8 @@
 </script>
   
   <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- Styles -->
@@ -578,45 +580,14 @@ body {
   <script type="module">
     import { supabase } from './js/supabase-client.js';
     import { isValidDailyChallenge } from './js/daily-challenge.js';
-    
+    import { categoriesConfig } from './js/categories-config.js';
+
     // ========================================
     // 🔒 PREMIUM VALIDATION GUARD
     // ========================================
-    
-    // Define which categories require premium
-    const PREMIUM_CATEGORIES = [
-    
-  'bigmac',
-  'carexports',
-  'coastline',
-  'crimerate',
-  'cuisine',
-  'density',
-  'disasterrisk',
-  'flamingo',
-  'gm',
-  'happiness',
-  'hightemp',
-  'lifeexpectancy',
-  'longestriver',
-  'marriageage',
-  'michelin',
-  'militarypersonel',
-  'millionaires',
-  'nobelprize',
-  'poorestgdp',
-  'precipitation',
-  'rainfall',
-  'renewableenergy',
-  'rent',
-  'sexratio',
-  'tallestbuilding',
-  'temperature',
-  'tourism',
-  'university',
-  'volcano',
-  'worldcup'
-];
+
+    // Derive premium categories from categoriesConfig premium flags
+    const PREMIUM_CATEGORIES = Object.entries(categoriesConfig).filter(([, cfg]) => cfg.premium).map(([key]) => key);
 
 
     const params = new URLSearchParams(window.location.search);
@@ -635,49 +606,46 @@ body {
 
     // Async IIFE for auth/premium checks
     (async () => {
-      // Get user session ONCE at the top
       const { data: { session } } = await supabase.auth.getSession();
 
+      let isPremium = false;
+      let premiumChecked = false;
+
+      // For premium categories: fetch is_premium once and enforce gate
       if (requiresPremium) {
-        let isPremium = false;
-        
-        if (session && session.user) {
+        if (session?.user) {
           const { data: profile } = await supabase
             .from('users')
             .select('is_premium')
             .eq('id', session.user.id)
             .single();
-          
           isPremium = profile?.is_premium === true;
+          premiumChecked = true;
         }
-        
-        // If user is not premium, redirect to premium page
         if (!isPremium) {
           window.location.href = 'premium.html';
-          // Stop execution here
-          throw new Error('Premium required');
+          return;
         }
       }
-      
-      // Remove loading overlay after validation
+
       document.getElementById('authLoadingOverlay').style.display = 'none';
 
-      // Hide Account if user not logged in
-      if (!session || !session.user) {
+      if (!session?.user) {
         document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+        return;
       }
 
-      // Hide Unlock All Categories if user is premium
-      if (session && session.user) {
+      // Remove upgrade button — reuse already-fetched isPremium if available
+      if (!premiumChecked) {
         const { data: profile } = await supabase
           .from('users')
           .select('is_premium')
           .eq('id', session.user.id)
           .single();
-
-        if (profile?.is_premium) {
-          document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
-        }
+        isPremium = profile?.is_premium === true;
+      }
+      if (isPremium) {
+        document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
       }
     })();
   </script>

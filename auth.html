@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GeoRanks – Sign In / Create Account</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
    <link rel="stylesheet" href="css/page.css">
 
@@ -612,7 +614,7 @@ document.querySelectorAll('.toggle-password').forEach(button => {
             data: { 
               username: username 
             },
-            emailRedirectTo: 'https://www.geo-ranks.com/index.html'
+            emailRedirectTo: window.location.origin + '/index.html'
           }
         });
 
@@ -664,7 +666,7 @@ document.querySelectorAll('.toggle-password').forEach(button => {
 
       try {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: 'https://www.geo-ranks.com/reset-password.html',
+          redirectTo: window.location.origin + '/reset-password.html',
         });
 
         if (error) {

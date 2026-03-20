@@ -11,13 +11,16 @@ console.log("Is Daily Challenge:", isDailyChallenge);
 import { supabase } from './supabase-client.js';
 import soundManager from './sound-manager.js';
 import { CATEGORY_ID_MAP } from './top10-categories-loader.js';
+import { categoriesConfig } from './categories-config.js';
+import { formatValue as sharedFormatValue } from './format-metric.js';
 
 // Initialize sound manager
 const SOUND_MAP = {
   'pop': '/sounds/pop.mp3',
   'perfect': '/sounds/perfect.mp3',
   'correct': '/sounds/correct.mp3',
-  'tryagain': '/sounds/tryagain.mp3'
+  'tryagain': '/sounds/tryagain.mp3',
+  'wrong': '/sounds/wrong.mp3'
 };
 
 window.addEventListener("pointerdown", () => soundManager.unlock(), { once: true });
@@ -172,7 +175,7 @@ export function startBlindRankingGame() {
     const slot = row.querySelector(".rank-slot");
     slot.innerHTML = "";
     slot.classList.add("empty-slot");
-    slot.classList.remove("stomp", "correct-slot");
+    slot.classList.remove("stomp", "correct-slot", "slot-correct", "slot-close", "slot-wrong");
 
     row.style.background = ""; // remove green highlight
   });
@@ -253,7 +256,6 @@ function handleRankClick(event) {
   }
 
   slot.innerHTML = `<img src="flags/${country.code}.png" alt="${country.name}" /><span class="country-name">${country.name}</span>`;
-  soundManager.play('pop');
   slot.classList.remove("empty-slot");
   slot.classList.add("stomp");
 
@@ -277,8 +279,12 @@ function handleRankClick(event) {
       ? userTier - range.max
       : 0;
 
+    soundManager.play(diff === 0 ? 'correct' : diff <= 4 ? 'pop' : 'wrong');
+
   let roundPoints = Math.max(10 - diff, 1);
   totalScore += roundPoints;
+
+  flashSlotFeedback(slot, diff);
 
   //
   // --- AUTO-SELECT NEXT UNUSED FLAG (SEQUENTIAL) ---
@@ -336,107 +342,17 @@ function handleRankClick(event) {
 }
 
 
+// --- Placement feedback helpers ---
+
+function flashSlotFeedback(slot, diff) {
+  const cls = diff === 0 ? 'slot-correct' : diff <= 4 ? 'slot-close' : 'slot-wrong';
+  slot.classList.add(cls);
+}
+
+
 function formatMetric(num) {
-  if (metricKey === "temperature") return `${num}°C`;
-  if (metricKey === "beerConsumption") return `${num} Litres`;
-  if (metricKey === "touristArrivals") return `${num}M`;
-  if (metricKey === "michelinTotal") return `${num.toLocaleString()}`;
-  if (metricKey === "bigMacPrice") return `$${num.toFixed(2)}`; 
-  if (metricKey === "lifeExpectancy") return `${num.toFixed(1)} years`;
-  if (metricKey === "score") return `${num.toFixed(1)}/10`; // happiness index - round to 1 decimal
-  
-  // NEW CATEGORIES
-  if (metricKey === "marriageAge") return `${num} years`;
-  if (metricKey === "sexRatio") return `${num}`;
-  if (metricKey === "height") return `${num}m`; // tallest building
-  if (metricKey === "density") return `${num.toLocaleString()} per km²`;
-  if (metricKey === "carExportsUsdB") return `$${num}B`;
-  if (metricKey === "personnel") return num.toLocaleString(); // military personnel
-  if (metricKey === "rentUsd") return `$${num.toLocaleString()}`;
-  if (metricKey === "gdpPerCapita") return `$${num.toLocaleString()}`; // poorest GDP
-  if (metricKey === "university") return `${num.toLocaleString()}`;
-  if (metricKey === "volcanos") return `${num}`;
-  if (metricKey === "flamingos") {
-    if (num >= 1000000) {
-      const millions = (num / 1000000).toFixed(1);
-      return millions.endsWith('.0') ? `${millions.slice(0, -2)}M` : `${millions}M`;
-    } else if (num >= 1000) {
-      const thousands = (num / 1000).toFixed(1);
-      return thousands.endsWith('.0') ? `${thousands.slice(0, -2)}K` : `${thousands}K`;
-    }
-    return num.toLocaleString();
-  }
-  if (metricKey === "disasterrisk") return `${num.toFixed(2)}`;
-  if (metricKey === "longestriver") return `${num.toLocaleString()} km`;
-  if (metricKey === "sharepercent") return `${num}%`; // renewable energy
-  if (metricKey === "millionaires") {
-    if (num >= 1000000) {
-      return `${(num / 1000000).toFixed(1)}M`;
-    } else if (num >= 1000) {
-      return `${(num / 1000).toFixed(1)}K`;
-    }
-    return num.toLocaleString();
-  }
-  if (metricKey === "grandmasters") return `${num} grandmasters`;
-  
-  // Special handling for altitude: always show full number with commas
-  if (metricKey === "highestPoint") {
-    return `${num.toLocaleString()} m`;
-  }
-  
-  if (metricKey === "precipitation") {
-    return `${num.toLocaleString()} mm`;
-  }
-  
-  // Special handling for forest: always show in millions with 1 decimal
-  if (metricKey === "forestArea") {
-  const millions = (num / 1_000_000).toFixed(1);
-  // Remove .0 if decimal is zero
-  const formatted = millions.endsWith('.0') ? millions.slice(0, -2) : millions;
-  return `${formatted}M Hectares`;
-  }
-
-    // Special handling for landmass: show in millions with 1 decimal + Km² suffix
-  if (metricKey === "landmass") {
-  if (num >= 1_000_000) {
-    // 1 million and above: show as M
-    const millions = (num / 1_000_000).toFixed(1);
-    const formatted = millions.endsWith('.0') ? millions.slice(0, -2) : millions;
-    return `${formatted}M Km²`;
-  } else {
-    // Under 1 million: show as K
-    const thousands = (num / 1_000).toFixed(0);
-    return `${thousands}K Km²`;
-  }
-}
-
-  // Special handling for Olympic medals: show full number with commas
-if (metricKey === "medals") {
-  return num.toLocaleString();
-}
-
-  // Special handling for coastline: show full number with commas + km suffix
-  if (metricKey === "coastline") {
-    return `${num.toLocaleString()} km`;
-  }
-
-  // Special handling for GDP: show full number with $ and commas
-if (metricKey === "gdp") {
-  return `$${num.toLocaleString()}`;
-}
-  
-  // Special handling for population: always show in M format
-  if (metricKey === "population") {
-    if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
-    if (num >= 1_000) return (num / 1_000).toFixed(1) + "K";
-    return num.toLocaleString();
-  }
-  
-  // For other categories, use K/M/B abbreviations
-  if (num >= 1_000_000_000) return (num / 1_000_000_000).toFixed(2) + "B";
-  if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
-  if (num >= 1_000) return (num / 1_000).toFixed(0) + "K";
-  return num.toLocaleString();
+  const unit = categoriesConfig[currentCategory]?.unit ?? '';
+  return sharedFormatValue(num, unit, { categoryKey: currentCategory });
 }
 
 async function endGame() {
@@ -533,85 +449,28 @@ async function endGame() {
   
   // Save to localStorage as backup
   localStorage.setItem('classicResults', JSON.stringify(resultsData));
-  
-  // Save highest score with proper async/await (CRITICAL FIX for race condition)
-  console.log('💾 Saving score to database...');
-  try {
-    const { data: { session }, error: sessionErr } = await supabase.auth.getSession();
-    
-    if (session?.user) {
-      const currentCategory = categoryParam;
 
-      // Get category_id from CATEGORY_ID_MAP
-      const categoryId = CATEGORY_ID_MAP[currentCategory];
+  // Write pending-save record — results page will execute the actual DB save
+  const categoryId = CATEGORY_ID_MAP[categoryParam];
+  localStorage.setItem('classicPendingSave', JSON.stringify({
+    categoryParam,
+    categoryId,
+    totalScore,
+    isDailyChallenge
+  }));
 
-      if (!categoryId) {
-        console.error("❌ Could not find category ID for:", currentCategory);
-        console.log("Available categories:", Object.keys(CATEGORY_ID_MAP));
-        // Don't return - still redirect to results even if save fails
-      } else {
-        console.log("✅ Found category ID:", categoryId, "for category:", currentCategory);
-
-        // Call the stored procedure
-        const { error: rpcError } = await supabase.rpc('upsert_high_score', {
-          category_id_input: categoryId,
-          new_score: totalScore,
-          is_daily_challenge: isDailyChallenge
-        });
-
-        if (rpcError) {
-          console.error("❌ Error updating high score:", rpcError);
-        } else {
-          console.log("✅ High score upserted:", totalScore);
-        }
-        
-        // If daily challenge, also save to daily_challenge_scores
-        if (isDailyChallenge) {
-          const today = new Date().toISOString().split('T')[0];
-          
-          console.log('💾 Saving daily challenge score...', {
-            user_id: session.user.id,
-            category_id: categoryId,
-            played_date: today,
-            score: totalScore
-          });
-          
-          const { data: dailyData, error: dailyError } = await supabase
-            .from('daily_challenge_scores')
-            .upsert({
-              user_id: session.user.id,
-              category_id: categoryId,
-              played_date: today,
-              score: totalScore,
-              completed: true
-            })
-            .select();
-          
-          if (dailyError) {
-            console.error("❌ Error saving daily challenge score:", dailyError);
-            console.error("Error details:", dailyError);
-          } else {
-            console.log("✅ Daily challenge score saved:", dailyData);
-          }
-        }
-      }
-    } else {
-      console.warn("⚠️ No active session found.");
-    }
-  } catch (error) {
-    console.error("❌ Unexpected error saving score:", error);
-  }
-
-  // Redirect to results page (happens AFTER save completes)
-  console.log('🔀 Redirecting to results...');
+  // Redirect immediately — results page reads localStorage and URL params
   const params = new URLSearchParams({
     category: categoryParam,
     score: totalScore,
     maxScore: maxScore
   });
-  
+  if (isDailyChallenge) params.set('daily', '1');
+
+  console.log('🔀 Redirecting to results...');
   window.location.href = `classicresults.html?${params.toString()}`;
 }
+
 
 export function setupRankButtons() {
   console.log("✅ Rank buttons initialized");

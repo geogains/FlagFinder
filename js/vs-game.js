@@ -2,6 +2,7 @@
 import soundManager from './sound-manager.js';
 import { categoriesConfig, CATEGORY_ID_MAP } from './categories-config.js';
 import { supabase } from './supabase-client.js';
+import { formatValue as sharedFormatValue } from './format-metric.js';
 
 // Initialize sound manager
 const SOUND_MAP = {
@@ -412,179 +413,18 @@ setTimeout(() => {
 }, 1500);
 }
 
-// Format value with proper units and commas
+// Format value — location names rendered as HTML (VS-specific)
 function formatValue(value, unit, country = null) {
-  // Debug logging for all calls
-  console.log('VS formatValue called:', { value, unit, country: country?.name });
-  
-  let formatted;
-  
-  // Special handling for tallest building - show building name underneath
-  // Check BEFORE normalization since we need exact case
   if (unit === 'm' && country && country.tallestBuildingName) {
-    formatted = `${value.toLocaleString()} m<br><span style="font-size: 0.85em; opacity: 0.8;">${country.tallestBuildingName}</span>`;
-    return formatted;
+    return `${value.toLocaleString()} m<br><span style="font-size: 0.85em; opacity: 0.8;">${country.tallestBuildingName}</span>`;
   }
-  
-  // Special handling for altitude - show mountain name underneath  
   if (unit === 'm' && country && country.highestPointName) {
-    formatted = `${value.toLocaleString()} m<br><span style="font-size: 0.85em; opacity: 0.8;">${country.highestPointName}</span>`;
-    return formatted;
+    return `${value.toLocaleString()} m<br><span style="font-size: 0.85em; opacity: 0.8;">${country.highestPointName}</span>`;
   }
-  
-  // Special handling for longest rivers - show river name underneath
   if (unit === 'km' && country && country.riverName) {
-    formatted = `${value.toLocaleString()} km<br><span style="font-size: 0.85em; opacity: 0.8;">${country.riverName}</span>`;
-    return formatted;
+    return `${value.toLocaleString()} km<br><span style="font-size: 0.85em; opacity: 0.8;">${country.riverName}</span>`;
   }
-  
-  // Normalize unit to lowercase for comparison
-  const normalizedUnit = (unit || '').toLowerCase().trim();
-  
-  switch (normalizedUnit) {
-    case 'm': // Population (already in millions)
-      if (value >= 1000) {
-        // Billions (1B+)
-        formatted = (value / 1000).toFixed(1) + 'B';
-      } else if (value >= 1) {
-        // Millions (1M+)
-        formatted = value.toFixed(1) + 'M';
-      } else if (value >= 0.001) {
-        // Thousands (1K+) - value is in millions, so multiply by 1000 to get thousands
-        const thousands = (value * 1000).toFixed(1);
-        formatted = thousands + 'K';
-      } else {
-        // Less than 1000 people - show raw number
-        const raw = Math.round(value * 1000000);
-        formatted = raw.toLocaleString();
-      }
-      break;           
-    case 'usd':
-      formatted = '$' + value.toLocaleString('en-US');
-      break;
-    case 'km²':
-      // Format large landmass values with K/M notation
-      if (value >= 1000000) {
-        formatted = (value / 1000000).toFixed(1) + 'M km²';
-      } else if (value >= 1000) {
-        formatted = (value / 1000).toFixed(0) + 'K km²';
-      } else {
-        formatted = value.toLocaleString('en-US') + ' km²';
-      }
-      break;
-    case 'm': // altitude in meters (when no mountain name)
-    case 'km': // coastline
-    case 'mm': // rainfall
-      formatted = value.toLocaleString('en-US') + ' ' + unit;
-      break;
-    case 'hectares':
-    case 'hectare':  // Also match singular form
-      if (value >= 1000000) {
-        formatted = (value / 1000000).toFixed(1) + 'M Hectares';
-      } else if (value >= 1000) {
-        formatted = (value / 1000).toFixed(1) + 'K Hectares';
-      } else {
-        formatted = value.toLocaleString('en-US') + ' Hectares';
-      }
-      break;
-    case '%':
-      formatted = value.toLocaleString('en-US', { maximumFractionDigits: 1 }) + '%';
-      break;
-    case 'medals': // Olympic medals - show only raw number
-      formatted = value.toLocaleString('en-US');
-      break;
-    case 'trophies': // world cup - show raw number only
-      formatted = value.toLocaleString('en-US');
-      break;
-    case 'countries': // passport
-      formatted = value.toLocaleString('en-US') + ' ' + unit;
-      break;
-    case 'prizes': // nobel prizes - show raw number only
-      formatted = value.toLocaleString('en-US');
-      break;
-    case 'l':
-      formatted = value.toLocaleString('en-US', { maximumFractionDigits: 1 }) + ' L';
-      break;
-    case '°c':
-      formatted = value.toLocaleString('en-US', { maximumFractionDigits: 1 }) + '°C';
-      break;
-    case '/100k':
-      formatted = value.toLocaleString('en-US', { maximumFractionDigits: 2 });
-      break;
-    case '/10':
-      formatted = value.toLocaleString('en-US', { maximumFractionDigits: 1 }) + '/10';
-      break;
-    case 'score':
-      formatted = value.toLocaleString('en-US') + ' pts';
-      break;
-    case 'm tourists':
-      formatted = value.toLocaleString('en-US', { maximumFractionDigits: 1 }) + 'M';
-      break;
-    case 'restaurants':
-      formatted = value.toLocaleString('en-US');
-      break;
-    case 'years':
-      // Marriage age: no decimal (32 Years)
-      // Life expectancy: 1 decimal (84.8 Years)
-      if (categoryKey === 'marriageage') {
-        formatted = Math.round(value) + ' Years';
-      } else {
-        formatted = value.toFixed(1) + ' Years';
-      }
-      break;
-    // NEW CATEGORIES
-    case 'ratio': // sex ratio
-      formatted = value.toLocaleString('en-US');
-      break;
-    case 'per km²': // density
-      formatted = value.toLocaleString('en-US') + ' per km²';
-      break;
-    case '$b': // car exports
-      formatted = '$' + value.toLocaleString('en-US', { maximumFractionDigits: 1 }) + 'B';
-      break;
-    case '': // military personnel (no unit, just number)
-      formatted = value.toLocaleString('en-US');
-      break;
-    case '$': // rent, poorest GDP
-      formatted = '$' + value.toLocaleString('en-US');
-      break;
-    case 'universities': // universities - show raw number only
-      formatted = value.toLocaleString('en-US');
-      break;
-    case 'volcanoes': // volcanoes - show raw number only
-      formatted = value.toLocaleString('en-US');
-      break;
-    case 'flamingos': // flamingos - use M/K notation
-      if (value >= 1000000) {
-        const millions = (value / 1000000).toFixed(1);
-        formatted = millions.endsWith('.0') ? `${millions.slice(0, -2)}M` : `${millions}M`;
-      } else if (value >= 1000) {
-        const thousands = (value / 1000).toFixed(1);
-        formatted = thousands.endsWith('.0') ? `${thousands.slice(0, -2)}K` : `${thousands}K`;
-      } else {
-        formatted = value.toLocaleString('en-US');
-      }
-      break;
-    case 'risk index': // disaster risk
-      formatted = value.toFixed(2);
-      break;
-    case 'millionaires': // millionaires
-      if (value >= 1000000) {
-        formatted = `${(value / 1000000).toFixed(1)}M`;
-      } else if (value >= 1000) {
-        formatted = `${(value / 1000).toFixed(1)}K`;
-      } else {
-        formatted = value.toLocaleString('en-US');
-      }
-      break;
-    case 'grandmasters': // chess grandmasters - show only number in VS mode
-      formatted = value.toLocaleString('en-US');
-      break;
-    default:
-      formatted = value.toLocaleString('en-US');
-  }
-  
-  return formatted;
+  return sharedFormatValue(value, unit, { categoryKey });
 }
 
 // End game and show results
@@ -610,9 +450,6 @@ async function endGame() {
   const accuracy = totalGuesses > 0 ? Math.round((gameState.correct / totalGuesses) * 100) : 0;
   const timePlayed = 120 - gameState.timeRemaining;
   
-  // Save to database
-  await saveScore();
-  
   // Prepare results data for results page
   const resultsData = {
     score: gameState.score,
@@ -627,8 +464,20 @@ async function endGame() {
   
   // Save to localStorage as backup
   localStorage.setItem('vsResults', JSON.stringify(resultsData));
-  
-  // Redirect to results page with URL parameters
+
+  // Write pending-save record — results page will execute the actual DB save
+  localStorage.setItem('vsPendingSave', JSON.stringify({
+    categoryKey,
+    categoryId,
+    score: gameState.score,
+    correct: gameState.correct,
+    incorrect: gameState.incorrect,
+    accuracy,
+    timePlayed,
+    isDailyChallenge
+  }));
+
+  // Redirect immediately
   const params = new URLSearchParams({
     category: categoryKey,
     score: gameState.score,
@@ -638,85 +487,11 @@ async function endGame() {
     time: timePlayed,
     lives: gameState.lives
   });
-  
+  if (isDailyChallenge) params.set('daily', '1');
+
   window.location.href = `vsresults.html?${params.toString()}`;
 }
 
-// Save score to database
-async function saveScore() {
-  try {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session) {
-      console.log('Not logged in - score not saved');
-      return;
-    }
-    
-    const totalGuesses = gameState.correct + gameState.incorrect;
-    const accuracy = totalGuesses > 0 ? Math.round((gameState.correct / totalGuesses) * 100) : 0;
-    
-    // Save to vs_scores table
-    const { data, error } = await supabase
-      .from('vs_scores')
-      .insert({
-        user_id: session.user.id,
-        category_id: categoryId,
-        score: gameState.score,
-        correct_count: gameState.correct,
-        incorrect_count: gameState.incorrect,
-        accuracy: accuracy,
-        time_played: 120 - gameState.timeRemaining
-      })
-      .select()
-      .single();
-    
-    if (error) {
-      console.error('Error saving score:', error);
-    } else {
-      console.log('Score saved successfully:', data);
-    }
-    
-    // If daily challenge, also save to daily_challenge_scores
-    if (isDailyChallenge) {
-      await saveDailyChallengeScore();
-    }
-  } catch (err) {
-    console.error('Exception saving score:', err);
-  }
-}
-
-// Save daily challenge score
-async function saveDailyChallengeScore() {
-  try {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session) {
-      console.log('Not logged in - daily challenge score not saved');
-      return;
-    }
-    
-    const today = new Date().toISOString().split('T')[0];
-    
-    const { data, error } = await supabase
-      .from('daily_challenge_scores')
-      .upsert({
-        user_id: session.user.id,
-        category_id: categoryId,
-        played_date: today,
-        score: gameState.score,
-        completed: true
-      })
-      .select();
-    
-    if (error) {
-      console.error('Error saving daily challenge score:', error);
-    } else {
-      console.log('✅ Daily challenge score saved:', data);
-    }
-  } catch (err) {
-    console.error('Exception saving daily challenge score:', err);
-  }
-}
 
 // Share results function
 window.shareResults = function() {

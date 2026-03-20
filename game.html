@@ -173,87 +173,6 @@
   </div>
 </footer>
 
-<script type="module">
-  import { populationData } from './js/categories/population.js';
-  import { gdpData } from './js/categories/gdp.js';
-  import { happinessData } from './js/categories/happiness.js';
-  import { forestData } from './js/categories/forest.js';
-  import { coastlineData } from './js/categories/coastline.js';
-  import { cuisineData } from './js/categories/cuisine.js';
-  import { olympicData } from './js/categories/olympic.js';
-  import { worldcupData } from './js/categories/worldcup.js';
-  import { landmassData } from './js/categories/landmass.js';
-  import { crimerateData } from './js/categories/crimerate.js';
-  import { altitudeData } from './js/categories/altitude.js';
-  import { passportData } from './js/categories/passport.js';
-  import { beerData } from './js/categories/beer.js';
-  import { nobelprizeData } from './js/categories/nobelprize.js';
-  import { temperatureData } from './js/categories/temperature.js';
-  import { precipitationData } from './js/categories/rainfall.js';
-  import { tourismData } from './js/categories/tourism.js';
-  import { michelinData } from './js/categories/michelin.js';
-  import { bigmacData } from './js/categories/bigmac.js';
-  import { lifeexpectancyData } from './js/categories/lifeexpectancy.js';
-  // NEW CATEGORIES
-  import { marriageageData } from './js/categories/marriageage.js';
-  import { sexratioData } from './js/categories/sexratio.js';
-  import { tallestbuildingData } from './js/categories/tallestbuilding.js';
-  import { densityData } from './js/categories/density.js';
-  import { carexportsData } from './js/categories/carexports.js';
-  import { militaryPersonnelData } from './js/categories/militarypersonel.js';
-  import { rentData } from './js/categories/rent.js';
-  import { poorestgdpData } from './js/categories/poorestgdp.js';
-  import { universityData } from './js/categories/university.js';
-  import { volcanoData } from './js/categories/volcano.js';
-  import { flamingoData } from './js/categories/flamingo.js';
-  import { disasterRiskData } from './js/categories/disasterrisk.js';
-  import { longestriverData } from './js/categories/longestriver.js';
-  import { renewableShareData } from './js/categories/renewableenergy.js';
-  import { millionaireData } from './js/categories/millionaires.js';
-  import { chessGMData } from './js/categories/gm.js';
-
-  window.datasets = {
-    population: { title: 'RANK THESE COUNTRIES FROM LARGEST TO SMALLEST POPULATION 👥', data: populationData },
-    gdp: { title: 'RANK THESE COUNTRIES BY GDP PER PERSON 💰', data: gdpData },
-    happiness: { title: 'RANK THESE COUNTRIES BY NATIONAL HAPPINESS SCORES 😊', data: happinessData },
-    forest: { title: 'RANK THESE COUNTRIES BY TOTAL AREA COVERED BY FORESTS 🌲', data: forestData },
-    coastline: { title: 'RANK THESE COUNTRIES BY TOTAL COASTLINE LENGTH 🏝️', data: coastlineData },
-    cuisine: { title: 'RANK THESE COUNTRIES BY CUISINE POPULARITY AND QUALITY 🍽️', data: cuisineData },
-    olympic: { title: 'RANK THESE COUNTRIES BY TOTAL OLYMPIC MEDALS WON 🥇', data: olympicData },
-    worldcup: { title: 'RANK THESE COUNTRIES BY NUMBER OF FIFA WORLD CUP TITLES ⚽', data: worldcupData },
-    landmass: { title: 'RANK THESE COUNTRIES FROM LARGEST TO SMALLEST TOTAL LAND AREA 🌍', data: landmassData },
-    crimerate: { title: 'RANK THESE COUNTRIES BY HIGHEST CRIME RATE SCORE 🚨', data: crimerateData },
-    altitude: { title: 'RANK THESE COUNTRIES BY HIGHEST MOUNTAIN ELEVATION 🏔️', data: altitudeData },
-    passport: { title: 'RANK THESE COUNTRIES BY STRONGEST PASSPORT 🛂', data: passportData },
-    beer: { title: 'RANK THESE COUNTRIES BY ANUAL BEER CONSUMPTION PER PERSON 🍺', data: beerData },
-    nobelprize: { title: 'RANK THESE COUNTRIES BY MOST NOBEL PRIZE WINNERS 🕊️', data: nobelprizeData },
-    temperature: { title: 'RANK THESE COUNTRIES BY HIGHEST AVERAGE TEMPERATURE ☀️', data: temperatureData },
-    hightemp: { title: 'RANK THESE COUNTRIES BY HIGHEST AVERAGE TEMPERATURE ☀️', data: temperatureData },
-    precipitation: { title: 'RANK THESE COUNTRIES BY HIGHEST AVERAGE PERCIPITATION 🌧️', data: precipitationData },
-    rainfall: { title: 'RANK THESE COUNTRIES BY HIGHEST AVERAGE PERCIPITATION 🌧️', data: precipitationData },
-    tourism: { title: 'RANK THESE COUNTRIES BY NUMBER OF TOURIST VISITS IN 2025 ✈️', data: tourismData },
-    michelin: { title: 'RANK THESE COUNTRIES BY MICHELIN STARRED RESTAURANTS ⭐', data: michelinData },
-    bigmac: { title: 'RANK THESE COUNTRIES BY HIGHEST BIG MAC PRICE 🍔', data: bigmacData },
-    lifeexpectancy: { title: 'RANK THESE COUNTRIES BY HIGHEST LIFE EXPECTANCY 🤍', data: lifeexpectancyData },
-    // NEW CATEGORIES
-    marriageage: { title: 'RANK THESE COUNTRIES BY HIGEST AVERAGE MARRIAGE AGE 💍', data: marriageageData },
-    sexratio: { title: 'RANK THESE COUNTRIES BY MOST MEN PER 100 WOMEN ⚖️', data: sexratioData },
-    tallestbuilding: { title: 'RANK THESE COUNTRIES BY TALLEST BUILDINGS 🏙️', data: tallestbuildingData },
-    density: { title: 'RANK THESE COUNTRIES BY BIGGEST POPULATION DENSITY 👨‍👩‍👧‍👦', data: densityData },
-    carexports: { title: 'RANK THESE COUNTRIES BY HIGHEST CAR EXPORTS 🚗', data: carexportsData },
-    militarypersonel: { title: 'RANK THESE COUNTRIES BY MOST MILITARY PERSONNEL 🪖', data: militaryPersonnelData },
-    rent: { title: 'RANK THESE COUNTRIES BY HIGHEST AVERAGE 1-BED, CAPITAL CITY RENT PRICE  🏠', data: rentData },
-    poorestgdp: { title: 'RANK THESE COUNTRIES BY LOWEST GDP PER CAPITA 📉', data: poorestgdpData },
-    university: { title: 'RANK THESE COUNTRIES BY HIGHEST NUMBER OF UNIVERSITIES 🎓', data: universityData },
-    volcano: { title: 'RANK THESE COUNTRIES BY HIGHEST NUMBER OF HOLOCENE VOLCANOES 🌋', data: volcanoData },
-    flamingo: { title: 'RANK THESE COUNTRIES BY HIGHEST FLAMINGO POPULATION 🦩', data: flamingoData },
-    disasterrisk: { title: 'RANK THESE COUNTRIES BY HIGHEST NATURAL DISASTER RISK 🌪️', data: disasterRiskData },
-    longestriver: { title: 'RANK THESE COUNTRIES BY LONGEST RIVER 🌊', data: longestriverData },
-    renewableenergy: { title: 'RANK THESE COUNTRIES BY HIGHEST % ENERGY USE FROM RENEWABLE SOURCES ♻️', data: renewableShareData },
-    millionaires: { title: 'RANK THESE COUNTRIES BY HIGHEST NUMBER OF MILLIONAIRES 💰', data: millionaireData },
-    gm: { title: 'RANK THESE COUNTRIES BY HIGHEST NUMBER OF CHESS GRANDMASTERS ♟️', data: chessGMData },
-  };
-</script>
 
 <script type="module">
   import { supabase } from './js/supabase-client.js';
@@ -346,19 +265,60 @@
   // ========================================
 
   import { CATEGORY_ID_MAP } from './js/top10-categories-loader.js';
+  import { categoriesConfig } from './js/categories-config.js';
 
-  const selected = datasets[mode] || datasets.population;
+  const classicTitles = {
+    population:      'RANK THESE COUNTRIES FROM LARGEST TO SMALLEST POPULATION 👥',
+    gdp:             'RANK THESE COUNTRIES BY GDP PER PERSON 💰',
+    happiness:       'RANK THESE COUNTRIES BY NATIONAL HAPPINESS SCORES 😊',
+    forest:          'RANK THESE COUNTRIES BY TOTAL AREA COVERED BY FORESTS 🌲',
+    coastline:       'RANK THESE COUNTRIES BY TOTAL COASTLINE LENGTH 🏝️',
+    cuisine:         'RANK THESE COUNTRIES BY CUISINE POPULARITY AND QUALITY 🍽️',
+    olympic:         'RANK THESE COUNTRIES BY TOTAL OLYMPIC MEDALS WON 🥇',
+    worldcup:        'RANK THESE COUNTRIES BY NUMBER OF FIFA WORLD CUP TITLES ⚽',
+    landmass:        'RANK THESE COUNTRIES FROM LARGEST TO SMALLEST TOTAL LAND AREA 🌍',
+    crimerate:       'RANK THESE COUNTRIES BY HIGHEST CRIME RATE SCORE 🚨',
+    altitude:        'RANK THESE COUNTRIES BY HIGHEST MOUNTAIN ELEVATION 🏔️',
+    passport:        'RANK THESE COUNTRIES BY STRONGEST PASSPORT 🛂',
+    beer:            'RANK THESE COUNTRIES BY ANUAL BEER CONSUMPTION PER PERSON 🍺',
+    nobelprize:      'RANK THESE COUNTRIES BY MOST NOBEL PRIZE WINNERS 🕊️',
+    temperature:     'RANK THESE COUNTRIES BY HIGHEST AVERAGE TEMPERATURE ☀️',
+    hightemp:        'RANK THESE COUNTRIES BY HIGHEST AVERAGE TEMPERATURE ☀️',
+    precipitation:   'RANK THESE COUNTRIES BY HIGHEST AVERAGE PERCIPITATION 🌧️',
+    rainfall:        'RANK THESE COUNTRIES BY HIGHEST AVERAGE PERCIPITATION 🌧️',
+    tourism:         'RANK THESE COUNTRIES BY NUMBER OF TOURIST VISITS IN 2025 ✈️',
+    michelin:        'RANK THESE COUNTRIES BY MICHELIN STARRED RESTAURANTS ⭐',
+    bigmac:          'RANK THESE COUNTRIES BY HIGHEST BIG MAC PRICE 🍔',
+    lifeexpectancy:  'RANK THESE COUNTRIES BY HIGHEST LIFE EXPECTANCY 🤍',
+    marriageage:     'RANK THESE COUNTRIES BY HIGEST AVERAGE MARRIAGE AGE 💍',
+    sexratio:        'RANK THESE COUNTRIES BY MOST MEN PER 100 WOMEN ⚖️',
+    tallestbuilding: 'RANK THESE COUNTRIES BY TALLEST BUILDINGS 🏙️',
+    density:         'RANK THESE COUNTRIES BY BIGGEST POPULATION DENSITY 👨‍👩‍👧‍👦',
+    carexports:      'RANK THESE COUNTRIES BY HIGHEST CAR EXPORTS 🚗',
+    militarypersonel:'RANK THESE COUNTRIES BY MOST MILITARY PERSONNEL 🪖',
+    rent:            'RANK THESE COUNTRIES BY HIGHEST AVERAGE 1-BED, CAPITAL CITY RENT PRICE  🏠',
+    poorestgdp:      'RANK THESE COUNTRIES BY LOWEST GDP PER CAPITA 📉',
+    university:      'RANK THESE COUNTRIES BY HIGHEST NUMBER OF UNIVERSITIES 🎓',
+    volcano:         'RANK THESE COUNTRIES BY HIGHEST NUMBER OF HOLOCENE VOLCANOES 🌋',
+    flamingo:        'RANK THESE COUNTRIES BY HIGHEST FLAMINGO POPULATION 🦩',
+    disasterrisk:    'RANK THESE COUNTRIES BY HIGHEST NATURAL DISASTER RISK 🌪️',
+    longestriver:    'RANK THESE COUNTRIES BY LONGEST RIVER 🌊',
+    renewableenergy: 'RANK THESE COUNTRIES BY HIGHEST % ENERGY USE FROM RENEWABLE SOURCES ♻️',
+    millionaires:    'RANK THESE COUNTRIES BY HIGHEST NUMBER OF MILLIONAIRES 💰',
+    gm:              'RANK THESE COUNTRIES BY HIGHEST NUMBER OF CHESS GRANDMASTERS ♟️',
+  };
 
-  window.countries = selected.data;
-  document.querySelector('.top-card-title').textContent = selected.title;
+  const config = categoriesConfig[mode] || categoriesConfig.population;
+  const categoryModule = await import(`./js/categories/${config.dataFile}.js`);
+  window.countries = categoryModule[config.dataKey];
+  document.querySelector('.top-card-title').textContent = classicTitles[mode] || classicTitles.population;
 
   const { startBlindRankingGame, setupRankButtons } = await import('./js/blind-ranking.js');
 
-  startBlindRankingGame(CATEGORY_ID_MAP[mode] || 0); // pass category ID into game logic
+  startBlindRankingGame(CATEGORY_ID_MAP[mode] || 0);
   setupRankButtons();
 
   window.scrollTo(0, 0);
-  window.datasets = datasets;
 </script>
 
 <script>

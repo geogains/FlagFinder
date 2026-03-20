@@ -347,6 +347,25 @@ body {
   100% { transform: scale(1); }
 }
 
+/* --- Placement feedback backgrounds --- */
+.rank-slot.slot-correct {
+  background: #20bb59 !important;
+  animation: stompIn 0.35s ease;
+}
+.rank-slot.slot-close {
+  background: #fcb02b !important;
+  animation: stompIn 0.35s ease;
+}
+.rank-slot.slot-wrong {
+  background: #dc2626 !important;
+  animation: stompIn 0.35s ease;
+}
+.rank-slot.slot-correct .country-name,
+.rank-slot.slot-close .country-name,
+.rank-slot.slot-wrong .country-name {
+  color: #fff;
+}
+
 /* -------------------------------
    End Game Styles
 ---------------------------------- */
