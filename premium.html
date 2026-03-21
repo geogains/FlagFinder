@@ -223,12 +223,38 @@
       margin: 0;
     }
 
+    /* Top CTA Button (above price) */
+    .cta-btn-top {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 24px rgba(255, 151, 112, 0.4);
+      margin-bottom: 28px;
+    }
+
+    .cta-btn-top:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 32px rgba(255, 151, 112, 0.5);
+    }
+
+    .cta-btn-top:active {
+      transform: translateY(-1px);
+    }
+
     /* CTA Button */
     .cta-btn {
       width: 100%;
       padding: 18px;
-      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
-      color: white;
+      background: #e5e7eb;
+      color: #374151;
       border: none;
       border-radius: 16px;
       font-size: 1.2rem;
@@ -236,12 +262,12 @@
       cursor: pointer;
       font-family: 'Poppins', sans-serif;
       transition: all 0.3s ease;
-      box-shadow: 0 6px 24px rgba(255, 151, 112, 0.4);
+      box-shadow: none;
     }
 
     .cta-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 32px rgba(255, 151, 112, 0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
     }
 
     .cta-btn:active {
@@ -448,6 +474,9 @@
           <div class="price-current">$2.99</div>
           <div class="price-period">per month</div>
         </div>
+        <button class="cta-btn-top" onclick="startCheckout('monthly')">
+          Unlock All Categories
+        </button>
 
         <ul class="benefits-list">
           <li class="benefit-item-card">
@@ -514,6 +543,9 @@
           <div class="price-period">per year</div>
           <div class="savings-badge">MOST POPULAR - $0.50/ week</div>
         </div>
+        <button class="cta-btn-top" onclick="startCheckout('yearly')">
+          Unlock All Categories
+        </button>
 
         <ul class="benefits-list">
           <li class="benefit-item-card">
