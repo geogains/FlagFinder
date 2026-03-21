@@ -152,18 +152,24 @@ body.menu-open {
 
 /* Upgrade Button */
 .upgrade-access-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
+  color: #ffffff;
   border: none;
-  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   margin-top: 8px;
   flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .upgrade-access-btn:hover {
-  background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
-  transform: translateX(4px) translateY(-2px);
-  box-shadow: 0 6px 28px rgba(102, 126, 234, 0.5);
+  transform: translateX(4px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+
+.upgrade-access-btn:active {
+  transform: translateX(4px) scale(0.98);
+  box-shadow: none;
 }
 
 /* Close Button - NO SPACER NEEDED */
