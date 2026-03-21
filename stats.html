@@ -642,9 +642,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Account/Premium Button Removal -->
 <script type="module">
-  import { supabase } from './js/supabase-client.js';
+  import { supabase, getSessionSafe } from './js/supabase-client.js';
   (async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await getSessionSafe(5000);
     if (session?.user) {
       const { data: profile } = await supabase.from('users').select('is_premium').eq('id', session.user.id).single();
       if (profile?.is_premium) document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
@@ -672,7 +672,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Stats Functionality -->
 <script type="module">
-  import { supabase } from './js/supabase-client.js';
+  import { supabase, getSessionSafe } from './js/supabase-client.js';
   import { categoriesConfig, CATEGORY_ID_MAP } from './js/categories-config.js';
 
   // Build ID → category key map (first key wins; aliases like hightemp/precipitation are skipped)
@@ -681,7 +681,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!(id in categoryByID)) categoryByID[id] = key;
   }
 
-  const { data: { session } } = await supabase.auth.getSession();
+  // Stored at module scope so loadUserInfo/loadStats can use it without re-calling getSession
+  let sessionUser = null;
+
+  const { data: { session } } = await getSessionSafe(5000);
+  sessionUser = session?.user || null;
   const modal          = document.getElementById("premiumModal");
   const statsContainer = document.getElementById("statsContainer");
   let currentMode      = 'classic';
@@ -726,13 +730,16 @@ document.addEventListener('DOMContentLoaded', function() {
   if (!session || !session.user) {
     modal.classList.remove("hidden");
   } else {
-    const { data: profile } = await supabase
-      .from("users")
-      .select("is_premium")
-      .eq("id", session.user.id)
-      .single();
+    const profileTimeout = new Promise(resolve =>
+      setTimeout(() => resolve({ data: null }), 5000)
+    );
+    const { data: profile } = await Promise.race([
+      supabase.from("users").select("is_premium").eq("id", session.user.id).single(),
+      profileTimeout
+    ]);
 
     if (!profile?.is_premium) {
+      // Timeout or non-premium — show the upgrade modal rather than leaving the page blank
       modal.classList.remove("hidden");
     } else {
       statsContainer.style.display = "block";
@@ -754,13 +761,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // ── User info ─────────────────────────────────────────────────────────────
   async function loadUserInfo() {
-    const { data: { session } } = await supabase.auth.getSession();
-    const user = session.user;
-    const { data: profile } = await supabase
-      .from('users')
-      .select('username, avatar_url, is_premium')
-      .eq('id', user.id)
-      .single();
+    const user = sessionUser;
+    const profileTimeout = new Promise(resolve =>
+      setTimeout(() => resolve({ data: null }), 5000)
+    );
+    const { data: profile } = await Promise.race([
+      supabase.from('users').select('username, avatar_url, is_premium').eq('id', user.id).single(),
+      profileTimeout
+    ]);
 
     document.getElementById('userUsername').textContent = profile?.username || user.email.split('@')[0];
     document.getElementById('userAvatar').src           = profile?.avatar_url || 'assets/default-avatar.png';
@@ -776,8 +784,7 @@ document.addEventListener('DOMContentLoaded', function() {
     isLoading    = true;
     currentMode_ = mode;
 
-    const { data: { session } } = await supabase.auth.getSession();
-    const user               = session.user;
+    const user               = sessionUser;
     const categoryStatsBody  = document.getElementById('categoryStatsBody');
     const progressHeader     = document.getElementById('progressHeader');
 

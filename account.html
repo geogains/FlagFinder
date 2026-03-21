@@ -493,10 +493,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Account Functionality -->
 <script type="module">
-  import { supabase } from './js/supabase-client.js';
+  import { supabase, getSessionSafe } from './js/supabase-client.js';
 
   (async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await getSessionSafe(5000);
 
     if (!session || !session.user) {
       window.location.href = 'auth.html';
@@ -524,11 +524,13 @@ document.addEventListener('DOMContentLoaded', function() {
       day: 'numeric' 
     });
 
-    const { data: profile } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', currentUser.id)
-      .single();
+    const profileTimeout = new Promise(resolve =>
+      setTimeout(() => resolve({ data: null }), 5000)
+    );
+    const { data: profile } = await Promise.race([
+      supabase.from('users').select('*').eq('id', currentUser.id).single(),
+      profileTimeout
+    ]);
 
     if (profile) {
       usernameSpan.textContent = profile.username || 'Not set';
@@ -714,6 +716,9 @@ document.addEventListener('DOMContentLoaded', function() {
           deleteAvatarBtn.disabled = false;
         }
       });
+    } else {
+      // Profile query timed out or failed — show safe fallback so page is usable
+      usernameSpan.textContent = '—';
     }
 
     changeUsernameBtn?.addEventListener('click', async () => {

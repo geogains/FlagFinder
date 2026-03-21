@@ -20,3 +20,12 @@ export async function requireAuth() {
   }
   return session;
 }
+
+// Races getSession() against a timeout so pages never hang forever.
+// On timeout, resolves with { data: { session: null } } — callers treat it as unauthenticated.
+export function getSessionSafe(timeoutMs = 5000) {
+  const timeout = new Promise(resolve =>
+    setTimeout(() => resolve({ data: { session: null } }), timeoutMs)
+  );
+  return Promise.race([supabase.auth.getSession(), timeout]);
+}
