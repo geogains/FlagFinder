@@ -129,8 +129,8 @@ const top10Config = {
     rankField: "nobelPrizeRank"
   },
   hightemp: {
-    title: "Hottest Countries",
-    emoji: "🌡️",
+    title: "Highest Temp",
+    emoji: "☀️",
     unit: "°C",
     dataFile: "temperature",
     dataKey: "temperatureData",
@@ -138,7 +138,7 @@ const top10Config = {
     rankField: "temperatureRank"
   },
   rainfall: {
-    title: "Annual Rainfall",
+    title: "Rainfall",
     emoji: "🌧️",
     unit: "mm/year",
     dataFile: "rainfall",
@@ -147,7 +147,7 @@ const top10Config = {
     rankField: "precipitationRank",
 },
  precipitation: { 
-    title: "Annual Rainfall",
+    title: "Rainfall",
     emoji: "🌧️",
     unit: "mm/year",
     dataFile: "rainfall",
@@ -156,8 +156,8 @@ const top10Config = {
     rankField: "precipitationRank"
   },
   temperature: {
-    title: "Hottest Countries",
-    emoji: "🌡️",
+    title: "Highest Temp",
+    emoji: "☀️",
     unit: "°C",
     dataFile: "temperature",
     dataKey: "temperatureData",
@@ -220,7 +220,7 @@ const top10Config = {
   rankField: "touristRank"
 },
 michelin: {
-  title: "Most Michelin Restaurants",
+  title: "Michelin Stars",
   emoji: "⭐",
   unit: "Restaurants",
   dataFile: "michelin",
@@ -383,7 +383,7 @@ millionaires: {
   rankField: "millionaireRank"
 },
 gm: {
-  title: "Chess Grandmasters",
+  title: "Grandmasters",
   emoji: "♟️",
   unit: "grandmasters",
   dataFile: "gm",

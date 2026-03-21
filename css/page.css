@@ -287,17 +287,17 @@ body.menu-open {
    SPECIAL BUTTONS - CORAL UPGRADE & CLOSE
 ======================================== */
 .upgrade-access-btn {
-  background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
+  background: linear-gradient(135deg, #0d315a 0%, #1e5fa8 100%);
   color: white;
   border: none;
-  box-shadow: 0 4px 20px rgba(255, 151, 112, 0.4);
+  box-shadow: 0 4px 20px rgba(112, 164, 255, 0.4);
   margin-top: 8px;
 }
 
 .upgrade-access-btn:hover {
-  background: linear-gradient(135deg, #ff8560 0%, #ff5f51 100%);
+  background: linear-gradient(135deg, #081f3a 0%, #103d71 100%);
   transform: translateX(4px) translateY(-2px);
-  box-shadow: 0 6px 28px rgba(255, 151, 112, 0.5);
+  box-shadow: 0 6px 28px rgba(112, 117, 255, 0.5);
 }
 
 .menu-close {

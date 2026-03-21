@@ -187,13 +187,13 @@ export const categoryDisplayNames = {
   passport: 'Passport Power',
   beer: 'Beer Consumption',
   nobelprize: 'Nobel Prizes',
-  hightemp: 'Highest Temperature',
-  rainfall: 'Annual Rainfall',
+  hightemp: 'Highest Temp',
+  rainfall: 'Rainfall',
   crimerate: 'Crime Rate',
   happiness: 'Happiness Index',
   cuisine: 'Cuisine Popularity',
   tourism: 'Tourist Visits',
-  michelin: 'Michelin Restaurants',
+  michelin: 'Michelin Stars',
   bigmac: 'BigMac Index',
   lifeexpectancy: 'Life Expectancy',
   // NEW CATEGORIES
@@ -212,7 +212,7 @@ export const categoryDisplayNames = {
   longestriver: 'Longest River',
   renewableenergy: 'Renewable Energy',
   millionaires: 'Millionaires',
-  gm: 'Chess Grandmasters',
+  gm: 'Grandmasters',
 };
 
 // Get emoji for each category
@@ -228,7 +228,7 @@ export const categoryEmojis = {
   passport: '🛂',
   beer: '🍺',
   nobelprize: '🕊️',
-  hightemp: '🌡️',
+  hightemp: '☀️',
   rainfall: '🌧️',
   crimerate: '🚨',
   happiness: '😊',

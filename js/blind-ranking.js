@@ -363,8 +363,10 @@ function flashSlotFeedback(slot, diff) {
 
 
 function formatMetric(num) {
-  const unit = categoriesConfig[currentCategory]?.unit ?? '';
-  return sharedFormatValue(num, unit, { categoryKey: currentCategory });
+  const config = categoriesConfig[currentCategory];
+  const unit = config?.unit ?? '';
+  const value = config?.convertToMillions ? num / 1_000_000 : num;
+  return sharedFormatValue(value, unit, { categoryKey: currentCategory });
 }
 
 async function endGame() {
@@ -421,14 +423,14 @@ async function endGame() {
     passport: 'Passport Power',
     beer: 'Beer Consumption',
     nobelprize: 'Nobel Prizes',
-    hightemp: 'Hottest Countries',
-    rainfall: 'Annual Rainfall',
+    hightemp: 'Highest Temp',
+    rainfall: 'Rainfall',
     crimerate: 'Crime Rate',
     olympic: 'Olympic Medals',
     cuisine: 'Cuisine Quality',
     worldcup: 'World Cup Wins',
     tourism: 'Most Visited Countries',
-    michelin: 'Michelin Restaurants',
+    michelin: 'Michelin Stars',
     bigmac: 'Most Expensive Big Mac',
     lifeexpectancy: 'Life Expectancy',
     // New categories added
@@ -437,7 +439,7 @@ async function endGame() {
     millionaires: 'Millionaires',
     density: 'Population Density',
     university: 'Universities',
-    gm: 'Chess Grandmasters',
+    gm: 'Grandmasters',
     marriageage: 'Marriage Age',
     sexratio: 'Gender Ratio',
     carexports: 'Car Exports',

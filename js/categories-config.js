@@ -3,7 +3,7 @@
 
 export const categoriesConfig = {
   landmass: {
-    title: "Largest Landmass",
+    title: "Landmass",
     emoji: "🗺️",
     unit: "km²",
     dataFile: "landmass",
@@ -198,7 +198,7 @@ export const categoriesConfig = {
   },
 
   gm: {
-    title: "Chess Grandmasters",
+    title: "Grandmasters",
     emoji: "♟️",
     unit: "grandmasters",
     dataFile: "gm",
@@ -258,7 +258,7 @@ export const categoriesConfig = {
   },
 
   michelin: {
-    title: "Michelin Restaurants",
+    title: "Michelin Stars",
     emoji: "⭐",
     unit: "Restaurants",
     dataFile: "michelin",
@@ -318,7 +318,7 @@ export const categoriesConfig = {
   },
 
   precipitation: {
-    title: "Annual Rainfall",
+    title: "Rainfall",
     emoji: "🌧️",
     unit: "mm",
     dataFile: "rainfall",
@@ -331,7 +331,7 @@ export const categoriesConfig = {
 
   // ALIAS for precipitation (legacy key used in URLs and daily challenge)
   rainfall: {
-    title: "Annual Rainfall",
+    title: "Rainfall",
     emoji: "🌧️",
     unit: "mm",
     dataFile: "rainfall",
@@ -391,8 +391,8 @@ export const categoriesConfig = {
   },
 
   temperature: {
-    title: "Average Temperature",
-    emoji: "🌡️",
+    title: "Highest Temp",
+    emoji: "☀️",
     unit: "°C",
     dataFile: "temperature",
     dataKey: "temperatureData",
@@ -404,8 +404,8 @@ export const categoriesConfig = {
 
   // ALIAS for temperature (legacy key used in URLs and daily challenge)
   hightemp: {
-    title: "Average Temperature",
-    emoji: "🌡️",
+    title: "Highest Temp",
+    emoji: "☀️",
     unit: "°C",
     dataFile: "temperature",
     dataKey: "temperatureData",
