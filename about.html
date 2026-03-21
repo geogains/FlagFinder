@@ -68,13 +68,8 @@
       border-radius: 24px;
       overflow: hidden;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-      transform: translateZ(0);
-      transition: transform 0.5s ease, box-shadow 0.5s ease;
-    }
-
-    .about-image-wrapper:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      aspect-ratio: 1080 / 1600;
     }
 
     .about-image {
@@ -82,7 +77,6 @@
       height: auto;
       display: block;
       object-fit: cover;
-      aspect-ratio: 4/5;
     }
 
     /* Decorative Elements */
@@ -308,6 +302,46 @@
         width: 100%;
       }
     }
+    /* ── Blob reveal image stack ── */
+    #blob-wrap {
+      cursor: none;
+      position: relative;
+    }
+
+    #blob-img1,
+    #blob-img2 {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    /* img2 sits on top, clipped by the blob */
+    #blob-img2 {
+      z-index: 1;
+    }
+
+    #blob-cursor {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.8);
+      pointer-events: none;
+      z-index: 10;
+      transform: translate(-50%, -50%);
+      mix-blend-mode: difference;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    #blob-wrap:hover #blob-cursor {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
@@ -364,13 +398,33 @@
     
     <!-- Image Section -->
     <div class="about-image-section">
-      <div class="about-image-wrapper">
+      <div class="about-image-wrapper" id="blob-wrap">
+        <!-- Base image -->
         <img 
+          id="blob-img1"
           src="images/kieron.jpg" 
           alt="Kieron - Creator of GeoRanks" 
           class="about-image"
           onerror="this.src='assets/placeholder-profile.png'"
         />
+        <!-- Revealed image (shown through blob mask) -->
+        <img 
+          id="blob-img2"
+          src="images/kieron1.jpg" 
+          alt="Kieron - Creator of GeoRanks alternate"
+          class="about-image"
+          style="clip-path: url(#blob-clip-path);"
+        />
+        <!-- SVG clip definition -->
+        <svg style="position:absolute;width:0;height:0;overflow:visible;pointer-events:none;">
+          <defs>
+            <clipPath id="blob-clip-path" clipPathUnits="userSpaceOnUse">
+              <!-- JS injects circles here -->
+            </clipPath>
+          </defs>
+        </svg>
+        <!-- Custom cursor dot, visible only on hover -->
+        <div id="blob-cursor"></div>
       </div>
       <div class="decoration-circle-1 image-decoration"></div>
       <div class="decoration-circle-2 image-decoration"></div>
@@ -386,7 +440,7 @@
 
       <div class="story-content">
         <p>
-          At school, I had zero interest in geography — it was taught in a way that made the world feel small, flat, and boring.
+          At school, I had zero interest in geography, it was taught in a way that made the world feel small, flat, and boring.
         </p>
 
         <p>
@@ -394,7 +448,7 @@
         </p>
 
         <p>
-          Traveling from country to country, meeting people from everywhere, and seeing how different the world really is completely rewired how I saw the planet.
+          Traveling to 40+ countries, meeting people from all walks of life, and seeing how different the world really is completely rewired how I saw the planet.
         </p>
 
         <p>
@@ -524,6 +578,109 @@ document.addEventListener('DOMContentLoaded', function() {
       dailyChallengeBg.style.backgroundImage = `url('images/categories/${challenge.category}.jpg')`;
     }
   }
+</script>
+
+<!-- Blob Reveal Effect -->
+<script>
+(function () {
+  const RADIUS     = 90;   // blob size in px
+  const LERP       = 0.13; // smoothing (lower = more lag)
+  const TRAIL_LIFE = 220;  // ms each trail circle lives
+  const SPAWN_DIST = 4;    // px between trail dot spawns
+  const EASE_OUT   = 0.2;
+
+  const wrap       = document.getElementById('blob-wrap');
+  const clipPath   = document.getElementById('blob-clip-path');
+  const cursorDot  = document.getElementById('blob-cursor');
+
+  const mouse  = { x: -9999, y: -9999 };
+  const lerped = { x: -9999, y: -9999 };
+  let isOver   = false;
+  const pool   = [];
+  let lastSpawnPos = { x: -9999, y: -9999 };
+
+  // Head circle (follows lerped cursor)
+  const headCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  headCircle.setAttribute('r', '0');
+  clipPath.appendChild(headCircle);
+
+  // Convert viewport coords → local image coords
+  function toLocal(vx, vy) {
+    const r = wrap.getBoundingClientRect();
+    return { x: vx - r.left, y: vy - r.top };
+  }
+
+  function spawnTrailDot(lx, ly) {
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('cx', lx);
+    c.setAttribute('cy', ly);
+    c.setAttribute('r', RADIUS);
+    clipPath.appendChild(c);
+    pool.push({ svgCircle: c, born: performance.now(), maxR: RADIUS });
+  }
+
+  // Mouse tracking — only active when inside the wrapper
+  wrap.addEventListener('mouseenter', e => {
+    isOver = true;
+    lerped.x = mouse.x = e.clientX;
+    lerped.y = mouse.y = e.clientY;
+    lastSpawnPos = toLocal(lerped.x, lerped.y);
+  });
+
+  wrap.addEventListener('mouseleave', () => {
+    isOver = false;
+    headCircle.setAttribute('r', '0');
+  });
+
+  wrap.addEventListener('mousemove', e => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+    // Move custom cursor dot
+    const loc = toLocal(e.clientX, e.clientY);
+    cursorDot.style.left = loc.x + 'px';
+    cursorDot.style.top  = loc.y + 'px';
+  });
+
+  // Animation loop
+  function loop() {
+    requestAnimationFrame(loop);
+    const now = performance.now();
+
+    lerped.x += (mouse.x - lerped.x) * LERP;
+    lerped.y += (mouse.y - lerped.y) * LERP;
+
+    const loc = toLocal(lerped.x, lerped.y);
+
+    if (isOver) {
+      headCircle.setAttribute('cx', loc.x);
+      headCircle.setAttribute('cy', loc.y);
+      headCircle.setAttribute('r', RADIUS);
+
+      const dx = loc.x - lastSpawnPos.x;
+      const dy = loc.y - lastSpawnPos.y;
+      if (Math.hypot(dx, dy) >= SPAWN_DIST) {
+        spawnTrailDot(loc.x, loc.y);
+        lastSpawnPos = { x: loc.x, y: loc.y };
+      }
+    }
+
+    // Age out trail dots
+    for (let i = pool.length - 1; i >= 0; i--) {
+      const dot = pool[i];
+      const age = now - dot.born;
+      if (age >= TRAIL_LIFE) {
+        dot.svgCircle.remove();
+        pool.splice(i, 1);
+      } else {
+        const t = age / TRAIL_LIFE;
+        const r = dot.maxR * (0.5 + 0.5 * Math.pow(1 - t, EASE_OUT));
+        dot.svgCircle.setAttribute('r', r);
+      }
+    }
+  }
+
+  requestAnimationFrame(loop);
+})();
 </script>
 
 </body>

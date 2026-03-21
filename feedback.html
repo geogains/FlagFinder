@@ -26,8 +26,19 @@
       text-align: center;
       opacity: 0;
       animation: fadeInContainer 0.5s ease-out forwards;
+      flex: 1;
     }
     
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .home-footer {
+      margin-top: auto;
+    }
+
     @keyframes fadeInContainer {
       from {
         opacity: 0;
@@ -356,6 +367,7 @@
   <div id="thank-you-message" style="display:none;">
     <h2>🎉 Thank you for your feedback!</h2>
     <p>We really appreciate your time and support. Your input helps us improve GeoRanks!</p>
+    <a href="categories.html" class="submit-btn" style="display:inline-block; margin-top:24px; text-decoration:none;">Explore Categories</a>
   </div>
 </div>
 
