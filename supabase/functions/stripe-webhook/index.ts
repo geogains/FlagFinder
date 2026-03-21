@@ -14,6 +14,49 @@ const supabase = createClient(
 );
 const resend = new Resend(Deno.env.get("RESEND_API_KEY")!);
 
+// Revoke premium access for a subscription that has ended or been canceled.
+// Matches by stripe_subscription_id first (most precise), falls back to stripe_customer_id.
+async function revokeUserPremium(subscription: Stripe.Subscription): Promise<void> {
+  const subscriptionId = subscription.id;
+  const customerId =
+    typeof subscription.customer === "string"
+      ? subscription.customer
+      : (subscription.customer as Stripe.Customer)?.id ?? null;
+
+  // Primary: match on subscription ID
+  if (subscriptionId) {
+    const { error, count } = await supabase
+      .from("users")
+      .update({ is_premium: false })
+      .eq("stripe_subscription_id", subscriptionId)
+      .select("id", { count: "exact", head: true });
+
+    if (!error && (count ?? 0) > 0) {
+      console.log(`✅ Premium revoked via stripe_subscription_id: ${subscriptionId}`);
+      return;
+    }
+    if (error) {
+      console.error("❌ Revoke by subscription_id failed:", error.message);
+    }
+  }
+
+  // Fallback: match on customer ID
+  if (customerId) {
+    const { error } = await supabase
+      .from("users")
+      .update({ is_premium: false })
+      .eq("stripe_customer_id", customerId);
+
+    if (!error) {
+      console.log(`✅ Premium revoked via stripe_customer_id: ${customerId}`);
+    } else {
+      console.error("❌ Revoke by customer_id failed:", error.message);
+    }
+  } else {
+    console.error("❌ No subscription or customer ID available to revoke premium");
+  }
+}
+
 serve(async (req) => {
   const sig = req.headers.get("stripe-signature");
   if (!sig) {
@@ -52,20 +95,29 @@ serve(async (req) => {
     let updateError = null;
     let updateMethod = "";
 
+    const stripeCustomerId = typeof session.customer === "string" ? session.customer : session.customer?.id ?? null;
+    const stripeSubscriptionId = typeof session.subscription === "string" ? session.subscription : session.subscription?.id ?? null;
+
+    const premiumUpdate = {
+      is_premium: true,
+      ...(stripeCustomerId ? { stripe_customer_id: stripeCustomerId } : {}),
+      ...(stripeSubscriptionId ? { stripe_subscription_id: stripeSubscriptionId } : {}),
+    };
+
     if (userId) {
       // Primary method: Update by user ID
       const { error } = await supabase
         .from("users")
-        .update({ is_premium: true })
+        .update(premiumUpdate)
         .eq("id", userId);
-      
+
       updateError = error;
       updateMethod = "user_id";
     } else if (customerEmail) {
       // Fallback method: Update by email
       const { error } = await supabase
         .from("users")
-        .update({ is_premium: true })
+        .update(premiumUpdate)
         .eq("email", customerEmail);
       
       updateError = error;
@@ -150,6 +202,29 @@ serve(async (req) => {
       console.log("⚠️ No email address available - skipping confirmation email");
     }
 
+    return new Response("Success", { status: 200 });
+  }
+
+  // Subscription fully deleted (fires when cancellation takes effect, whether
+  // the user cancelled immediately or at period end).
+  if (event.type === "customer.subscription.deleted") {
+    const subscription = event.data.object as Stripe.Subscription;
+    console.log("🔔 subscription.deleted — revoking premium:", subscription.id);
+    await revokeUserPremium(subscription);
+    return new Response("Success", { status: 200 });
+  }
+
+  // Subscription status changed. Only revoke for terminal states where access
+  // should definitively end. Do NOT revoke for "past_due" (Stripe is still
+  // retrying payment) or "cancel_at_period_end" (subscription stays active
+  // until period ends, deletion fires customer.subscription.deleted then).
+  if (event.type === "customer.subscription.updated") {
+    const subscription = event.data.object as Stripe.Subscription;
+    const revokeStatuses = ["canceled", "unpaid"];
+    if (revokeStatuses.includes(subscription.status)) {
+      console.log(`🔔 subscription.updated — status "${subscription.status}" — revoking premium:`, subscription.id);
+      await revokeUserPremium(subscription);
+    }
     return new Response("Success", { status: 200 });
   }
 

@@ -17,3 +17,11 @@ entrypoint = "./functions/create-checkout-session/index.ts"
 verify_jwt = false
 import_map = "./functions/stripe-webhook/deno.json"
 entrypoint = "./functions/stripe-webhook/index.ts"
+
+# -------------------------
+# create-portal-session
+# -------------------------
+[functions.create-portal-session]
+verify_jwt = false
+import_map = "./functions/create-portal-session/deno.json"
+entrypoint = "./functions/create-portal-session/index.ts"

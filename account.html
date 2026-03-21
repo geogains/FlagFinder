@@ -253,6 +253,20 @@
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(255, 151, 112, 0.4);
     }
+
+    .btn-manage-sub {
+      background: linear-gradient(135deg, #0d315a 0%, #1e5fa8 100%);
+      color: white;
+      box-shadow: 0 4px 16px rgba(13, 49, 90, 0.25);
+      margin-top: 24px;
+      opacity: 0;
+      animation: fadeIn 0.5s ease-out 1s forwards;
+    }
+
+    .btn-manage-sub:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(13, 49, 90, 0.35);
+    }
     
     /* Messages */
     .message {
@@ -400,6 +414,12 @@
     🔓 Unlock All Categories
   </button>
 
+  <!-- Manage Subscription Button (premium users only — shown via JS) -->
+  <button class="btn btn-manage-sub" id="manageSubscriptionBtn" style="display:none;">
+    💳 Manage Subscription
+  </button>
+  <div class="message" id="portalMsg"></div>
+
   <!-- Logout Button -->
   <button class="btn btn-danger" id="logoutBtn">Log Out</button>
 </div>
@@ -540,6 +560,46 @@ document.addEventListener('DOMContentLoaded', function() {
       if (profile.is_premium) {
         document.querySelectorAll('.upgrade-access-btn, .upgrade-btn').forEach(btn => btn.remove());
         if (premiumBadge) premiumBadge.style.display = 'block';
+
+        // Show subscription management only when a Stripe billing record exists
+        const manageBtn = document.getElementById('manageSubscriptionBtn');
+        const portalMsg = document.getElementById('portalMsg');
+        if (manageBtn && profile.stripe_customer_id) {
+          manageBtn.style.display = 'block';
+          manageBtn.addEventListener('click', async () => {
+            manageBtn.disabled = true;
+            manageBtn.textContent = '⏳ Loading...';
+            portalMsg.textContent = '';
+
+            try {
+              const { data: { session: activeSession } } = await supabase.auth.getSession();
+              const token = activeSession?.access_token;
+              if (!token) throw new Error('Not authenticated');
+
+              const res = await fetch(
+                'https://api.geo-ranks.com/functions/v1/create-portal-session',
+                {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                  },
+                }
+              );
+
+              const json = await res.json();
+              if (!res.ok) throw new Error(json.error || 'Failed to open billing portal');
+
+              window.location.href = json.url;
+            } catch (err) {
+              portalMsg.textContent = `❌ ${err.message}`;
+              portalMsg.style.color = '#ef4444';
+              portalMsg.style.background = 'rgba(239, 68, 68, 0.1)';
+              manageBtn.disabled = false;
+              manageBtn.textContent = '💳 Manage Subscription';
+            }
+          });
+        }
       } else {
         if (premiumBadge) premiumBadge.style.display = 'none';
       }
