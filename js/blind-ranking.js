@@ -13,6 +13,7 @@ import soundManager from './sound-manager.js';
 import { CATEGORY_ID_MAP } from './top10-categories-loader.js';
 import { categoriesConfig } from './categories-config.js';
 import { formatValue as sharedFormatValue } from './format-metric.js';
+import { makeSeededRNG, seededShuffle, getDailyGameSeed } from './daily-challenge.js';
 
 // Initialize sound manager
 const SOUND_MAP = {
@@ -159,7 +160,16 @@ export function startBlindRankingGame() {
 
   if (typeof window.plausible === 'function') window.plausible('game_started', { props: { mode: 'classic', category: currentCategory } });
 
-  selectedCountries = shuffle([...countries]).slice(0, 10);
+  if (isDailyChallenge) {
+    const today = new Date();
+    const dateInt = today.getUTCFullYear() * 10000 + (today.getUTCMonth() + 1) * 100 + today.getUTCDate();
+    const seed = getDailyGameSeed(dateInt, 'classic', currentCategory);
+    const rng = makeSeededRNG(seed);
+    selectedCountries = seededShuffle([...countries], rng).slice(0, 10);
+    console.log('🎯 Daily Classic draw — seed:', seed, 'countries:', selectedCountries.map(c => c.name));
+  } else {
+    selectedCountries = shuffle([...countries]).slice(0, 10);
+  }
   computeBestRanks(selectedCountries);
   totalScore = 0;
   usedCountries.clear();

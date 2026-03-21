@@ -39,6 +39,36 @@ function seededRandom(seed) {
   return x - Math.floor(x);
 }
 
+// --- Deterministic daily-game draw utilities ---
+
+// Stateful seeded PRNG (Mulberry32). Call makeSeededRNG(seed) to get an rng() function.
+export function makeSeededRNG(seed) {
+  let s = seed >>> 0;
+  return function () {
+    s += 0x6D2B79F5;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = t + Math.imul(t ^ (t >>> 7), 61 | t) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Fisher-Yates shuffle driven by a seeded rng — does not mutate the original array.
+export function seededShuffle(array, rng) {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// Derive a single stable integer seed from UTC date + game mode + category string.
+export function getDailyGameSeed(dateInt, mode, category) {
+  const modeHash = [...mode].reduce((a, c) => a + c.charCodeAt(0), 0);
+  const catHash  = [...category].reduce((a, c) => a + c.charCodeAt(0), 0);
+  return (dateInt ^ (modeHash * 1000) ^ catHash) >>> 0;
+}
+
 // Get daily seed based on current UTC date
 function getDailySeed() {
   const today = new Date();

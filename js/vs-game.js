@@ -3,6 +3,7 @@ import soundManager from './sound-manager.js';
 import { categoriesConfig, CATEGORY_ID_MAP } from './categories-config.js';
 import { supabase } from './supabase-client.js';
 import { formatValue as sharedFormatValue } from './format-metric.js';
+import { makeSeededRNG, seededShuffle, getDailyGameSeed } from './daily-challenge.js';
 
 // Initialize sound manager
 const SOUND_MAP = {
@@ -49,7 +50,9 @@ let gameState = {
   isProcessing: false, // Prevent multiple clicks during transition
   isGameOver: false, // Prevent multiple endGame calls
   countries: [], // Will be loaded from category file
-  recentCountries: [] // Track recently used countries to avoid repetition
+  recentCountries: [], // Track recently used countries to avoid repetition (non-daily only)
+  dailySequence: [], // Pre-generated seeded shuffle for daily challenge
+  dailySequenceIndex: 0 // Current position in the daily sequence
 };
 
 // Load category data and initialize game
@@ -88,7 +91,18 @@ gameState.countries = data.map(country => {
 });
     
     console.log('Transformed countries:', gameState.countries.slice(0, 3));
-    
+
+    // For daily challenge, pre-generate the full deterministic matchup sequence now.
+    if (isDailyChallenge) {
+      const today = new Date();
+      const dateInt = today.getUTCFullYear() * 10000 + (today.getUTCMonth() + 1) * 100 + today.getUTCDate();
+      const seed = getDailyGameSeed(dateInt, 'vs', categoryKey);
+      const rng = makeSeededRNG(seed);
+      gameState.dailySequence = seededShuffle([...gameState.countries], rng);
+      gameState.dailySequenceIndex = 0;
+      console.log('🎯 Daily VS sequence — seed:', seed, 'first 4:', gameState.dailySequence.slice(0, 4).map(c => c.name));
+    }
+
     // Initialize game
     initGame();
     
@@ -232,8 +246,36 @@ function loadNewRound() {
   console.log('Round loaded:', country1.name, 'vs', country2.name);
 }
 
+// Return the next deterministic pair from the daily sequence.
+// Advances the index by 2 per round (wraps at end of sequence).
+// If country1 and country2 share the same value, scans forward to find a non-tied partner.
+function getTwoDailyCountries() {
+  const seq = gameState.dailySequence;
+  const len = seq.length;
+  const idx = gameState.dailySequenceIndex % len;
+
+  const country1 = seq[idx];
+
+  // Find a country2 with a different value, searching forward from idx+1
+  let country2 = seq[(idx + 1) % len];
+  let offset = 2;
+  while (country2.value === country1.value && offset < len) {
+    country2 = seq[(idx + offset) % len];
+    offset++;
+  }
+
+  // Advance by 2 for the next round regardless of how far we scanned
+  gameState.dailySequenceIndex = idx + 2;
+
+  return [country1, country2];
+}
+
 // Get two random unique countries with smart repetition avoidance
 function getTwoRandomCountries() {
+  // In daily challenge mode, use the pre-generated deterministic sequence instead
+  if (isDailyChallenge) {
+    return getTwoDailyCountries();
+  }
   const available = [...gameState.countries];
   
   // Track recently used countries (keep last 20 to avoid repetition in small sessions)
