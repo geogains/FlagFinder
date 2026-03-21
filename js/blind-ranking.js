@@ -96,11 +96,8 @@ function detectRankKey(data) {
   return keys.find((k) => k.endsWith("Rank")) || null;
 }
 
-const metricKey = detectMetricKey(countries);
-const rankKey = detectRankKey(countries);
-
-console.log("🧭 Detected metricKey:", metricKey);
-console.log("🏅 Detected rankKey:", rankKey);
+let metricKey;
+let rankKey;
 
 // Fisher-Yates shuffle - unbiased randomization
 function shuffle(array) {
@@ -152,11 +149,16 @@ function computeBestRanks(list) {
 export function startBlindRankingGame() {
   const countries = getCountries();
   if (!countries.length) {
-    console.error("❌ No country data found!");
+    console.error("❌ No country data found! window.countries was not set before startBlindRankingGame() was called.");
     document.querySelector(".top-card-title").textContent =
       "No data available for this category.";
     return;
   }
+
+  metricKey = detectMetricKey(countries);
+  rankKey = detectRankKey(countries);
+  console.log("🧭 Detected metricKey:", metricKey);
+  console.log("🏅 Detected rankKey:", rankKey);
 
   if (typeof window.plausible === 'function') window.plausible('game_started', { props: { mode: 'classic', category: currentCategory } });
 
