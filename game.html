@@ -39,6 +39,8 @@
 </script>
 
   <!-- Fonts & CSS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./css/page.css" />
   <link rel="stylesheet" href="./css/game-modes.css" />
@@ -177,42 +179,19 @@
 <script type="module">
   import { supabase } from './js/supabase-client.js';
   import { isValidDailyChallenge } from './js/daily-challenge.js';
-  
+  import { CATEGORY_ID_MAP } from './js/top10-categories-loader.js';
+  import { categoriesConfig } from './js/categories-config.js';
+
   // ========================================
   // 🔒 PREMIUM VALIDATION GUARD
   // ========================================
-  
-  // Define which game modes require premium
+
   const PREMIUM_MODES = [
-    'coastline',
-    'cuisine',
-    'worldcup',
-    'crimerate',
-    'happiness',
-    'nobelprize',
-    'temperature',
-    'precipitation',
-    'tourism',
-    'michelin',
-    'bigmac',
-    'lifeexpectancy',
-    // NEW CATEGORIES
-    'marriageage',
-    'sexratio',
-    'tallestbuilding',
-    'density',
-    'carexports',
-    'militarypersonel',
-    'rent',
-    'poorestgdp',
-    'university',
-    'volcano',
-    'flamingo',
-    'disasterrisk',
-    'longestriver',
-    'renewableenergy',
-    'millionaires',
-    'gm',
+    'coastline', 'cuisine', 'worldcup', 'crimerate', 'happiness', 'nobelprize',
+    'temperature', 'precipitation', 'tourism', 'michelin', 'bigmac', 'lifeexpectancy',
+    'marriageage', 'sexratio', 'tallestbuilding', 'density', 'carexports',
+    'militarypersonel', 'rent', 'poorestgdp', 'university', 'volcano', 'flamingo',
+    'disasterrisk', 'longestriver', 'renewableenergy', 'millionaires', 'gm',
   ];
 
   const params = new URLSearchParams(window.location.search);
@@ -220,52 +199,41 @@
   const isDailyParam = params.get('daily') === 'true';
 
   // SECURITY FIX: Validate that this is actually today's daily challenge
-  // This prevents users from manually adding ?daily=true to bypass premium
   const isValidDaily = isDailyParam && isValidDailyChallenge('classic', mode);
-  
+
   if (isDailyParam && !isValidDaily) {
     console.warn('⚠️ Invalid daily challenge attempt detected - mode/category mismatch');
   }
 
-  // Check if this mode requires premium (only bypass if VALID daily challenge)
   const requiresPremium = PREMIUM_MODES.includes(mode) && !isValidDaily;
 
-  // Async IIFE for premium check (clearer pattern)
-  (async () => {
-    if (requiresPremium) {
-      // Get user session and premium status
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      let isPremium = false;
-      
-      if (session && session.user) {
-        const { data: profile } = await supabase
-          .from('users')
-          .select('is_premium')
-          .eq('id', session.user.id)
-          .single();
-        
-        isPremium = profile?.is_premium === true;
-      }
-      
-      // If user is not premium, redirect to premium page
-      if (!isPremium) {
-        window.location.href = 'premium.html';
-        // Stop execution here
-        throw new Error('Premium required');
+  // Kick off a single session fetch immediately — reused by both the gate check and menu logic
+  const sessionPromise = supabase.auth.getSession();
+
+  // For free modes: reveal page immediately without waiting for any network call
+  if (!requiresPremium) {
+    document.getElementById('authLoadingOverlay').style.display = 'none';
+  }
+
+  // Non-blocking: menu button management — runs after session resolves, never blocks game start
+  sessionPromise.then(async ({ data: { session } }) => {
+    if (!session?.user) {
+      document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+      return;
+    }
+    // For free modes: check is_premium for upgrade button (premium modes handle this in the gate below)
+    if (!requiresPremium) {
+      const { data: profile } = await supabase
+        .from('users').select('is_premium').eq('id', session.user.id).single();
+      if (profile?.is_premium) {
+        document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
       }
     }
-    
-    // Remove loading overlay after validation
-    document.getElementById('authLoadingOverlay').style.display = 'none';
-  })();
+  }).catch(() => {});
 
   // ========================================
-  // 🎮 GAME INITIALIZATION (only if validated)
+  // 🎮 GAME INITIALIZATION
   // ========================================
-
-  import { CATEGORY_ID_MAP } from './js/top10-categories-loader.js';
-  import { categoriesConfig } from './js/categories-config.js';
 
   const classicTitles = {
     population:      'RANK THESE COUNTRIES FROM LARGEST TO SMALLEST POPULATION 👥',
@@ -308,17 +276,43 @@
     gm:              'RANK THESE COUNTRIES BY HIGHEST NUMBER OF CHESS GRANDMASTERS ♟️',
   };
 
-  const config = categoriesConfig[mode] || categoriesConfig.population;
-  const categoryModule = await import(`./js/categories/${config.dataFile}.js`);
-  window.countries = categoryModule[config.dataKey];
-  document.querySelector('.top-card-title').textContent = classicTitles[mode] || classicTitles.population;
+  (async () => {
+    // For premium modes: enforce gate before revealing the page
+    if (requiresPremium) {
+      const { data: { session } } = await sessionPromise;
+      let isPremium = false;
 
-  const { startBlindRankingGame, setupRankButtons } = await import('./js/blind-ranking.js');
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('users').select('is_premium').eq('id', session.user.id).single();
+        isPremium = profile?.is_premium === true;
+        if (isPremium) {
+          document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+        }
+      }
 
-  startBlindRankingGame(CATEGORY_ID_MAP[mode] || 0);
-  setupRankButtons();
+      if (!isPremium) {
+        window.location.href = 'premium.html';
+        return;
+      }
 
-  window.scrollTo(0, 0);
+      document.getElementById('authLoadingOverlay').style.display = 'none';
+    }
+
+    // Load category data and game engine in parallel
+    const config = categoriesConfig[mode] || categoriesConfig.population;
+    const [categoryModule, { startBlindRankingGame, setupRankButtons }] = await Promise.all([
+      import(`./js/categories/${config.dataFile}.js`),
+      import('./js/blind-ranking.js'),
+    ]);
+
+    window.countries = categoryModule[config.dataKey];
+    document.querySelector('.top-card-title').textContent = classicTitles[mode] || classicTitles.population;
+
+    startBlindRankingGame(CATEGORY_ID_MAP[mode] || 0);
+    setupRankButtons();
+    window.scrollTo(0, 0);
+  })();
 </script>
 
 <script>
@@ -347,34 +341,6 @@
   });
 </script>
 
-<script type="module">
-  import { supabase } from './js/supabase-client.js';
-
-  // NON-BLOCKING: Menu button management
-  supabase.auth.getSession()
-    .then(async ({ data: { session } }) => {
-      // Hide Account if user not logged in
-      if (!session || !session.user) {
-        document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
-      }
-
-      // Hide Unlock All Categories if user is premium
-      if (session && session.user) {
-        const { data: profile } = await supabase
-          .from('users')
-          .select('is_premium')
-          .eq('id', session.user.id)
-          .single();
-
-        if (profile?.is_premium) {
-          document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
-        }
-      }
-    })
-    .catch(err => {
-      console.error('Menu button check failed:', err);
-    });
-</script>
 
 <script type="module">
   import {

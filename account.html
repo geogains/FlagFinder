@@ -552,7 +552,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const profilePreview = document.getElementById('profilePreview');
 
       if (profile.avatar_url) {
-        profilePreview.src = `${profile.avatar_url}?t=${Date.now()}`;
+        profilePreview.src = profile.avatar_url;
       }
 
       uploadAvatarBtn?.addEventListener('click', () => {
@@ -703,7 +703,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .eq('id', currentUser.id);
 
           if (!error) {
-            profilePreview.src = `assets/profile-icon.jpg?t=${Date.now()}`;
+            profilePreview.src = 'assets/profile-icon.jpg';
             avatarMsg.textContent = '✅ Reverted to default avatar';
             avatarMsg.style.color = '#22c55e';
             avatarMsg.style.background = 'rgba(34, 197, 94, 0.1)';
