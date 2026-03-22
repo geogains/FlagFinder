@@ -257,3 +257,25 @@ body.menu-open {
     height: 54px !important;
   }
 }
+
+/* ========================================================
+   HEADER LOGO SIZE
+======================================================== */
+.logo-header img,
+.logo-link img {
+  height: 48px;
+}
+
+@media (max-width: 768px) {
+  .logo-header img,
+  .logo-link img {
+    height: 42px;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-header img,
+  .logo-link img {
+    height: 36px;
+  }
+}

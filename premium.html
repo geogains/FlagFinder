@@ -9,7 +9,7 @@
   
   <!-- Shared Page Styles -->
   <link rel="stylesheet" href="css/page.css">
-  
+
   <style>
     /* ── Premium Banner — wrapper + scrolling columns + fixed overlay ── */
     .premium-banner-spacer {
@@ -73,6 +73,12 @@
       height: auto;
       display: block;
       filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
+      animation: badge-pulse 2.8s ease-in-out infinite;
+    }
+
+    @keyframes badge-pulse {
+      0%, 100% { transform: scale(1);    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15)); }
+      50%       { transform: scale(1.08); filter: drop-shadow(0 6px 16px rgba(0,0,0,0.22)); }
     }
 
     .premium-banner-overlay h1 {
