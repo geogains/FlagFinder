@@ -641,6 +641,23 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<!-- Timeout fallback: if esm.sh is slow, don't leave user on a blank page -->
+<script>
+  setTimeout(function() {
+    const container = document.getElementById('statsContainer');
+    if (container && container.style.display === 'none') {
+      container.style.display = 'block';
+      const header = container.querySelector('.stats-header');
+      if (header) {
+        const msg = document.createElement('p');
+        msg.style.cssText = 'text-align:center;color:#666;padding:2rem;font-size:1rem;';
+        msg.textContent = 'Connection timed out. Please refresh to load your stats.';
+        header.after(msg);
+      }
+    }
+  }, 6000);
+</script>
+
 <!-- Account/Premium Button Removal -->
 <script type="module">
   import { supabase, getSessionSafe } from './js/supabase-client.js';

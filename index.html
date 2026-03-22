@@ -649,64 +649,68 @@
 </footer>
 
 <!-- ========== JAVASCRIPT ========== -->
-<script type="module">
-  import { supabase } from './js/supabase-client.js';
-  import { openModeSelector as originalOpenModeSelector } from './js/mode-selector.js';
 
-  // ── 8 categories (6 free + 2 new) ──────────────────────────────────
+<!--
+  ARCHITECTURE NOTE:
+  The conveyor, card rendering, and menu are in a plain <script> — no imports,
+  runs synchronously, never blocked by network. Supabase auth lives in its own
+  module and only updates the header sign-in text and premium button. If the
+  esm.sh CDN is slow or offline, the page still loads and animates perfectly.
+-->
+
+<!-- ① Conveyor + cards + menu — zero network dependencies, runs immediately -->
+<script>
+  // mode-selector is loaded via its own <script type="module"> below;
+  // we reference it through a global wrapper set up after it loads.
+  // Cards are rendered now; openModeSelector is attached once mode-selector is ready.
+
   const freeCategories = [
-    { category: "population", display: "Population",      emoji: "👥", image: "population.jpg" },
-    { category: "gdp",        display: "GDP Per Capita",  emoji: "💵", image: "gdp.jpg" },
-    { category: "altitude",   display: "Highest Altitude",emoji: "🏔️", image: "altitude.jpg" },
-    { category: "forest",     display: "Forest Cover",    emoji: "🌲", image: "forest.jpg" },
-    { category: "olympic",    display: "Olympic Medals",  emoji: "🥇", image: "olympic.jpg" },
-    { category: "landmass",   display: "Land Mass",       emoji: "🌍", image: "landmass.jpg" },
-    { category: "beer",       display: "Beer Consumption",emoji: "🍺", image: "beer.jpg" },
-    { category: "passport",   display: "Passport Power",  emoji: "🛂", image: "passport.jpg" }
+    { category: "population", display: "Population",       emoji: "👥", image: "population.jpg" },
+    { category: "gdp",        display: "GDP Per Capita",   emoji: "💵", image: "gdp.jpg" },
+    { category: "altitude",   display: "Highest Altitude", emoji: "🏔️", image: "altitude.jpg" },
+    { category: "forest",     display: "Forest Cover",     emoji: "🌲", image: "forest.jpg" },
+    { category: "olympic",    display: "Olympic Medals",   emoji: "🥇", image: "olympic.jpg" },
+    { category: "landmass",   display: "Land Mass",        emoji: "🌍", image: "landmass.jpg" },
+    { category: "beer",       display: "Beer Consumption", emoji: "🍺", image: "beer.jpg" },
+    { category: "passport",   display: "Passport Power",   emoji: "🛂", image: "passport.jpg" }
   ];
 
-  // Row split: 4 per horizontal row
-  const row1Cats = freeCategories.slice(0, 4); // population, gdp, altitude, forest
-  const row2Cats = freeCategories.slice(4, 8); // olympic, landmass, beer, passport
+  const row1Cats = freeCategories.slice(0, 4);
+  const row2Cats = freeCategories.slice(4, 8);
 
-  // ── Card HTML factory ───────────────────────────────────────────────
   function cardHTML(cat) {
-    return `
-      <div class="category-item">
-        <div class="category-card-new" onclick="openModeSelector('${cat.category}', '${cat.display}', '${cat.emoji}')">
-          <div class="category-bg" style="background-image: url('images/categories/${cat.image}');"></div>
-          <div class="category-overlay"></div>
-          <div class="category-content">
-            <div class="category-emoji">${cat.emoji}</div>
-            <div class="category-name">${cat.display}</div>
-            <div class="category-play-btn"><span>Play</span><span></span></div>
-          </div>
+    return `<div class="category-item">
+      <div class="category-card-new" onclick="openModeSelector('${cat.category}','${cat.display}','${cat.emoji}')">
+        <div class="category-bg" style="background-image:url('images/categories/${cat.image}');"></div>
+        <div class="category-overlay"></div>
+        <div class="category-content">
+          <div class="category-emoji">${cat.emoji}</div>
+          <div class="category-name">${cat.display}</div>
+          <div class="category-play-btn"><span>Play</span><span></span></div>
         </div>
-      </div>`;
+      </div>
+    </div>`;
   }
 
-  // Duplicate for seamless loop (Set A + Set B)
   function buildTrack(cats) {
     return [...cats, ...cats].map(cardHTML).join('');
   }
 
-  // ── Render ──────────────────────────────────────────────────────────
+  // Render cards immediately — no waiting for any network request
   document.getElementById('conveyorTrackRow1').innerHTML   = buildTrack(row1Cats);
   document.getElementById('conveyorTrackRow2').innerHTML   = buildTrack(row2Cats);
   document.getElementById('conveyorTrackMobile').innerHTML = buildTrack(freeCategories);
 
-  // ── Trigger fade-in + animations only after the first real paint ────
-  // Double rAF guarantees the browser has committed at least one frame,
-  // eliminating the freeze-on-refresh caused by animations starting mid-layout.
+  // Kick off animations after the first confirmed paint (prevents freeze on refresh)
+  const conveyorSection = document.getElementById('conveyorSection');
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       conveyorSection?.classList.add('conveyor-ready');
     });
   });
 
-  // ── Mode selector scroll + conveyor pause ───────────────────────────
+  // ── Mode selector: pause / resume conveyor ───────────────────────────
   let modeSelectorScrollPosition = 0;
-  const conveyorSection = document.getElementById('conveyorSection');
 
   function resumeConveyor() {
     document.body.style.top = '';
@@ -714,36 +718,41 @@
     conveyorSection?.classList.remove('conveyor-paused');
   }
 
-  window.openModeSelector = function(category, display, emoji) {
-    modeSelectorScrollPosition = window.pageYOffset;
-    document.body.style.top = `-${modeSelectorScrollPosition}px`;
-    conveyorSection?.classList.add('conveyor-paused');
-    window.plausible('category_selected', { props: { category: category } });
-    originalOpenModeSelector(category, display, emoji);
+  // openModeSelector is defined here as a global; the module below overwrites
+  // it once mode-selector.js has loaded, preserving the conveyor-pause logic.
+  window._attachModeSelector = function(originalOpenModeSelector) {
+    window.openModeSelector = function(category, display, emoji) {
+      modeSelectorScrollPosition = window.pageYOffset;
+      document.body.style.top = `-${modeSelectorScrollPosition}px`;
+      conveyorSection?.classList.add('conveyor-paused');
+      window.plausible?.('category_selected', { props: { category } });
+      originalOpenModeSelector(category, display, emoji);
+    };
   };
 
-  // Strategy 1: custom event fired by mode-selector.js
+  // Fallback no-op so cards don't throw if clicked before module loads
+  window.openModeSelector = function() {};
+
+  // Strategy 1: custom event from mode-selector.js
   window.addEventListener('closeModeSelectorCustom', resumeConveyor);
 
-  // Strategy 2: MutationObserver — watches for the mode selector overlay
-  // being hidden or removed from the DOM, regardless of how it closes
+  // Strategy 2: MutationObserver — fires regardless of how the modal closes
   const observer = new MutationObserver(() => {
-    // If conveyor is paused but no mode-selector overlay is visible, resume
     if (conveyorSection?.classList.contains('conveyor-paused')) {
       const overlay = document.querySelector('.mode-selector-overlay, [class*="mode-selector"]');
       const isVisible = overlay &&
         !overlay.classList.contains('hidden') &&
         overlay.style.display !== 'none' &&
         overlay.offsetParent !== null;
-      if (!isVisible) {
-        // Small grace period so any close animation can finish
-        setTimeout(resumeConveyor, 250);
-      }
+      if (!isVisible) setTimeout(resumeConveyor, 250);
     }
   });
-  observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style'] });
+  observer.observe(document.body, {
+    childList: true, subtree: true,
+    attributes: true, attributeFilter: ['class', 'style']
+  });
 
-  // ── Menu toggle with scroll lock ────────────────────────────────────
+  // ── Menu toggle ──────────────────────────────────────────────────────
   const menuToggle  = document.getElementById('menuToggle');
   const menuOverlay = document.getElementById('menuOverlay');
   const closeMenu   = document.getElementById('closeMenu');
@@ -771,23 +780,26 @@
   });
 </script>
 
-<!-- Sign-In Text + Menu Button Management (single session fetch) -->
+<!-- ② mode-selector module — wires up openModeSelector once loaded -->
+<script type="module">
+  import { openModeSelector as originalOpenModeSelector } from './js/mode-selector.js';
+  // Hand the real function to the plain script's attach helper
+  window._attachModeSelector(originalOpenModeSelector);
+</script>
+
+<!-- ③ Supabase auth — purely for sign-in text + premium button.
+     Slow or failed CDN has ZERO effect on the conveyor or page render. -->
 <script type="module">
   import { supabase } from './js/supabase-client.js';
 
   const signInText = document.getElementById('signInText');
-  signInText.textContent = "Loading...";
-  signInText.style.opacity = "0.6";
+  signInText.textContent = "Sign In | Create Account";
+  signInText.href = "auth.html";
 
-  // Timeout fallback: if auth takes too long, show defaults
   const authTimeout = setTimeout(() => {
-    console.warn('⏱️ Auth check timed out - showing default');
-    signInText.textContent = "Sign In | Create Account";
-    signInText.href = "auth.html";
     signInText.style.opacity = "1";
   }, 3000);
 
-  // NON-BLOCKING: single session fetch — result shared for sign-in text, buttons, and profile
   supabase.auth.getSession()
     .then(async ({ data: { session } }) => {
       clearTimeout(authTimeout);
@@ -796,7 +808,6 @@
         const userMeta = session.user.user_metadata;
         let displayName = userMeta.full_name || userMeta.username;
 
-        // Fetch username and is_premium in one query instead of two separate calls
         try {
           const { data: userData } = await supabase
             .from('users')
@@ -804,30 +815,20 @@
             .eq('id', session.user.id)
             .single();
 
-          if (!displayName && userData?.username) {
-            displayName = userData.username;
-          }
+          if (!displayName && userData?.username) displayName = userData.username;
           if (userData?.is_premium) {
             document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
           }
-        } catch (err) {
-          console.log('Could not fetch user profile');
-        }
+        } catch (_) {}
 
         signInText.textContent = displayName || "Account";
         signInText.href = "account.html";
       } else {
-        signInText.textContent = "Sign In | Create Account";
-        signInText.href = "auth.html";
         document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
       }
       signInText.style.opacity = "1";
     })
-    .catch(err => {
-      clearTimeout(authTimeout);
-      console.error('Auth check failed:', err);
-      signInText.textContent = "Sign In | Create Account";
-      signInText.href = "auth.html";
+    .catch(() => {
       signInText.style.opacity = "1";
     });
 </script>

@@ -549,6 +549,26 @@
     });
   </script>
 
+  <!-- Plain script: remove overlay for free modes immediately — no network deps -->
+  <script>
+    (function() {
+      const PREMIUM_CATEGORIES = [
+        'coastline', 'cuisine', 'worldcup', 'crimerate', 'happiness', 'nobelprize',
+        'temperature', 'precipitation', 'tourism', 'michelin', 'bigmac', 'lifeexpectancy',
+        'marriageage', 'sexratio', 'tallestbuilding', 'density', 'carexports',
+        'militarypersonel', 'rent', 'poorestgdp', 'university', 'volcano', 'flamingo',
+        'disasterrisk', 'longestriver', 'renewableenergy', 'millionaires', 'gm',
+      ];
+      const params = new URLSearchParams(window.location.search);
+      const mode = params.get('mode') || 'population';
+      const isDailyParam = params.get('daily') === 'true';
+      if (isDailyParam || !PREMIUM_CATEGORIES.includes(mode)) {
+        const el = document.getElementById('authLoadingOverlay');
+        if (el) el.style.display = 'none';
+      }
+    })();
+  </script>
+
   <script type="module">
   import { supabase } from './js/supabase-client.js';
   import { isValidDailyChallenge } from './js/daily-challenge.js';

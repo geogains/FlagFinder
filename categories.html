@@ -649,7 +649,7 @@
 <!-- ========== SEARCH SECTION ========== -->
 <section class="search-section">
   <div class="search-container">
-    <h1 class="categories-title">All Categories</h1>
+    <h1 class="categories-title">Categories</h1>
     <div class="search-bar-hero">
       <input type="text" id="categorySearchInput" placeholder="🔍 Search categories..." />
       <div class="search-dropdown" id="searchDropdown"></div>
@@ -716,15 +716,43 @@
 </footer>
 
 <!-- ========== JAVASCRIPT ========== -->
+
+<!-- Script 1: Menu toggle — pure DOM, no network deps, never blocked -->
+<script>
+  (function() {
+    const menuToggle = document.getElementById('menuToggle');
+    const menuOverlay = document.getElementById('menuOverlay');
+    const closeMenu = document.getElementById('closeMenu');
+    let scrollPosition = 0;
+
+    menuToggle?.addEventListener('click', () => {
+      scrollPosition = window.pageYOffset;
+      document.body.classList.add('menu-open');
+      document.body.style.top = `-${scrollPosition}px`;
+      menuOverlay.classList.add('active');
+    });
+
+    function closeMenuHandler() {
+      document.body.classList.remove('menu-open');
+      document.body.style.top = '';
+      window.scrollTo(0, scrollPosition);
+      menuOverlay.classList.remove('active');
+    }
+
+    closeMenu?.addEventListener('click', closeMenuHandler);
+    menuOverlay?.addEventListener('click', (e) => {
+      if (e.target === menuOverlay) closeMenuHandler();
+    });
+  })();
+</script>
+
+<!-- Script 2: Category rendering — local imports only, never blocked by esm.sh -->
 <script type="module">
-  import { supabase } from './js/supabase-client.js';
   import { openModeSelector as originalOpenModeSelector } from './js/mode-selector.js';
   import { categoriesConfig } from './js/categories-config.js';
 
-  // Alias keys that share an ID with another canonical key — exclude from display
   const ALIAS_KEYS = new Set(['hightemp', 'rainfall']);
 
-  // Derive all 36 display categories from config: free first, then premium alphabetically by title
   const allCategoriesData = Object.entries(categoriesConfig)
     .filter(([key]) => !ALIAS_KEYS.has(key))
     .map(([key, cfg]) => ({
@@ -741,12 +769,9 @@
 
   let userIsPremium = false;
   let currentPage = 1;
-  const ITEMS_PER_PAGE = 12; // 12 categories per page = 3 pages total
-
-  // Store scroll position for mode selector
+  const ITEMS_PER_PAGE = 12;
   let modeSelectorScrollPosition = 0;
 
-  // Wrap openModeSelector to handle scroll position
   window.openModeSelector = function(category, display, emoji) {
     modeSelectorScrollPosition = window.pageYOffset;
     document.body.style.top = `-${modeSelectorScrollPosition}px`;
@@ -754,24 +779,21 @@
     originalOpenModeSelector(category, display, emoji);
   };
 
-  // Restore scroll when mode selector closes
   window.addEventListener('closeModeSelectorCustom', () => {
     document.body.style.top = '';
     window.scrollTo(0, modeSelectorScrollPosition);
   });
 
-  // Premium modal handlers
   function showPremiumModal() {
     const modal = document.getElementById('premiumModal');
     modal.classList.remove('hidden');
-    
     setTimeout(() => {
       const modalWindow = modal.querySelector('.premium-window');
-      if (modalWindow) {
-        modalWindow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
+      if (modalWindow) modalWindow.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 100);
   }
+
+  window.showPremiumModal = showPremiumModal;
 
   document.getElementById('closePremiumBtn')?.addEventListener('click', () => {
     document.getElementById('premiumModal').classList.add('hidden');
@@ -782,7 +804,6 @@
     window.location.href = 'premium.html';
   });
 
-  // Surgically unlock premium cards in-place — no full grid re-render
   function unlockPremiumCards() {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     const end = start + ITEMS_PER_PAGE;
@@ -800,7 +821,6 @@
     });
   }
 
-  // Render categories
   function renderCategories() {
     const container = document.getElementById('categoriesGrid');
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -810,10 +830,9 @@
     container.innerHTML = pageCategories.map(cat => {
       const isLocked = cat.premium && !userIsPremium;
       const lockBadge = isLocked ? '<div class="lock-badge">Premium</div>' : '';
-      
       return `
         <div class="category-item">
-          <div class="category-card-new ${isLocked ? 'locked' : ''}" 
+          <div class="category-card-new ${isLocked ? 'locked' : ''}"
                onclick="${isLocked ? 'showPremiumModal()' : `openModeSelector('${cat.category}', '${cat.display}', '${cat.emoji}')`}">
             <div class="category-bg" style="background-image: url('images/categories/${cat.image}');"></div>
             <div class="category-overlay"></div>
@@ -834,23 +853,18 @@
     updatePagination();
   }
 
-  // Update pagination
   function updatePagination() {
     const totalPages = Math.ceil(allCategoriesData.length / ITEMS_PER_PAGE);
-    
     document.querySelectorAll('.page-btn[data-page]').forEach(btn => {
       const page = parseInt(btn.dataset.page);
       btn.classList.toggle('active', page === currentPage);
     });
-    
     const prevBtn = document.getElementById('prevPage');
     const nextBtn = document.getElementById('nextPage');
-    
     prevBtn.disabled = currentPage === 1;
     nextBtn.disabled = currentPage === totalPages;
   }
 
-  // Pagination handlers
   document.querySelectorAll('.page-btn[data-page]').forEach(btn => {
     btn.addEventListener('click', () => {
       currentPage = parseInt(btn.dataset.page);
@@ -876,22 +890,18 @@
     }
   });
 
-  // Search dropdown functionality
   const searchInput = document.getElementById('categorySearchInput');
   const searchDropdown = document.getElementById('searchDropdown');
 
-  // Show all categories when search bar is focused
   searchInput?.addEventListener('focus', () => {
     if (searchInput.value.trim().length === 0) {
       const allSorted = allCategoriesData.slice().sort((a, b) => a.display.localeCompare(b.display));
-      
       searchDropdown.innerHTML = allSorted.map(cat => `
         <div class="search-dropdown-item" data-category="${cat.category}" data-display="${cat.display}" data-emoji="${cat.emoji}" data-premium="${cat.premium}">
           <img src="images/categories/${cat.image}" alt="${cat.display}" />
           <div class="search-dropdown-text">${cat.display}</div>
         </div>
       `).join('');
-
       searchDropdown.classList.add('active');
       attachDropdownHandlers();
     }
@@ -899,23 +909,20 @@
 
   searchInput?.addEventListener('input', (e) => {
     const query = e.target.value.toLowerCase();
-    
     if (query.length === 0) {
       const allSorted = allCategoriesData.slice().sort((a, b) => a.display.localeCompare(b.display));
-      
       searchDropdown.innerHTML = allSorted.map(cat => `
         <div class="search-dropdown-item" data-category="${cat.category}" data-display="${cat.display}" data-emoji="${cat.emoji}" data-premium="${cat.premium}">
           <img src="images/categories/${cat.image}" alt="${cat.display}" />
           <div class="search-dropdown-text">${cat.display}</div>
         </div>
       `).join('');
-
       searchDropdown.classList.add('active');
       attachDropdownHandlers();
       return;
     }
 
-    const filtered = allCategoriesData.filter(cat => 
+    const filtered = allCategoriesData.filter(cat =>
       cat.display.toLowerCase().includes(query)
     ).sort((a, b) => a.display.localeCompare(b.display));
 
@@ -931,7 +938,6 @@
         <div class="search-dropdown-text">${cat.display}</div>
       </div>
     `).join('');
-
     searchDropdown.classList.add('active');
     attachDropdownHandlers();
   });
@@ -943,10 +949,8 @@
         const display = item.dataset.display;
         const emoji = item.dataset.emoji;
         const isPremium = item.dataset.premium === 'true';
-        
         searchInput.value = '';
         searchDropdown.classList.remove('active');
-
         if (isPremium && !userIsPremium) {
           showPremiumModal();
         } else {
@@ -956,87 +960,46 @@
     });
   }
 
-  // Close dropdown when clicking outside
   document.addEventListener('click', (e) => {
     if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
       searchDropdown.classList.remove('active');
     }
   });
 
-  // Menu toggle with scroll lock
-  const menuToggle = document.getElementById('menuToggle');
-  const menuOverlay = document.getElementById('menuOverlay');
-  const closeMenu = document.getElementById('closeMenu');
-  let scrollPosition = 0;
+  // Expose premium unlock callback for the supabase module
+  window._onPremiumConfirmed = () => {
+    userIsPremium = true;
+    unlockPremiumCards();
+  };
 
-  menuToggle?.addEventListener('click', () => {
-    scrollPosition = window.pageYOffset;
-    document.body.classList.add('menu-open');
-    document.body.style.top = `-${scrollPosition}px`;
-    menuOverlay.classList.add('active');
-  });
-
-  function closeMenuHandler() {
-    document.body.classList.remove('menu-open');
-    document.body.style.top = '';
-    window.scrollTo(0, scrollPosition);
-    menuOverlay.classList.remove('active');
-  }
-
-  closeMenu?.addEventListener('click', closeMenuHandler);
-
-  menuOverlay?.addEventListener('click', (e) => {
-    if (e.target === menuOverlay) {
-      closeMenuHandler();
-    }
-  });
-
-  // Make showPremiumModal global
-  window.showPremiumModal = showPremiumModal;
-
-  // Render immediately with non-premium defaults — no blank-grid wait
+  // Render immediately — no waiting for network
   renderCategories();
-
-  // Hydrate premium state asynchronously — re-render only if user turns out to be premium
-  supabase.auth.getSession()
-    .then(async ({ data: { session } }) => {
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from('users')
-          .select('is_premium')
-          .eq('id', session.user.id)
-          .single();
-        if (profile?.is_premium) {
-          userIsPremium = true;
-          unlockPremiumCards();
-        }
-      }
-    })
-    .catch(err => {
-      console.error('Premium check failed:', err);
-      // Already rendered as non-premium — nothing to update
-    });
 </script>
 
-<!-- Account/Premium Button Removal -->
+<!-- Script 3: Auth / premium state — isolated supabase module, never blocks rendering -->
 <script type="module">
   import { supabase } from './js/supabase-client.js';
-  
-  // NON-BLOCKING: Use .then() instead of await
+
   supabase.auth.getSession()
     .then(async ({ data: { session } }) => {
-      if (session?.user) {
-        const { data: profile } = await supabase.from('users').select('is_premium').eq('id', session.user.id).single();
-        if (profile?.is_premium) document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+      if (!session?.user) {
+        document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+        return;
       }
-      if (!session?.user) document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+      const { data: profile } = await supabase
+        .from('users')
+        .select('is_premium')
+        .eq('id', session.user.id)
+        .single();
+      if (profile?.is_premium) {
+        document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+        if (typeof window._onPremiumConfirmed === 'function') window._onPremiumConfirmed();
+      }
     })
-    .catch(err => {
-      console.error('Premium check failed:', err);
-    });
+    .catch(err => console.error('Auth check failed:', err));
 </script>
 
-<!-- Daily Challenge Menu Button -->
+<!-- Script 4: Daily Challenge menu button -->
 <script type="module">
   import { getTodaysDailyChallenge, modeDisplayNames, categoryDisplayNames, categoryEmojis } from './js/daily-challenge.js';
   document.addEventListener('DOMContentLoaded', () => {

@@ -320,6 +320,14 @@
     .leaderboard-table th:nth-child(3), .leaderboard-table td:nth-child(3) { width: 40%; }
     .leaderboard-table th:nth-child(4), .leaderboard-table td:nth-child(4) { width: 20%; }
 
+    /* Truncate long usernames with ellipsis */
+    .leaderboard-table td:nth-child(3) {
+      max-width: 0;           /* required for overflow:hidden on table cells */
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     .leaderboard-table th:first-child { border-top-left-radius: 12px; }
     .leaderboard-table th:last-child { border-top-right-radius: 12px; }
     .leaderboard-table tr:last-child td:first-child { border-bottom-left-radius: 12px; }
@@ -408,7 +416,7 @@
       }
     }
 
-    /* ── Load More & Find My Rank ── */
+    /* ── Load More & Find My Score ── */
 
     /* Row highlight for current user */
     .leaderboard-table tbody tr.user-highlight td {
@@ -569,9 +577,9 @@
     </tbody>
   </table>
 
-  <!-- Action buttons: Find My Rank -->
+  <!-- Action buttons: Find My Score -->
   <div class="leaderboard-actions" id="leaderboardActions">
-    <button class="lb-action-btn btn-find-me" id="findMyRankBtn" style="display:none;">📍 Find My Rank</button>
+    <button class="lb-action-btn btn-find-me" id="findMyRankBtn" style="display:none;">Find My Score</button>
   </div>
 
   <a href="index.html" class="back-home">Return Home</a>
@@ -619,9 +627,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 </script>
-
-</body>
-</html>
 
 <!-- ========================================
      SEARCH DROPDOWN JAVASCRIPT
@@ -738,11 +743,11 @@ document.addEventListener('DOMContentLoaded', function() {
   let loggedInUsername = null;
   let userHighlightRow = null;
 
-  // daily challenge context needed for Find My Rank
+  // daily challenge context needed for Find My Score
   let _dailyCategoryId = null;
   let _dailyDate       = null;
 
-  // ── Auth: get logged-in user so we can show Find My Rank ──────────────────
+  // ── Auth: get logged-in user so we can show Find My Score ──────────────────
   supabase.auth.getSession().then(async ({ data: { session } }) => {
     if (session?.user) {
       loggedInUserId = session.user.id;
@@ -801,7 +806,7 @@ document.addEventListener('DOMContentLoaded', function() {
     _dailyDate       = null;
   }
 
-  // ── Find My Rank button ────────────────────────────────────────────────────
+  // ── Find My Score button ────────────────────────────────────────────────────
   findMyRankBtn.addEventListener('click', async () => {
     if (!loggedInUserId) return;
 
@@ -822,7 +827,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     } finally {
       findMyRankBtn.disabled    = false;
-      findMyRankBtn.textContent = '📍 Find My Rank';
+      findMyRankBtn.textContent = 'Find My Score';
     }
   });
 
@@ -894,7 +899,7 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
-    // Store for Find My Rank
+    // Store for Find My Score
     _dailyCategoryId = categoryId;
     _dailyDate       = date;
 
@@ -1071,7 +1076,7 @@ document.addEventListener('DOMContentLoaded', function() {
     else if (currentMode === 'vs')    await appendVSPage();
   }
 
-  // ── Find My Rank (Classic / Top10 / VS) ───────────────────────────────────
+  // ── Find My Score (Classic / Top10 / VS) ───────────────────────────────────
   async function jumpToMyRank() {
     if (!loggedInUserId) return;
 
@@ -1092,7 +1097,7 @@ document.addEventListener('DOMContentLoaded', function() {
     alert(`You haven't played this category yet!`);
   }
 
-  // ── Find My Rank (Daily Challenge) ────────────────────────────────────────
+  // ── Find My Score (Daily Challenge) ────────────────────────────────────────
   async function jumpToMyRankDaily() {
     if (!loggedInUserId || !_dailyCategoryId || !_dailyDate) return;
 

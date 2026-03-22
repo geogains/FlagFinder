@@ -906,17 +906,18 @@ Can you beat my score? Play at geo-ranks.com/game.html?mode=${categoryKey}`;
       }
     }
 
-    // Menu toggle
+  </script>
+
+  <!-- Menu toggle — plain script, no network deps -->
+  <script>
     document.getElementById('menuToggle').addEventListener('click', () => {
       document.getElementById('menuOverlay').classList.add('active');
       document.body.classList.add('menu-open');
     });
-
     document.getElementById('menuClose').addEventListener('click', () => {
       document.getElementById('menuOverlay').classList.remove('active');
       document.body.classList.remove('menu-open');
     });
-
     document.getElementById('menuOverlay').addEventListener('click', (e) => {
       if (e.target.id === 'menuOverlay') {
         document.getElementById('menuOverlay').classList.remove('active');
