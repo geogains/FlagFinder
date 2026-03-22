@@ -135,12 +135,37 @@
       }
     }
 
-    /* ========================================
-       CATEGORIES CONVEYOR SECTION
-    ======================================== */
     .conveyor-section {
       padding: 0 0 60px;
       position: relative;
+      /* Hidden until JS confirms first paint is done */
+      opacity: 0;
+    }
+
+    /* ── Fade-in keyframe for the whole section ── */
+    @keyframes conveyor-fade-in {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0);    }
+    }
+
+    /* ── Ready state: JS adds this after first paint ── */
+    .conveyor-section.conveyor-ready {
+      animation: conveyor-fade-in 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.45s both;
+    }
+
+    /* Scroll animations start immediately when ready — no delay.
+       They run invisibly during the fade-in so cards are already
+       in motion the moment they become visible. */
+    .conveyor-section.conveyor-ready .conveyor-row-h.row-right .conveyor-track-h {
+      animation: slide-right 34s linear infinite;
+    }
+
+    .conveyor-section.conveyor-ready .conveyor-row-h.row-left .conveyor-track-h {
+      animation: slide-left 30s linear infinite;
+    }
+
+    .conveyor-section.conveyor-ready .conveyor-track-v {
+      animation: slide-down-cat 36s linear infinite;
     }
 
     /* ── Desktop / Tablet: 2 horizontal rows ── */
@@ -149,7 +174,6 @@
       flex-direction: column;
       gap: clamp(14px, 2vw, 28px);
       padding: clamp(14px, 2vw, 28px) 0;
-      /* Fade left + right edges */
       -webkit-mask-image: linear-gradient(
         to right,
         transparent 0%, black 7%, black 93%, transparent 100%
@@ -161,10 +185,9 @@
     }
 
     .conveyor-row-h {
-      overflow-x: hidden;   /* clips horizontal scroll — essential */
-      overflow-y: visible;  /* allows card to lift upward on hover without clipping */
+      overflow-x: hidden;
+      overflow-y: visible;
       position: relative;
-      /* give breathing room above/below for the hover lift (card lifts 8px) */
       padding: 12px 0;
     }
 
@@ -175,7 +198,7 @@
       will-change: transform;
     }
 
-    /* Cards inside horizontal track: reset stompIn, fixed width ~3 per viewport */
+    /* Cards inside horizontal track */
     .conveyor-track-h .category-item {
       opacity: 1 !important;
       transform: none !important;
@@ -199,15 +222,7 @@
       to   { transform: translateX(-50%); }
     }
 
-    .conveyor-row-h.row-right .conveyor-track-h {
-      animation: slide-right 34s linear infinite;
-    }
-
-    .conveyor-row-h.row-left .conveyor-track-h {
-      animation: slide-left 30s linear infinite;
-    }
-
-    /* Hovering anywhere in a row pauses that row's scroll */
+    /* Hovering a row pauses that row's scroll */
     .conveyor-row-h:hover .conveyor-track-h {
       animation-play-state: paused;
     }
@@ -216,7 +231,6 @@
     .conveyor-col-mobile {
       display: none;
       overflow: hidden;
-      /* Fixed viewport-based height showing ~3.5 cards */
       height: min(960px, 85vh);
       padding: 0 16px;
       -webkit-mask-image: linear-gradient(
@@ -234,7 +248,7 @@
       flex-direction: column;
       gap: 16px;
       will-change: transform;
-      animation: slide-down-cat 36s linear infinite;
+      /* animation added only via .conveyor-ready selector above */
     }
 
     @keyframes slide-down-cat {
@@ -257,27 +271,24 @@
       animation-play-state: paused !important;
     }
 
-    /* Smooth resume after un-pause */
-    .conveyor-track-h,
-    .conveyor-track-v {
-      transition: animation-play-state 0s;
-    }
-
     /* ── Responsive switch ── */
     @media (max-width: 480px) {
       .conveyor-rows-wrapper { display: none; }
       .conveyor-col-mobile    { display: block; }
     }
 
-    /* Preserve reduced-motion preference */
+    /* Respect reduced-motion preference */
     @media (prefers-reduced-motion: reduce) {
-      .conveyor-track-h,
-      .conveyor-track-v {
+      .conveyor-section.conveyor-ready .conveyor-track-h,
+      .conveyor-section.conveyor-ready .conveyor-track-v {
         animation: none !important;
+      }
+      .conveyor-section {
+        opacity: 1;
       }
     }
 
-    /* Category-item base (used in both contexts) */
+    /* Category-item base */
     .category-item {
       position: relative;
     }
@@ -682,8 +693,16 @@
   // ── Render ──────────────────────────────────────────────────────────
   document.getElementById('conveyorTrackRow1').innerHTML   = buildTrack(row1Cats);
   document.getElementById('conveyorTrackRow2').innerHTML   = buildTrack(row2Cats);
-  // Mobile: all 8 duplicated
   document.getElementById('conveyorTrackMobile').innerHTML = buildTrack(freeCategories);
+
+  // ── Trigger fade-in + animations only after the first real paint ────
+  // Double rAF guarantees the browser has committed at least one frame,
+  // eliminating the freeze-on-refresh caused by animations starting mid-layout.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      conveyorSection?.classList.add('conveyor-ready');
+    });
+  });
 
   // ── Mode selector scroll + conveyor pause ───────────────────────────
   let modeSelectorScrollPosition = 0;
