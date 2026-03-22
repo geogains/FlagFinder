@@ -136,50 +136,150 @@
     }
 
     /* ========================================
-       CATEGORIES SECTION
+       CATEGORIES CONVEYOR SECTION
     ======================================== */
-    .categories-flow {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 20px 20px 60px;
+    .conveyor-section {
+      padding: 0 0 60px;
       position: relative;
     }
 
-    .categories-grid-new {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 30px;
-      position: relative;
-      margin-bottom: 60px;
+    /* ── Desktop / Tablet: 2 horizontal rows ── */
+    .conveyor-rows-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(14px, 2vw, 28px);
+      padding: clamp(14px, 2vw, 28px) 0;
+      /* Fade left + right edges */
+      -webkit-mask-image: linear-gradient(
+        to right,
+        transparent 0%, black 7%, black 93%, transparent 100%
+      );
+      mask-image: linear-gradient(
+        to right,
+        transparent 0%, black 7%, black 93%, transparent 100%
+      );
     }
 
-    .category-item {
+    .conveyor-row-h {
+      overflow-x: hidden;   /* clips horizontal scroll — essential */
+      overflow-y: visible;  /* allows card to lift upward on hover without clipping */
       position: relative;
-      opacity: 0;
-      transform: translateY(50px) scale(0.9);
-      animation: stompIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      /* give breathing room above/below for the hover lift (card lifts 8px) */
+      padding: 12px 0;
+    }
+
+    .conveyor-track-h {
+      display: flex;
+      gap: clamp(14px, 1.8vw, 28px);
+      width: max-content;
+      will-change: transform;
+    }
+
+    /* Cards inside horizontal track: reset stompIn, fixed width ~3 per viewport */
+    .conveyor-track-h .category-item {
+      opacity: 1 !important;
+      transform: none !important;
+      animation: none !important;
+      flex-shrink: 0;
+      width: calc(33.5vw - 20px);
+      min-width: 240px;
+      max-width: 460px;
       transition: transform 0.3s ease;
     }
 
-    .category-item:nth-child(1) { animation-delay: 0.15s; }
-    .category-item:nth-child(2) { animation-delay: 0.30s; }
-    .category-item:nth-child(3) { animation-delay: 0.45s; }
-    .category-item:nth-child(4) { animation-delay: 0.60s; }
-    .category-item:nth-child(5) { animation-delay: 0.75s; }
-    .category-item:nth-child(6) { animation-delay: 0.90s; }
+    /* Row 1 → slides RIGHT */
+    @keyframes slide-right {
+      from { transform: translateX(-50%); }
+      to   { transform: translateX(0); }
+    }
 
-    @keyframes stompIn {
-      0% {
-        opacity: 0;
-        transform: translateY(50px) scale(0.9);
+    /* Row 2 ← slides LEFT */
+    @keyframes slide-left {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    .conveyor-row-h.row-right .conveyor-track-h {
+      animation: slide-right 34s linear infinite;
+    }
+
+    .conveyor-row-h.row-left .conveyor-track-h {
+      animation: slide-left 30s linear infinite;
+    }
+
+    /* Hovering anywhere in a row pauses that row's scroll */
+    .conveyor-row-h:hover .conveyor-track-h {
+      animation-play-state: paused;
+    }
+
+    /* ── Mobile (≤480px): 1 vertical column ── */
+    .conveyor-col-mobile {
+      display: none;
+      overflow: hidden;
+      /* Fixed viewport-based height showing ~3.5 cards */
+      height: min(960px, 85vh);
+      padding: 0 16px;
+      -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent 0%, black 8%, black 92%, transparent 100%
+      );
+      mask-image: linear-gradient(
+        to bottom,
+        transparent 0%, black 8%, black 92%, transparent 100%
+      );
+    }
+
+    .conveyor-track-v {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      will-change: transform;
+      animation: slide-down-cat 36s linear infinite;
+    }
+
+    @keyframes slide-down-cat {
+      from { transform: translateY(0); }
+      to   { transform: translateY(-50%); }
+    }
+
+    /* Cards inside vertical track */
+    .conveyor-track-v .category-item {
+      opacity: 1 !important;
+      transform: none !important;
+      animation: none !important;
+      flex-shrink: 0;
+      width: 100%;
+    }
+
+    /* ── Mode-selector-open: freeze all conveyors ── */
+    .conveyor-section.conveyor-paused .conveyor-track-h,
+    .conveyor-section.conveyor-paused .conveyor-track-v {
+      animation-play-state: paused !important;
+    }
+
+    /* Smooth resume after un-pause */
+    .conveyor-track-h,
+    .conveyor-track-v {
+      transition: animation-play-state 0s;
+    }
+
+    /* ── Responsive switch ── */
+    @media (max-width: 480px) {
+      .conveyor-rows-wrapper { display: none; }
+      .conveyor-col-mobile    { display: block; }
+    }
+
+    /* Preserve reduced-motion preference */
+    @media (prefers-reduced-motion: reduce) {
+      .conveyor-track-h,
+      .conveyor-track-v {
+        animation: none !important;
       }
-      60% {
-        transform: translateY(-5px) scale(1.02);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
+    }
+
+    /* Category-item base (used in both contexts) */
+    .category-item {
+      position: relative;
     }
 
     .category-card-new {
@@ -380,11 +480,6 @@
         max-width: 420px;
       }
 
-      .categories-grid-new {
-        grid-template-columns: 1fr;
-        gap: 20px;
-      }
-
       .view-all-btn {
         padding: 16px 40px;
         font-size: 1.1rem;
@@ -480,10 +575,26 @@
   </div>
 </section>
 
-<!-- ========== CATEGORIES SECTION ========== -->
-<div class="categories-flow">
-  <div class="categories-grid-new" id="categoriesContainer"></div>
-  
+<!-- ========== CATEGORIES CONVEYOR ========== -->
+<div class="conveyor-section" id="conveyorSection">
+
+  <!-- Desktop / Tablet: 2 horizontal rows -->
+  <div class="conveyor-rows-wrapper">
+    <!-- Row 1 → moves RIGHT -->
+    <div class="conveyor-row-h row-right">
+      <div class="conveyor-track-h" id="conveyorTrackRow1"></div>
+    </div>
+    <!-- Row 2 ← moves LEFT -->
+    <div class="conveyor-row-h row-left">
+      <div class="conveyor-track-h" id="conveyorTrackRow2"></div>
+    </div>
+  </div>
+
+  <!-- Mobile: 1 vertical column -->
+  <div class="conveyor-col-mobile">
+    <div class="conveyor-track-v" id="conveyorTrackMobile"></div>
+  </div>
+
   <div class="view-all-btn-container">
     <a href="categories.html" class="view-all-btn">View All Categories</a>
   </div>
@@ -531,38 +642,25 @@
   import { supabase } from './js/supabase-client.js';
   import { openModeSelector as originalOpenModeSelector } from './js/mode-selector.js';
 
-  // First 9 free categories
+  // ── 8 categories (6 free + 2 new) ──────────────────────────────────
   const freeCategories = [
-    { category: "population", display: "Population", emoji: "👥", image: "population.jpg" },
-    { category: "gdp", display: "GDP Per Capita", emoji: "💵", image: "gdp.jpg" },
-    { category: "altitude", display: "Highest Altitude", emoji: "🏔️", image: "altitude.jpg" },
-    { category: "forest", display: "Forest Cover", emoji: "🌲", image: "forest.jpg" },
-    { category: "olympic", display: "Olympic Medals", emoji: "🥇", image: "olympic.jpg" },
-    { category: "landmass", display: "Land Mass", emoji: "🌍", image: "landmass.jpg" }
+    { category: "population", display: "Population",      emoji: "👥", image: "population.jpg" },
+    { category: "gdp",        display: "GDP Per Capita",  emoji: "💵", image: "gdp.jpg" },
+    { category: "altitude",   display: "Highest Altitude",emoji: "🏔️", image: "altitude.jpg" },
+    { category: "forest",     display: "Forest Cover",    emoji: "🌲", image: "forest.jpg" },
+    { category: "olympic",    display: "Olympic Medals",  emoji: "🥇", image: "olympic.jpg" },
+    { category: "landmass",   display: "Land Mass",       emoji: "🌍", image: "landmass.jpg" },
+    { category: "beer",       display: "Beer Consumption",emoji: "🍺", image: "beer.jpg" },
+    { category: "passport",   display: "Passport Power",  emoji: "🛂", image: "passport.jpg" }
   ];
 
-  // Store scroll position for mode selector
-  let modeSelectorScrollPosition = 0;
+  // Row split: 4 per horizontal row
+  const row1Cats = freeCategories.slice(0, 4); // population, gdp, altitude, forest
+  const row2Cats = freeCategories.slice(4, 8); // olympic, landmass, beer, passport
 
-  // Wrap openModeSelector to handle scroll position
-  window.openModeSelector = function(category, display, emoji) {
-    modeSelectorScrollPosition = window.pageYOffset;
-    document.body.style.top = `-${modeSelectorScrollPosition}px`;
-    window.plausible('category_selected', { props: { category: category } });
-    originalOpenModeSelector(category, display, emoji);
-  };
-
-  // Restore scroll when mode selector closes
-  window.addEventListener('closeModeSelectorCustom', () => {
-    document.body.style.top = '';
-    window.scrollTo(0, modeSelectorScrollPosition);
-  });
-
-  // Render categories
-  function renderCategories() {
-    const container = document.getElementById('categoriesContainer');
-    
-    container.innerHTML = freeCategories.map(cat => `
+  // ── Card HTML factory ───────────────────────────────────────────────
+  function cardHTML(cat) {
+    return `
       <div class="category-item">
         <div class="category-card-new" onclick="openModeSelector('${cat.category}', '${cat.display}', '${cat.emoji}')">
           <div class="category-bg" style="background-image: url('images/categories/${cat.image}');"></div>
@@ -570,24 +668,67 @@
           <div class="category-content">
             <div class="category-emoji">${cat.emoji}</div>
             <div class="category-name">${cat.display}</div>
-            <div class="category-play-btn">
-              <span>Play</span>
-              <span></span>
-            </div>
+            <div class="category-play-btn"><span>Play</span><span></span></div>
           </div>
         </div>
-      </div>
-    `).join('');
+      </div>`;
   }
 
-  // Initialize
-  renderCategories();
+  // Duplicate for seamless loop (Set A + Set B)
+  function buildTrack(cats) {
+    return [...cats, ...cats].map(cardHTML).join('');
+  }
 
-  // Menu toggle with scroll lock
-  const menuToggle = document.getElementById('menuToggle');
+  // ── Render ──────────────────────────────────────────────────────────
+  document.getElementById('conveyorTrackRow1').innerHTML   = buildTrack(row1Cats);
+  document.getElementById('conveyorTrackRow2').innerHTML   = buildTrack(row2Cats);
+  // Mobile: all 8 duplicated
+  document.getElementById('conveyorTrackMobile').innerHTML = buildTrack(freeCategories);
+
+  // ── Mode selector scroll + conveyor pause ───────────────────────────
+  let modeSelectorScrollPosition = 0;
+  const conveyorSection = document.getElementById('conveyorSection');
+
+  function resumeConveyor() {
+    document.body.style.top = '';
+    window.scrollTo(0, modeSelectorScrollPosition);
+    conveyorSection?.classList.remove('conveyor-paused');
+  }
+
+  window.openModeSelector = function(category, display, emoji) {
+    modeSelectorScrollPosition = window.pageYOffset;
+    document.body.style.top = `-${modeSelectorScrollPosition}px`;
+    conveyorSection?.classList.add('conveyor-paused');
+    window.plausible('category_selected', { props: { category: category } });
+    originalOpenModeSelector(category, display, emoji);
+  };
+
+  // Strategy 1: custom event fired by mode-selector.js
+  window.addEventListener('closeModeSelectorCustom', resumeConveyor);
+
+  // Strategy 2: MutationObserver — watches for the mode selector overlay
+  // being hidden or removed from the DOM, regardless of how it closes
+  const observer = new MutationObserver(() => {
+    // If conveyor is paused but no mode-selector overlay is visible, resume
+    if (conveyorSection?.classList.contains('conveyor-paused')) {
+      const overlay = document.querySelector('.mode-selector-overlay, [class*="mode-selector"]');
+      const isVisible = overlay &&
+        !overlay.classList.contains('hidden') &&
+        overlay.style.display !== 'none' &&
+        overlay.offsetParent !== null;
+      if (!isVisible) {
+        // Small grace period so any close animation can finish
+        setTimeout(resumeConveyor, 250);
+      }
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style'] });
+
+  // ── Menu toggle with scroll lock ────────────────────────────────────
+  const menuToggle  = document.getElementById('menuToggle');
   const menuOverlay = document.getElementById('menuOverlay');
-  const closeMenu = document.getElementById('closeMenu');
-  const menuPanel = document.querySelector('.menu-panel');
+  const closeMenu   = document.getElementById('closeMenu');
+  const menuPanel   = document.querySelector('.menu-panel');
   let scrollPosition = 0;
 
   menuToggle?.addEventListener('click', () => {
@@ -595,11 +736,7 @@
     document.body.classList.add('menu-open');
     document.body.style.top = `-${scrollPosition}px`;
     menuOverlay.classList.add('active');
-    
-    // Reset menu panel scroll to top when opening
-    if (menuPanel) {
-      menuPanel.scrollTop = 0;
-    }
+    if (menuPanel) menuPanel.scrollTop = 0;
   });
 
   function closeMenuHandler() {
@@ -610,11 +747,8 @@
   }
 
   closeMenu?.addEventListener('click', closeMenuHandler);
-
   menuOverlay?.addEventListener('click', (e) => {
-    if (e.target === menuOverlay) {
-      closeMenuHandler();
-    }
+    if (e.target === menuOverlay) closeMenuHandler();
   });
 </script>
 

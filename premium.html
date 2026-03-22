@@ -11,41 +11,159 @@
   <link rel="stylesheet" href="css/page.css">
   
   <style>
+    /* ── Premium Banner — wrapper + scrolling columns + fixed overlay ── */
+    .premium-banner-spacer {
+      height: var(--header-height, 60px);
+    }
+
+    /* Outer wrapper: holds the aspect ratio and is the stacking context */
+    .premium-banner-wrapper {
+      width: 100%;
+      aspect-ratio: 1795 / 591;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* The scrolling columns — fills wrapper, mask only affects this layer */
+    .premium-banner-conveyor {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: row;
+      gap: clamp(8px, 1.2vw, 18px);
+      padding: 0 clamp(8px, 1.2vw, 18px);
+      background: transparent;
+      -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        black 18%,
+        black 82%,
+        transparent 100%
+      );
+      mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        black 18%,
+        black 82%,
+        transparent 100%
+      );
+    }
+
+    /* Centred overlay — sits above the columns, unaffected by the mask */
+    .premium-banner-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(6px, 1.2vw, 14px);
+      pointer-events: none;
+      /* soft radial scrim so text always reads against the images */
+      background: radial-gradient(
+        ellipse 55% 70% at 50% 50%,
+        rgba(255,255,255,0.55) 0%,
+        transparent 100%
+      );
+    }
+
+    .premium-banner-overlay img {
+      width: clamp(56px, 8vw, 110px);
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
+    }
+
+    .premium-banner-overlay h1 {
+      margin: 0;
+      font-family: 'Poppins', 'Rubik', sans-serif;
+      font-weight: 800;
+      font-size: clamp(1.4rem, 4vw, 3.2rem);
+      color: #0d315a;
+      text-align: center;
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      text-shadow: 0 2px 16px rgba(255,255,255,0.8), 0 1px 4px rgba(255,255,255,0.6);
+    }
+
+    /* Each column is a vertical overflow-hidden lane */
+    .conveyor-col {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* 4th column: hidden on mobile, visible on tablet+ */
+    .conveyor-col--4th {
+      display: none;
+    }
+    @media (min-width: 481px) {
+      .conveyor-col--4th {
+        display: block;
+      }
+    }
+
+    /* The moving track — flex column, two copies of its image set */
+    .conveyor-track {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(8px, 1.2vw, 18px);
+      will-change: transform;
+    }
+
+    .conveyor-track img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: clamp(12px, 1.6vw, 22px);
+      display: block;
+      flex-shrink: 0;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.13), 0 1px 4px rgba(0,0,0,0.07);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* All columns scroll downward: translateY(0 → -50%) */
+    @keyframes scroll-down {
+      from { transform: translateY(0); }
+      to   { transform: translateY(-50%); }
+    }
+
+    .conveyor-col:nth-child(1) .conveyor-track {
+      animation: scroll-down 22s linear infinite;
+    }
+    .conveyor-col:nth-child(2) .conveyor-track {
+      animation: scroll-down 28s linear infinite;
+      animation-delay: -8s;
+    }
+    .conveyor-col:nth-child(3) .conveyor-track {
+      animation: scroll-down 19s linear infinite;
+      animation-delay: -4s;
+    }
+    .conveyor-col:nth-child(4) .conveyor-track {
+      animation: scroll-down 25s linear infinite;
+      animation-delay: -12s;
+    }
+
+    /* Reduced-motion */
+    @media (prefers-reduced-motion: reduce) {
+      .conveyor-col .conveyor-track {
+        animation: none;
+      }
+    }
+
+    /* ── Main container (no longer needs large top offset) ── */
     .premium-container {
       max-width: 900px;
       margin: 40px auto 80px;
-      margin-top: 100px;
       padding: 0 20px;
     }
-    .premium-hero {
-      text-align: center;
-      margin-bottom: 60px;
-      animation: fadeInUp 0.8s ease;
-    }
+
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(30px); }
       to { opacity: 1; transform: translateY(0); }
-    }
-    .premium-badge {
-      width: 120px;
-      height: 120px;
-      margin: 0 auto 20px;
-      animation: float 3s ease-in-out infinite;
-    }
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
-    }
-    .premium-hero h1 {
-      font-size: clamp(2rem, 5vw, 3rem);
-      font-weight: 800;
-      color: #0d315a;
-      margin-bottom: 16px;
-    }
-    .premium-hero p {
-      font-size: clamp(1rem, 3vw, 1.3rem);
-      color: #0d315a;
-      opacity: 0.85;
     }
 
     /* Pricing Card Container */
@@ -448,13 +566,77 @@
   </div>
 </div>
 
-<div class="premium-container">
-  <div class="premium-hero">
-    <img src="assets/georanks-premium.png" alt="Premium" class="premium-badge" />
-    <h1>Unlock GeoRanks Premium 🔓</h1>
-    <p>Get unlimited access to all 36 categories and exclusive features</p>
+<!-- ========== PREMIUM BANNER — 4-column vertical scroll (3 on mobile) ========== -->
+<div class="premium-banner-spacer"></div>
+
+<div class="premium-banner-wrapper">
+
+  <!-- Scrolling image columns -->
+  <div class="premium-banner-conveyor" aria-hidden="true">
+
+    <!-- COLUMN 1 — 01 05 09 13 17 — 22s -->
+    <div class="conveyor-col">
+      <div class="conveyor-track">
+        <img src="images/banner/01.jpg" alt=""><img src="images/banner/05.jpg" alt="">
+        <img src="images/banner/09.jpg" alt=""><img src="images/banner/13.jpg" alt="">
+        <img src="images/banner/17.jpg" alt="">
+        <!-- duplicate -->
+        <img src="images/banner/01.jpg" alt=""><img src="images/banner/05.jpg" alt="">
+        <img src="images/banner/09.jpg" alt=""><img src="images/banner/13.jpg" alt="">
+        <img src="images/banner/17.jpg" alt="">
+      </div>
+    </div>
+
+    <!-- COLUMN 2 — 02 06 10 14 18 — 28s, -8s -->
+    <div class="conveyor-col">
+      <div class="conveyor-track">
+        <img src="images/banner/02.jpg" alt=""><img src="images/banner/06.jpg" alt="">
+        <img src="images/banner/10.jpg" alt=""><img src="images/banner/14.jpg" alt="">
+        <img src="images/banner/18.jpg" alt="">
+        <!-- duplicate -->
+        <img src="images/banner/02.jpg" alt=""><img src="images/banner/06.jpg" alt="">
+        <img src="images/banner/10.jpg" alt=""><img src="images/banner/14.jpg" alt="">
+        <img src="images/banner/18.jpg" alt="">
+      </div>
+    </div>
+
+    <!-- COLUMN 3 — 03 07 11 15 19 — 19s, -4s -->
+    <div class="conveyor-col">
+      <div class="conveyor-track">
+        <img src="images/banner/03.jpg" alt=""><img src="images/banner/07.jpg" alt="">
+        <img src="images/banner/11.jpg" alt=""><img src="images/banner/15.jpg" alt="">
+        <img src="images/banner/19.jpg" alt="">
+        <!-- duplicate -->
+        <img src="images/banner/03.jpg" alt=""><img src="images/banner/07.jpg" alt="">
+        <img src="images/banner/11.jpg" alt=""><img src="images/banner/15.jpg" alt="">
+        <img src="images/banner/19.jpg" alt="">
+      </div>
+    </div>
+
+    <!-- COLUMN 4 (tablet+ only) — 04 08 12 16 20 — 25s, -12s -->
+    <div class="conveyor-col conveyor-col--4th">
+      <div class="conveyor-track">
+        <img src="images/banner/04.jpg" alt=""><img src="images/banner/08.jpg" alt="">
+        <img src="images/banner/12.jpg" alt=""><img src="images/banner/16.jpg" alt="">
+        <img src="images/banner/20.jpg" alt="">
+        <!-- duplicate -->
+        <img src="images/banner/04.jpg" alt=""><img src="images/banner/08.jpg" alt="">
+        <img src="images/banner/12.jpg" alt=""><img src="images/banner/16.jpg" alt="">
+        <img src="images/banner/20.jpg" alt="">
+      </div>
+    </div>
+
+  </div><!-- /.premium-banner-conveyor -->
+
+  <!-- Fixed centred overlay — sits above the scrolling images -->
+  <div class="premium-banner-overlay">
+    <img src="assets/georanks-premium.png" alt="GeoRanks Premium badge">
+    <h1>Join GeoRanks Premium</h1>
   </div>
 
+</div><!-- /.premium-banner-wrapper -->
+
+<div class="premium-container">
   <div class="pricing-card-container" id="pricingContainer">
     <!-- Pricing Tabs -->
     <div class="pricing-tabs">
@@ -758,6 +940,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script src="https://js.stripe.com/v3/"></script>
 <script type="module" src="js/premium.js"></script>
+
+<!-- Header height measurement for banner spacer -->
+<script>
+  (function () {
+    function applyHeaderHeight() {
+      var h = document.querySelector('.home-glass-header');
+      if (h) {
+        document.documentElement.style.setProperty('--header-height', h.offsetHeight + 'px');
+      }
+    }
+    applyHeaderHeight();
+    window.addEventListener('resize', applyHeaderHeight);
+    // Run once more after fonts / layout settle
+    window.addEventListener('load', applyHeaderHeight);
+  })();
+</script>
 
 </body>
 </html>
