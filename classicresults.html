@@ -618,7 +618,7 @@
       <!-- Action Buttons -->
       <div class="results-actions">
         <button class="btn btn-primary" id="playAgainBtn">Play Again</button>
-        <button class="btn btn-secondary" id="playRandomBtn">Play Random</button>
+        <button class="btn btn-secondary" onclick="window.location.href='index.html'">Home</button>
         <button class="btn btn-secondary" onclick="window.location.href='leaderboard.html'">Leaderboard</button>
         <button class="btn btn-secondary" id="shareBtn">Share Results</button>
       </div>
@@ -750,11 +750,6 @@
       // Play Again button
       document.getElementById('playAgainBtn').onclick = () => {
         window.location.href = `game.html?mode=${categoryKey}`;
-      };
-
-      // Play Random button
-      document.getElementById('playRandomBtn').onclick = () => {
-        window.location.href = `game.html`;
       };
 
       // Share button
