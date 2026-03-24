@@ -14,6 +14,17 @@
     /* ========================================
        STATS PAGE CONTENT
     ======================================== */
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stats-page-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
     .stats-container {
       max-width: 820px;
       margin: 120px auto 60px;
@@ -54,7 +65,124 @@
       opacity: 0;
       animation: fadeIn 0.6s ease-out 0.3s forwards;
     }
-    
+
+    /* ── Skeleton loading state ── */
+    /* ── Auth loading spinner ── */
+    .stats-loader {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 340px;
+      max-width: 820px;
+      margin: 120px auto 60px;
+      padding: 48px 40px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 24px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+      box-sizing: border-box;
+      animation: fadeInContainer 0.4s ease-out forwards;
+      gap: 28px;
+    }
+
+    .stats-loader.hidden {
+      display: none;
+    }
+
+    .stats-loader.fading {
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+
+    .loader-spinner {
+      position: relative;
+      width: 72px;
+      height: 72px;
+    }
+
+    .loader-spinner::before,
+    .loader-spinner::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+    }
+
+    /* Outer ring */
+    .loader-spinner::before {
+      inset: 0;
+      border: 4px solid rgba(13, 49, 90, 0.08);
+    }
+
+    /* Spinning arc */
+    .loader-spinner::after {
+      inset: 0;
+      border: 4px solid transparent;
+      border-top-color: #ff6f61;
+      border-right-color: #ff9770;
+      animation: spin 0.9s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+
+    /* Globe emoji sits in the centre of the ring */
+    .loader-globe {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      animation: pulse-globe 1.8s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse-globe {
+      0%, 100% { transform: scale(1);    opacity: 1;    }
+      50%       { transform: scale(1.12); opacity: 0.75; }
+    }
+
+    .loader-text {
+      text-align: center;
+    }
+
+    .loader-text strong {
+      display: block;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #0d315a;
+      margin-bottom: 6px;
+      letter-spacing: -0.01em;
+    }
+
+    .loader-text span {
+      font-size: 0.9rem;
+      color: #7a94b0;
+    }
+
+    /* Animated dots on the subtext */
+    .loader-dots::after {
+      content: '';
+      animation: dots 1.6s steps(4, end) infinite;
+    }
+
+    @keyframes dots {
+      0%  { content: ''; }
+      25% { content: '.'; }
+      50% { content: '..'; }
+      75% { content: '...'; }
+    }
+
+    @media (max-width: 768px) {
+      .stats-loader { margin: 90px 12px 40px; padding: 32px 20px; min-height: 280px; }
+    }
+    @media (max-width: 480px) {
+      .stats-loader { margin: 80px 8px 30px; padding: 24px 14px; }
+    }
+
     /* Header Section */
     .stats-header {
       text-align: center;
@@ -264,10 +392,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      /* Fade in the backdrop */
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.35s ease;
+      transition: opacity 0.7s ease;
     }
 
     .premium-modal:not(.hidden) {
@@ -276,16 +403,16 @@
     }
 
     .premium-modal.hidden {
-      display: flex; /* keep in DOM — opacity handles visibility */
+      display: flex;
     }
 
-    /* Card slides up and fades in slightly after the backdrop */
+    /* Card floats up from below with a gentle spring */
     .premium-modal:not(.hidden) .premium-window {
-      animation: premiumCardIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+      animation: premiumCardIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
     }
 
     @keyframes premiumCardIn {
-      from { opacity: 0; transform: translateY(24px) scale(0.96); }
+      from { opacity: 0; transform: translateY(48px) scale(0.94); }
       to   { opacity: 1; transform: translateY(0)    scale(1);    }
     }
     
@@ -548,8 +675,22 @@
     <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
     <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
     <button class="menu-btn" onclick="location.href='about.html'">🌍 About Us</button>
-    <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'">🔓 Unlock All Categories</button>
+    <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'" style="display:none;">🔓 Unlock All Categories</button>
     <button class="menu-close-x" id="closeMenu">×</button>
+  </div>
+</div>
+
+<!-- ========== PAGE CONTENT ========== -->
+<div class="stats-page-content">
+
+<!-- ========== AUTH LOADING SPINNER ========== -->
+<div class="stats-loader" id="statsSkeleton">
+  <div class="loader-spinner">
+    <div class="loader-globe">🌍</div>
+  </div>
+  <div class="loader-text">
+    <strong>Verifying your access</strong>
+    <span>Hang tight, checking your account<span class="loader-dots"></span></span>
   </div>
 </div>
 
@@ -620,6 +761,8 @@
   </div>
 </div>
 
+</div><!-- /.stats-page-content -->
+
 <!-- ========== FOOTER ========== -->
 <footer class="home-footer">
   <div class="footer-socials">
@@ -684,9 +827,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const { data: { session } } = await getSessionSafe(5000);
     if (session?.user) {
       const { data: profile } = await supabase.from('users').select('is_premium').eq('id', session.user.id).single();
-      if (profile?.is_premium) document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+      if (profile?.is_premium) {
+        document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+      } else {
+        document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
+      }
     }
-    if (!session?.user) document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+    if (!session?.user) {
+      document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
+    }
   })();
 </script>
 
@@ -725,6 +875,7 @@ document.addEventListener('DOMContentLoaded', function() {
   sessionUser = session?.user || null;
   const modal          = document.getElementById("premiumModal");
   const statsContainer = document.getElementById("statsContainer");
+  const statsSkeleton  = document.getElementById("statsSkeleton");
   let currentMode      = 'classic';
   let isLoading        = false;
 
@@ -764,8 +915,27 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // ── Auth / premium gate ───────────────────────────────────────────────────
+  const MIN_SPINNER_MS  = 3000;
+  const spinnerStart    = Date.now();
+
+  // Helper: fade spinner out, then call cb after the fade completes
+  function dismissSpinner(cb) {
+    statsSkeleton.classList.add("fading");
+    setTimeout(() => {
+      statsSkeleton.classList.add("hidden");
+      cb();
+    }, 420); // matches the 0.4s fade-out transition
+  }
+
+  // Helper: wait for remaining spinner time, then dismiss and call cb
+  function afterMinDelay(cb) {
+    const elapsed   = Date.now() - spinnerStart;
+    const remaining = Math.max(0, MIN_SPINNER_MS - elapsed);
+    setTimeout(() => dismissSpinner(cb), remaining);
+  }
+
   if (!session || !session.user) {
-    modal.classList.remove("hidden");
+    afterMinDelay(() => modal.classList.remove("hidden"));
   } else {
     const profileTimeout = new Promise(resolve =>
       setTimeout(() => resolve({ data: null }), 5000)
@@ -776,12 +946,14 @@ document.addEventListener('DOMContentLoaded', function() {
     ]);
 
     if (!profile?.is_premium) {
-      // Timeout or non-premium — show the upgrade modal rather than leaving the page blank
-      modal.classList.remove("hidden");
+      afterMinDelay(() => modal.classList.remove("hidden"));
     } else {
-      statsContainer.style.display = "block";
-      loadUserInfo();
-      loadStats(currentMode);
+      // Premium confirmed — no need to linger, show stats promptly
+      dismissSpinner(() => {
+        statsContainer.style.display = "block";
+        loadUserInfo();
+        loadStats(currentMode);
+      });
     }
   }
 

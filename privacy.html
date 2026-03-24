@@ -110,7 +110,7 @@
     <button class="menu-btn" onclick="location.href='stats.html'">📊 My Stats</button>
     <button class="menu-btn" onclick="location.href='how-to-play.html'">💡 How to Play</button>
     <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
-    <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'">🔓 Unlock All Categories</button>
+    <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'" style="display:none;">🔓 Unlock All Categories</button>
     <button class="menu-close-x" id="closeMenu">×</button>
   </div>
 </div>
@@ -220,6 +220,7 @@
 
   if (!session || !session.user) {
     document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+    document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
   }
 
   if (session && session.user) {
@@ -231,6 +232,8 @@
 
     if (profile?.is_premium) {
       document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+    } else {
+      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
     }
   }
 </script>

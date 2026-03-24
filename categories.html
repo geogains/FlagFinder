@@ -641,7 +641,7 @@
     <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
     <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
     <button class="menu-btn" onclick="location.href='about.html'">🌍 About Us</button>
-    <button class="menu-btn upgrade-access-btn" onclick="plausible('premium_clicked'); window.location.href='premium.html'">🔓 Unlock All Categories</button>
+    <button class="menu-btn upgrade-access-btn" onclick="plausible('premium_clicked'); window.location.href='premium.html'" style="display:none;">🔓 Unlock All Categories</button>
     <button class="menu-close-x" id="closeMenu">×</button>
   </div>
 </div>
@@ -984,6 +984,7 @@
     .then(async ({ data: { session } }) => {
       if (!session?.user) {
         document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+        document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
         return;
       }
       const { data: profile } = await supabase
@@ -994,6 +995,8 @@
       if (profile?.is_premium) {
         document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
         if (typeof window._onPremiumConfirmed === 'function') window._onPremiumConfirmed();
+      } else {
+        document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
       }
     })
     .catch(err => console.error('Auth check failed:', err));

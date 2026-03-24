@@ -417,7 +417,7 @@
     <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
     <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
     <button class="menu-btn" onclick="location.href='about.html'">🌍 About Us</button>
-    <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'">🔓 Unlock All Categories</button>
+    <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'" style="display:none;">🔓 Unlock All Categories</button>
     <button class="menu-close-x" id="closeMenu">×</button>
   </div>
 </div>
@@ -618,9 +618,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) {
       const { data: profile } = await supabase.from('users').select('is_premium').eq('id', session.user.id).single();
-      if (profile?.is_premium) document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+      if (profile?.is_premium) {
+        document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+      } else {
+        document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
+      }
     }
-    if (!session?.user) document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+    if (!session?.user) {
+      document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
+    }
   })();
 </script>
 

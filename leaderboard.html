@@ -87,6 +87,32 @@
       background-clip: text;
     }
 
+    .guest-signin-prompt {
+      font-size: 0.95rem;
+      color: #5a7a9a;
+      margin: 4px 0 16px;
+      display: none;
+      opacity: 0;
+    }
+
+    .guest-signin-prompt.visible {
+      display: block;
+      animation: fadeIn 0.4s ease-out forwards;
+    }
+
+    .guest-signin-prompt a {
+      color: #ff6f61;
+      font-weight: 600;
+      text-decoration: none;
+      border-bottom: 1.5px solid rgba(255, 111, 97, 0.35);
+      transition: color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .guest-signin-prompt a:hover {
+      color: #ff9770;
+      border-color: rgba(255, 151, 112, 0.6);
+    }
+
     .search-bar-wrapper {
       max-width: 600px;
       margin: 20px auto;
@@ -539,6 +565,11 @@
 <!-- ========== LEADERBOARD CONTENT ========== -->
 <div class="leaderboard-container">
   <h1 class="page-title">🏆 <span class="page-title-text">Leaderboard</span></h1>
+
+  <!-- Guest Sign-In Prompt (hidden for logged-in users) -->
+  <p id="guestSignInPrompt" class="guest-signin-prompt">
+    <a href="auth.html">Sign in</a> or <a href="auth.html">create an account</a> to add your score to the leaderboard
+  </p>
 
   <!-- Mode Toggle -->
   <div class="mode-toggle">
@@ -1174,6 +1205,10 @@ document.addEventListener('DOMContentLoaded', function() {
       if (session?.user) {
         const { data: profile } = await supabase.from('users').select('is_premium').eq('id', session.user.id).single();
         if (profile?.is_premium) document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+      } else {
+        // Show sign-in prompt only for guests
+        const prompt = document.getElementById('guestSignInPrompt');
+        if (prompt) prompt.classList.add('visible');
       }
       if (!session?.user) document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
     })
