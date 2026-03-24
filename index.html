@@ -83,7 +83,12 @@
       cursor: pointer;
       margin-left: 1.2rem;
       text-decoration: none;
-      transition: opacity 0.2s ease;
+      transition: opacity 0.3s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 180px;
+      opacity: 0;
     }
 
     .sign-in-text:hover {
@@ -543,7 +548,7 @@
 
 <!-- ========== HEADER ========== -->
 <header class="home-glass-header">
-  <a href="auth.html" id="signInText" class="sign-in-text">Loading...</a>
+  <a href="auth.html" id="signInText" class="sign-in-text"></a>
   <div class="menu-icon" id="menuToggle">
     <span></span>
     <span></span>
@@ -793,10 +798,10 @@
   import { supabase } from './js/supabase-client.js';
 
   const signInText = document.getElementById('signInText');
-  signInText.textContent = "Sign In | Create Account";
-  signInText.href = "auth.html";
 
   const authTimeout = setTimeout(() => {
+    signInText.textContent = "Sign In | Create Account";
+    signInText.href = "auth.html";
     signInText.style.opacity = "1";
   }, 3000);
 
