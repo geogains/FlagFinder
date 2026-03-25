@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Duel | GeoRanks</title>
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+
+  <!-- Plausible -->
+  <script async src="https://plausible.io/js/pa-tUa77bKcZgPbREKVwm36y.js"></script>
+  <script>
+    window.plausible = window.plausible || function () { (plausible.q = plausible.q || []).push(arguments); };
+    plausible.init = plausible.init || function (i) { plausible.o = i || {}; };
+    plausible.init();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/page.css" />
+  <link rel="stylesheet" href="./css/game-modes.css" />
+
+  <style>
+    /* ── Auth / loading overlay ── */
+    #authLoadingOverlay {
+      position: fixed; top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: linear-gradient(135deg, #b4f3e9 0%, #38bdf8 100%);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 10000; color: #0d315a;
+    }
+    #authLoadingOverlay h2 { font-size: 1.5rem; margin-bottom: 1rem; }
+    .spinner {
+      width: 50px; height: 50px;
+      border: 5px solid rgba(255,255,255,0.3);
+      border-top-color: #0d315a;
+      border-radius: 50%; animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Opponent badge ── */
+    #opponentBadge {
+      position: fixed; top: 72px; right: 1rem;
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 20px; padding: 0.35rem 0.9rem;
+      font-size: 0.78rem; font-weight: 600; color: #0d315a;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      z-index: 500; pointer-events: none;
+      transition: background 0.4s ease;
+    }
+    #opponentBadge.pulsing { animation: badgePulse 2s ease-in-out infinite; }
+    #opponentBadge.done { background: rgba(209,250,229,0.95); color: #065f46; }
+    @keyframes badgePulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.55; }
+    }
+
+    /* ── Full-screen overlays ── */
+    .duel-fullscreen {
+      position: fixed; inset: 0; z-index: 9000;
+      background: linear-gradient(135deg, #b4f3e9 0%, #38bdf8 100%);
+      display: none;
+      flex-direction: column; align-items: center; justify-content: center;
+      color: #0d315a; text-align: center; padding: 2rem;
+    }
+    .duel-fullscreen.visible { display: flex; }
+    .duel-fullscreen h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 1rem; }
+    .duel-fullscreen p  { font-size: 1rem; color: rgba(13,49,90,0.7); margin-bottom: 1.5rem; }
+
+    .duel-fullscreen .big-spinner {
+      width: 56px; height: 56px;
+      border: 6px solid rgba(255,255,255,0.35);
+      border-top-color: #0d315a;
+      border-radius: 50%; animation: spin 1s linear infinite;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Waiting pulse ring */
+    .wait-pulse {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: rgba(56,189,248,0.25);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.5rem;
+      animation: expandPulse 1.8s ease-out infinite;
+    }
+    .wait-pulse span { font-size: 2.2rem; }
+    @keyframes expandPulse {
+      0%   { transform: scale(0.9); opacity: 0.6; }
+      60%  { transform: scale(1.12); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.6; }
+    }
+
+    /* Error overlay */
+    .error-box {
+      background: white; border-radius: 20px;
+      padding: 2rem 2.5rem; max-width: 420px; width: 100%;
+      text-align: center;
+    }
+    .error-box h3 { color: #dc2626; margin-bottom: 0.5rem; font-size: 1.2rem; }
+    .error-box p  { color: #6b7280; margin-bottom: 1.5rem; font-size: 0.9rem; }
+    .btn-home {
+      display: inline-block; padding: 0.75rem 1.75rem;
+      background: #0d315a; color: white; border: none; border-radius: 10px;
+      font-size: 0.95rem; font-weight: 600; cursor: pointer;
+      font-family: 'Poppins', sans-serif; text-decoration: none;
+    }
+    .btn-home:hover { opacity: 0.88; }
+
+    /* Timeout warning inside waiting overlay */
+    #timeoutMsg {
+      background: rgba(254,243,199,0.9);
+      border: 2px solid #fbbf24; border-radius: 12px;
+      padding: 0.75rem 1.25rem; font-size: 0.88rem; color: #78350f;
+      margin-bottom: 1rem; max-width: 360px;
+      display: none;
+    }
+    #goToResultsBtn {
+      padding: 0.75rem 1.75rem; background: #0d315a; color: white;
+      border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 600;
+      cursor: pointer; font-family: 'Poppins', sans-serif;
+      display: none; margin-top: 0.5rem;
+    }
+    #goToResultsBtn:hover { opacity: 0.88; }
+  </style>
+</head>
+<body>
+
+<!-- Auth / loading overlay -->
+<div id="authLoadingOverlay">
+  <h2>⚔️ Loading duel…</h2>
+  <div class="spinner"></div>
+</div>
+
+<!-- Header -->
+<header class="home-glass-header">
+  <div class="logo-header">
+    <a href="index.html" class="logo-link">
+      <img src="assets/logo.png" alt="GeoRanks Logo" />
+    </a>
+  </div>
+  <div class="hamburger-menu">
+    <div class="menu-icon" id="menuToggle">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</header>
+
+<!-- Menu overlay -->
+<div class="menu-overlay" id="menuOverlay">
+  <div class="menu-panel">
+    <h2>Menu</h2>
+    <button class="menu-btn menu-daily-challenge" onclick="window.location.href='daily-challenge.html'" id="dailyChallengeMenuBtn">
+      <div class="daily-bg" id="dailyChallengeBg"></div>
+      <div class="daily-overlay"></div>
+      <div class="daily-content">
+        <h3 class="daily-title">📅 Daily Challenge</h3>
+        <span class="daily-category" id="dailyChallengeCategory">Loading...</span>
+      </div>
+    </button>
+    <button class="menu-btn" onclick="window.location.href='duel.html'">⚔️ Duel a Friend</button>
+    <button class="menu-btn" onclick="window.location.href='upload.html'">⚔️ Battle Royale</button>
+    <button class="menu-btn" onclick="window.location.href='categories.html'">🎮 Categories</button>
+    <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
+    <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
+    <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
+    <button class="menu-btn" onclick="window.location.href='how-to-play.html'">💡 How to Play</button>
+    <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
+    <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
+    <button class="menu-btn" onclick="location.href='about.html'">🌍 About Us</button>
+    <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'" style="display:none;">🔓 Unlock All Categories</button>
+    <button class="menu-close-x" id="closeMenu">×</button>
+  </div>
+</div>
+
+<!-- Opponent status badge -->
+<div id="opponentBadge" class="pulsing">⚔️ Opponent is playing…</div>
+
+<!-- Game wrapper (identical structure to game.html — blind-ranking.js requires this exact DOM) -->
+<div class="blind-ranking-wrapper">
+  <div class="top-card">
+    <h2 class="top-card-title">Loading category…</h2>
+    <div class="country-pool-panel"></div>
+  </div>
+
+  <div class="ranking-card">
+    <div class="current-flag">
+      <div class="flag-box"><span>&lt;Country Flag&gt;</span></div>
+    </div>
+    <div class="flag-country-name">COUNTRY</div>
+
+    <div class="ranking-list">
+      <div class="ranking-row"><div class="rank-number">1</div><div class="rank-slot empty-slot"></div></div>
+      <div class="ranking-row"><div class="rank-number">2</div><div class="rank-slot empty-slot"></div></div>
+      <div class="ranking-row"><div class="rank-number">3</div><div class="rank-slot empty-slot"></div></div>
+      <div class="ranking-row"><div class="rank-number">4</div><div class="rank-slot empty-slot"></div></div>
+      <div class="ranking-row"><div class="rank-number">5</div><div class="rank-slot empty-slot"></div></div>
+      <div class="ranking-row"><div class="rank-number">6</div><div class="rank-slot empty-slot"></div></div>
+      <div class="ranking-row"><div class="rank-number">7</div><div class="rank-slot empty-slot"></div></div>
+      <div class="ranking-row"><div class="rank-number">8</div><div class="rank-slot empty-slot"></div></div>
+      <div class="ranking-row"><div class="rank-number">9</div><div class="rank-slot empty-slot"></div></div>
+      <div class="ranking-row"><div class="rank-number">10</div><div class="rank-slot empty-slot"></div></div>
+    </div>
+  </div>
+
+  <div class="result-panel" style="display:none;">
+    <div class="result-score">Score: <span class="result-score-value">0</span></div>
+    <div class="result-breakdown"></div>
+    <div class="result-buttons">
+      <button class="btn action-play-again">Play Again</button>
+      <button class="btn action-play-random">Play Random</button>
+      <button class="btn action-leaderboard" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
+      <button class="btn action-share">📲 Share Results</button>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="home-footer">
+  <div class="footer-socials"></div>
+</footer>
+
+<!-- Submit overlay -->
+<div class="duel-fullscreen" id="submitOverlay">
+  <div class="big-spinner"></div>
+  <h2>Submitting result…</h2>
+  <p>Verifying your score on the server</p>
+</div>
+
+<!-- Error overlay -->
+<div class="duel-fullscreen" id="errorOverlay">
+  <div class="error-box">
+    <h3>⚠️ Submission Failed</h3>
+    <p id="errorMsg">Could not save your result. Please check your connection and try again.</p>
+    <a href="index.html" class="btn-home">Return Home</a>
+  </div>
+</div>
+
+<!-- Waiting overlay -->
+<div class="duel-fullscreen" id="waitingOverlay">
+  <div class="wait-pulse"><span>⏳</span></div>
+  <h2>Waiting for opponent…</h2>
+  <p>Your result has been saved. Hang tight!</p>
+  <div id="timeoutMsg">
+    ⚠️ Your opponent hasn't finished in time.
+  </div>
+  <button id="goToResultsBtn" onclick="goToResults()">See Results Anyway →</button>
+</div>
+
+<!-- Menu toggle -->
+<script>
+  document.getElementById('menuToggle').addEventListener('click', () => {
+    document.getElementById('menuOverlay').classList.add('active');
+    document.body.classList.add('menu-open');
+  });
+  document.getElementById('closeMenu').addEventListener('click', () => {
+    document.getElementById('menuOverlay').classList.remove('active');
+    document.body.classList.remove('menu-open');
+  });
+  document.getElementById('menuOverlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('menuOverlay')) {
+      document.getElementById('menuOverlay').classList.remove('active');
+      document.body.classList.remove('menu-open');
+    }
+  });
+</script>
+
+<!-- Daily challenge menu button -->
+<script type="module">
+  import { getTodaysDailyChallenge, modeDisplayNames, categoryDisplayNames, categoryEmojis } from './js/daily-challenge.js';
+  document.addEventListener('DOMContentLoaded', () => {
+    const span = document.getElementById('dailyChallengeCategory');
+    const bg   = document.getElementById('dailyChallengeBg');
+    const today = getTodaysDailyChallenge();
+    if (today && span && bg) {
+      span.textContent = `${modeDisplayNames[today.mode] || today.mode}: ${categoryDisplayNames[today.category] || today.category} ${categoryEmojis[today.category] || ''}`;
+      bg.style.backgroundImage = `url('images/categories/${today.category}.jpg')`;
+    }
+  });
+</script>
+
+<!-- Auth/premium menu buttons -->
+<script type="module">
+  import { supabase } from './js/supabase-client.js';
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session?.user) {
+    const { data: profile } = await supabase.from('users').select('is_premium').eq('id', session.user.id).single();
+    if (profile?.is_premium) {
+      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+    } else {
+      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
+    }
+  } else {
+    document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+    document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
+  }
+</script>
+
+<!-- Main duel game logic -->
+<script type="module">
+  import { supabase }          from './js/supabase-client.js';
+  import { categoriesConfig }  from './js/categories-config.js';
+  import { CATEGORY_ID_MAP }   from './js/top10-categories-loader.js';
+  import { createDuelChannel } from './js/duel-channel.js';
+
+  // ── Category question titles (mirrors game.html) ────────────────────────
+  const classicTitles = {
+    population:      'RANK THESE COUNTRIES FROM LARGEST TO SMALLEST POPULATION 👥',
+    gdp:             'RANK THESE COUNTRIES BY GDP PER PERSON 💰',
+    happiness:       'RANK THESE COUNTRIES BY NATIONAL HAPPINESS SCORES 😊',
+    forest:          'RANK THESE COUNTRIES BY TOTAL AREA COVERED BY FORESTS 🌲',
+    coastline:       'RANK THESE COUNTRIES BY TOTAL COASTLINE LENGTH 🏝️',
+    cuisine:         'RANK THESE COUNTRIES BY CUISINE POPULARITY AND QUALITY 🍽️',
+    olympic:         'RANK THESE COUNTRIES BY TOTAL OLYMPIC MEDALS WON 🥇',
+    worldcup:        'RANK THESE COUNTRIES BY NUMBER OF FIFA WORLD CUP TITLES ⚽',
+    landmass:        'RANK THESE COUNTRIES FROM LARGEST TO SMALLEST TOTAL LAND AREA 🌍',
+    crimerate:       'RANK THESE COUNTRIES BY HIGHEST CRIME RATE SCORE 🚨',
+    altitude:        'RANK THESE COUNTRIES BY HIGHEST MOUNTAIN ELEVATION 🏔️',
+    passport:        'RANK THESE COUNTRIES BY STRONGEST PASSPORT 🛂',
+    beer:            'RANK THESE COUNTRIES BY ANNUAL BEER CONSUMPTION PER PERSON 🍺',
+    nobelprize:      'RANK THESE COUNTRIES BY MOST NOBEL PRIZE WINNERS 🕊️',
+    temperature:     'RANK THESE COUNTRIES BY HIGHEST AVERAGE TEMPERATURE ☀️',
+    hightemp:        'RANK THESE COUNTRIES BY HIGHEST AVERAGE TEMPERATURE ☀️',
+    precipitation:   'RANK THESE COUNTRIES BY HIGHEST AVERAGE PRECIPITATION 🌧️',
+    rainfall:        'RANK THESE COUNTRIES BY HIGHEST AVERAGE PRECIPITATION 🌧️',
+    tourism:         'RANK THESE COUNTRIES BY NUMBER OF TOURIST VISITS IN 2025 ✈️',
+    michelin:        'RANK THESE COUNTRIES BY MICHELIN STARRED RESTAURANTS ⭐',
+    bigmac:          'RANK THESE COUNTRIES BY HIGHEST BIG MAC PRICE 🍔',
+    lifeexpectancy:  'RANK THESE COUNTRIES BY HIGHEST LIFE EXPECTANCY 🤍',
+    marriageage:     'RANK THESE COUNTRIES BY HIGHEST AVERAGE MARRIAGE AGE 💍',
+    sexratio:        'RANK THESE COUNTRIES BY MOST MEN PER 100 WOMEN ⚖️',
+    tallestbuilding: 'RANK THESE COUNTRIES BY TALLEST BUILDINGS 🏙️',
+    density:         'RANK THESE COUNTRIES BY BIGGEST POPULATION DENSITY 👨‍👩‍👧‍👦',
+    carexports:      'RANK THESE COUNTRIES BY HIGHEST CAR EXPORTS 🚗',
+    militarypersonel:'RANK THESE COUNTRIES BY MOST MILITARY PERSONNEL 🪖',
+    rent:            'RANK THESE COUNTRIES BY HIGHEST AVERAGE 1-BED, CAPITAL CITY RENT PRICE 🏠',
+    poorestgdp:      'RANK THESE COUNTRIES BY LOWEST GDP PER CAPITA 📉',
+    university:      'RANK THESE COUNTRIES BY HIGHEST NUMBER OF UNIVERSITIES 🎓',
+    volcano:         'RANK THESE COUNTRIES BY HIGHEST NUMBER OF HOLOCENE VOLCANOES 🌋',
+    flamingo:        'RANK THESE COUNTRIES BY HIGHEST FLAMINGO POPULATION 🦩',
+    disasterrisk:    'RANK THESE COUNTRIES BY HIGHEST NATURAL DISASTER RISK 🌪️',
+    longestriver:    'RANK THESE COUNTRIES BY LONGEST RIVER 🌊',
+    renewableenergy: 'RANK THESE COUNTRIES BY HIGHEST % ENERGY USE FROM RENEWABLE SOURCES ♻️',
+    millionaires:    'RANK THESE COUNTRIES BY HIGHEST NUMBER OF MILLIONAIRES 💰',
+    gm:              'RANK THESE COUNTRIES BY HIGHEST NUMBER OF CHESS GRANDMASTERS ♟️',
+  };
+
+  // ── Validate session ─────────────────────────────────────────────────────
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) {
+    window.location.href = 'auth.html?next=' + encodeURIComponent(window.location.href);
+    throw new Error('auth required');
+  }
+  const currentUserId = session.user.id;
+
+  // ── Validate sessionStorage ──────────────────────────────────────────────
+  let duelMatch;
+  try {
+    const raw = sessionStorage.getItem('duelMatch');
+    if (!raw) throw new Error('missing');
+    duelMatch = JSON.parse(raw);
+    if (!duelMatch.matchId || duelMatch.seed == null || !duelMatch.startedAt) throw new Error('malformed');
+  } catch {
+    window.location.href = 'duel.html';
+    throw new Error('invalid duelMatch in sessionStorage');
+  }
+
+  // ── Check match timeout ──────────────────────────────────────────────────
+  const GAME_DURATION_MS = 5 * 60 * 1000;
+  const startedAt  = new Date(duelMatch.startedAt).getTime();
+  const timeLeft   = (startedAt + GAME_DURATION_MS) - Date.now();
+
+  if (timeLeft <= 0) {
+    window.location.href = `duelresults.html?match=${duelMatch.matchId}&timeout=1`;
+    throw new Error('match already timed out');
+  }
+
+  // Auto-navigate to results when time runs out (if player hasn't finished yet)
+  const timeoutHandle = setTimeout(() => {
+    window.location.href = `duelresults.html?match=${duelMatch.matchId}&timeout=1`;
+  }, timeLeft);
+
+  // ── Category from URL ────────────────────────────────────────────────────
+  const mode = new URLSearchParams(window.location.search).get('mode') || 'population';
+
+  // ── Opponent badge ───────────────────────────────────────────────────────
+  const badge = document.getElementById('opponentBadge');
+
+  // ── Duel channel — created early to receive opponent:finished during gameplay ──
+  let opponentFinishedDuringGame = false;
+  const duelChannel = createDuelChannel(duelMatch.matchId, currentUserId, {
+    onBothReady:        () => {},  // not needed on game page
+    onGameStart:        () => {},  // already started
+    onOpponentFinished: () => {
+      opponentFinishedDuringGame = true;
+      badge.textContent = '✅ Opponent finished!';
+      badge.classList.remove('pulsing');
+      badge.classList.add('done');
+    }
+  });
+
+  // ── Waiting-for-opponent helpers ─────────────────────────────────────────
+  let waitPollInterval = null;
+  const WAIT_TIMEOUT_MS = 90_000;
+  let waitStart = 0;
+
+  function goToResults() {
+    clearInterval(waitPollInterval);
+    window.location.href = `duelresults.html?match=${duelMatch.matchId}`;
+  }
+  window.goToResults = goToResults;
+
+  async function startWaitingForOpponent() {
+    document.getElementById('waitingOverlay').classList.add('visible');
+    waitStart = Date.now();
+
+    // If opponent already finished during my game, go straight to results
+    if (opponentFinishedDuringGame) {
+      goToResults();
+      return;
+    }
+
+    // Poll h2h_results every 3 s until both rows exist
+    waitPollInterval = setInterval(async () => {
+      const elapsed = Date.now() - waitStart;
+
+      const { data: results } = await supabase
+        .from('h2h_results')
+        .select('user_id')
+        .eq('match_id', duelMatch.matchId);
+
+      if (results && results.length >= 2) {
+        clearInterval(waitPollInterval);
+        window.location.href = `duelresults.html?match=${duelMatch.matchId}`;
+        return;
+      }
+
+      if (elapsed >= WAIT_TIMEOUT_MS) {
+        clearInterval(waitPollInterval);
+        document.getElementById('timeoutMsg').style.display = 'block';
+        document.getElementById('goToResultsBtn').style.display = 'inline-block';
+      }
+    }, 3000);
+  }
+
+  // ── _duelOnComplete handler ──────────────────────────────────────────────
+  window._duelOnComplete = async (resultsTable, totalScore, maxScore) => {
+    // Cancel the match timeout navigator — we finished in time
+    clearTimeout(timeoutHandle);
+
+    // Remove the speculative classic pending save (duel results go via RPC, not classicresults)
+    localStorage.removeItem('classicPendingSave');
+
+    // Show submitting overlay
+    document.getElementById('submitOverlay').classList.add('visible');
+
+    // Build placements array — field names must match verify_and_save_duel_result RPC
+    const placements = resultsTable.map(entry => ({
+      placedRank:      entry.rank,
+      correctRankMin:  entry.correctRankMin,
+      correctRankMax:  entry.correctRankMax,
+      country_code:    entry.countryCode,
+      name:            entry.name,
+      flag:            entry.flag
+    }));
+
+    // Call server-side RPC to verify and save score
+    const { data: rpcResult, error: rpcError } = await supabase.rpc(
+      'verify_and_save_duel_result',
+      {
+        p_match_id:   duelMatch.matchId,
+        p_user_id:    currentUserId,
+        p_placements: placements
+      }
+    );
+
+    if (rpcError || !rpcResult) {
+      console.error('⚔️ RPC error:', rpcError);
+      document.getElementById('submitOverlay').classList.remove('visible');
+      document.getElementById('errorMsg').textContent =
+        rpcError?.message || 'Could not save your result. Please check your connection.';
+      document.getElementById('errorOverlay').classList.add('visible');
+      return;
+    }
+
+    // Broadcast game:finished to opponent
+    duelChannel.emitFinished(rpcResult.score, rpcResult.max_score);
+
+    // Destroy channel — no longer needed for lobby events
+    duelChannel.destroy();
+
+    // Hide submit overlay, show waiting screen
+    document.getElementById('submitOverlay').classList.remove('visible');
+    await startWaitingForOpponent();
+  };
+
+  // ── Set duel seed BEFORE importing game engine ───────────────────────────
+  window._duelSeed = Number(duelMatch.seed);
+
+  // ── Load category data + game engine ────────────────────────────────────
+  const config = categoriesConfig[mode] || categoriesConfig.population;
+  const [categoryModule, { startBlindRankingGame, setupRankButtons }] = await Promise.all([
+    import(`./js/categories/${config.dataFile}.js`),
+    import('./js/blind-ranking.js'),
+  ]);
+
+  window.countries = categoryModule[config.dataKey];
+  document.querySelector('.top-card-title').textContent =
+    classicTitles[mode] || config.title?.toUpperCase() || 'RANK THESE COUNTRIES';
+
+  // Hide loading overlay and start game
+  document.getElementById('authLoadingOverlay').style.display = 'none';
+
+  startBlindRankingGame(CATEGORY_ID_MAP[mode] || 0);
+  setupRankButtons();
+  window.scrollTo(0, 0);
+</script>
+
+</body>
+</html>

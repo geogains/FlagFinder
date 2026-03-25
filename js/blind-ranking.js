@@ -162,7 +162,12 @@ export function startBlindRankingGame() {
 
   if (typeof window.plausible === 'function') window.plausible('game_started', { props: { mode: 'classic', category: currentCategory } });
 
-  if (isDailyChallenge) {
+  // Duel mode: use externally-provided seed (window._duelSeed)
+  if (window._duelSeed != null) {
+    const rng = makeSeededRNG(Number(window._duelSeed));
+    selectedCountries = seededShuffle([...countries], rng).slice(0, 10);
+    console.log('⚔️ Duel draw — seed:', window._duelSeed, 'countries:', selectedCountries.map(c => c.name));
+  } else if (isDailyChallenge) {
     const today = new Date();
     const dateInt = today.getUTCFullYear() * 10000 + (today.getUTCMonth() + 1) * 100 + today.getUTCDate();
     const seed = getDailyGameSeed(dateInt, 'classic', currentCategory);
@@ -398,6 +403,9 @@ async function endGame() {
     resultsTable.push({
       rank: userTier,
       bestRank: range.min === range.max ? range.min : `${range.min}-${range.max}`,
+      correctRankMin: range.min,
+      correctRankMax: range.max,
+      countryCode: c.code,
       name: c.name,
       flag: `flags/${c.code}.png`,
       value: formatMetric(c[metricKey]),
@@ -480,6 +488,12 @@ async function endGame() {
     maxScore: maxScore
   });
   if (isDailyChallenge) params.set('daily', '1');
+
+  // Duel mode: hand off to the host page instead of redirecting
+  if (typeof window._duelOnComplete === 'function') {
+    window._duelOnComplete(resultsTable, totalScore, maxScore);
+    return;
+  }
 
   console.log('🔀 Redirecting to results...');
   window.location.href = `classicresults.html?${params.toString()}`;

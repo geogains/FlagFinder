@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Duel Results | GeoRanks</title>
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://geo-ranks.com/duelresults.html">
+  <meta property="og:title" content="GeoRanks - Duel Results">
+  <meta property="og:description" content="Head-to-head geography duel results on GeoRanks!">
+  <meta property="og:image" content="https://geo-ranks.com/assets/preview.jpg">
+  <meta property="og:site_name" content="GeoRanks">
+
+  <!-- Plausible -->
+  <script async src="https://plausible.io/js/pa-tUa77bKcZgPbREKVwm36y.js"></script>
+  <script>
+    window.plausible = window.plausible || function () { (plausible.q = plausible.q || []).push(arguments); };
+    plausible.init = plausible.init || function (i) { plausible.o = i || {}; };
+    plausible.init();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/page.css" />
+
+  <style>
+    body { padding-top: 80px; }
+
+    /* ── Loading overlay ── */
+    #pageLoadingOverlay {
+      position: fixed; inset: 0; z-index: 10000;
+      background: linear-gradient(135deg, #b4f3e9 0%, #38bdf8 100%);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      color: #0d315a;
+    }
+    #pageLoadingOverlay h2 { font-size: 1.4rem; margin-bottom: 1rem; }
+    .spinner {
+      width: 50px; height: 50px;
+      border: 5px solid rgba(255,255,255,0.3);
+      border-top-color: #0d315a;
+      border-radius: 50%; animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Results layout ── */
+    #mainContent { display: none; }
+
+    .results-container {
+      max-width: 920px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .results-card {
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+      overflow: hidden;
+      animation: fadeInUp 0.45s ease;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Winner banner ── */
+    .winner-banner {
+      padding: 2rem 2.5rem;
+      text-align: center;
+    }
+    .winner-banner.you-won {
+      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
+    }
+    .winner-banner.you-lost {
+      background: linear-gradient(135deg, #1e3a5f 0%, #0d315a 100%);
+    }
+    .winner-banner.tie {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    }
+    .winner-banner.timeout {
+      background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    }
+    .banner-emoji { font-size: 3.5rem; line-height: 1; margin-bottom: 0.5rem; }
+    .banner-title {
+      font-size: 2rem; font-weight: 700; color: white;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      margin: 0;
+    }
+    .banner-subtitle {
+      font-size: 0.95rem; color: rgba(255,255,255,0.8);
+      margin-top: 0.3rem;
+    }
+
+    /* ── Score summary ── */
+    .score-summary {
+      display: flex; justify-content: center; gap: 3rem;
+      padding: 1.75rem 2.5rem;
+      background: linear-gradient(135deg, rgba(224,242,254,0.5), rgba(186,230,253,0.3));
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .score-player {
+      text-align: center;
+    }
+    .score-player-name {
+      font-size: 0.8rem; font-weight: 600; color: #6b7280;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      margin-bottom: 0.3rem;
+    }
+    .score-player-name .you-tag {
+      display: inline-block; margin-left: 0.3rem;
+      background: #0d315a; color: white;
+      border-radius: 6px; padding: 0 5px;
+      font-size: 0.65rem; vertical-align: middle;
+    }
+    .score-value {
+      font-size: 2rem; font-weight: 700; color: #0d315a;
+      font-family: 'Rubik', sans-serif;
+    }
+    .score-max { font-size: 1rem; color: #9ca3af; font-weight: 500; }
+    .score-divider {
+      width: 1px; background: rgba(0,0,0,0.1); align-self: stretch;
+    }
+
+    /* ── Category badge ── */
+    .category-row {
+      text-align: center; padding: 1rem 2.5rem 0;
+    }
+    .category-badge-pill {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+      border: 2px solid #38bdf8; border-radius: 20px;
+      padding: 0.4rem 1rem; font-weight: 700; color: #0d315a;
+      font-size: 0.9rem;
+    }
+
+    /* ── Placement breakdown ── */
+    .breakdown-section {
+      padding: 1.5rem 2rem 0;
+    }
+    .breakdown-section h3 {
+      font-size: 0.75rem; font-weight: 700; color: #9ca3af;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin-bottom: 0.75rem;
+    }
+
+    /* Desktop two-column header */
+    .breakdown-header-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.5rem;
+      padding: 0 0.5rem 0.5rem;
+      border-bottom: 2px solid #e5e7eb;
+      margin-bottom: 0.5rem;
+    }
+    .col-header {
+      font-size: 0.72rem; font-weight: 700; color: #6b7280;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .col-header.left  { text-align: left; }
+    .col-header.right { text-align: right; }
+    .col-header.center { text-align: center; }
+
+    /* Each country row */
+    .country-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.5rem;
+      padding: 0.6rem 0.5rem;
+      border-bottom: 1px solid #f3f4f6;
+      align-items: center;
+    }
+    .country-row:last-child { border-bottom: none; }
+
+    /* Row highlight states */
+    .country-row.i-won    { background: linear-gradient(135deg, rgba(16,185,129,0.06), rgba(5,150,105,0.06)); }
+    .country-row.opp-won  { background: linear-gradient(135deg, rgba(239,68,68,0.04), rgba(220,38,38,0.04)); }
+    .country-row.both-won { background: linear-gradient(135deg, rgba(245,158,11,0.06), rgba(251,191,36,0.06)); }
+
+    /* Player side cell */
+    .player-cell {
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .player-cell.right-align {
+      align-items: flex-end; text-align: right;
+    }
+    .player-cell.left-align {
+      align-items: flex-start; text-align: left;
+    }
+    .placed-rank {
+      font-size: 1rem; font-weight: 700; color: #0d315a;
+      font-family: 'Rubik', sans-serif;
+    }
+    .correct-range {
+      font-size: 0.72rem; color: #9ca3af; font-weight: 500;
+    }
+    .result-chip {
+      display: inline-block;
+      font-size: 0.75rem; font-weight: 700; padding: 1px 6px;
+      border-radius: 6px; margin-top: 2px;
+    }
+    .result-chip.correct { background: #d1fae5; color: #065f46; }
+    .result-chip.wrong   { background: #fee2e2; color: #991b1b; }
+
+    /* Country center cell */
+    .country-center {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 3px; min-width: 90px;
+    }
+    .country-flag {
+      width: 36px; height: 26px;
+      object-fit: cover; border-radius: 4px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    }
+    .country-name {
+      font-size: 0.72rem; font-weight: 600; color: #374151;
+      text-align: center; line-height: 1.2;
+    }
+
+    /* ── Action buttons ── */
+    .actions-row {
+      display: flex; gap: 0.75rem; flex-wrap: wrap;
+      padding: 2rem 2rem 2.5rem;
+      justify-content: center;
+    }
+    .action-btn {
+      padding: 0.85rem 1.5rem; border: none; border-radius: 12px;
+      font-size: 0.95rem; font-weight: 700; cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      text-decoration: none; display: inline-block;
+    }
+    .action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.15); }
+    .action-btn.primary { background: linear-gradient(135deg, #ff9770, #ff6f61); color: white; }
+    .action-btn.secondary { background: #e5e7eb; color: #374151; }
+
+    /* ── Not-ready state ── */
+    .not-ready-card {
+      padding: 3rem 2rem; text-align: center;
+    }
+    .not-ready-card h2 { font-size: 1.5rem; color: #0d315a; margin-bottom: 0.5rem; }
+    .not-ready-card p  { color: #6b7280; margin-bottom: 1.5rem; }
+    .retry-btn {
+      padding: 0.75rem 1.75rem; background: #0d315a; color: white;
+      border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 600;
+      cursor: pointer; font-family: 'Poppins', sans-serif;
+    }
+    .retry-btn:hover { opacity: 0.88; }
+
+    /* ── Timeout banner variant ── */
+    .timeout-notice {
+      background: rgba(254,243,199,0.9);
+      border: 2px solid #fbbf24; border-radius: 12px;
+      padding: 0.75rem 1.25rem; font-size: 0.85rem; color: #78350f;
+      margin: 0 2rem 0; text-align: center;
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 768px) {
+      .score-summary { gap: 1.5rem; padding: 1.25rem 1.5rem; }
+      .score-value { font-size: 1.6rem; }
+      .breakdown-section { padding: 1.25rem 1rem 0; }
+      .actions-row { padding: 1.5rem 1rem 2rem; }
+      .winner-banner { padding: 1.5rem 1.25rem; }
+      .banner-title { font-size: 1.6rem; }
+      .category-row { padding: 0.75rem 1rem 0; }
+    }
+
+    /* Mobile: stack two columns vertically */
+    @media (max-width: 600px) {
+      .breakdown-header-row {
+        display: none; /* replaced by card layout */
+      }
+      .country-row {
+        display: flex; flex-direction: column;
+        gap: 0.5rem; padding: 0.9rem 0.5rem;
+      }
+      .country-center { flex-direction: row; justify-content: flex-start; gap: 0.6rem; min-width: unset; }
+      .country-name { text-align: left; }
+      .players-mobile {
+        display: flex; gap: 0.75rem; width: 100%;
+      }
+      .player-cell.right-align { align-items: flex-start; text-align: left; }
+      .mobile-label {
+        font-size: 0.65rem; font-weight: 700; color: #9ca3af;
+        text-transform: uppercase; letter-spacing: 0.04em;
+        margin-bottom: 2px;
+      }
+      .player-col-mobile {
+        flex: 1; background: #f9fafb; border-radius: 8px;
+        padding: 0.5rem 0.6rem;
+      }
+    }
+    /* Hide mobile wrapper on desktop */
+    .players-mobile { display: none; }
+    @media (max-width: 600px) {
+      .players-mobile { display: flex; }
+      .player-cell { display: none; }
+      .country-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Loading overlay -->
+<div id="pageLoadingOverlay">
+  <h2>⚔️ Loading results…</h2>
+  <div class="spinner"></div>
+</div>
+
+<!-- Header -->
+<header class="home-glass-header">
+  <div class="logo-header">
+    <a href="index.html" class="logo-link">
+      <img src="assets/logo.png" alt="GeoRanks Logo" />
+    </a>
+  </div>
+  <div class="hamburger-menu">
+    <div class="menu-icon" id="menuToggle">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</header>
+
+<!-- Menu overlay -->
+<div class="menu-overlay" id="menuOverlay">
+  <div class="menu-panel">
+    <h2>Menu</h2>
+    <button class="menu-btn menu-daily-challenge" onclick="window.location.href='daily-challenge.html'" id="dailyChallengeMenuBtn">
+      <div class="daily-bg" id="dailyChallengeBg"></div>
+      <div class="daily-overlay"></div>
+      <div class="daily-content">
+        <h3 class="daily-title">📅 Daily Challenge</h3>
+        <span class="daily-category" id="dailyChallengeCategory">Loading...</span>
+      </div>
+    </button>
+    <button class="menu-btn" onclick="window.location.href='duel.html'">⚔️ Duel a Friend</button>
+    <button class="menu-btn" onclick="window.location.href='upload.html'">⚔️ Battle Royale</button>
+    <button class="menu-btn" onclick="window.location.href='categories.html'">🎮 Categories</button>
+    <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
+    <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
+    <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
+    <button class="menu-btn" onclick="window.location.href='how-to-play.html'">💡 How to Play</button>
+    <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
+    <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
+    <button class="menu-btn" onclick="location.href='about.html'">🌍 About Us</button>
+    <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'" style="display:none;">🔓 Unlock All Categories</button>
+    <button class="menu-close-x" id="closeMenu">×</button>
+  </div>
+</div>
+
+<!-- Main content (injected by JS) -->
+<div id="mainContent">
+  <div class="results-container">
+    <div class="results-card" id="resultsCard">
+      <!-- populated by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="home-footer">
+  <div class="footer-socials"></div>
+</footer>
+
+<!-- Menu toggle -->
+<script>
+  document.getElementById('menuToggle').addEventListener('click', () => {
+    document.getElementById('menuOverlay').classList.add('active');
+    document.body.classList.add('menu-open');
+  });
+  document.getElementById('closeMenu').addEventListener('click', () => {
+    document.getElementById('menuOverlay').classList.remove('active');
+    document.body.classList.remove('menu-open');
+  });
+  document.getElementById('menuOverlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('menuOverlay')) {
+      document.getElementById('menuOverlay').classList.remove('active');
+      document.body.classList.remove('menu-open');
+    }
+  });
+</script>
+
+<!-- Daily challenge menu button -->
+<script type="module">
+  import { getTodaysDailyChallenge, modeDisplayNames, categoryDisplayNames, categoryEmojis } from './js/daily-challenge.js';
+  document.addEventListener('DOMContentLoaded', () => {
+    const span = document.getElementById('dailyChallengeCategory');
+    const bg   = document.getElementById('dailyChallengeBg');
+    const today = getTodaysDailyChallenge();
+    if (today && span && bg) {
+      span.textContent = `${modeDisplayNames[today.mode] || today.mode}: ${categoryDisplayNames[today.category] || today.category} ${categoryEmojis[today.category] || ''}`;
+      bg.style.backgroundImage = `url('images/categories/${today.category}.jpg')`;
+    }
+  });
+</script>
+
+<!-- Auth/premium menu buttons -->
+<script type="module">
+  import { supabase } from './js/supabase-client.js';
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session?.user) {
+    const { data: profile } = await supabase.from('users').select('is_premium').eq('id', session.user.id).single();
+    if (profile?.is_premium) {
+      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+    } else {
+      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
+    }
+  } else {
+    document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+    document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
+  }
+</script>
+
+<!-- Main results logic -->
+<script type="module">
+  import { supabase }         from './js/supabase-client.js';
+  import { categoriesConfig } from './js/categories-config.js';
+
+  const urlParams   = new URLSearchParams(window.location.search);
+  const matchId     = urlParams.get('match');
+  const isTimeout   = urlParams.get('timeout') === '1';
+  const overlay     = document.getElementById('pageLoadingOverlay');
+  const mainContent = document.getElementById('mainContent');
+  const card        = document.getElementById('resultsCard');
+
+  if (!matchId) {
+    window.location.href = 'duel.html';
+    throw new Error('no match param');
+  }
+
+  // ── Auth guard ────────────────────────────────────────────────────
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) {
+    window.location.href = 'auth.html?next=' + encodeURIComponent(window.location.href);
+    throw new Error('auth required');
+  }
+  const currentUserId = session.user.id;
+
+  // ── Poll until match is finished (up to 30 s) ────────────────────
+  async function fetchMatch() {
+    const { data, error } = await supabase
+      .from('h2h_matches')
+      .select('*')
+      .eq('id', matchId)
+      .single();
+    return error ? null : data;
+  }
+
+  let match = null;
+  const POLL_LIMIT = 10;  // 10 × 3 s = 30 s
+  let pollCount = 0;
+
+  while (pollCount < POLL_LIMIT) {
+    match = await fetchMatch();
+    if (!match) break;
+    if (match.status === 'finished' || match.status === 'abandoned') break;
+    pollCount++;
+    if (pollCount < POLL_LIMIT) {
+      await new Promise(r => setTimeout(r, 3000));
+    }
+  }
+
+  if (!match) {
+    showNotReady('Match not found or you don\'t have access to it.');
+    return;
+  }
+
+  if (match.status !== 'finished' && match.status !== 'abandoned') {
+    // Timed out waiting — show "not ready yet" state with home link
+    showNotReady('Results aren\'t ready yet. Both players need to finish first.');
+    return;
+  }
+
+  // ── Fetch results + player names in parallel ─────────────────────
+  const [{ data: results }, { data: players }] = await Promise.all([
+    supabase
+      .from('h2h_results')
+      .select('user_id, placements, score, max_score')
+      .eq('match_id', matchId),
+    supabase
+      .from('users')
+      .select('id, username')
+      .in('id', [match.player1_id, match.player2_id].filter(Boolean))
+  ]);
+
+  const myResult   = results?.find(r => r.user_id === currentUserId);
+  const oppResult  = results?.find(r => r.user_id !== currentUserId);
+  const myName     = players?.find(p => p.id === currentUserId)?.username || 'You';
+  const oppId      = myResult
+    ? (match.player1_id === currentUserId ? match.player2_id : match.player1_id)
+    : null;
+  const oppName    = players?.find(p => p.id === oppId)?.username || 'Opponent';
+
+  const catCfg     = categoriesConfig[match.category];
+  const catEmoji   = catCfg?.emoji || '🌍';
+  const catTitle   = catCfg?.title || match.category;
+
+  // ── Determine outcome ─────────────────────────────────────────────
+  let outcome = 'unknown'; // 'won' | 'lost' | 'tie' | 'timeout' | 'unknown'
+  if (isTimeout) {
+    outcome = 'timeout';
+  } else if (myResult && oppResult) {
+    if (myResult.score > oppResult.score)       outcome = 'won';
+    else if (myResult.score < oppResult.score)  outcome = 'lost';
+    else                                         outcome = 'tie';
+  } else if (myResult && !oppResult) {
+    outcome = 'won'; // opponent didn't submit
+  }
+
+  // ── Render page ───────────────────────────────────────────────────
+  renderResults(match, myResult, oppResult, myName, oppName, catEmoji, catTitle, outcome);
+
+  overlay.style.display = 'none';
+  mainContent.style.display = 'block';
+
+  // ================================================================
+  // Render functions
+  // ================================================================
+
+  function renderResults(match, myResult, oppResult, myName, oppName, catEmoji, catTitle, outcome) {
+    // ── Winner banner ──
+    const bannerHtml = buildBannerHtml(outcome, myName, oppName, myResult, oppResult);
+
+    // ── Score summary ──
+    const myScore  = myResult  ? myResult.score  : '—';
+    const oppScore = oppResult ? oppResult.score : '—';
+    const myMax    = myResult  ? myResult.max_score  : 100;
+    const oppMax   = oppResult ? oppResult.max_score : 100;
+
+    const scoreSummaryHtml = `
+      <div class="score-summary">
+        <div class="score-player">
+          <div class="score-player-name">
+            ${escHtml(myName)} <span class="you-tag">You</span>
+          </div>
+          <div class="score-value">${myScore}
+            <span class="score-max">/ ${myMax}</span>
+          </div>
+        </div>
+        <div class="score-divider"></div>
+        <div class="score-player">
+          <div class="score-player-name">${escHtml(oppName)}</div>
+          <div class="score-value">${oppScore}
+            <span class="score-max">/ ${oppMax}</span>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // ── Category badge ──
+    const categoryHtml = `
+      <div class="category-row">
+        <span class="category-badge-pill">${catEmoji} ${escHtml(catTitle)}</span>
+      </div>
+    `;
+
+    // ── Timeout notice ──
+    const timeoutHtml = isTimeout
+      ? `<div class="timeout-notice" style="margin-top:1rem;">⏰ The match timed out. Results show what was submitted before time ran out.</div>`
+      : '';
+
+    // ── Placement breakdown ──
+    const breakdownHtml = buildBreakdownHtml(myResult, oppResult, myName, oppName);
+
+    // ── Action buttons ──
+    const rematchUrl = `duel.html?category=${encodeURIComponent(match.category)}`;
+    const actionsHtml = `
+      <div class="actions-row">
+        <a href="${rematchUrl}" class="action-btn primary">⚔️ Rematch</a>
+        <a href="index.html"      class="action-btn secondary">🏠 Return Home</a>
+        <a href="leaderboard.html" class="action-btn secondary">🏆 Leaderboard</a>
+      </div>
+    `;
+
+    card.innerHTML = bannerHtml + scoreSummaryHtml + categoryHtml + timeoutHtml + breakdownHtml + actionsHtml;
+  }
+
+  function buildBannerHtml(outcome, myName, oppName, myResult, oppResult) {
+    let cls, emoji, title, subtitle;
+
+    if (outcome === 'won') {
+      cls      = 'you-won';
+      emoji    = '🏆';
+      title    = 'You Won!';
+      subtitle = myResult && oppResult
+        ? `${myResult.score} vs ${oppResult.score} — well played!`
+        : 'Your opponent didn\'t finish in time.';
+    } else if (outcome === 'lost') {
+      cls      = 'you-lost';
+      emoji    = '👏';
+      title    = 'You Lost — Good Game!';
+      subtitle = myResult && oppResult
+        ? `${myResult.score} vs ${oppResult.score} — better luck next time!`
+        : '';
+    } else if (outcome === 'tie') {
+      cls      = 'tie';
+      emoji    = '🤝';
+      title    = 'It\'s a Tie!';
+      subtitle = `Both scored ${myResult?.score} — incredibly close!`;
+    } else if (outcome === 'timeout') {
+      cls      = 'timeout';
+      emoji    = '⏰';
+      title    = 'Time\'s Up!';
+      subtitle = 'The match timed out before both players finished.';
+    } else {
+      cls      = 'you-lost';
+      emoji    = '📊';
+      title    = 'Duel Results';
+      subtitle = '';
+    }
+
+    return `
+      <div class="winner-banner ${cls}">
+        <div class="banner-emoji">${emoji}</div>
+        <h2 class="banner-title">${title}</h2>
+        ${subtitle ? `<p class="banner-subtitle">${escHtml(subtitle)}</p>` : ''}
+      </div>
+    `;
+  }
+
+  function buildBreakdownHtml(myResult, oppResult, myName, oppName) {
+    if (!myResult?.placements) {
+      return '<div style="padding:2rem;text-align:center;color:#9ca3af;">No placement data available.</div>';
+    }
+
+    const myPlacements  = myResult.placements;
+    // Build opponent lookup by country_code
+    const oppByCode     = {};
+    if (oppResult?.placements) {
+      oppResult.placements.forEach(p => { oppByCode[p.country_code] = p; });
+    }
+
+    // Sort my placements by placedRank
+    const sorted = [...myPlacements].sort((a, b) => a.placedRank - b.placedRank);
+
+    const headerHtml = `
+      <div class="breakdown-header-row">
+        <div class="col-header left">${escHtml(myName)} (You)</div>
+        <div class="col-header center">Country</div>
+        <div class="col-header right">${escHtml(oppName)}</div>
+      </div>
+    `;
+
+    const rowsHtml = sorted.map(myP => {
+      const oppP = oppByCode[myP.country_code];
+
+      const myCorrect  = myP.placedRank >= myP.correctRankMin && myP.placedRank <= myP.correctRankMax;
+      const oppCorrect = oppP ? (oppP.placedRank >= oppP.correctRankMin && oppP.placedRank <= oppP.correctRankMax) : null;
+
+      let rowClass = '';
+      if (myCorrect && oppP && !oppCorrect)  rowClass = 'i-won';
+      else if (!myCorrect && oppCorrect)     rowClass = 'opp-won';
+      else if (myCorrect && oppCorrect)      rowClass = 'both-won';
+
+      const myRange  = myP.correctRankMin === myP.correctRankMax
+        ? `#${myP.correctRankMin}`
+        : `#${myP.correctRankMin}–${myP.correctRankMax}`;
+      const oppRange = oppP ? (
+        oppP.correctRankMin === oppP.correctRankMax
+          ? `#${oppP.correctRankMin}`
+          : `#${oppP.correctRankMin}–${oppP.correctRankMax}`
+      ) : '—';
+
+      const flagPath = myP.flag || `flags/${myP.country_code}.png`;
+      const name     = myP.name || myP.country_code;
+
+      // Desktop player cells
+      const myCellHtml = `
+        <div class="player-cell left-align">
+          <span class="placed-rank">#${myP.placedRank}</span>
+          <span class="correct-range">Correct: ${myRange}</span>
+          <span class="result-chip ${myCorrect ? 'correct' : 'wrong'}">${myCorrect ? '✅ Perfect' : '❌ Off'}</span>
+        </div>
+      `;
+
+      const oppCellHtml = oppP ? `
+        <div class="player-cell right-align">
+          <span class="placed-rank">#${oppP.placedRank}</span>
+          <span class="correct-range">Correct: ${oppRange}</span>
+          <span class="result-chip ${oppCorrect ? 'correct' : 'wrong'}">${oppCorrect ? '✅ Perfect' : '❌ Off'}</span>
+        </div>
+      ` : `<div class="player-cell right-align"><span class="placed-rank">—</span></div>`;
+
+      // Mobile stacked cells
+      const mobileCellsHtml = `
+        <div class="players-mobile">
+          <div class="player-col-mobile">
+            <div class="mobile-label">${escHtml(myName)} (You)</div>
+            <span class="placed-rank">#${myP.placedRank}</span>
+            <span class="correct-range" style="display:block;">Correct: ${myRange}</span>
+            <span class="result-chip ${myCorrect ? 'correct' : 'wrong'}">${myCorrect ? '✅' : '❌'}</span>
+          </div>
+          ${oppP ? `
+          <div class="player-col-mobile">
+            <div class="mobile-label">${escHtml(oppName)}</div>
+            <span class="placed-rank">#${oppP.placedRank}</span>
+            <span class="correct-range" style="display:block;">Correct: ${oppRange}</span>
+            <span class="result-chip ${oppCorrect ? 'correct' : 'wrong'}">${oppCorrect ? '✅' : '❌'}</span>
+          </div>` : `<div class="player-col-mobile"><div class="mobile-label">${escHtml(oppName)}</div><span class="placed-rank">—</span></div>`}
+        </div>
+      `;
+
+      return `
+        <div class="country-row ${rowClass}">
+          ${myCellHtml}
+          <div class="country-center">
+            <img src="${flagPath}" alt="${escHtml(name)}" class="country-flag"
+                 onerror="this.src='flags/UN.png'">
+            <span class="country-name">${escHtml(name)}</span>
+          </div>
+          ${oppCellHtml}
+          ${mobileCellsHtml}
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <div class="breakdown-section">
+        <h3>Placement Breakdown</h3>
+        ${headerHtml}
+        ${rowsHtml}
+      </div>
+    `;
+  }
+
+  function showNotReady(message) {
+    card.innerHTML = `
+      <div class="not-ready-card">
+        <div style="font-size:3rem;margin-bottom:1rem;">⏳</div>
+        <h2>Results Not Ready</h2>
+        <p>${escHtml(message)}</p>
+        <button class="retry-btn" onclick="window.location.reload()">Retry</button>
+        &nbsp;
+        <a href="index.html" style="color:#0d315a;font-weight:600;">Go Home</a>
+      </div>
+    `;
+    overlay.style.display = 'none';
+    mainContent.style.display = 'block';
+  }
+
+  function escHtml(str) {
+    return String(str ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+</script>
+
+</body>
+</html>
