@@ -390,7 +390,7 @@
 
   // ── Duel channel — created early to receive opponent:finished during gameplay ──
   let opponentFinishedDuringGame = false;
-  const duelChannel = createDuelChannel(duelMatch.matchId, currentUserId, {
+  const duelChannel = createDuelChannel(supabase, duelMatch.matchId, currentUserId, {
     onBothReady:        () => {},  // not needed on game page
     onGameStart:        () => {},  // already started
     onOpponentFinished: () => {

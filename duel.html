@@ -468,7 +468,7 @@
     renderWaitingRoom(matchId);
 
     // Subscribe to channel
-    duelChannel = createDuelChannel(matchId, currentUser.id, {
+    duelChannel = createDuelChannel(supabase, matchId, currentUser.id, {
       onBothReady:        handleBothReady,
       onGameStart:        handleGameStart,
       onOpponentFinished: () => {} // not needed in lobby

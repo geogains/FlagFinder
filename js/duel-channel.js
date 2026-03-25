@@ -9,9 +9,11 @@
 // The module also runs a DB polling fallback every 3 s so that missed
 // Broadcast events (e.g. on reconnect) are recovered automatically.
 
-import { supabase } from './supabase-client.js';
+// supabase is passed in by the caller — do NOT import it here.
+// All callers must import { supabase } from './js/supabase-client.js' themselves
+// and pass the shared instance as the first argument.
 
-export function createDuelChannel(matchId, currentUserId, callbacks) {
+export function createDuelChannel(supabase, matchId, currentUserId, callbacks) {
   // callbacks: { onBothReady, onGameStart, onOpponentFinished }
   //   onBothReady()                       — both players emitted player:ready
   //   onGameStart({ started_at })         — game:start received
