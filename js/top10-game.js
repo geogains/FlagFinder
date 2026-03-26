@@ -158,55 +158,39 @@ async function showCompletedGameResults(gameData) {
   }
   gameState.score = gameData.score || 0; // Make sure score is set
   
-  // Show results overlay with their data
-  const overlay = document.getElementById('resultsOverlay');
-  const emoji = document.getElementById('resultsEmoji');
-  const title = document.getElementById('resultsTitle');
-  const category = document.getElementById('resultsCategory');
-  
-  // Set emoji and title based on performance
-  if (won) {
-    emoji.textContent = '🎉';
-    title.textContent = 'Perfect!';
-  } else if (correctCount >= 7) {
-    emoji.textContent = '🌟';
-    title.textContent = 'Great Job!';
-  } else if (correctCount >= 5) {
-    emoji.textContent = '👍';
-    title.textContent = 'Good Effort!';
-  } else {
-    emoji.textContent = '💪';
-    title.textContent = 'Keep Trying!';
-  }
-  
-  category.textContent = currentCategory.title;
-  
-  // Update stats
-  document.getElementById('finalScore').textContent = gameData.score || 0;
-  document.getElementById('finalLives').textContent = '❤️'.repeat(lives);
-  
-  const minutes = Math.floor(timeElapsed / 60);
-  const seconds = timeElapsed % 60;
-  document.getElementById('finalTime').textContent = 
-    `${minutes}:${seconds.toString().padStart(2, '0')} / 2:00`;
-  
-  document.getElementById('finalAccuracy').textContent = `${correctCount}/10 correct`;
-  
-  // Build results table
-  buildResultsTable();
-  
-  // Show incorrect guesses if any
-  if (savedGameState && savedGameState.incorrectGuesses && savedGameState.incorrectGuesses.length > 0) {
-    const incorrectSection = document.getElementById('incorrectSection');
-    const incorrectList = document.getElementById('incorrectList');
-    incorrectSection.style.display = 'block';
-    incorrectList.innerHTML = savedGameState.incorrectGuesses.map(name => 
-      `<span class="incorrect-country">${name}</span>`
-    ).join('');
-  }
-  
-  // Show the overlay
-  overlay.style.display = 'flex';
+  // Redirect to results page (same as showResults) — the inline overlay no longer exists in top10.html
+  const resultsData = {
+    score: gameState.score,
+    correct: correctCount,
+    timeUsed: timeElapsed,
+    lives,
+    categoryName: currentCategory.title,
+    categoryKey,
+    incorrectGuesses: gameState.incorrectGuesses,
+    resultsTable: currentCategory.countries.map(country => ({
+      rank: country.rank,
+      name: country.name,
+      flag: country.flag,
+      value: formatValue(country.value, currentCategory.unit, country),
+      guessed: gameState.guessedCountries.has(country.name),
+      tallestBuildingName: country.tallestBuildingName || null,
+      highestPointName: country.highestPointName || null,
+      riverName: country.riverName || null
+    }))
+  };
+
+  localStorage.setItem('top10Results', JSON.stringify(resultsData));
+
+  const redirectParams = new URLSearchParams({
+    category: categoryKey,
+    score: gameState.score,
+    correct: correctCount,
+    time: timeElapsed,
+    lives
+  });
+  redirectParams.set('daily', '1');
+
+  window.location.href = `top10results.html?${redirectParams.toString()}`;
 }
 
 // Mark challenge as started (creates initial record in database)
