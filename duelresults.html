@@ -429,16 +429,18 @@
   const mainContent = document.getElementById('mainContent');
   const card        = document.getElementById('resultsCard');
 
+  (async () => {
+
   if (!matchId) {
     window.location.href = 'duel.html';
-    throw new Error('no match param');
+    return;
   }
 
   // ── Auth guard ────────────────────────────────────────────────────
   const { data: { session } } = await supabase.auth.getSession();
   if (!session?.user) {
     window.location.href = 'auth.html?next=' + encodeURIComponent(window.location.href);
-    throw new Error('auth required');
+    return;
   }
   const currentUserId = session.user.id;
 
@@ -519,8 +521,11 @@
   overlay.style.display = 'none';
   mainContent.style.display = 'block';
 
+  })(); // end async IIFE
+
   // ================================================================
-  // Render functions
+  // Render functions — declared at module scope so they are hoisted
+  // and accessible inside the IIFE above via closure.
   // ================================================================
 
   function renderResults(match, myResult, oppResult, myName, oppName, catEmoji, catTitle, outcome) {
