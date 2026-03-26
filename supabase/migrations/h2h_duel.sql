@@ -35,14 +35,32 @@ create table if not exists h2h_results (
 );
 
 -- ----------------------------------------------------------------
+-- Table-level grants (required when creating via SQL migration;
+-- Supabase does NOT auto-grant for migrations run outside the dashboard)
+-- ----------------------------------------------------------------
+grant usage on schema public to anon, authenticated;
+
+grant select, insert, update on h2h_matches to authenticated;
+grant select, insert           on h2h_results to authenticated;
+
+-- ----------------------------------------------------------------
 -- Row Level Security — h2h_matches
 -- ----------------------------------------------------------------
 alter table h2h_matches enable row level security;
 
--- Read: only players in the match
+-- Read: players in the match, OR any authenticated user viewing a
+-- waiting match (player2_id IS NULL) so the invite recipient can
+-- read the match row before they have joined.
+-- Without this, player2 cannot read the match to validate it exists,
+-- and supabase.from('h2h_matches').select('*').single() returns a
+-- 406 (PGRST116 — zero rows) because auth.uid() = NULL is always false.
 create policy "duel_match_select"
   on h2h_matches for select
-  using (auth.uid() = player1_id or auth.uid() = player2_id);
+  using (
+    auth.uid() = player1_id
+    or auth.uid() = player2_id
+    or (player2_id is null and status = 'waiting')
+  );
 
 -- Insert: authenticated user creates their own match (they are player1)
 create policy "duel_match_insert"

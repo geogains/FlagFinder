@@ -417,10 +417,15 @@
       .from('h2h_matches')
       .select('*')
       .eq('id', matchId)
-      .single();
+      .maybeSingle();   // .single() throws 406 on zero rows; .maybeSingle() returns null
 
-    if (error || !match) {
-      showExpired('Challenge not found. It may have expired.');
+    if (error) {
+      console.error('h2h_matches fetch error:', error);
+      showExpired('Could not load challenge. Please check your connection and try again.');
+      return;
+    }
+    if (!match) {
+      showExpired('Challenge not found. The link may be invalid or expired.');
       return;
     }
 
