@@ -522,6 +522,90 @@
     #mainContent.visible {
       opacity: 1;
     }
+
+    /* ── Premium Upsell Modal ── */
+    #premiumModal {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(24px);
+      z-index: 9999;
+      width: min(360px, calc(100vw - 32px));
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.08);
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.34,1.4,0.64,1);
+      pointer-events: none;
+    }
+    #premiumModal.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: all;
+    }
+    #premiumModal .pm-image {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      display: block;
+    }
+    #premiumModal .pm-body {
+      padding: 18px 20px 20px;
+    }
+    #premiumModal .pm-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #0d315a;
+      margin: 0 0 4px;
+    }
+    #premiumModal .pm-sub {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.8rem;
+      color: #7a90a8;
+      margin: 0 0 14px;
+    }
+    #premiumModal .pm-btn {
+      display: block;
+      width: 100%;
+      padding: 11px;
+      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 16px rgba(255,111,97,0.35);
+    }
+    #premiumModal .pm-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(255,111,97,0.45);
+    }
+    #premiumModal .pm-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 28px;
+      height: 28px;
+      background: rgba(0,0,0,0.35);
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 14px;
+      line-height: 1;
+      transition: background 0.2s ease;
+    }
+    #premiumModal .pm-close:hover {
+      background: rgba(0,0,0,0.55);
+    }
   </style>
 </head>
 <body>
@@ -962,6 +1046,18 @@ Can you beat my score? Play at geo-ranks.com/game.html?mode=${categoryKey}`;
   <!-- Account/Premium Button Removal -->
   <script type="module">
     import { supabase } from './js/supabase-client.js';
+
+    function maybeShowPremiumModal() {
+      const key = 'georanks_completions';
+      const count = parseInt(localStorage.getItem(key) || '0') + 1;
+      localStorage.setItem(key, count);
+      if (count % 3 === 1) {
+        setTimeout(() => {
+          document.getElementById('premiumModal')?.classList.add('visible');
+        }, 1500);
+      }
+    }
+
     (async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
@@ -970,11 +1066,13 @@ Can you beat my score? Play at geo-ranks.com/game.html?mode=${categoryKey}`;
           document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
         } else {
           document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
+          maybeShowPremiumModal();
         }
       }
       if (!session?.user) {
         document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
         document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
+        maybeShowPremiumModal();
       }
     })();
   </script>
@@ -996,5 +1094,17 @@ Can you beat my score? Play at geo-ranks.com/game.html?mode=${categoryKey}`;
     });
   </script>
   </div> <!-- end #mainContent -->
+
+  <!-- Premium Upsell Modal -->
+  <div id="premiumModal">
+    <button class="pm-close" onclick="document.getElementById('premiumModal').classList.remove('visible')" aria-label="Close">&#x2715;</button>
+    <img class="pm-image" src="assets/Georanks-Premium.png" alt="GeoRanks Premium" />
+    <div class="pm-body">
+      <p class="pm-title">Unlock 36 Premium Categories</p>
+      <p class="pm-sub">You're only seeing the free ones. Go further.</p>
+      <button class="pm-btn" onclick="window.location.href='premium.html'">View Premium Categories</button>
+    </div>
+  </div>
+
 </body>
 </html>
