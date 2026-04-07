@@ -524,11 +524,26 @@
     }
 
     /* ── Premium Upsell Modal ── */
+    #premiumBackdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 9998;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+    #premiumBackdrop.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
     #premiumModal {
       position: fixed;
-      bottom: 28px;
+      top: 50%;
       left: 50%;
-      transform: translateX(-50%) translateY(24px);
+      transform: translate(-50%, calc(-50% - 20px));
       z-index: 9999;
       width: min(360px, calc(100vw - 32px));
       background: #fff;
@@ -539,9 +554,14 @@
       transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.34,1.4,0.64,1);
       pointer-events: none;
     }
+    @media (min-width: 640px) {
+      #premiumModal {
+        width: min(520px, calc(100vw - 48px));
+      }
+    }
     #premiumModal.visible {
       opacity: 1;
-      transform: translateX(-50%) translateY(0);
+      transform: translate(-50%, -50%);
       pointer-events: all;
     }
     #premiumModal .pm-image {
@@ -1054,6 +1074,7 @@ Can you beat my score? Play at geo-ranks.com/game.html?mode=${categoryKey}`;
       if (count % 3 === 1) {
         setTimeout(() => {
           document.getElementById('premiumModal')?.classList.add('visible');
+          document.getElementById('premiumBackdrop')?.classList.add('visible');
         }, 1500);
       }
     }
@@ -1095,14 +1116,17 @@ Can you beat my score? Play at geo-ranks.com/game.html?mode=${categoryKey}`;
   </script>
   </div> <!-- end #mainContent -->
 
+  <!-- Premium Upsell Backdrop -->
+  <div id="premiumBackdrop" onclick="document.getElementById('premiumModal').classList.remove('visible'); document.getElementById('premiumBackdrop').classList.remove('visible');"></div>
+
   <!-- Premium Upsell Modal -->
   <div id="premiumModal">
-    <button class="pm-close" onclick="document.getElementById('premiumModal').classList.remove('visible')" aria-label="Close">&#x2715;</button>
+    <button class="pm-close" onclick="document.getElementById('premiumModal').classList.remove('visible'); document.getElementById('premiumBackdrop').classList.remove('visible');" aria-label="Close">&#x2715;</button>
     <img class="pm-image" src="assets/premium-background.png" alt="GeoRanks Premium" />
     <div class="pm-body">
       <p class="pm-title">Unlock 36 Premium Categories</p>
       <p class="pm-sub">You're only seeing the free ones. Go further.</p>
-      <button class="pm-btn" onclick="plausible('premium_clicked', {props: {source: 'results_modal'}}); window.location.href='premium.html'">View Premium Categories</button>
+      <button class="pm-btn" onclick="window.plausible?.('premium_clicked', {props: {source: 'results_modal'}}); window.location.href='premium.html'">View Premium Categories</button>
     </div>
   </div>
 
