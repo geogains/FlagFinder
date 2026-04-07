@@ -660,7 +660,7 @@
       <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
       <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
       <button class="menu-btn" onclick="location.href='about.html'">🌍 About Us</button>
-      <button class="menu-btn upgrade-access-btn" onclick="window.location.href='premium.html'" style="display:none;">🔓 Unlock All Categories</button>
+      <button class="menu-btn upgrade-access-btn" onclick="plausible('premium_clicked'); window.location.href='premium.html'" style="display:none;">🔓 Unlock All Categories</button>
     </div>
   </div>
 
@@ -1102,7 +1102,7 @@ Can you beat my score? Play at geo-ranks.com/game.html?mode=${categoryKey}`;
     <div class="pm-body">
       <p class="pm-title">Unlock 36 Premium Categories</p>
       <p class="pm-sub">You're only seeing the free ones. Go further.</p>
-      <button class="pm-btn" onclick="window.location.href='premium.html'">View Premium Categories</button>
+      <button class="pm-btn" onclick="plausible('premium_clicked', {props: {source: 'results_modal'}}); window.location.href='premium.html'">View Premium Categories</button>
     </div>
   </div>
 
