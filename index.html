@@ -139,18 +139,21 @@
     }
 
     .hero-action-block {
+      position: relative;
+      overflow: hidden;
       display: inline-flex;
       flex-direction: column;
       align-items: center;
-      gap: 12px;
+      width: clamp(300px, 46vw, 500px);
+      min-height: 168px;
       margin-top: 18px;
-      padding: 20px 28px;
-      background: rgba(255, 255, 255, 0.45);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      border-radius: 20px;
-      box-shadow: 0 4px 24px rgba(13, 49, 90, 0.08);
+      padding: 28px 36px 24px;
+      background: #1a3a5c; /* fallback when no image loads */
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 24px;
+      box-shadow: 0 8px 40px rgba(13, 49, 90, 0.18);
       animation: heroBlockIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
     }
 
@@ -159,22 +162,55 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
+    .hero-action-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      z-index: 0;
+      transform: scale(1.05);
+      transition: transform 0.6s ease;
+    }
+
+    .hero-action-block:hover .hero-action-bg {
+      transform: scale(1.1);
+    }
+
+    .hero-action-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(160deg, rgba(5, 18, 48, 0.50) 0%, rgba(5, 18, 48, 0.70) 100%);
+      z-index: 1;
+    }
+
+    .hero-action-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+    }
+
     .daily-cta-btn {
-      display: inline-block;
-      padding: 13px 28px;
+      display: block;
+      width: 100%;
+      text-align: center;
+      padding: 14px 28px;
       border-radius: 12px;
       background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
       color: white;
       font-weight: 600;
-      font-size: 1rem;
+      font-size: 1.05rem;
       text-decoration: none;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: 0 6px 20px rgba(255, 111, 97, 0.38);
+      box-shadow: 0 6px 20px rgba(255, 111, 97, 0.4);
     }
 
     .daily-cta-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 28px rgba(255, 111, 97, 0.48);
+      box-shadow: 0 10px 28px rgba(255, 111, 97, 0.52);
     }
 
     .daily-high-score {
@@ -198,15 +234,22 @@
       font-size: 0.68rem;
       font-weight: 700;
       letter-spacing: 0.1em;
-      color: #0d315a;
-      opacity: 0.5;
+      color: rgba(255, 255, 255, 0.6);
       text-transform: uppercase;
     }
 
     .daily-leader-value {
-      font-size: 1rem;
+      font-size: 1.05rem;
       font-weight: 600;
-      color: #0d315a;
+      color: white;
+    }
+
+    @media (max-width: 480px) {
+      .hero-action-block {
+        width: min(88vw, 340px);
+        min-height: 136px;
+        padding: 22px 22px 18px;
+      }
     }
 
     @keyframes fadeInUp {
@@ -678,10 +721,14 @@
     <img src="assets/logo.png" class="hero-logo" alt="GeoRanks" />
     <p class="hero-subtitle">Test Your World Ranking Knowledge! 🌍</p>
     <div class="hero-action-block">
-      <a href="daily-challenge.html" class="daily-cta-btn">Play Daily Challenge</a>
-      <div id="dailyHighScore" class="daily-high-score">
-        <span class="daily-leader-label">TODAY'S DAILY LEADER</span>
-        <span class="daily-leader-value" id="dailyLeaderValue"></span>
+      <div class="hero-action-bg" id="heroActionBg"></div>
+      <div class="hero-action-overlay"></div>
+      <div class="hero-action-content">
+        <div id="dailyHighScore" class="daily-high-score">
+          <span class="daily-leader-label">TODAY'S DAILY LEADER</span>
+          <span class="daily-leader-value" id="dailyLeaderValue"></span>
+        </div>
+        <a href="daily-challenge.html" class="daily-cta-btn">Play Daily Challenge</a>
       </div>
     </div>
   </div>
@@ -963,6 +1010,13 @@
 
   try {
     const todayChallenge = getTodaysDailyChallenge();
+
+    // Set background image immediately — synchronous, no await needed
+    const actionBg = document.getElementById('heroActionBg');
+    if (todayChallenge?.category && actionBg) {
+      actionBg.style.backgroundImage = `url('images/categories/${todayChallenge.category}.jpg')`;
+    }
+
     if (!todayChallenge) throw new Error('no challenge');
 
     const categoryId = CATEGORY_ID_MAP[todayChallenge.category];
