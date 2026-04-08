@@ -887,7 +887,7 @@
         row.className = isPerfect ? 'table-row correct' : 'table-row';
         row.innerHTML = `
           <span class="table-rank">#${country.rank}</span>
-          <img src="${country.flag}" alt="${country.name}" class="table-flag">
+          <img src="${country.flag}" alt="${country.name}" class="table-flag" loading="lazy">
           <span class="table-country">${country.name}</span>
           <div class="table-data-container">
             <span class="table-data" style="color: ${isPerfect ? 'white' : '#667eea'};">${country.value}</span>
@@ -975,7 +975,7 @@
             <div class="breakdown-left">
               <span class="breakdown-rank">#${country.rank}</span>
               <span class="breakdown-best ${isPerfect ? 'perfect' : ''}">${country.bestRank || country.rank}</span>
-              <img src="${country.flag}" alt="${country.name}" class="breakdown-flag">
+              <img src="${country.flag}" alt="${country.name}" class="breakdown-flag" loading="lazy">
               <span class="breakdown-name">${country.name}</span>
             </div>
             <div class="breakdown-right">

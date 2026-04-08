@@ -626,27 +626,27 @@
   <div class="footer-socials">
     <div class="icon-row">
       <a href="https://www.instagram.com/geo_ranks/" target="_blank" rel="noopener">
-        <img src="assets/instagram.png" alt="Instagram" />
+        <img src="assets/instagram.png" alt="Instagram" loading="lazy" />
       </a>
       <div class="divider"></div>
       <a href="https://www.tiktok.com/@georanks" target="_blank" rel="noopener">
-        <img src="assets/tik-tok.png" alt="TikTok" />
+        <img src="assets/tik-tok.png" alt="TikTok" loading="lazy" />
       </a>
       <div class="divider"></div>
       <a href="https://www.youtube.com/channel/UC8jrsBpCn09u0mHQle_O3Rw" target="_blank" rel="noopener">
-        <img src="assets/youtube.png" alt="YouTube" />
+        <img src="assets/youtube.png" alt="YouTube" loading="lazy" />
       </a>
       <div class="divider"></div>
       <a href="https://x.com/Kieroncroo66687" target="_blank" rel="noopener">
-        <img src="assets/x.png" alt="X" />
+        <img src="assets/x.png" alt="X" loading="lazy" />
       </a>
       <div class="divider"></div>
       <a href="https://www.threads.net/@geo_ranks" target="_blank" rel="noopener">
-        <img src="assets/threads.png" alt="Threads" />
+        <img src="assets/threads.png" alt="Threads" loading="lazy" />
       </a>
       <div class="divider"></div>
       <a href="https://www.buymeacoffee.com/GeoRanks" target="_blank" rel="noopener">
-        <img src="assets/buymeacoffee.png" alt="Coffee" />
+        <img src="assets/buymeacoffee.png" alt="Coffee" loading="lazy" />
       </a>
     </div>
     <p>© 2026 GeoRanks</p>
@@ -691,7 +691,7 @@
   function cardHTML(cat) {
     return `<div class="category-item">
       <div class="category-card-new" onclick="openModeSelector('${cat.category}','${cat.display}','${cat.emoji}')">
-        <div class="category-bg" style="background-image:url('images/categories/${cat.image}');"></div>
+        <img class="category-bg" src="images/categories/${cat.image}" alt="" loading="lazy">
         <div class="category-overlay"></div>
         <div class="category-content">
           <div class="category-emoji">${cat.emoji}</div>
