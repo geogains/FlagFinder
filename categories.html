@@ -233,7 +233,9 @@
 
     .category-card-new {
       position: relative;
-      height: 280px;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 4 / 3;
       border-radius: 24px;
       overflow: hidden;
       cursor: pointer;
@@ -264,8 +266,11 @@
     .category-bg {
       position: absolute;
       inset: 0;
-      background-size: cover;
-      background-position: center;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
       transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
       filter: brightness(0.7);
     }
@@ -292,13 +297,14 @@
       inset: 0;
       display: flex;
       flex-direction: column;
-      justify-content: flex-end;
+      justify-content: center;
       padding: 32px;
       z-index: 2;
     }
 
     .category-emoji {
       font-size: 3.5rem;
+      line-height: 1;
       margin-bottom: 12px;
       filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
       transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -312,7 +318,7 @@
       font-size: 1.8rem;
       font-weight: 700;
       color: white;
-      margin-bottom: 8px;
+      margin-bottom: 0;
       text-shadow: 0 2px 16px rgba(0,0,0,0.6);
       transition: transform 0.3s ease;
     }
@@ -322,26 +328,28 @@
     }
 
     .category-play-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 12px 24px;
+      padding: 10px 20px;
       background: rgba(255,255,255,0.15);
       backdrop-filter: blur(10px);
       border: 2px solid rgba(255,255,255,0.3);
       border-radius: 12px;
       color: white;
       font-weight: 600;
-      font-size: 1rem;
+      font-size: 0.95rem;
       transition: all 0.3s ease;
-      width: fit-content;
       opacity: 0;
-      transform: translateY(10px);
+      transform: translateX(8px);
     }
 
     .category-card-new:hover .category-play-btn {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateX(0);
       background: rgba(255,255,255,0.25);
       border-color: rgba(255,255,255,0.5);
     }
@@ -574,10 +582,6 @@
       .search-bar-hero input {
         padding: 14px 20px;
         font-size: 1rem;
-      }
-
-      .category-card-new {
-        height: 240px;
       }
 
       .page-btn {

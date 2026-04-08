@@ -1207,6 +1207,8 @@ html, body {
 
 .category-emoji {
   font-size: 3.5rem;
+  line-height: 1;
+  overflow: hidden;
   margin-bottom: 12px;
   filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1263,6 +1265,17 @@ html, body {
   gap: 30px;
   max-width: 1400px;
   margin: 0 auto;
+}
+
+/* Category images are 500x500 (square). Using aspect-ratio instead of a
+   fixed height so the card shape is closer to the image shape, reducing
+   how much object-fit:cover must crop. 4/3 shows ~75% of image height
+   vs ~65% with the fixed 280px height. */
+.categories-grid-new .category-card-new,
+.conveyor-track-h .category-card-new,
+.conveyor-track-v .category-card-new {
+  height: auto;
+  aspect-ratio: 4 / 3;
 }
 
 /* ========================================================
