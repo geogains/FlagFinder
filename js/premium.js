@@ -1,12 +1,9 @@
 // ✅ Import shared Supabase client
-import { supabase } from './supabase-client.js';
+import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase-client.js';
 
 // ✅ Stripe Price IDs from your Dashboard
 const PRICE_MONTHLY = "price_1SXV7xB2pnEWYYPP3WmbEXAf";
 const PRICE_YEARLY  = "price_1SXV9CB2pnEWYYPPlAYocHkY";
-
-// Get anon key for function calls
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqd3hnZGFuaW51emNwZndhd3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDI5ODgsImV4cCI6MjA3NzA3ODk4OH0._LvYsqhSZIsWLIvAYtEceg1fXbEuaM0DElY5poVqZxI';
 
 // ✅ Redirect to Stripe Checkout using Supabase Edge Function
 async function redirectToCheckout(priceId) {
@@ -18,7 +15,7 @@ async function redirectToCheckout(priceId) {
   }
 
   try {
-    const functionUrl = `https://api.geo-ranks.com/functions/v1/create-checkout-session`;
+    const functionUrl = `${SUPABASE_URL}/functions/v1/create-checkout-session`;
     
     const response = await fetch(functionUrl, {
       method: "POST",

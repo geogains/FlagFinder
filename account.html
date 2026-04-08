@@ -526,7 +526,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Account Functionality -->
 <script type="module">
-  import { supabase, getSessionSafe } from './js/supabase-client.js';
+  import { supabase, getSessionSafe, SUPABASE_URL } from './js/supabase-client.js';
 
   (async () => {
     const { data: { session } } = await getSessionSafe(5000);
@@ -590,7 +590,7 @@ document.addEventListener('DOMContentLoaded', function() {
               if (!token) throw new Error('Not authenticated');
 
               const res = await fetch(
-                'https://api.geo-ranks.com/functions/v1/create-portal-session',
+                `${SUPABASE_URL}/functions/v1/create-portal-session`,
                 {
                   method: 'POST',
                   headers: {
