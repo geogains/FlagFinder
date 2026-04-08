@@ -134,31 +134,79 @@
       opacity: 0.85;
     }
 
+    .hero-subtitle {
+      margin-bottom: 0.75rem;
+    }
+
+    .hero-action-block {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-top: 18px;
+      padding: 20px 28px;
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      border-radius: 20px;
+      box-shadow: 0 4px 24px rgba(13, 49, 90, 0.08);
+      animation: heroBlockIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
+    }
+
+    @keyframes heroBlockIn {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
     .daily-cta-btn {
       display: inline-block;
-      margin-top: 20px;
-      padding: 14px 28px;
+      padding: 13px 28px;
       border-radius: 12px;
       background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
       color: white;
       font-weight: 600;
       font-size: 1rem;
       text-decoration: none;
-      transition: all 0.25s ease;
-      box-shadow: 0 8px 24px rgba(255, 111, 97, 0.35);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 6px 20px rgba(255, 111, 97, 0.38);
     }
 
     .daily-cta-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 12px 32px rgba(255, 111, 97, 0.45);
+      box-shadow: 0 10px 28px rgba(255, 111, 97, 0.48);
     }
 
     .daily-high-score {
-      margin-top: 14px;
-      font-size: 0.95rem;
-      color: #0d315a;
-      opacity: 0.85;
       display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      animation: statFadeIn 0.4s ease 0.75s both;
+    }
+
+    .daily-high-score.visible {
+      display: flex;
+    }
+
+    @keyframes statFadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .daily-leader-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: #0d315a;
+      opacity: 0.5;
+      text-transform: uppercase;
+    }
+
+    .daily-leader-value {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #0d315a;
     }
 
     @keyframes fadeInUp {
@@ -629,8 +677,13 @@
   <div class="hero-content">
     <img src="assets/logo.png" class="hero-logo" alt="GeoRanks" />
     <p class="hero-subtitle">Test Your World Ranking Knowledge! 🌍</p>
-    <a href="daily-challenge.html" class="daily-cta-btn">Play Daily Challenge</a>
-    <p id="dailyHighScore" class="daily-high-score"></p>
+    <div class="hero-action-block">
+      <a href="daily-challenge.html" class="daily-cta-btn">Play Daily Challenge</a>
+      <div id="dailyHighScore" class="daily-high-score">
+        <span class="daily-leader-label">TODAY'S DAILY LEADER</span>
+        <span class="daily-leader-value" id="dailyLeaderValue"></span>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -936,9 +989,8 @@
       .single();
 
     const username = userData?.username || 'Anonymous';
-    const el = document.getElementById('dailyHighScore');
-    el.textContent = `🏆 Today's High Score: ${username} — ${scoreRow.score}`;
-    el.style.display = 'block';
+    document.getElementById('dailyLeaderValue').textContent = `🏆 ${username} — ${scoreRow.score}`;
+    document.getElementById('dailyHighScore').classList.add('visible');
   } catch (_) {
     // fail silently — stat stays hidden
   }
