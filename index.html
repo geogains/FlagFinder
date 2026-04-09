@@ -295,10 +295,6 @@
       animation: slide-left 30s linear infinite;
     }
 
-    .conveyor-section.conveyor-ready .conveyor-track-v {
-      animation: slide-down-cat 36s linear infinite;
-    }
-
     /* ── Desktop / Tablet: 2 horizontal rows ── */
     .conveyor-rows-wrapper {
       display: flex;
@@ -358,54 +354,23 @@
       animation-play-state: paused;
     }
 
-    /* ── Mobile (≤480px): 1 vertical column ── */
-    .conveyor-col-mobile {
-      display: none;
-      overflow: hidden;
-      height: min(960px, 85vh);
-      padding: 0 16px;
-      -webkit-mask-image: linear-gradient(
-        to bottom,
-        transparent 0%, black 8%, black 92%, transparent 100%
-      );
-      mask-image: linear-gradient(
-        to bottom,
-        transparent 0%, black 8%, black 92%, transparent 100%
-      );
-    }
-
-    .conveyor-track-v {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      will-change: transform;
-      /* animation added only via .conveyor-ready selector above */
-    }
-
-    @keyframes slide-down-cat {
-      from { transform: translateY(0); }
-      to   { transform: translateY(-50%); }
-    }
-
-    /* Cards inside vertical track */
-    .conveyor-track-v .category-item {
-      opacity: 1 !important;
-      transform: none !important;
-      animation: none !important;
-      flex-shrink: 0;
-      width: 100%;
-    }
-
     /* ── Mode-selector-open: freeze all conveyors ── */
-    .conveyor-section.conveyor-paused .conveyor-track-h,
-    .conveyor-section.conveyor-paused .conveyor-track-v {
+    .conveyor-section.conveyor-paused .conveyor-track-h {
       animation-play-state: paused !important;
     }
 
-    /* ── Responsive switch ── */
+    /* ── Mobile: 2 horizontal rows (same as desktop) ── */
     @media (max-width: 480px) {
-      .conveyor-rows-wrapper { display: none; }
-      .conveyor-col-mobile    { display: block; }
+      .conveyor-rows-wrapper {
+        gap: 10px;
+        padding: 10px 0;
+      }
+      .conveyor-row-h {
+        padding: 6px 0;
+      }
+      .conveyor-track-h .category-card-new {
+        aspect-ratio: 16 / 9;
+      }
     }
 
     /* Respect reduced-motion preference */
@@ -525,32 +490,7 @@
       transform: translateX(8px);
     }
 
-    .category-play-btn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 20px;
-      background: rgba(255,255,255,0.15);
-      backdrop-filter: blur(10px);
-      border: 2px solid rgba(255,255,255,0.3);
-      border-radius: 12px;
-      color: white;
-      font-weight: 600;
-      font-size: 0.95rem;
-      transition: all 0.3s ease;
-      opacity: 0;
-      transform: translateX(8px);
-    }
 
-    .category-card-new:hover .category-play-btn {
-      opacity: 1;
-      transform: translateX(0);
-      background: rgba(255,255,255,0.25);
-      border-color: rgba(255,255,255,0.5);
-    }
 
     /* ========================================
        VIEW ALL CATEGORIES BUTTON
@@ -752,11 +692,6 @@
     </div>
   </div>
 
-  <!-- Mobile: 1 vertical column -->
-  <div class="conveyor-col-mobile">
-    <div class="conveyor-track-v" id="conveyorTrackMobile"></div>
-  </div>
-
   <div class="view-all-btn-container">
     <a href="categories.html" class="view-all-btn">View All Categories</a>
   </div>
@@ -837,7 +772,6 @@
         <div class="category-content">
           <div class="category-emoji">${cat.emoji}</div>
           <div class="category-name">${cat.display}</div>
-          <div class="category-play-btn"><span>Play</span><span></span></div>
         </div>
       </div>
     </div>`;
@@ -848,9 +782,8 @@
   }
 
   // Render cards immediately — no waiting for any network request
-  document.getElementById('conveyorTrackRow1').innerHTML   = buildTrack(row1Cats);
-  document.getElementById('conveyorTrackRow2').innerHTML   = buildTrack(row2Cats);
-  document.getElementById('conveyorTrackMobile').innerHTML = buildTrack(freeCategories);
+  document.getElementById('conveyorTrackRow1').innerHTML = buildTrack(row1Cats);
+  document.getElementById('conveyorTrackRow2').innerHTML = buildTrack(row2Cats);
 
   // Kick off animations after the first confirmed paint (prevents freeze on refresh)
   const conveyorSection = document.getElementById('conveyorSection');

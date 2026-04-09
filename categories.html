@@ -327,32 +327,7 @@
       transform: translateX(8px);
     }
 
-    .category-play-btn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 20px;
-      background: rgba(255,255,255,0.15);
-      backdrop-filter: blur(10px);
-      border: 2px solid rgba(255,255,255,0.3);
-      border-radius: 12px;
-      color: white;
-      font-weight: 600;
-      font-size: 0.95rem;
-      transition: all 0.3s ease;
-      opacity: 0;
-      transform: translateX(8px);
-    }
 
-    .category-card-new:hover .category-play-btn {
-      opacity: 1;
-      transform: translateX(0);
-      background: rgba(255,255,255,0.25);
-      border-color: rgba(255,255,255,0.5);
-    }
 
     /* LOCKED CATEGORIES */
     .category-card-new.locked {
@@ -820,8 +795,6 @@
       card.classList.remove('locked');
       card.querySelector('.lock-badge')?.remove();
       card.setAttribute('onclick', `openModeSelector('${cat.category}', '${cat.display}', '${cat.emoji}')`);
-      const playBtn = card.querySelector('.category-play-btn');
-      if (playBtn) playBtn.innerHTML = '<span>Play</span><span></span>';
     });
   }
 
@@ -844,10 +817,6 @@
             <div class="category-content">
               <div class="category-emoji">${cat.emoji}</div>
               <div class="category-name">${cat.display}</div>
-              <div class="category-play-btn">
-                <span>${isLocked ? 'Upgrade' : 'Play'}</span>
-                <span>${isLocked ? '🔒' : ''}</span>
-              </div>
             </div>
           </div>
         </div>

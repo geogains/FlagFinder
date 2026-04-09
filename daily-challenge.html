@@ -449,8 +449,8 @@
   <div class="auth-window">
     <span class="lock">🔒</span>
     <h2>Login Required</h2>
-    <p>You need to be signed in to play the Daily Challenge!</p>
-    <p>Create a free account to compete on the leaderboard and track your progress.</p>
+    <p>Create a free account to play the Daily Challenge!</p>
+    <p>Signed in users can also compete on the leaderboard and track progress.</p>
     <button id="goLoginBtn" class="auth-btn login">Sign In / Sign Up</button>
     <button id="cancelLoginBtn" class="auth-btn cancel">Cancel</button>
   </div>
@@ -663,7 +663,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         
         document.getElementById('cancelLoginBtn').onclick = () => {
-          window.location.href = 'index.html';
+          window.location.href = 'categories.html';
         };
         
         return;
