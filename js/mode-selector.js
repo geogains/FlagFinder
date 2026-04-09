@@ -250,7 +250,7 @@ export function createModeSelectorModal() {
             <div class="category-info-row" id="categoryInfoRow" hidden>
               <button class="category-info-btn" id="categoryInfoBtn" aria-expanded="false">
                 <span class="category-info-btn-icon">?</span>
-                How does this work?
+                How to rank?
               </button>
               <div class="category-info-panel" id="categoryInfoPanel" hidden>
                 <p class="category-info-description" id="categoryInfoDescription"></p>
