@@ -331,9 +331,9 @@
       transform: none !important;
       animation: none !important;
       flex-shrink: 0;
-      width: calc(33.5vw - 20px);
-      min-width: 240px;
-      max-width: 460px;
+      width: calc(37vw - 20px);
+      min-width: 270px;
+      max-width: 510px;
       transition: transform 0.3s ease;
     }
 
@@ -369,7 +369,16 @@
         padding: 6px 0;
       }
       .conveyor-track-h .category-card-new {
-        aspect-ratio: 16 / 9;
+        aspect-ratio: 3 / 2;
+      }
+      /* Mobile: hide emoji and description — name only */
+      .conveyor-track-h .category-emoji,
+      .conveyor-track-h .category-desc {
+        display: none;
+      }
+      /* Mobile: bottom-anchor the name */
+      .conveyor-track-h .category-content {
+        justify-content: flex-end;
       }
     }
 
@@ -461,14 +470,14 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding: 32px;
+      padding: 24px;
       z-index: 2;
     }
 
     .category-emoji {
-      font-size: 3.5rem;
+      font-size: 2.6rem;
       line-height: 1;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
       transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
@@ -478,7 +487,7 @@
     }
 
     .category-name {
-      font-size: 1.8rem;
+      font-size: 1.75rem;
       font-weight: 700;
       color: white;
       margin-bottom: 0;
@@ -487,7 +496,30 @@
     }
 
     .category-card-new:hover .category-name {
-      transform: translateX(8px);
+      transform: translateX(6px);
+    }
+
+    .category-desc {
+      font-size: 0.88rem;
+      color: rgba(255, 255, 255, 0.92);
+      line-height: 1.45;
+      margin-top: 10px;
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-height 0.35s ease, opacity 0.28s ease;
+      /* Dark blurred capsule */
+      background: rgba(0, 0, 0, 0.52);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 10px;
+      padding: 0 10px;
+    }
+
+    .category-card-new:hover .category-desc {
+      max-height: 80px;
+      opacity: 1;
+      padding: 8px 10px;
     }
 
 
@@ -766,12 +798,13 @@
 
   function cardHTML(cat) {
     return `<div class="category-item">
-      <div class="category-card-new" onclick="openModeSelector('${cat.category}','${cat.display}','${cat.emoji}')">
+      <div class="category-card-new" data-category="${cat.category}" onclick="openModeSelector('${cat.category}','${cat.display}','${cat.emoji}')">
         <img class="category-bg" src="images/categories/${cat.image}" alt="" loading="lazy">
         <div class="category-overlay"></div>
         <div class="category-content">
           <div class="category-emoji">${cat.emoji}</div>
           <div class="category-name">${cat.display}</div>
+          <div class="category-desc"></div>
         </div>
       </div>
     </div>`;
@@ -984,6 +1017,17 @@
   } catch (_) {
     // fail silently — stat stays hidden
   }
+</script>
+
+<!-- ⑥ Conveyor card descriptions — populated from CATEGORY_HINTS -->
+<script type="module">
+  import { CATEGORY_HINTS } from './js/mode-selector.js';
+  document.querySelectorAll('.conveyor-track-h .category-card-new[data-category]').forEach(card => {
+    const hint = CATEGORY_HINTS[card.dataset.category];
+    if (hint?.description) {
+      card.querySelector('.category-desc').textContent = hint.description;
+    }
+  });
 </script>
 
 </body>

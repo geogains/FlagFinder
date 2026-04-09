@@ -7,7 +7,7 @@ console.log('Mode Selector loaded');
 const SMALL_CATEGORIES = [];
 
 // Category hint text — keyed by categoryKey
-const CATEGORY_HINTS = {
+export const CATEGORY_HINTS = {
   population: {
     description: "Rank countries from highest to lowest total population.",
     detail: "Countries with more people rank higher, regardless of land size or economic output.",
