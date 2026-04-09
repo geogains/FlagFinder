@@ -233,38 +233,41 @@ export function createModeSelectorModal() {
   const modalHTML = `
     <div class="mode-selector-overlay" id="modeSelectorOverlay">
       <div class="mode-selector-modal">
-        <!-- Close Button -->
+        <!-- Close Button — outside scroll body so it stays visible while scrolling -->
         <button class="mode-selector-close" id="modeSelectorClose">×</button>
-        
-        <!-- Header -->
-        <div class="mode-selector-header">
-          <h2 class="mode-selector-title">Select Game Mode</h2>
-          <p class="mode-selector-category" id="modeSelectorCategory">
-            <span id="modeSelectorCategoryName">Population</span>
-            <span id="modeSelectorCategoryEmoji">👥</span>
-          </p>
 
-          <!-- Category hint -->
-          <div class="category-info-row" id="categoryInfoRow" hidden>
-            <button class="category-info-btn" id="categoryInfoBtn" aria-expanded="false">
-              <span class="category-info-btn-icon">?</span>
-              How does this work?
-            </button>
-            <div class="category-info-panel" id="categoryInfoPanel" hidden>
-              <p class="category-info-description" id="categoryInfoDescription"></p>
-              <p class="category-info-detail" id="categoryInfoDetail"></p>
-              <p class="category-info-example" id="categoryInfoExample"></p>
+        <!-- Scrollable content body -->
+        <div class="mode-selector-body">
+          <!-- Header -->
+          <div class="mode-selector-header">
+            <h2 class="mode-selector-title">Select Game Mode</h2>
+            <p class="mode-selector-category" id="modeSelectorCategory">
+              <span id="modeSelectorCategoryName">Population</span>
+              <span id="modeSelectorCategoryEmoji">👥</span>
+            </p>
+
+            <!-- Category hint -->
+            <div class="category-info-row" id="categoryInfoRow" hidden>
+              <button class="category-info-btn" id="categoryInfoBtn" aria-expanded="false">
+                <span class="category-info-btn-icon">?</span>
+                How does this work?
+              </button>
+              <div class="category-info-panel" id="categoryInfoPanel" hidden>
+                <p class="category-info-description" id="categoryInfoDescription"></p>
+                <p class="category-info-detail" id="categoryInfoDetail"></p>
+                <p class="category-info-example" id="categoryInfoExample"></p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Mode Cards -->
-        <div class="mode-cards-grid" id="modeCardsGrid">
-          <!-- Cards will be inserted here -->
-        </div>
+          <!-- Mode Cards -->
+          <div class="mode-cards-grid" id="modeCardsGrid">
+            <!-- Cards will be inserted here -->
+          </div>
 
-        <!-- Cancel Button -->
-        <button class="mode-cancel-btn" id="modeCancelBtn">Cancel</button>
+          <!-- Cancel Button -->
+          <button class="mode-cancel-btn" id="modeCancelBtn">Cancel</button>
+        </div>
       </div>
     </div>
   `;

@@ -327,7 +327,10 @@
       transform: translateX(8px);
     }
 
-
+    /* Description container — hidden on desktop, shown on mobile */
+    .category-desc {
+      display: none;
+    }
 
     /* LOCKED CATEGORIES */
     .category-card-new.locked {
@@ -501,6 +504,40 @@
     }
 
     /* ========================================
+       DESKTOP CARD TREATMENT
+    ======================================== */
+    @media (min-width: 769px) {
+      /* No emoji on desktop */
+      .category-emoji {
+        display: none;
+      }
+
+      /* Description: collapsed by default, expands on hover */
+      .category-desc {
+        display: block;
+        font-size: 0.88rem;
+        color: rgba(255, 255, 255, 0.92);
+        line-height: 1.45;
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: max-height 0.35s ease, opacity 0.28s ease;
+        background: rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border-radius: 10px;
+        padding: 0 10px;
+      }
+
+      .category-card-new:hover .category-desc {
+        max-height: 80px;
+        opacity: 1;
+        padding: 8px 10px;
+        margin-top: 10px;
+      }
+    }
+
+    /* ========================================
        MOBILE RESPONSIVE
     ======================================== */
     @media (max-width: 768px) {
@@ -517,6 +554,23 @@
       .categories-grid-new {
         grid-template-columns: 1fr;
         gap: 20px;
+      }
+
+      .category-emoji {
+        font-size: 2.6rem;
+      }
+
+      .category-desc {
+        display: block;
+        font-size: 0.82rem;
+        color: rgba(255, 255, 255, 0.92);
+        line-height: 1.45;
+        margin-top: 8px;
+        background: rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border-radius: 10px;
+        padding: 8px 10px;
       }
 
       .pagination-controls {
@@ -727,7 +781,7 @@
 
 <!-- Script 2: Category rendering — local imports only, never blocked by esm.sh -->
 <script type="module">
-  import { openModeSelector as originalOpenModeSelector } from './js/mode-selector.js';
+  import { openModeSelector as originalOpenModeSelector, CATEGORY_HINTS } from './js/mode-selector.js';
   import { categoriesConfig } from './js/categories-config.js';
 
   const ALIAS_KEYS = new Set(['hightemp', 'rainfall']);
@@ -810,6 +864,7 @@
       return `
         <div class="category-item">
           <div class="category-card-new ${isLocked ? 'locked' : ''}"
+               data-category="${cat.category}"
                onclick="${isLocked ? 'showPremiumModal()' : `openModeSelector('${cat.category}', '${cat.display}', '${cat.emoji}')`}">
             <img class="category-bg" src="images/categories/${cat.image}" alt="" loading="lazy">
             <div class="category-overlay"></div>
@@ -817,11 +872,20 @@
             <div class="category-content">
               <div class="category-emoji">${cat.emoji}</div>
               <div class="category-name">${cat.display}</div>
+              <div class="category-desc"></div>
             </div>
           </div>
         </div>
       `;
     }).join('');
+
+    // Populate mobile description text from CATEGORY_HINTS
+    container.querySelectorAll('.category-card-new[data-category]').forEach(card => {
+      const hint = CATEGORY_HINTS[card.dataset.category];
+      if (hint?.description) {
+        card.querySelector('.category-desc').textContent = hint.description;
+      }
+    });
 
     updatePagination();
   }
