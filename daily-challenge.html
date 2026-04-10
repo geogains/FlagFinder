@@ -17,7 +17,7 @@
        DAILY CHALLENGE PAGE CONTENT
     ======================================== */
     .daily-container {
-      max-width: 720px;
+      max-width: 940px;
       margin: 120px auto 60px;
       padding: 48px;
       background: rgba(255, 255, 255, 0.85);
@@ -181,39 +181,38 @@
       background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
       color: white;
       border: none;
-      padding: 16px 48px;
-      border-radius: 50px;
-      font-size: 1.15rem;
-      font-weight: 700;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
       font-family: 'Poppins', sans-serif;
-      box-shadow: 0 6px 24px rgba(255, 111, 97, 0.4);
-      letter-spacing: 0.5px;
+      box-shadow: 0 6px 20px rgba(255, 111, 97, 0.4);
     }
-    
+
     .play-button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 32px rgba(255, 111, 97, 0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(255, 111, 97, 0.52);
     }
-    
+
     .play-button:active {
-      transform: translateY(-1px);
+      transform: translateY(0);
     }
-    
+
     .back-button {
       background: rgba(13, 49, 90, 0.08);
       color: #0d315a;
       border: 2px solid rgba(13, 49, 90, 0.15);
-      padding: 14px 36px;
-      border-radius: 50px;
-      font-size: 1rem;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-size: 1.05rem;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
       font-family: 'Poppins', sans-serif;
     }
-    
+
     .back-button:hover {
       background: rgba(13, 49, 90, 0.12);
       border-color: rgba(13, 49, 90, 0.25);
@@ -349,39 +348,80 @@
     
     .auth-btn {
       width: 100%;
-      padding: 16px 32px;
+      padding: 14px 28px;
       border: none;
-      border-radius: 50px;
-      font-size: 1.1rem;
+      border-radius: 12px;
+      font-size: 1.05rem;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
       font-family: 'Poppins', sans-serif;
       margin-bottom: 12px;
     }
-    
+
     .auth-btn.login {
       background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
       color: white;
-      box-shadow: 0 6px 24px rgba(255, 111, 97, 0.3);
+      box-shadow: 0 6px 20px rgba(255, 111, 97, 0.4);
     }
-    
+
     .auth-btn.login:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 28px rgba(255, 111, 97, 0.4);
+      box-shadow: 0 10px 28px rgba(255, 111, 97, 0.52);
     }
-    
+
     .auth-btn.cancel {
       background: rgba(13, 49, 90, 0.08);
       color: #0d315a;
       border: 2px solid rgba(13, 49, 90, 0.15);
     }
-    
+
     .auth-btn.cancel:hover {
       background: rgba(13, 49, 90, 0.12);
+      transform: translateY(-2px);
     }
     
     /* Mobile Responsive */
+    /* ── Category hint block ── */
+    .challenge-hint {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin: 0 0 28px;
+      text-align: left;
+      box-shadow: 0 4px 24px rgba(13, 49, 90, 0.1);
+      opacity: 0;
+      animation: fadeIn 0.5s ease-out 1.4s forwards;
+    }
+
+    .hint-description {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #0d315a;
+      margin: 0 0 8px;
+      line-height: 1.5;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .hint-detail {
+      font-size: 0.82rem;
+      color: #374151;
+      margin: 0 0 10px;
+      line-height: 1.55;
+    }
+
+    .hint-example {
+      font-size: 0.78rem;
+      color: #6b7280;
+      margin: 0;
+      padding-top: 10px;
+      border-top: 1px solid rgba(102, 126, 234, 0.15);
+      line-height: 1.5;
+    }
+
     @media (max-width: 768px) {
       .daily-container {
         margin: 90px 16px 40px;
@@ -420,9 +460,8 @@
       
       .play-button {
         width: 100%;
-        padding: 18px 40px;
       }
-      
+
       .back-button {
         width: 100%;
       }
@@ -432,10 +471,14 @@
         width: 100%;
       }
       
+      .challenge-hint {
+        padding: 16px 18px;
+      }
+
       .auth-window {
         padding: 40px 28px;
       }
-      
+
       .auth-window h2 {
         font-size: 1.8rem;
       }
@@ -512,6 +555,13 @@
         <div class="challenge-category" id="challengeCategory">Population</div>
         <div class="challenge-date" id="challengeDate">January 27, 2026</div>
       </div>
+    </div>
+
+    <!-- Category hint — always visible, sourced from CATEGORY_HINTS -->
+    <div class="challenge-hint" id="challengeHint">
+      <p class="hint-description" id="hintDescription"></p>
+      <p class="hint-detail" id="hintDetail"></p>
+      <p class="hint-example" id="hintExample"></p>
     </div>
 
     <div class="btn-group">
@@ -621,13 +671,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Daily Challenge Logic -->
 <script type="module">
-  import { 
-    getTodaysDailyChallenge, 
+  import {
+    getTodaysDailyChallenge,
     hasCompletedTodaysChallenge,
     modeDisplayNames,
     categoryDisplayNames,
     categoryEmojis
   } from './js/daily-challenge.js';
+  import { CATEGORY_HINTS } from './js/mode-selector.js';
 
   // Elements
   const loadingState = document.getElementById('loadingState');
@@ -645,38 +696,19 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialize
   async function init() {
     try {
-      // Check if user completed today's challenge
+      // Check session and completion status
       const status = await hasCompletedTodaysChallenge();
-      
+
       console.log('Challenge status:', status);
-      
-      // Check if user is logged in
-      if (!status.loggedIn) {
-        // Show login required modal
-        loadingState.style.display = 'none';
-        const authModal = document.getElementById('authModal');
-        authModal.classList.add('active');
-        
-        // Setup modal buttons
-        document.getElementById('goLoginBtn').onclick = () => {
-          window.location.href = 'auth.html';
-        };
-        
-        document.getElementById('cancelLoginBtn').onclick = () => {
-          window.location.href = 'categories.html';
-        };
-        
-        return;
-      }
-      
-      // Check if already completed
-      if (status.completed) {
+
+      // Only show "completed" state to logged-in users who already finished today
+      if (status.loggedIn && status.completed) {
         loadingState.style.display = 'none';
         completedState.style.display = 'block';
         return;
       }
 
-      // Get today's challenge
+      // Get today's challenge (shown to everyone, logged in or not)
       const challenge = getTodaysDailyChallenge();
       console.log('Today\'s challenge:', challenge);
 
@@ -697,9 +729,40 @@ document.addEventListener('DOMContentLoaded', function() {
         cardBg.style.backgroundImage = `url('images/categories/${challenge.category}.jpg')`;
       }
 
-      // Set up play button
+      // Populate category hint from CATEGORY_HINTS
+      const hint = CATEGORY_HINTS[challenge.category];
+      if (hint) {
+        document.getElementById('hintDescription').textContent = hint.description;
+        document.getElementById('hintDetail').textContent = hint.detail;
+        const exampleEl = document.getElementById('hintExample');
+        if (hint.example) {
+          exampleEl.textContent = hint.example;
+        } else {
+          exampleEl.style.display = 'none';
+        }
+      } else {
+        document.getElementById('challengeHint').style.display = 'none';
+      }
+
+      // Set up play button — auth gate moves here, only fires on click
       playButton.onclick = () => {
-        // Determine which game file to load
+        if (!status.loggedIn) {
+          // Not logged in — show login required modal
+          const authModal = document.getElementById('authModal');
+          authModal.classList.add('active');
+
+          document.getElementById('goLoginBtn').onclick = () => {
+            window.location.href = 'auth.html';
+          };
+
+          document.getElementById('cancelLoginBtn').onclick = () => {
+            authModal.classList.remove('active');
+          };
+
+          return;
+        }
+
+        // Logged in — proceed to game
         let gameFile;
         if (challenge.mode === 'classic') {
           gameFile = 'game.html';
@@ -709,7 +772,6 @@ document.addEventListener('DOMContentLoaded', function() {
           gameFile = 'vs.html';
         }
 
-        // Redirect with daily flag
         window.location.href = `${gameFile}?mode=${challenge.category}&daily=true`;
       };
 

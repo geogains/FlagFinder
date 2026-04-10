@@ -548,28 +548,25 @@
 
     .view-all-btn {
       display: inline-block;
-      padding: 18px 48px;
-      font-size: 1.2rem;
-      font-weight: 700;
+      padding: 14px 28px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
       color: white;
-      background: linear-gradient(135deg, #ff9770, #ff6f61);
-      border: none;
-      border-radius: 50px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 8px 24px rgba(255, 151, 112, 0.4);
+      font-weight: 600;
+      font-size: 1.05rem;
       text-decoration: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 6px 20px rgba(255, 111, 97, 0.4);
       font-family: 'Poppins', sans-serif;
     }
 
     .view-all-btn:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 32px rgba(255, 151, 112, 0.5);
-      background: linear-gradient(135deg, #ff8560 0%, #ff5f51 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(255, 111, 97, 0.52);
     }
 
     .view-all-btn:active {
-      transform: translateY(-2px);
+      transform: translateY(0);
     }
 
     /* ========================================
@@ -605,11 +602,6 @@
     @media (max-width: 768px) {
       .hero-logo {
         max-width: 420px;
-      }
-
-      .view-all-btn {
-        padding: 16px 40px;
-        font-size: 1.1rem;
       }
 
       .home-footer {

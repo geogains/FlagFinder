@@ -520,11 +520,15 @@ function selectMode(modeKey, categoryKey) {
   window.location.href = `${mode.gameFile}?mode=${categoryKey}`;
 }
 
-// Auto-initialize modal when script loads
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', createModeSelectorModal);
-} else {
-  createModeSelectorModal();
+// Auto-initialize modal when script loads.
+// Guard: skip on pages that only import CATEGORY_HINTS (e.g. daily-challenge.html)
+// and don't need the mode selector UI injected into the DOM.
+if (!document.querySelector('.daily-container')) {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', createModeSelectorModal);
+  } else {
+    createModeSelectorModal();
+  }
 }
 
 console.log('Mode Selector ready');
