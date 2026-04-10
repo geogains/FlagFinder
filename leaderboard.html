@@ -755,6 +755,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <script type="module">
   import { supabase } from './js/supabase-client.js';
   import { categoriesConfig, CATEGORY_ID_MAP } from './js/categories-config.js';
+  import { getDailyChallengeForDate } from './js/daily-challenge.js';
 
   const leaderboardBody        = document.getElementById("leaderboardBody");
   const dateDropdown           = document.getElementById("dateDropdown");
@@ -892,29 +893,6 @@ document.addEventListener('DOMContentLoaded', function() {
     currentDate = e.target.value;
     loadDailyChallengeLeaderboardForDate(currentDate);
   });
-
-  // ── Seeded daily challenge logic ───────────────────────────────────────────
-  function seededRandom(seed) { const x = Math.sin(seed) * 10000; return x - Math.floor(x); }
-
-  function getDailyChallengeForDate(dateString) {
-    const date = new Date(dateString + 'T00:00:00Z');
-    const seed = date.getUTCFullYear() * 10000 + (date.getUTCMonth() + 1) * 100 + date.getUTCDate();
-    const gameModes = ['classic', 'top10', 'vs'];
-    const top10Valid = ['population','gdp','landmass','altitude','forest','coastline','passport','beer',
-      'nobelprize','hightemp','rainfall','crimerate','happiness','tourism','michelin','bigmac',
-      'lifeexpectancy','marriageage','sexratio','tallestbuilding','density','carexports',
-      'militarypersonel','rent','poorestgdp','university','volcano','flamingo','disasterrisk',
-      'longestriver','renewableenergy','millionaires','gm'];
-    const allCats = ['population','gdp','landmass','altitude','forest','coastline','olympic','worldcup',
-      'passport','beer','nobelprize','hightemp','rainfall','crimerate','happiness','cuisine','tourism',
-      'michelin','bigmac','lifeexpectancy','marriageage','sexratio','tallestbuilding','density',
-      'carexports','militarypersonel','rent','poorestgdp','university','volcano','flamingo',
-      'disasterrisk','longestriver','renewableenergy','millionaires','gm'];
-    const modeIndex = Math.floor(seededRandom(seed) * gameModes.length);
-    const selectedMode = gameModes[modeIndex];
-    const valid = selectedMode === 'top10' ? top10Valid : allCats;
-    return { mode: selectedMode, category: valid[Math.floor(seededRandom(seed + 1000) * valid.length)] };
-  }
 
   // ── Daily Challenge loader ─────────────────────────────────────────────────
   async function loadDailyChallengeLeaderboardForDate(date) {

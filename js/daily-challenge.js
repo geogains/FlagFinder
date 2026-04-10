@@ -87,26 +87,23 @@ function getDailySeed() {
   const year = today.getUTCFullYear();
   const month = today.getUTCMonth() + 1; // 0-indexed, so add 1
   const day = today.getUTCDate();
-  
+
   // Create seed: YYYYMMDD format (e.g., 20251217)
   const seed = year * 10000 + month * 100 + day;
   console.log('Daily seed:', seed);
   return seed;
 }
 
-// Get today's daily challenge (mode + category)
-export function getTodaysDailyChallenge() {
-  const seed = getDailySeed();
-  
-  // Pick random game mode (use seed directly)
+// Determine the daily challenge (mode + category) for any given UTC date string (YYYY-MM-DD).
+// This is the single source of truth — leaderboard and daily-challenge page both use this.
+export function getDailyChallengeForDate(dateString) {
+  const date = new Date(dateString + 'T00:00:00Z');
+  const seed = date.getUTCFullYear() * 10000 + (date.getUTCMonth() + 1) * 100 + date.getUTCDate();
+
   const modeIndex = Math.floor(seededRandom(seed) * gameModes.length);
   const selectedMode = gameModes[modeIndex];
-  
-  console.log('Selected mode:', selectedMode);
-  
-  // Pick random category (use seed + offset for different randomness)
+
   let validCategories;
-  
   if (selectedMode === 'top10') {
     validCategories = top10ValidCategories;
   } else if (selectedMode === 'vs') {
@@ -114,18 +111,19 @@ export function getTodaysDailyChallenge() {
   } else {
     validCategories = classicVsCategories;
   }
-  
-  const categoryIndex = Math.floor(seededRandom(seed + 1000) * validCategories.length);
-  const selectedCategory = validCategories[categoryIndex];
-  
-  console.log('Selected category:', selectedCategory);
-  console.log('Valid categories for this mode:', validCategories.length);
-  
-  return {
-    mode: selectedMode,
-    category: selectedCategory,
-    date: new Date().toISOString().split('T')[0]
-  };
+
+  const selectedCategory = validCategories[Math.floor(seededRandom(seed + 1000) * validCategories.length)];
+
+  return { mode: selectedMode, category: selectedCategory, date: dateString };
+}
+
+// Get today's daily challenge (mode + category)
+export function getTodaysDailyChallenge() {
+  const dateString = new Date().toISOString().split('T')[0];
+  const challenge = getDailyChallengeForDate(dateString);
+  console.log('Selected mode:', challenge.mode);
+  console.log('Selected category:', challenge.category);
+  return challenge;
 }
 
 // Validate that a given mode/category is actually today's daily challenge
