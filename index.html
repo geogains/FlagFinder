@@ -266,6 +266,21 @@
       }
     }
 
+    .categories-title {
+      opacity: 0;
+      font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+      font-weight: 800;
+      color: #0d315a;
+      margin-bottom: 0rem;
+      text-shadow: 0 2px 8px rgba(13, 49, 90, 0.15);
+      letter-spacing: -1px;
+      text-align: center;
+    }
+
+    .categories-title.conveyor-ready {
+      animation: conveyor-fade-in 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.45s both;
+    }
+
     .conveyor-section {
       padding: 0 0 60px;
       position: relative;
@@ -368,6 +383,9 @@
       .conveyor-row-h {
         padding: 6px 0;
       }
+      .conveyor-track-h .category-item {
+        min-width: 300px;
+      }
       .conveyor-track-h .category-card-new {
         aspect-ratio: 3 / 2;
       }
@@ -432,7 +450,7 @@
 
     /* Desktop conveyor: slightly shorter cards than 4/3 */
     .conveyor-track-h .category-card-new {
-      aspect-ratio: 3 / 2;
+      aspect-ratio: 3.4 / 2;
     }
 
     .category-bg {
@@ -701,6 +719,8 @@
   </div>
 </section>
 
+<h2 class="categories-title">Top Categories</h2>
+
 <!-- ========== CATEGORIES CONVEYOR ========== -->
 <div class="conveyor-section" id="conveyorSection">
 
@@ -815,6 +835,7 @@
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       conveyorSection?.classList.add('conveyor-ready');
+      document.querySelector('.categories-title')?.classList.add('conveyor-ready');
     });
   });
 

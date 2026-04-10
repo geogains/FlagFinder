@@ -30,6 +30,18 @@ const top10ValidCategories = [
 // All categories valid for Classic and VS (no minimum requirement)
 const classicVsCategories = [...allCategories];
 
+// Categories excluded from VS daily challenge because their datasets are too small
+// (< 30 countries). In VS mode the full dataset is shuffled and cycled; small datasets
+// produce a visible loop within the 2-minute session (e.g. 10 countries = 5-pair loop).
+const VS_SMALL_DATASET = new Set([
+  'happiness', 'worldcup', 'carexports', 'flamingo', 'tourism',
+  'marriageage', 'longestriver', 'nobelprize', 'millionaires', 'poorestgdp',
+  'sexratio', 'university', 'renewableenergy', 'volcano', 'cuisine'
+]);
+
+// Categories valid for VS daily challenge (≥ 30 country entries)
+const vsEligibleCategories = allCategories.filter(cat => !VS_SMALL_DATASET.has(cat));
+
 // Game modes
 const gameModes = ['classic', 'top10', 'vs'];
 
@@ -97,6 +109,8 @@ export function getTodaysDailyChallenge() {
   
   if (selectedMode === 'top10') {
     validCategories = top10ValidCategories;
+  } else if (selectedMode === 'vs') {
+    validCategories = vsEligibleCategories;
   } else {
     validCategories = classicVsCategories;
   }
