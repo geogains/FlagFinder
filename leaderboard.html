@@ -514,6 +514,13 @@
     .btn-find-me:hover { box-shadow: 0 7px 20px rgba(255,111,97,0.45); }
 
   </style>
+
+  <!-- Privacy-friendly analytics by Plausible -->
+  <script async src="https://plausible.io/js/pa-tUa77bKcZgPbREKVwm36y.js"></script>
+  <script>
+    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+    plausible.init()
+  </script>
 </head>
 <body>
 
@@ -554,7 +561,7 @@
     <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
     <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
     <button class="menu-btn" onclick="location.href='about.html'">🌍 About Us</button>
-    <button class="menu-btn upgrade-access-btn" onclick="plausible('premium_clicked'); window.location.href='premium.html'">🔓 Unlock All Categories</button>
+    <button class="menu-btn upgrade-access-btn" onclick="window.plausible?.('premium_clicked', {props:{source:'leaderboard'}}); window.location.href='premium.html'">🔓 Unlock All Categories</button>
     <button class="menu-close-x" id="closeMenu">×</button>
   </div>
 </div>
@@ -1214,6 +1221,11 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 </script>
 
+<script>
+  window.addEventListener('DOMContentLoaded', function() {
+    window.plausible?.('leaderboard_viewed');
+  });
+</script>
 
 </body>
 </html>

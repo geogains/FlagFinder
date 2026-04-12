@@ -117,7 +117,7 @@ gameState.countries = data.map(country => {
 function initGame() {
   console.log('Initializing VS game...');
   
-  if (typeof window.plausible === 'function') window.plausible('game_started', { props: { mode: 'vs', category: categoryKey } });
+  window.plausible?.('game_started', { props: { mode: 'vs', category: categoryKey, daily: isDailyChallenge } });
 
   // Set category title
   document.getElementById('categoryTitle').textContent = categoryConfig.questionText;
@@ -478,7 +478,7 @@ async function endGame() {
   }
   gameState.isGameOver = true;
   
-  if (typeof window.plausible === 'function') window.plausible('game_completed', { props: { mode: 'vs', category: categoryKey } });
+  window.plausible?.('game_completed', { props: { mode: 'vs', category: categoryKey, daily: isDailyChallenge } });
 
   console.log('Game ended!');
   

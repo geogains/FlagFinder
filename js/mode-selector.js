@@ -501,20 +501,24 @@ function selectMode(modeKey, categoryKey) {
   // Handle Random mode - pick a random available mode
   if (modeKey === 'random') {
     const availableModes = ['classic', 'vs'];
-    
+
     // Add Top 10 only if category supports it
     if (!SMALL_CATEGORIES.includes(categoryKey)) {
       availableModes.push('top10');
     }
-    
+
     // Pick random mode
     const randomMode = availableModes[Math.floor(Math.random() * availableModes.length)];
     console.log('Random mode selected:', randomMode);
-    
+
+    window.plausible?.('mode_selected', { props: { mode: randomMode, category: categoryKey } });
+
     // Redirect to random mode
     window.location.href = `${MODES[randomMode].gameFile}?mode=${categoryKey}`;
     return;
   }
+
+  window.plausible?.('mode_selected', { props: { mode: modeKey, category: categoryKey } });
 
   // Redirect to selected game
   window.location.href = `${mode.gameFile}?mode=${categoryKey}`;

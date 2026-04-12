@@ -484,6 +484,13 @@
       }
     }
   </style>
+
+  <!-- Privacy-friendly analytics by Plausible -->
+  <script async src="https://plausible.io/js/pa-tUa77bKcZgPbREKVwm36y.js"></script>
+  <script>
+    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+    plausible.init()
+  </script>
 </head>
 <body>
 
@@ -528,7 +535,7 @@
     <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
     <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
     <button class="menu-btn" onclick="location.href='about.html'">🌍 About Us</button>
-    <button class="menu-btn upgrade-access-btn" onclick="plausible('premium_clicked'); window.location.href='premium.html'" style="display:none;">🔓 Unlock All Categories</button>
+    <button class="menu-btn upgrade-access-btn" onclick="window.plausible?.('premium_clicked', {props:{source:'navbar'}}); window.location.href='premium.html'" style="display:none;">🔓 Unlock All Categories</button>
     <button class="menu-close-x" id="closeMenu">×</button>
   </div>
 </div>
@@ -772,8 +779,11 @@ document.addEventListener('DOMContentLoaded', function() {
           gameFile = 'vs.html';
         }
 
+        window.plausible?.('daily_challenge_started', { props: { mode: challenge.mode, category: challenge.category } });
         window.location.href = `${gameFile}?mode=${challenge.category}&daily=true`;
       };
+
+      window.plausible?.('daily_challenge_viewed', { props: { mode: challenge.mode, category: challenge.category } });
 
       // Show challenge card
       loadingState.style.display = 'none';

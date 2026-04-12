@@ -65,6 +65,8 @@ async function startCheckout(planType) {
     return;
   }
 
+  window.plausible?.('checkout_started', { props: { plan: planType } });
+
   switch (planType) {
     case "monthly":
       await redirectToCheckout(PRICE_MONTHLY);

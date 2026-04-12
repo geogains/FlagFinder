@@ -160,7 +160,7 @@ export function startBlindRankingGame() {
   console.log("🧭 Detected metricKey:", metricKey);
   console.log("🏅 Detected rankKey:", rankKey);
 
-  if (typeof window.plausible === 'function') window.plausible('game_started', { props: { mode: 'classic', category: currentCategory } });
+  window.plausible?.('game_started', { props: { mode: 'classic', category: currentCategory, daily: isDailyChallenge } });
 
   // Duel mode: use externally-provided seed (window._duelSeed)
   if (window._duelSeed != null) {
@@ -377,7 +377,7 @@ function formatMetric(num) {
 async function endGame() {
   isGameOver = true;
 
-  if (typeof window.plausible === 'function') window.plausible('game_completed', { props: { mode: 'classic', category: currentCategory } });
+  window.plausible?.('game_completed', { props: { mode: 'classic', category: currentCategory, daily: isDailyChallenge } });
 
   const maxScore = selectedCountries.length * 10;
   

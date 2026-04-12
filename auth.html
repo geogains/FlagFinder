@@ -364,6 +364,13 @@
       }
     }
   </style>
+
+  <!-- Privacy-friendly analytics by Plausible -->
+  <script async src="https://plausible.io/js/pa-tUa77bKcZgPbREKVwm36y.js"></script>
+  <script>
+    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+    plausible.init()
+  </script>
 </head>
 <body>
     <div class="auth-logo-container fade-in">
@@ -540,6 +547,8 @@ document.querySelectorAll('.toggle-password').forEach(button => {
       submitBtn.disabled = true;
       submitBtn.textContent = 'Signing in...';
 
+      window.plausible?.('login_started');
+
       try {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
 
@@ -581,6 +590,8 @@ document.querySelectorAll('.toggle-password').forEach(button => {
 
       submitBtn.disabled = true;
       submitBtn.textContent = 'Creating account...';
+
+      window.plausible?.('signup_started');
 
       try {
         // 1. Check if username is already taken

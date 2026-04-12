@@ -535,6 +535,13 @@
     }
     
   </style>
+
+  <!-- Privacy-friendly analytics by Plausible -->
+  <script async src="https://plausible.io/js/pa-tUa77bKcZgPbREKVwm36y.js"></script>
+  <script>
+    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+    plausible.init()
+  </script>
 </head>
 <body>
 
@@ -570,7 +577,7 @@
     <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
     <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
     <button class="menu-btn" onclick="location.href='about.html'">🌍 About Us</button>
-    <button class="menu-btn upgrade-access-btn" onclick="plausible('premium_clicked'); window.location.href='premium.html'" style="display:none;">🔓 Unlock All Categories</button>
+    <button class="menu-btn upgrade-access-btn" onclick="window.plausible?.('premium_clicked', {props:{source:'navbar'}}); window.location.href='premium.html'" style="display:none;">🔓 Unlock All Categories</button>
     <button class="menu-close-x" id="closeMenu">×</button>
   </div>
 </div>
@@ -966,6 +973,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script src="https://js.stripe.com/v3/"></script>
 <script type="module" src="js/premium.js"></script>
+
+<script>
+  window.addEventListener('DOMContentLoaded', function() {
+    window.plausible?.('premium_viewed');
+  });
+</script>
 
 <!-- Header height measurement for banner spacer -->
 <script>
