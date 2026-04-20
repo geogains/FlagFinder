@@ -427,7 +427,8 @@
       font-size: 0.9rem;
     }
 
-    .form-group input[type="text"] {
+    .form-group input[type="text"],
+    .form-group input[type="email"] {
       width: 100%;
       padding: 12px;
       border: 2px solid #ddd;
@@ -438,7 +439,8 @@
       transition: border-color 0.2s;
     }
 
-    .form-group input[type="text"]:focus {
+    .form-group input[type="text"]:focus,
+    .form-group input[type="email"]:focus {
       outline: none;
       border-color: #e6683c;
     }
@@ -630,13 +632,24 @@
           <form id="manualSignupForm">
             <div class="form-group">
               <label for="username">Instagram Username</label>
-              <input 
-                type="text" 
-                id="username" 
-                name="username" 
-                placeholder="@yourhandle" 
-                required 
+              <input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="@yourhandle"
+                required
                 maxlength="30"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="your@email.com"
+                required
               />
             </div>
 
