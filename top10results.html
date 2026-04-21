@@ -686,6 +686,7 @@
       </div>
 
       <!-- Action Buttons -->
+      <p id="savingIndicator" style="display:none; text-align:center; font-size:0.85rem; color:#9ca3af; margin:0 0 10px; font-family:'Poppins',sans-serif;">💾 Saving score…</p>
       <div class="results-actions">
         <button class="btn btn-primary" id="playAgainBtn">Play Again</button>
         <button class="btn btn-secondary" onclick="window.location.href='index.html'">Home</button>
@@ -967,7 +968,25 @@ Can you beat my score? Play at geo-ranks.com/top10.html?mode=${categoryKey}`;
   <!-- Pending Score Save -->
   <script type="module">
     import { supabase } from './js/supabase-client.js';
-    (async () => {
+
+    // Block navigation while save is in flight
+    const _hasSave = !!localStorage.getItem('top10PendingSave');
+    const _indicator = document.getElementById('savingIndicator');
+    const _beforeunload = e => { e.preventDefault(); return (e.returnValue = ''); };
+    const _unlockNav = () => {
+      clearTimeout(_saveTimeout);
+      if (_indicator) _indicator.style.display = 'none';
+      document.querySelectorAll('.btn, .mode-btn').forEach(b => (b.disabled = false));
+      window.removeEventListener('beforeunload', _beforeunload);
+    };
+    if (_hasSave) {
+      if (_indicator) _indicator.style.display = 'block';
+      document.querySelectorAll('.btn, .mode-btn').forEach(b => (b.disabled = true));
+      window.addEventListener('beforeunload', _beforeunload);
+    }
+    const _saveTimeout = _hasSave ? setTimeout(_unlockNav, 4000) : null;
+
+    window._pendingSave = (async () => {
       const raw = localStorage.getItem('top10PendingSave');
       if (!raw) return;
       let record;
@@ -977,20 +996,37 @@ Can you beat my score? Play at geo-ranks.com/top10.html?mode=${categoryKey}`;
       if (!record.categoryKey || !record.categoryId || record.score == null) return;
       if (record.categoryKey !== urlParams.get('category')) return;
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) return;
+      if (!session?.user) { console.warn('⚠️ Daily score NOT saved — no session'); return; }
       let allSucceeded = true;
+      const withRetry = async (fn, label) => {
+        const delays = [500, 1000, 2000];
+        let lastError;
+        for (let attempt = 0; attempt < 4; attempt++) {
+          if (attempt > 0) {
+            console.warn(`Retrying ${label} attempt ${attempt + 1}...`);
+            await new Promise(r => setTimeout(r, delays[attempt - 1]));
+          }
+          const result = await fn();
+          if (!result.error) return result;
+          lastError = result.error;
+        }
+        return { error: lastError };
+      };
       // daily_challenge_scores — only for daily challenge games
       if (record.isDailyChallenge) {
         const today = new Date().toISOString().split('T')[0];
-        const { error: dailyError } = await supabase.from('daily_challenge_scores').upsert({
-          user_id: session.user.id,
-          category_id: record.categoryId,
-          played_date: today,
-          score: record.score,
-          correct_count: record.correctGuesses,
-          time_taken: record.timeElapsed,
-          completed: true
-        }, { onConflict: 'user_id,category_id,played_date' }).select();
+        const { error: dailyError } = await withRetry(
+          () => supabase.from('daily_challenge_scores').upsert({
+            user_id: session.user.id,
+            category_id: record.categoryId,
+            played_date: today,
+            score: record.score,
+            correct_count: record.correctGuesses,
+            time_taken: record.timeElapsed,
+            completed: true
+          }, { onConflict: 'user_id,category_id,played_date' }).select(),
+          'Top 10 daily save'
+        );
         if (dailyError) { console.error('❌ Top 10 daily save failed:', dailyError); allSucceeded = false; }
         else console.log('✅ Top 10 daily challenge score saved.');
       }
@@ -1002,19 +1038,24 @@ Can you beat my score? Play at geo-ranks.com/top10.html?mode=${categoryKey}`;
         .eq('category_id', record.categoryId)
         .maybeSingle();
       if (!existingBest || record.score > existingBest.score) {
-        const { error: bestError } = await supabase.from('top10_best_scores').upsert({
-          user_id: session.user.id,
-          category_id: record.categoryId,
-          score: record.score,
-          correct_count: record.correctGuesses,
-          wrong_count: record.incorrectGuessCount,
-          time_remaining: record.timeRemaining
-        }, { onConflict: 'user_id,category_id' }).select();
+        const { error: bestError } = await withRetry(
+          () => supabase.from('top10_best_scores').upsert({
+            user_id: session.user.id,
+            category_id: record.categoryId,
+            score: record.score,
+            correct_count: record.correctGuesses,
+            wrong_count: record.incorrectGuessCount,
+            time_remaining: record.timeRemaining
+          }, { onConflict: 'user_id,category_id' }).select(),
+          'Top 10 best score'
+        );
         if (bestError) { console.error('❌ Top 10 best score save failed:', bestError); allSucceeded = false; }
         else console.log('✅ Top 10 best score saved/updated.');
       }
       if (allSucceeded) localStorage.removeItem('top10PendingSave');
     })();
+
+    if (_hasSave) window._pendingSave.finally(_unlockNav);
   </script>
 
   <!-- Account/Premium Button Removal -->
