@@ -13,7 +13,8 @@ const allCategories = [
   // NEW CATEGORIES
   'marriageage', 'sexratio', 'tallestbuilding', 'density', 'carexports',
   'militarypersonel', 'rent', 'poorestgdp', 'university', 'volcano',
-  'flamingo', 'disasterrisk', 'longestriver', 'renewableenergy', 'millionaires', 'gm'
+  'flamingo', 'disasterrisk', 'longestriver', 'renewableenergy', 'millionaires', 'gm',
+  'f1'
 ];
 
 // Categories with at least 10 countries (valid for Top 10 mode)
@@ -24,7 +25,8 @@ const top10ValidCategories = [
   // NEW CATEGORIES (all have 10+ countries)
   'marriageage', 'sexratio', 'tallestbuilding', 'density', 'carexports',
   'militarypersonel', 'rent', 'poorestgdp', 'university', 'volcano',
-  'flamingo', 'disasterrisk', 'longestriver', 'renewableenergy', 'millionaires', 'gm'
+  'flamingo', 'disasterrisk', 'longestriver', 'renewableenergy', 'millionaires', 'gm',
+  'f1'
 ];
 
 // All categories valid for Classic and VS (no minimum requirement)
@@ -36,7 +38,7 @@ const classicVsCategories = [...allCategories];
 const VS_SMALL_DATASET = new Set([
   'happiness', 'worldcup', 'carexports', 'flamingo', 'tourism',
   'marriageage', 'longestriver', 'nobelprize', 'millionaires', 'poorestgdp',
-  'sexratio', 'university', 'renewableenergy', 'volcano', 'cuisine'
+  'sexratio', 'university', 'renewableenergy', 'volcano', 'cuisine', 'f1'
 ]);
 
 // Categories valid for VS daily challenge (≥ 30 country entries)
@@ -225,6 +227,7 @@ export const categoryDisplayNames = {
   renewableenergy: 'Renewable Energy',
   millionaires: 'Millionaires',
   gm: 'Grandmasters',
+  f1: 'F1 Championships',
 };
 
 // Get emoji for each category
@@ -266,6 +269,7 @@ export const categoryEmojis = {
   renewableenergy: '♻️',
   millionaires: '💰',
   gm: '♟️',
+  f1: '🏎️',
 };
 
 console.log('Daily Challenge utilities ready');

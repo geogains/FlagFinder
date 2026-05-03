@@ -42,6 +42,7 @@ export const CATEGORY_ID_MAP = {
   renewableenergy: 34,
   millionaires: 35,
   gm: 36,
+  f1: 37,
 };
 
 // Category configurations for Top 10 mode
@@ -390,6 +391,15 @@ gm: {
   dataKey: "chessGMData",
   valueField: "grandmasters",
   rankField: "gmRank"
+},
+f1: {
+  title: "F1 Championships",
+  emoji: "🏎️",
+  unit: "titles",
+  dataFile: "f1",
+  dataKey: "f1Data",
+  valueField: "f1",
+  rankField: "f1Rank"
 }
 };
 

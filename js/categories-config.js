@@ -461,6 +461,18 @@ export const categoriesConfig = {
     questionText: "WHICH COUNTRY HAS THE MOST WORLD CUP TROPHIES?",
     premium: true,
     image: "worldcup.jpg"
+  },
+
+  f1: {
+    title: "F1 Championships",
+    emoji: "🏎️",
+    unit: "titles",
+    dataFile: "f1",
+    dataKey: "f1Data",
+    valueField: "f1",
+    questionText: "WHICH COUNTRY HAS MORE FORMULA 1 WORLD DRIVERS' CHAMPIONSHIPS?",
+    premium: true,
+    image: "f1.jpg"
   }
 };
 
@@ -503,4 +515,5 @@ export const CATEGORY_ID_MAP = {
   renewableenergy: 34,
   millionaires: 35,
   gm: 36,
+  f1: 37,
 };

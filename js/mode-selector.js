@@ -198,6 +198,11 @@ export const CATEGORY_HINTS = {
     detail: "The Grandmaster title is awarded by FIDE — the international chess federation — for consistently high-level tournament performance. More titled players means a higher rank.",
     example: "A country with 200 grandmasters ranks above one with 15."
   },
+  f1: {
+    description: "Rank countries from most to fewest Formula 1 World Drivers' Championship titles.",
+    detail: "Only titles won by drivers competing under that country's nationality count. Countries with multiple champion drivers across different eras can accumulate a high total.",
+    example: "A country whose drivers have won 8 championships ranks above one whose drivers have won 2."
+  },
 };
 
 // Mode configurations
@@ -398,6 +403,7 @@ export function openModeSelector(categoryKey, categoryDisplayName, categoryEmoji
     renewableenergy: "renewableenergy.jpg",
     millionaires: "millionaires.jpg",
     gm: "gm.jpg",
+    f1: "f1.jpg",
   };
 
   const bgImage = bgMap[categoryKey];

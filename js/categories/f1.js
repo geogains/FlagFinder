@@ -1,0 +1,17 @@
+export const f1Data = [
+  { name: 'United Kingdom', code: 'GB', f1Rank: 1,  titles: 21, f1: 21, tieGroup: 1 },
+  { name: 'Germany',        code: 'DE', f1Rank: 2,  titles: 12, f1: 12, tieGroup: 2 },
+  { name: 'Brazil',         code: 'BR', f1Rank: 3,  titles: 8,  f1: 8,  tieGroup: 3 },
+  { name: 'Argentina',      code: 'AR', f1Rank: 4,  titles: 5,  f1: 5,  tieGroup: 4 },
+  { name: 'Austria',        code: 'AT', f1Rank: 5,  titles: 4,  f1: 4,  tieGroup: 5 },
+  { name: 'France',         code: 'FR', f1Rank: 6,  titles: 4,  f1: 4,  tieGroup: 5 },
+  { name: 'Finland',        code: 'FI', f1Rank: 7,  titles: 4,  f1: 4,  tieGroup: 5 },
+  { name: 'Australia',      code: 'AU', f1Rank: 8,  titles: 4,  f1: 4,  tieGroup: 5 },
+  { name: 'Netherlands',    code: 'NL', f1Rank: 9,  titles: 4,  f1: 4,  tieGroup: 5 },
+  { name: 'Italy',          code: 'IT', f1Rank: 10, titles: 3,  f1: 3,  tieGroup: 6 },
+  { name: 'United States',  code: 'US', f1Rank: 11, titles: 2,  f1: 2,  tieGroup: 7 },
+  { name: 'Spain',          code: 'ES', f1Rank: 12, titles: 2,  f1: 2,  tieGroup: 7 },
+  { name: 'Canada',         code: 'CA', f1Rank: 13, titles: 1,  f1: 1,  tieGroup: 8 },
+  { name: 'New Zealand',    code: 'NZ', f1Rank: 14, titles: 1,  f1: 1,  tieGroup: 8 },
+  { name: 'South Africa',   code: 'ZA', f1Rank: 15, titles: 1,  f1: 1,  tieGroup: 8 },
+];

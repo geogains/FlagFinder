@@ -84,7 +84,8 @@ function detectMetricKey(data) {
     "longestriver",
     "sharepercent",
     "millionaires",
-    "grandmasters"
+    "grandmasters",
+    "f1"
   ];
   return possibleKeys.find((k) => keys.includes(k)) || null;
 }

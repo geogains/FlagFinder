@@ -191,7 +191,7 @@
 
     .categories-grid-new {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 30px;
       position: relative;
       margin-bottom: 60px;
@@ -697,9 +697,6 @@
   <!-- ========== PAGINATION ========== -->
   <div class="pagination-controls">
     <button class="page-btn page-arrow" id="prevPage" disabled>← Prev</button>
-    <button class="page-btn active" data-page="1">1</button>
-    <button class="page-btn" data-page="2">2</button>
-    <button class="page-btn" data-page="3">3</button>
     <button class="page-btn page-arrow" id="nextPage">Next →</button>
   </div>
 </div>
@@ -892,23 +889,27 @@
 
   function updatePagination() {
     const totalPages = Math.ceil(allCategoriesData.length / ITEMS_PER_PAGE);
-    document.querySelectorAll('.page-btn[data-page]').forEach(btn => {
-      const page = parseInt(btn.dataset.page);
-      btn.classList.toggle('active', page === currentPage);
-    });
-    const prevBtn = document.getElementById('prevPage');
+    const container = document.querySelector('.pagination-controls');
     const nextBtn = document.getElementById('nextPage');
-    prevBtn.disabled = currentPage === 1;
+
+    // Rebuild page number buttons so count always matches totalPages
+    container.querySelectorAll('.page-btn[data-page]').forEach(btn => btn.remove());
+    for (let p = 1; p <= totalPages; p++) {
+      const btn = document.createElement('button');
+      btn.className = 'page-btn' + (p === currentPage ? ' active' : '');
+      btn.dataset.page = String(p);
+      btn.textContent = p;
+      btn.addEventListener('click', () => {
+        currentPage = p;
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        renderCategories();
+      });
+      container.insertBefore(btn, nextBtn);
+    }
+
+    document.getElementById('prevPage').disabled = currentPage === 1;
     nextBtn.disabled = currentPage === totalPages;
   }
-
-  document.querySelectorAll('.page-btn[data-page]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      currentPage = parseInt(btn.dataset.page);
-      window.scrollTo({ top: 0, behavior: 'instant' });
-      renderCategories();
-    });
-  });
 
   document.getElementById('prevPage')?.addEventListener('click', () => {
     if (currentPage > 1) {
