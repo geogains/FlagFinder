@@ -185,7 +185,7 @@
       'temperature', 'precipitation', 'tourism', 'michelin', 'bigmac', 'lifeexpectancy',
       'marriageage', 'sexratio', 'tallestbuilding', 'density', 'carexports',
       'militarypersonel', 'rent', 'poorestgdp', 'university', 'volcano', 'flamingo',
-      'disasterrisk', 'longestriver', 'renewableenergy', 'millionaires', 'gm',
+      'disasterrisk', 'longestriver', 'renewableenergy', 'millionaires', 'gm', 'f1',
     ];
     const params = new URLSearchParams(window.location.search);
     const mode = params.get('mode') || 'population';
@@ -212,7 +212,7 @@
     'temperature', 'precipitation', 'tourism', 'michelin', 'bigmac', 'lifeexpectancy',
     'marriageage', 'sexratio', 'tallestbuilding', 'density', 'carexports',
     'militarypersonel', 'rent', 'poorestgdp', 'university', 'volcano', 'flamingo',
-    'disasterrisk', 'longestriver', 'renewableenergy', 'millionaires', 'gm',
+    'disasterrisk', 'longestriver', 'renewableenergy', 'millionaires', 'gm', 'f1',
   ];
 
   const params = new URLSearchParams(window.location.search);
@@ -298,6 +298,7 @@
     renewableenergy: 'RANK THESE COUNTRIES BY HIGHEST % ENERGY USE FROM RENEWABLE SOURCES ♻️',
     millionaires:    'RANK THESE COUNTRIES BY HIGHEST NUMBER OF MILLIONAIRES 💰',
     gm:              'RANK THESE COUNTRIES BY HIGHEST NUMBER OF CHESS GRANDMASTERS ♟️',
+    f1:              'RANK THESE COUNTRIES BY MOST FORMULA 1 DRIVERS\' CHAMPIONSHIP TITLES 🏎️',
   };
 
   (async () => {

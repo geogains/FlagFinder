@@ -457,7 +457,8 @@ async function endGame() {
     poorestgdp: 'Poorest Countries',
     disasterrisk: 'Natural Disasters',
     longestriver: 'Longest River',
-    renewableenergy: 'Renewable Energy'
+    renewableenergy: 'Renewable Energy',
+    f1: 'F1 Championships'
   };
   const categoryName = categoryNames[categoryParam] || categoryParam;
 
