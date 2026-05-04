@@ -979,7 +979,7 @@
             .from('user_streaks')
             .select('current_streak')
             .eq('user_id', session.user.id)
-            .single();
+            .maybeSingle();
 
           if (streakData?.current_streak > 0) {
             document.getElementById('streakCount').textContent = streakData.current_streak;
