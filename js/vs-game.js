@@ -531,7 +531,7 @@ async function endGame() {
   });
   if (isDailyChallenge) params.set('daily', '1');
 
-  window.location.href = `vsresults.html?${params.toString()}`;
+  window.location.href = `vsresults?${params.toString()}`;
 }
 
 

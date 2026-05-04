@@ -419,7 +419,7 @@ async function endGame() {
   });
 
   // Get category name
-  const categoryParam = new URLSearchParams(window.location.search).get("mode") || 'population';
+  const categoryParam = currentCategory;
   const categoryNames = {
     population: 'Population',
     altitude: 'Highest Altitude',
@@ -498,7 +498,7 @@ async function endGame() {
   }
 
   console.log('🔀 Redirecting to results...');
-  window.location.href = `classicresults.html?${params.toString()}`;
+  window.location.href = `classicresults?${params.toString()}`;
 }
 
 

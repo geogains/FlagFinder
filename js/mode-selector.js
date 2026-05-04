@@ -211,19 +211,19 @@ const MODES = {
     icon: '🌍',
     name: 'CLASSIC',
     description: 'Rank 10 randomly assigned countries',
-    gameFile: 'game.html'
+    gameFile: 'game'
   },
   top10: {
     icon: '🔟',
     name: 'TOP 10',
     description: 'Name the top 10 countries in under 2 minutes',
-    gameFile: 'top10.html'
+    gameFile: 'top10'
   },
   vs: {
     icon: '⚔️',
     name: 'VS MODE',
     description: 'Which country ranks higher? Unlimited rounds',
-    gameFile: 'vs.html'
+    gameFile: 'vs'
   },
   random: {
     icon: '🎲',
@@ -520,14 +520,18 @@ function selectMode(modeKey, categoryKey) {
     window.plausible?.('mode_selected', { props: { mode: randomMode, category: categoryKey } });
 
     // Redirect to random mode
-    window.location.href = `${MODES[randomMode].gameFile}?mode=${categoryKey}`;
+    const randomUrl = `${MODES[randomMode].gameFile}?mode=${categoryKey}`;
+    console.log('[mode-selector] navigating → mode:', randomMode, '| category:', categoryKey, '| url:', randomUrl);
+    window.location.href = randomUrl;
     return;
   }
 
   window.plausible?.('mode_selected', { props: { mode: modeKey, category: categoryKey } });
 
   // Redirect to selected game
-  window.location.href = `${mode.gameFile}?mode=${categoryKey}`;
+  const url = `${mode.gameFile}?mode=${categoryKey}`;
+  console.log('[mode-selector] navigating → mode:', modeKey, '| category:', categoryKey, '| url:', url);
+  window.location.href = url;
 }
 
 // Auto-initialize modal when script loads.

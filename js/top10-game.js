@@ -190,7 +190,7 @@ async function showCompletedGameResults(gameData) {
   });
   redirectParams.set('daily', '1');
 
-  window.location.href = `top10results.html?${redirectParams.toString()}`;
+  window.location.href = `top10results?${redirectParams.toString()}`;
 }
 
 // Mark challenge as started (creates initial record in database)
@@ -904,7 +904,7 @@ function showResults(won, correctGuesses, timeElapsed) {
   });
   if (isDailyChallenge) params.set('daily', '1');
 
-  window.location.href = `top10results.html?${params.toString()}`;
+  window.location.href = `top10results?${params.toString()}`;
 }
 
 // Removed buildResultsTable - now handled in top10results.html

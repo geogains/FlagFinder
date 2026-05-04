@@ -803,7 +803,20 @@ Can you beat my score? Play at geo-ranks.com/vs.html?mode=${categoryKey}`;
         if (dailyError) { console.error('❌ VS daily save failed:', dailyError); allSucceeded = false; }
         else console.log('✅ VS daily challenge score saved.');
       }
-      if (allSucceeded) localStorage.removeItem('vsPendingSave');
+      if (allSucceeded) {
+        const { error: streakError } = await supabase.rpc('record_user_activity', {
+          p_category_id: record.categoryId,
+          p_game_mode: record.isDailyChallenge ? 'daily_challenge' : 'vs'
+        });
+
+        if (streakError) {
+          console.error('⚠️ VS streak update failed:', streakError);
+        } else {
+          console.log('🔥 VS streak updated.');
+        }
+
+        localStorage.removeItem('vsPendingSave');
+      }
     })();
 
     if (_hasSave) window._pendingSave.finally(_unlockNav);
