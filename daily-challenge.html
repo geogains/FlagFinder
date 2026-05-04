@@ -772,11 +772,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Logged in — proceed to game
         let gameFile;
         if (challenge.mode === 'classic') {
-          gameFile = 'game.html';
+          gameFile = 'game';
         } else if (challenge.mode === 'top10') {
-          gameFile = 'top10.html';
+          gameFile = 'top10';
         } else if (challenge.mode === 'vs') {
-          gameFile = 'vs.html';
+          gameFile = 'vs';
         }
 
         window.plausible?.('daily_challenge_started', { props: { mode: challenge.mode, category: challenge.category } });
