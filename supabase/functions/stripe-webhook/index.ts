@@ -157,7 +157,7 @@ async function maybeSendCancellationEmail(
 
       <div style="text-align: center; margin-bottom: 1.5rem;">
         <img
-          src="https://geo-ranks.com/assets/logo.png"
+          src="https://geo-ranks.com/assets/logo1.png"
           alt="GeoRanks Logo"
           style="width: 180px; max-width: 100%; height: auto;"
         />
@@ -242,7 +242,7 @@ async function maybeSendPremiumEndedEmail(subscription: Stripe.Subscription): Pr
 
       <div style="text-align: center; margin-bottom: 1.5rem;">
         <img
-          src="https://geo-ranks.com/assets/logo.png"
+          src="https://geo-ranks.com/assets/logo1.png"
           alt="GeoRanks Logo"
           style="width: 180px; max-width: 100%; height: auto;"
         />
@@ -409,7 +409,7 @@ serve(async (req) => {
       <!-- Logo -->
       <div style="text-align: center; margin-bottom: 1.5rem;">
         <img 
-          src="https://geo-ranks.com/assets/logo.png" 
+          src="https://geo-ranks.com/assets/logo1.png" 
           alt="GeoRanks Logo" 
           style="width: 180px; max-width: 100%; height: auto;" 
         />
