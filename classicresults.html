@@ -1132,7 +1132,7 @@ Can you beat my score? Play at geo-ranks.com/game.html?mode=${categoryKey}`;
       const key = 'georanks_completions';
       const count = parseInt(localStorage.getItem(key) || '0') + 1;
       localStorage.setItem(key, count);
-      if (count % 3 === 1) {
+      if (count % 3 === 0) {
         setTimeout(() => {
           document.getElementById('premiumModal')?.classList.add('visible');
           document.getElementById('premiumBackdrop')?.classList.add('visible');
