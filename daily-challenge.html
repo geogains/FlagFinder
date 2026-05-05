@@ -67,6 +67,15 @@
       opacity: 0;
       animation: fadeIn 0.5s ease-out 0.4s forwards;
     }
+
+    .daily-reset-time {
+      font-size: 0.82rem;
+      color: #9ca3af;
+      font-weight: 500;
+      margin-top: 4px;
+      opacity: 0;
+      animation: fadeIn 0.5s ease-out 0.6s forwards;
+    }
     
     /* Challenge Card */
     .challenge-card {
@@ -545,6 +554,7 @@
   <div class="daily-header">
     <h1 class="page-title">📅 <span class="page-title-text">Today's Challenge</span></h1>
     <p class="daily-subtitle" id="dateDisplay">Loading...</p>
+    <p class="daily-reset-time" id="dailyResetTime"></p>
   </div>
 
   <!-- Loading State -->
@@ -681,6 +691,7 @@ document.addEventListener('DOMContentLoaded', function() {
   import {
     getTodaysDailyChallenge,
     hasCompletedTodaysChallenge,
+    getUTCResetCountdown,
     modeDisplayNames,
     categoryDisplayNames,
     categoryEmojis
@@ -699,6 +710,14 @@ document.addEventListener('DOMContentLoaded', function() {
   const today = new Date();
   const options = { year: 'numeric', month: 'long', day: 'numeric' };
   dateDisplay.textContent = today.toLocaleDateString('en-US', options);
+
+  // Reset countdown — update immediately then every 60 s
+  function refreshCountdown() {
+    const el = document.getElementById('dailyResetTime');
+    if (el) el.textContent = 'Resets in ' + getUTCResetCountdown();
+  }
+  refreshCountdown();
+  setInterval(refreshCountdown, 60000);
 
   // Initialize
   async function init() {

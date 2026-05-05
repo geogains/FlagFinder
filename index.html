@@ -675,6 +675,15 @@
       color: #e85d04;
       letter-spacing: 0.01em;
     }
+
+    .daily-countdown {
+      font-size: 0.72rem;
+      color: rgba(255, 255, 255, 0.52);
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      margin: 0;
+      text-transform: uppercase;
+    }
   </style>
 </head>
 <body>
@@ -733,6 +742,7 @@
           <span class="daily-leader-value" id="dailyLeaderValue"></span>
         </div>
         <a href="daily-challenge.html" class="daily-cta-btn">Play Daily Challenge</a>
+        <p id="dailyCountdown" class="daily-countdown"></p>
       </div>
     </div>
   </div>
@@ -1016,11 +1026,19 @@
   });
 </script>
 
-<!-- ⑤ Daily challenge high score stat -->
+<!-- ⑤ Daily challenge high score stat + reset countdown -->
 <script type="module">
   import { supabase } from './js/supabase-client.js';
-  import { getTodaysDailyChallenge } from './js/daily-challenge.js';
+  import { getTodaysDailyChallenge, getUTCResetCountdown } from './js/daily-challenge.js';
   import { CATEGORY_ID_MAP } from './js/top10-categories-loader.js';
+
+  // Countdown — update immediately then every 60 s
+  function refreshCountdown() {
+    const el = document.getElementById('dailyCountdown');
+    if (el) el.textContent = 'Resets in ' + getUTCResetCountdown();
+  }
+  refreshCountdown();
+  setInterval(refreshCountdown, 60000);
 
   try {
     const todayChallenge = getTodaysDailyChallenge();

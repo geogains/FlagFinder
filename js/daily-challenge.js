@@ -2,6 +2,7 @@
 // Daily Challenge Router - Selects random mode + category and redirects
 
 import { supabase } from './supabase-client.js';
+import { CATEGORY_ID_MAP } from './categories-config.js';
 
 console.log('Daily Challenge system loaded');
 
@@ -119,6 +120,18 @@ export function getDailyChallengeForDate(dateString) {
   return { mode: selectedMode, category: selectedCategory, date: dateString };
 }
 
+// Returns "Xh Ym" (or "Ym") until the next UTC midnight — when the challenge resets.
+export function getUTCResetCountdown() {
+  const now = new Date();
+  const nextMidnight = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
+  const msLeft = nextMidnight - now;
+  const h = Math.floor(msLeft / 3600000);
+  const m = Math.floor((msLeft % 3600000) / 60000);
+  if (h === 0 && m === 0) return '< 1m';
+  if (h === 0) return `${m}m`;
+  return `${h}h ${m}m`;
+}
+
 // Get today's daily challenge (mode + category)
 export function getTodaysDailyChallenge() {
   const dateString = new Date().toISOString().split('T')[0];
@@ -155,31 +168,38 @@ export function isValidDailyChallenge(mode, category) {
   return isValid;
 }
 
-// Check if user has completed today's daily challenge
+// Check if user has completed today's daily challenge.
+// Filters by today's UTC date AND today's specific category_id so that a spurious
+// daily_challenge_scores row for a different category cannot produce a false positive.
 export async function hasCompletedTodaysChallenge() {
   const { data: { session } } = await supabase.auth.getSession();
-  
+
   if (!session) {
     console.log('Not logged in - returning not-logged-in status');
-    return { loggedIn: false, completed: false };  // ✅ Return object
+    return { loggedIn: false, completed: false };
   }
-  
+
   const todayString = new Date().toISOString().split('T')[0];
-  
-  const { data, error } = await supabase
+  const todayChallenge = getTodaysDailyChallenge();
+  const categoryId = CATEGORY_ID_MAP[todayChallenge.category];
+
+  let q = supabase
     .from('daily_challenge_scores')
     .select('id, completed')
     .eq('user_id', session.user.id)
     .eq('played_date', todayString)
-    .eq('completed', true)
-    .maybeSingle();
-  
+    .eq('completed', true);
+
+  if (categoryId) q = q.eq('category_id', categoryId);
+
+  const { data, error } = await q.maybeSingle();
+
   if (error) {
     console.error('Error checking completion:', error);
     return { loggedIn: true, completed: false };
   }
-  
-  return { loggedIn: true, completed: !!data };  // ✅ Return object
+
+  return { loggedIn: true, completed: !!data };
 }
 
 // Get display names for modes and categories
