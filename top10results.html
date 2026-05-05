@@ -968,6 +968,7 @@ Can you beat my score? Play at geo-ranks.com/top10.html?mode=${categoryKey}`;
   <!-- Pending Score Save -->
   <script type="module">
     import { supabase } from './js/supabase-client.js';
+    import { recordActivityAndMaybeCelebrate } from './js/streak-celebration.js';
 
     // Block navigation while save is in flight
     const _hasSave = !!localStorage.getItem('top10PendingSave');
@@ -1053,17 +1054,10 @@ Can you beat my score? Play at geo-ranks.com/top10.html?mode=${categoryKey}`;
         else console.log('✅ Top 10 best score saved/updated.');
       }
       if (allSucceeded) {
-        const { error: streakError } = await supabase.rpc('record_user_activity', {
-          p_category_id: record.categoryId,
-          p_game_mode: record.isDailyChallenge ? 'daily_challenge' : 'top10'
+        await recordActivityAndMaybeCelebrate(supabase, session, {
+          categoryId: record.categoryId,
+          gameMode: record.isDailyChallenge ? 'daily_challenge' : 'top10'
         });
-
-        if (streakError) {
-          console.error('⚠️ Top 10 streak update failed:', streakError);
-        } else {
-          console.log('🔥 Top 10 streak updated.');
-        }
-
         localStorage.removeItem('top10PendingSave');
       }
     })();

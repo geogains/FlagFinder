@@ -1042,6 +1042,7 @@ Can you beat my score? Play at geo-ranks.com/game.html?mode=${categoryKey}`;
   <!-- Pending Score Save -->
   <script type="module">
     import { supabase } from './js/supabase-client.js';
+    import { recordActivityAndMaybeCelebrate } from './js/streak-celebration.js';
 
     // Block navigation while save is in flight
     const _hasSave = !!localStorage.getItem('classicPendingSave');
@@ -1112,17 +1113,10 @@ Can you beat my score? Play at geo-ranks.com/game.html?mode=${categoryKey}`;
         else console.log('✅ Classic daily challenge score saved.');
       }
       if (allSucceeded) {
-        const { error: streakError } = await supabase.rpc('record_user_activity', {
-          p_category_id: record.categoryId,
-          p_game_mode: record.isDailyChallenge ? 'daily_challenge' : 'classic'
+        await recordActivityAndMaybeCelebrate(supabase, session, {
+          categoryId: record.categoryId,
+          gameMode: record.isDailyChallenge ? 'daily_challenge' : 'classic'
         });
-
-        if (streakError) {
-          console.error('⚠️ Classic streak update failed:', streakError);
-        } else {
-          console.log('🔥 Classic streak updated.');
-        }
-
         localStorage.removeItem('classicPendingSave');
       }
     })();
