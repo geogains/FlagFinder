@@ -318,6 +318,30 @@ function injectStyles() {
 }
 
 // ---------------------------------------------------------------------------
+// getEffectiveStreak(currentStreak, lastPlayedDate, timezone)
+// Returns the streak value that should be displayed to the user.
+// If the user has missed more than 1 local calendar day since last_played_date,
+// returns 0 — the database value is preserved but the display is suppressed.
+// ---------------------------------------------------------------------------
+
+export function getEffectiveStreak(currentStreak, lastPlayedDate, timezone) {
+  if (!currentStreak || currentStreak <= 0 || !lastPlayedDate) return 0;
+
+  const tz = timezone || 'UTC';
+
+  // 'sv' locale reliably formats as YYYY-MM-DD for any IANA timezone
+  const todayLocal = new Intl.DateTimeFormat('sv', { timeZone: tz }).format(new Date());
+
+  // Parse both dates as UTC midnight to avoid DST arithmetic artifacts
+  const todayMs  = Date.parse(todayLocal     + 'T00:00:00Z');
+  const lastMs   = Date.parse(lastPlayedDate + 'T00:00:00Z');
+  const daysDiff = Math.floor((todayMs - lastMs) / 86400000);
+
+  // Streak is alive if played today (0 days ago) or yesterday (1 day ago)
+  return daysDiff <= 1 ? currentStreak : 0;
+}
+
+// ---------------------------------------------------------------------------
 // showStreakCelebration(prevStreak, newStreak)
 // ---------------------------------------------------------------------------
 
@@ -389,13 +413,19 @@ export function showStreakCelebration(prevStreak, newStreak) {
 // ---------------------------------------------------------------------------
 
 export async function recordActivityAndMaybeCelebrate(supabase, session, { categoryId, gameMode }) {
-  // 1. Snapshot streak BEFORE the RPC
+  // 1. Snapshot streak BEFORE the RPC — use effective value so the
+  //    celebration fires correctly even after a broken-streak restart.
   const { data: beforeData } = await supabase
     .from('user_streaks')
-    .select('current_streak')
+    .select('current_streak, last_played_date')
     .eq('user_id', session.user.id)
     .maybeSingle();
-  const prevStreak = beforeData?.current_streak ?? 0;
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const prevStreak = getEffectiveStreak(
+    beforeData?.current_streak,
+    beforeData?.last_played_date,
+    tz
+  );
 
   // 2. Call record_user_activity (same call that existed before)
   const { error } = await supabase.rpc('record_user_activity', {
