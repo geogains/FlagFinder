@@ -29,3 +29,32 @@ export function getSessionSafe(timeoutMs = 5000) {
   );
   return Promise.race([supabase.auth.getSession(), timeout]);
 }
+
+// Syncs the browser's IANA timezone to users.timezone when it differs from the stored value.
+// Reads first, writes only if the value changed — so the DB write is a rare event.
+// Fire-and-forget: errors are swallowed so this never affects page initialisation.
+;(async () => {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (!tz) return;
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return;
+
+    const { data: profile, error: readError } = await supabase
+      .from('users')
+      .select('timezone')
+      .eq('id', session.user.id)
+      .single();
+
+    if (readError) return;
+    if (profile?.timezone === tz) return;
+
+    await supabase
+      .from('users')
+      .update({ timezone: tz })
+      .eq('id', session.user.id);
+  } catch (_) {
+    // never propagate — this must not affect any page's own initialisation
+  }
+})();
