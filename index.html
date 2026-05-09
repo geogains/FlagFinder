@@ -1018,18 +1018,18 @@
 <!-- Daily Challenge Menu Button -->
 <script type="module">
   import { getTodaysDailyChallenge, modeDisplayNames, categoryDisplayNames, categoryEmojis } from './js/daily-challenge.js';
-  document.addEventListener('DOMContentLoaded', () => {
-    const categorySpan = document.getElementById('dailyChallengeCategory');
-    const bg = document.getElementById('dailyChallengeBg');
-    const today = getTodaysDailyChallenge();
-    if (today && categorySpan && bg) {
-      const modeName = modeDisplayNames[today.mode] || today.mode.toUpperCase();
-      const categoryName = categoryDisplayNames[today.category] || today.category;
-      const emoji = categoryEmojis[today.category] || '';
-      categorySpan.textContent = `${modeName}: ${categoryName} ${emoji}`;
-      bg.style.backgroundImage = `url('images/categories/${today.category}.jpg')`;
-    }
-  });
+  // No DOMContentLoaded needed — <script type="module"> is deferred, so the DOM
+  // is fully parsed before this module body executes.
+  const categorySpan = document.getElementById('dailyChallengeCategory');
+  const bg = document.getElementById('dailyChallengeBg');
+  const today = getTodaysDailyChallenge();
+  if (today && categorySpan && bg) {
+    const modeName = modeDisplayNames[today.mode] || today.mode.toUpperCase();
+    const categoryName = categoryDisplayNames[today.category] || today.category;
+    const emoji = categoryEmojis[today.category] || '';
+    categorySpan.textContent = `${modeName}: ${categoryName} ${emoji}`;
+    bg.style.backgroundImage = `url('images/categories/${today.category}.jpg')`;
+  }
 </script>
 
 <!-- ⑤ Daily challenge high score stat + reset countdown -->
@@ -1046,46 +1046,51 @@
   refreshCountdown();
   setInterval(refreshCountdown, 60000);
 
-  try {
-    const todayChallenge = getTodaysDailyChallenge();
-
-    // Set background image immediately — synchronous, no await needed
-    const actionBg = document.getElementById('heroActionBg');
-    if (todayChallenge?.category && actionBg) {
-      actionBg.style.backgroundImage = `url('images/categories/${todayChallenge.category}.jpg')`;
-    }
-
-    if (!todayChallenge) throw new Error('no challenge');
-
-    const categoryId = CATEGORY_ID_MAP[todayChallenge.category];
-    if (!categoryId) throw new Error('unknown category');
-
-    const today = new Date().toISOString().split('T')[0];
-
-    const { data: scoreRow } = await supabase
-      .from('daily_challenge_scores')
-      .select('score, user_id')
-      .eq('played_date', today)
-      .eq('category_id', categoryId)
-      .eq('completed', true)
-      .order('score', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (!scoreRow) throw new Error('no score');
-
-    const { data: userData } = await supabase
-      .from('users')
-      .select('username')
-      .eq('id', scoreRow.user_id)
-      .single();
-
-    const username = userData?.username || 'Anonymous';
-    document.getElementById('dailyLeaderValue').textContent = `🏆 ${username} — ${scoreRow.score}`;
-    document.getElementById('dailyHighScore').classList.add('visible');
-  } catch (_) {
-    // fail silently — stat stays hidden
+  // Set background image synchronously — no network needed
+  const todayChallengeSync = getTodaysDailyChallenge();
+  const actionBg = document.getElementById('heroActionBg');
+  if (todayChallengeSync?.category && actionBg) {
+    actionBg.style.backgroundImage = `url('images/categories/${todayChallengeSync.category}.jpg')`;
   }
+
+  // Fetch the daily leader stat in the background — unawaited so this module
+  // completes synchronously and never blocks DOMContentLoaded.
+  // Network failures are caught and the stat stays hidden, same as before.
+  ;(async () => {
+    try {
+      const todayChallenge = getTodaysDailyChallenge();
+      if (!todayChallenge) return;
+
+      const categoryId = CATEGORY_ID_MAP[todayChallenge.category];
+      if (!categoryId) return;
+
+      const today = new Date().toISOString().split('T')[0];
+
+      const { data: scoreRow } = await supabase
+        .from('daily_challenge_scores')
+        .select('score, user_id')
+        .eq('played_date', today)
+        .eq('category_id', categoryId)
+        .eq('completed', true)
+        .order('score', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (!scoreRow) return;
+
+      const { data: userData } = await supabase
+        .from('users')
+        .select('username')
+        .eq('id', scoreRow.user_id)
+        .single();
+
+      const username = userData?.username || 'Anonymous';
+      document.getElementById('dailyLeaderValue').textContent = `🏆 ${username} — ${scoreRow.score}`;
+      document.getElementById('dailyHighScore').classList.add('visible');
+    } catch (_) {
+      // fail silently — stat stays hidden
+    }
+  })();
 </script>
 
 <!-- ⑥ Conveyor card descriptions — populated from CATEGORY_HINTS -->
