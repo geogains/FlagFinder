@@ -262,19 +262,34 @@ h1, h2, h3, .tagline {
   width: 100%;
   max-width: 180px;
   min-height: 190px;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.12),
+    0 4px 10px rgba(0, 0, 0, 0.14),
+    0 12px 28px rgba(0, 0, 0, 0.10),
+    0 0 0 1px rgba(255, 255, 255, 0.16);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   cursor: pointer;
 }
 
 .category-card:hover {
-  transform: scale(1.05) !important;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3) !important;
+  transform: scale(1.04) translateY(-2px) !important;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.14),
+    0 8px 20px rgba(0, 0, 0, 0.18),
+    0 22px 44px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(255, 255, 255, 0.22) !important;
 }
 
 .category-card:hover .category-info {
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.9));
-  transition: background 0.3s ease;
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.52) 0%,
+    rgba(255, 255, 255, 0.76) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    0 3px 14px rgba(0, 0, 0, 0.18);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .search-header {
@@ -446,10 +461,19 @@ h1, h2, h3, .tagline {
   justify-content: center;
   text-align: center;
   border-radius: 16px;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.85));
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  /* More transparent than before — shows image through, reads as glass not paper */
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.44) 0%,
+    rgba(255, 255, 255, 0.68) 100%
+  );
+  backdrop-filter: blur(7px) saturate(140%);
+  -webkit-backdrop-filter: blur(7px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.48);
+  /* Inset top highlight = glass surface catch-light; drop shadow = panel floats above image */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 2px 10px rgba(0, 0, 0, 0.14);
   box-sizing: border-box;
 }
 
@@ -465,15 +489,31 @@ h1, h2, h3, .tagline {
   color: #0f172a;
 }
 
-/* Gradient bottom fade */
+/* Surface-lighting overlay — top catch-light only; no interference with locked state */
+.category-card:not(.locked)::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  pointer-events: none;
+  z-index: 2;
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.13) 0%,
+    rgba(255, 255, 255, 0.04) 30%,
+    transparent 55%
+  );
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Full-coverage gradient: bottom absorption + gentle vignette */
 .category-card::after {
   content: "";
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 40%;
-  background: linear-gradient(to top, rgba(0,0,0,0.10), rgba(0,0,0,0));
+  inset: 0;
+  background:
+    linear-gradient(to top, rgba(0, 0, 0, 0.18) 0%, rgba(0, 0, 0, 0.04) 22%, transparent 42%),
+    linear-gradient(160deg, transparent 50%, rgba(0, 0, 0, 0.06) 100%);
   pointer-events: none;
 }
 
@@ -1142,7 +1182,12 @@ html, body {
   border-radius: 24px;
   overflow: hidden;
   cursor: pointer;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.12),
+    0 4px 12px rgba(0, 0, 0, 0.14),
+    0 12px 32px rgba(0, 0, 0, 0.12),
+    0 28px 56px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(255, 255, 255, 0.14);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   background: #000;
   isolation: isolate;
@@ -1159,11 +1204,81 @@ html, body {
   border-radius: 24px;
   pointer-events: none;
   z-index: 10;
+  background:
+    /* Overhead specular: convex face catching frontal/overhead light */
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.16) 0%,
+      rgba(255, 255, 255, 0.06) 18%,
+      transparent 40%
+    ),
+    /* Bottom absorption: surface curves away — dark lower rim */
+    linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.22) 0%,
+      rgba(0, 0, 0, 0.07) 14%,
+      transparent 30%
+    ),
+    /* Left ambient wrap: secondary fill light from upper-left */
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.07) 0%,
+      transparent 32%
+    );
+  /* Sharp catch-light on top and left edges — glass-edge refraction */
+  border-top: 1px solid rgba(255, 255, 255, 0.26);
+  border-left: 1px solid rgba(255, 255, 255, 0.10);
 }
 
 .category-card-new:hover {
-  transform: translate3d(0, -8px, 0);
-  box-shadow: 0 16px 64px rgba(0,0,0,0.4);
+  transform: translate3d(0, -6px, 0);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.14),
+    0 8px 24px rgba(0, 0, 0, 0.20),
+    0 20px 48px rgba(0, 0, 0, 0.16),
+    0 40px 80px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(255, 255, 255, 0.22);
+  transition:
+    transform 0.5s cubic-bezier(0.34, 1.15, 0.64, 1),
+    box-shadow 0.4s cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Content-area glass scrim — sits between the image and the text content.
+   Creates the material boundary that makes the card read as layered surfaces
+   rather than a flat image with text on top. */
+.category-card-new::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60%;
+  z-index: 1;
+  pointer-events: none;
+  /* Gradient fades from transparent (at mid-card) to a translucent panel at bottom */
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.13) 28%,
+    rgba(0, 0, 0, 0.36) 100%
+  );
+  backdrop-filter: blur(4px) saturate(130%);
+  -webkit-backdrop-filter: blur(4px) saturate(130%);
+  /* Hairline top edge — the glass boundary line where panel begins */
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* On hover: image brightens slightly through the scrim as blur intensifies */
+.category-card-new:hover::after {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.10) 28%,
+    rgba(0, 0, 0, 0.32) 100%
+  );
+  backdrop-filter: blur(6px) saturate(140%);
+  -webkit-backdrop-filter: blur(6px) saturate(140%);
+  border-top-color: rgba(255, 255, 255, 0.11);
 }
 
 .category-bg {
@@ -1368,7 +1483,8 @@ html, body {
   .category-overlay,
   .daily-badge,
   .category-play-btn,
-  .daily-play-btn {
+  .daily-play-btn,
+  .category-card-new::after {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
   }
