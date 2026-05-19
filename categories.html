@@ -832,11 +832,11 @@
       category: key,
       display: cfg.title,
       emoji: cfg.emoji,
-      premium: cfg.premium,
+      tier: cfg.tier,
       image: cfg.image
     }))
     .sort((a, b) => {
-      if (a.premium !== b.premium) return a.premium ? 1 : -1;
+      if (a.tier !== b.tier) return a.tier === 'free' ? -1 : 1;
       return a.display.localeCompare(b.display);
     });
 
@@ -899,7 +899,7 @@
     const pageCategories = allCategoriesData.slice(start, end);
 
     container.innerHTML = pageCategories.map(cat => {
-      const isLocked = cat.premium && !userIsPremium;
+      const isLocked = cat.tier !== 'free' && !userIsPremium;
       const lockBadge = isLocked ? '<div class="lock-badge">Premium</div>' : '';
       return `
         <div class="category-item">
@@ -978,7 +978,7 @@
     if (searchInput.value.trim().length === 0) {
       const allSorted = allCategoriesData.slice().sort((a, b) => a.display.localeCompare(b.display));
       searchDropdown.innerHTML = allSorted.map(cat => `
-        <div class="search-dropdown-item" data-category="${cat.category}" data-display="${cat.display}" data-emoji="${cat.emoji}" data-premium="${cat.premium}">
+        <div class="search-dropdown-item" data-category="${cat.category}" data-display="${cat.display}" data-emoji="${cat.emoji}" data-tier="${cat.tier}">
           <img src="images/categories/${cat.image}" alt="${cat.display}" loading="lazy" />
           <div class="search-dropdown-text">${cat.display}</div>
         </div>
@@ -993,7 +993,7 @@
     if (query.length === 0) {
       const allSorted = allCategoriesData.slice().sort((a, b) => a.display.localeCompare(b.display));
       searchDropdown.innerHTML = allSorted.map(cat => `
-        <div class="search-dropdown-item" data-category="${cat.category}" data-display="${cat.display}" data-emoji="${cat.emoji}" data-premium="${cat.premium}">
+        <div class="search-dropdown-item" data-category="${cat.category}" data-display="${cat.display}" data-emoji="${cat.emoji}" data-tier="${cat.tier}">
           <img src="images/categories/${cat.image}" alt="${cat.display}" loading="lazy" />
           <div class="search-dropdown-text">${cat.display}</div>
         </div>
@@ -1014,7 +1014,7 @@
     }
 
     searchDropdown.innerHTML = filtered.map(cat => `
-      <div class="search-dropdown-item" data-category="${cat.category}" data-display="${cat.display}" data-emoji="${cat.emoji}" data-premium="${cat.premium}">
+      <div class="search-dropdown-item" data-category="${cat.category}" data-display="${cat.display}" data-emoji="${cat.emoji}" data-tier="${cat.tier}">
         <img src="images/categories/${cat.image}" alt="${cat.display}" loading="lazy" />
         <div class="search-dropdown-text">${cat.display}</div>
       </div>
@@ -1029,10 +1029,9 @@
         const category = item.dataset.category;
         const display = item.dataset.display;
         const emoji = item.dataset.emoji;
-        const isPremium = item.dataset.premium === 'true';
         searchInput.value = '';
         searchDropdown.classList.remove('active');
-        if (isPremium && !userIsPremium) {
+        if (item.dataset.tier !== 'free' && !userIsPremium) {
           showPremiumModal();
         } else {
           openModeSelector(category, display, emoji);
@@ -1057,30 +1056,25 @@
   renderCategories();
 </script>
 
-<!-- Script 3: Auth / premium state — isolated supabase module, never blocks rendering -->
+<!-- Script 3: Auth / premium state — reads from permissions.js, never blocks rendering -->
 <script type="module">
-  import { supabase } from './js/supabase-client.js';
+  import { getUserCapabilities } from './js/permissions.js';
 
-  supabase.auth.getSession()
-    .then(async ({ data: { session } }) => {
-      if (!session?.user) {
+  getUserCapabilities()
+    .then(caps => {
+      if (!caps.isAuthenticated) {
         document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
         document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
         return;
       }
-      const { data: profile } = await supabase
-        .from('users')
-        .select('is_premium')
-        .eq('id', session.user.id)
-        .single();
-      if (profile?.is_premium) {
+      if (caps.canAccessPremiumCategories) {
         document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
         if (typeof window._onPremiumConfirmed === 'function') window._onPremiumConfirmed();
       } else {
         document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
       }
     })
-    .catch(err => console.error('Auth check failed:', err));
+    .catch(err => console.error('[categories] Auth check failed:', err));
 </script>
 
 <!-- Script 4: Daily Challenge menu button -->

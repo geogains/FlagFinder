@@ -599,7 +599,7 @@ body {
   </script>
 
   <script type="module">
-    import { supabase } from './js/supabase-client.js';
+    import { getUserCapabilities } from './js/permissions.js';
     import { isValidDailyChallenge } from './js/daily-challenge.js';
     import { categoriesConfig } from './js/categories-config.js';
 
@@ -607,26 +607,19 @@ body {
     // 🔒 PREMIUM VALIDATION GUARD
     // ========================================
 
-    // Derive premium categories from categoriesConfig premium flags
-    const PREMIUM_CATEGORIES = Object.entries(categoriesConfig).filter(([, cfg]) => cfg.premium).map(([key]) => key);
-
-
     const params = new URLSearchParams(window.location.search);
     const mode = params.get('mode') || 'landmass';
     const isDailyParam = params.get('daily') === 'true';
 
     // SECURITY FIX: Validate that this is actually today's daily challenge
     const isValidDaily = isDailyParam && isValidDailyChallenge('vs', mode);
-    
+
     if (isDailyParam && !isValidDaily) {
       console.warn('⚠️ Invalid daily challenge attempt detected - mode/category mismatch');
     }
 
     // Check if this mode requires premium (only bypass if VALID daily challenge)
-    const requiresPremium = PREMIUM_CATEGORIES.includes(mode) && !isValidDaily;
-
-    // Kick off a single session fetch immediately — reused by both gate check and menu logic
-    const sessionPromise = supabase.auth.getSession();
+    const requiresPremium = (categoriesConfig[mode]?.tier ?? 'free') !== 'free' && !isValidDaily;
 
     // For free modes: reveal page immediately without waiting for any network call
     if (!requiresPremium) {
@@ -635,47 +628,23 @@ body {
 
     // Async IIFE for auth/premium checks
     (async () => {
-      const { data: { session } } = await sessionPromise;
+      const caps = await getUserCapabilities();
 
-      let isPremium = false;
-      let premiumChecked = false;
-
-      // For premium categories: fetch is_premium once and enforce gate
-      if (requiresPremium) {
-        if (session?.user) {
-          const { data: profile } = await supabase
-            .from('users')
-            .select('is_premium')
-            .eq('id', session.user.id)
-            .single();
-          isPremium = profile?.is_premium === true;
-          premiumChecked = true;
-        }
-        if (!isPremium) {
-          window.plausible?.('premium_clicked', { props: { source: 'premium_gate' } });
-          window.location.href = 'premium.html';
-          return;
-        }
+      if (requiresPremium && !caps.canAccessPremiumCategories) {
+        window.plausible?.('premium_clicked', { props: { source: 'premium_gate' } });
+        window.location.href = 'premium.html';
+        return;
       }
 
       document.getElementById('authLoadingOverlay').style.display = 'none';
 
-      if (!session?.user) {
+      if (!caps.isAuthenticated) {
         document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
         document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
         return;
       }
 
-      // Remove upgrade button — reuse already-fetched isPremium if available
-      if (!premiumChecked) {
-        const { data: profile } = await supabase
-          .from('users')
-          .select('is_premium')
-          .eq('id', session.user.id)
-          .single();
-        isPremium = profile?.is_premium === true;
-      }
-      if (isPremium) {
+      if (caps.canAccessPremiumCategories) {
         document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
       } else {
         document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');

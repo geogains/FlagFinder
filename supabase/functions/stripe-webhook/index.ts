@@ -331,13 +331,15 @@ serve(async (req) => {
     const stripeCustomerId = typeof session.customer === "string" ? session.customer : session.customer?.id ?? null;
     const stripeSubscriptionId = typeof session.subscription === "string" ? session.subscription : session.subscription?.id ?? null;
 
-    // Retrieve the full subscription to get current_period_end for premium_until.
+    // Retrieve the full subscription to get current_period_end for premium_until and price ID.
     // The checkout session carries the subscription ID but not the full object.
     let premiumUntil: string | null = null;
+    let checkoutPriceId: string | null = null;
     if (stripeSubscriptionId) {
       try {
         const sub = await stripe.subscriptions.retrieve(stripeSubscriptionId);
         premiumUntil = new Date(sub.current_period_end * 1000).toISOString();
+        checkoutPriceId = sub.items?.data?.[0]?.price?.id ?? null;
       } catch (err) {
         console.error("⚠️ Could not retrieve subscription for premium_until:", (err as Error).message);
       }
@@ -345,12 +347,14 @@ serve(async (req) => {
 
     const premiumUpdate: Record<string, unknown> = {
       is_premium: true,
+      subscription_tier: "premium",
       premium_since: new Date().toISOString(),  // set once at activation; not overwritten on renewals
       cancellation_email_sent_at: null,         // reset so future cancellations can send again
       premium_ended_email_sent_at: null,        // reset on new subscription
       ...(stripeCustomerId ? { stripe_customer_id: stripeCustomerId } : {}),
       ...(stripeSubscriptionId ? { stripe_subscription_id: stripeSubscriptionId } : {}),
       ...(premiumUntil ? { premium_until: premiumUntil } : {}),
+      ...(checkoutPriceId ? { stripe_price_id: checkoutPriceId } : {}),
     };
 
     console.log("WEBHOOK V2 checkout premium update payload:", JSON.stringify(premiumUpdate));
@@ -469,7 +473,9 @@ serve(async (req) => {
     console.log("🔔 subscription.deleted — revoking premium:", subscription.id, "period_end:", periodEnd);
     const deletedUpdate: Record<string, unknown> = {
       is_premium: false,
+      subscription_tier: "free",
       stripe_subscription_id: null,
+      stripe_price_id: null,
       ...(periodEnd ? { premium_until: periodEnd } : {}),
     };
     console.log("WEBHOOK V2 subscription.deleted payload:", JSON.stringify(deletedUpdate));
@@ -498,11 +504,14 @@ serve(async (req) => {
       //   - normal renewal (current_period_end advances)
       //   - cancel_at_period_end=true: access continues until period ends, premium_until reflects boundary
       //   - reactivation (cancel_at_period_end flipped back to false): reset cancellation flag
+      const updatedPriceId = subscription.items?.data?.[0]?.price?.id ?? null;
       const activeUpdate: Record<string, unknown> = {
         is_premium: true,
+        subscription_tier: "premium",
         ...(periodEnd ? { premium_until: periodEnd } : {}),
         // On reactivation, reset the cancellation flag so future cancellations can send again.
         ...(!subscription.cancel_at_period_end ? { cancellation_email_sent_at: null } : {}),
+        ...(updatedPriceId ? { stripe_price_id: updatedPriceId } : {}),
       };
       console.log(`WEBHOOK V2 subscription.updated payload (status="${subscription.status}" cancel_at_period_end=${subscription.cancel_at_period_end}):`, JSON.stringify(activeUpdate));
       await syncUserBySubscription(subscription, activeUpdate);
@@ -524,6 +533,7 @@ serve(async (req) => {
       // both setting is_premium=false is safe and idempotent.
       const revokeUpdate: Record<string, unknown> = {
         is_premium: false,
+        subscription_tier: "free",
         ...(periodEnd ? { premium_until: periodEnd } : {}),
       };
       console.log(`WEBHOOK V2 subscription.updated payload (status="${subscription.status}"):`, JSON.stringify(revokeUpdate));

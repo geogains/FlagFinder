@@ -476,6 +476,13 @@ export const categoriesConfig = {
   }
 };
 
+// Derive tier from the premium boolean.
+// When light-tier categories are assigned, add tier: 'light' explicitly to those
+// entries — this loop will leave explicitly-set values alone (see condition below).
+for (const cat of Object.values(categoriesConfig)) {
+  if (!cat.tier) cat.tier = cat.premium ? 'premium' : 'free';
+}
+
 export const CATEGORY_ID_MAP = {
   population: 1,
   altitude: 2,

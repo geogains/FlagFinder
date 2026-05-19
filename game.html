@@ -198,7 +198,7 @@
 </script>
 
 <script type="module">
-  import { supabase } from './js/supabase-client.js';
+  import { getUserCapabilities } from './js/permissions.js';
   import { isValidDailyChallenge } from './js/daily-challenge.js';
   import { CATEGORY_ID_MAP } from './js/top10-categories-loader.js';
   import { categoriesConfig } from './js/categories-config.js';
@@ -206,14 +206,6 @@
   // ========================================
   // 🔒 PREMIUM VALIDATION GUARD
   // ========================================
-
-  const PREMIUM_MODES = [
-    'coastline', 'cuisine', 'worldcup', 'crimerate', 'happiness', 'nobelprize',
-    'temperature', 'precipitation', 'tourism', 'michelin', 'bigmac', 'lifeexpectancy',
-    'marriageage', 'sexratio', 'tallestbuilding', 'density', 'carexports',
-    'militarypersonel', 'rent', 'poorestgdp', 'university', 'volcano', 'flamingo',
-    'disasterrisk', 'longestriver', 'renewableenergy', 'millionaires', 'gm', 'f1',
-  ];
 
   const params = new URLSearchParams(window.location.search);
   const mode = params.get('mode') || 'population';
@@ -226,28 +218,23 @@
     console.warn('⚠️ Invalid daily challenge attempt detected - mode/category mismatch');
   }
 
-  const requiresPremium = PREMIUM_MODES.includes(mode) && !isValidDaily;
-
-  // Kick off a single session fetch immediately — reused by both the gate check and menu logic
-  const sessionPromise = supabase.auth.getSession();
+  const requiresPremium = (categoriesConfig[mode]?.tier ?? 'free') !== 'free' && !isValidDaily;
 
   // For free modes: overlay already removed by plain script above; this is a no-op safety net
   if (!requiresPremium) {
     document.getElementById('authLoadingOverlay').style.display = 'none';
   }
 
-  // Non-blocking: menu button management — runs after session resolves, never blocks game start
-  sessionPromise.then(async ({ data: { session } }) => {
-    if (!session?.user) {
+  // Non-blocking: menu button management — runs after capabilities resolve, never blocks game start
+  getUserCapabilities().then(caps => {
+    if (!caps.isAuthenticated) {
       document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
       document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
       return;
     }
-    // For free modes: check is_premium for upgrade button (premium modes handle this in the gate below)
+    // For free modes: update upgrade button based on tier (premium modes handle this in the gate below)
     if (!requiresPremium) {
-      const { data: profile } = await supabase
-        .from('users').select('is_premium').eq('id', session.user.id).single();
-      if (profile?.is_premium) {
+      if (caps.canAccessPremiumCategories) {
         document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
       } else {
         document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
@@ -304,26 +291,19 @@
   (async () => {
     // For premium modes: enforce gate before revealing the page
     if (requiresPremium) {
-      const { data: { session } } = await sessionPromise;
-      let isPremium = false;
+      const caps = await getUserCapabilities();
 
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from('users').select('is_premium').eq('id', session.user.id).single();
-        isPremium = profile?.is_premium === true;
-        if (isPremium) {
-          document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
-        } else {
+      if (!caps.canAccessPremiumCategories) {
+        if (caps.isAuthenticated) {
+          // Logged-in free user: show upgrade button before redirecting
           document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
         }
-      }
-
-      if (!isPremium) {
         window.plausible?.('premium_clicked', { props: { source: 'premium_gate' } });
         window.location.href = 'premium.html';
         return;
       }
 
+      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
       document.getElementById('authLoadingOverlay').style.display = 'none';
     }
 

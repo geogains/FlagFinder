@@ -836,19 +836,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Account/Premium Button Removal -->
 <script type="module">
-  import { supabase, getSessionSafe } from './js/supabase-client.js';
+  import { getUserCapabilities } from './js/permissions.js';
   (async () => {
-    const { data: { session } } = await getSessionSafe(5000);
-    if (session?.user) {
-      const { data: profile } = await supabase.from('users').select('is_premium').eq('id', session.user.id).single();
-      if (profile?.is_premium) {
-        document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
-      } else {
-        document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
-      }
-    }
-    if (!session?.user) {
+    const caps = await getUserCapabilities();
+    if (!caps.isAuthenticated) {
       document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
+      return;
+    }
+    if (caps.canAccessStats) {
+      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+    } else {
       document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
     }
   })();
@@ -874,6 +872,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- Stats Functionality -->
 <script type="module">
   import { supabase, getSessionSafe } from './js/supabase-client.js';
+  import { getUserCapabilities } from './js/permissions.js';
   import { categoriesConfig, CATEGORY_ID_MAP } from './js/categories-config.js';
 
   // Build ID → category key map (first key wins; aliases like hightemp/precipitation are skipped)
@@ -885,7 +884,13 @@ document.addEventListener('DOMContentLoaded', function() {
   // Stored at module scope so loadUserInfo/loadStats can use it without re-calling getSession
   let sessionUser = null;
 
-  const { data: { session } } = await getSessionSafe(5000);
+  // Fetch capabilities and session in parallel.
+  // getUserCapabilities() resolves auth state + tier for the access gate.
+  // getSessionSafe() provides the user object (id, email, created_at) needed for DB queries.
+  const [caps, { data: { session } }] = await Promise.all([
+    getUserCapabilities(),
+    getSessionSafe(5000)
+  ]);
   sessionUser = session?.user || null;
   const modal          = document.getElementById("premiumModal");
   const statsContainer = document.getElementById("statsContainer");
@@ -948,27 +953,15 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => dismissSpinner(cb), remaining);
   }
 
-  if (!session || !session.user) {
+  if (!caps.isAuthenticated || !caps.canAccessStats) {
     afterMinDelay(() => modal.classList.remove("hidden"));
   } else {
-    const profileTimeout = new Promise(resolve =>
-      setTimeout(() => resolve({ data: null }), 5000)
-    );
-    const { data: profile } = await Promise.race([
-      supabase.from("users").select("is_premium").eq("id", session.user.id).single(),
-      profileTimeout
-    ]);
-
-    if (!profile?.is_premium) {
-      afterMinDelay(() => modal.classList.remove("hidden"));
-    } else {
-      // Premium confirmed — no need to linger, show stats promptly
-      dismissSpinner(() => {
-        statsContainer.style.display = "block";
-        loadUserInfo();
-        loadStats(currentMode);
-      });
-    }
+    // Access confirmed — show stats promptly
+    dismissSpinner(() => {
+      statsContainer.style.display = "block";
+      loadUserInfo(caps);
+      loadStats(currentMode);
+    });
   }
 
   // ── Mode toggle ───────────────────────────────────────────────────────────
@@ -983,13 +976,13 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // ── User info ─────────────────────────────────────────────────────────────
-  async function loadUserInfo() {
+  async function loadUserInfo(caps) {
     const user = sessionUser;
     const profileTimeout = new Promise(resolve =>
       setTimeout(() => resolve({ data: null }), 5000)
     );
     const { data: profile } = await Promise.race([
-      supabase.from('users').select('username, avatar_url, is_premium').eq('id', user.id).single(),
+      supabase.from('users').select('username, avatar_url').eq('id', user.id).single(),
       profileTimeout
     ]);
 
@@ -998,7 +991,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('userSince').textContent    = `Member since ${new Date(user.created_at).toDateString()}`;
 
     const premiumBadge = document.getElementById('premiumBadge');
-    if (premiumBadge && profile?.is_premium) premiumBadge.style.display = 'block';
+    if (premiumBadge && caps.showPremiumBadge) premiumBadge.style.display = 'block';
   }
 
   // ── Load stats (fetch + rank) ─────────────────────────────────────────────
