@@ -442,13 +442,28 @@
   const currentUserId = session.user.id;
 
   // ── Poll until match is finished (up to 30 s) ────────────────────
+  // Distinguishes transient network failures from definitive "not found".
+  // Returns: { data: <row> }          — success
+  //          { data: null }            — definitively not found (no retry needed)
+  //          { data: null, transient } — network/server error after retries
   async function fetchMatch() {
-    const { data, error } = await supabase
-      .from('h2h_matches')
-      .select('*')
-      .eq('id', matchId)
-      .single();
-    return error ? null : data;
+    const MAX_ATTEMPTS = 3;
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+      const { data, error } = await supabase
+        .from('h2h_matches')
+        .select('*')
+        .eq('id', matchId)
+        .maybeSingle(); // null data without error = definitively not found
+
+      if (!error) return { data }; // data may be null = not found
+
+      console.warn(`⚔️ fetchMatch error (attempt ${attempt + 1}/${MAX_ATTEMPTS}):`, error.message);
+      if (attempt < MAX_ATTEMPTS - 1) {
+        // Exponential backoff: 600 ms, 1200 ms
+        await new Promise(r => setTimeout(r, 600 * (2 ** attempt)));
+      }
+    }
+    return { data: null, transient: true };
   }
 
   let match = null;
@@ -456,13 +471,21 @@
   let pollCount = 0;
 
   while (pollCount < POLL_LIMIT) {
-    match = await fetchMatch();
-    if (!match) break;
+    const result = await fetchMatch();
+
+    if (result.transient) {
+      // Transient failure — count and keep polling
+      pollCount++;
+      if (pollCount < POLL_LIMIT) await new Promise(r => setTimeout(r, 3000));
+      continue;
+    }
+
+    if (!result.data) break; // definitively not found
+
+    match = result.data;
     if (match.status === 'finished' || match.status === 'abandoned') break;
     pollCount++;
-    if (pollCount < POLL_LIMIT) {
-      await new Promise(r => setTimeout(r, 3000));
-    }
+    if (pollCount < POLL_LIMIT) await new Promise(r => setTimeout(r, 3000));
   }
 
   if (!match) {
@@ -476,17 +499,21 @@
     return;
   }
 
-  // ── Fetch results + player names in parallel ─────────────────────
-  const [{ data: results }, { data: players }] = await Promise.all([
-    supabase
-      .from('h2h_results')
-      .select('user_id, placements, score, max_score')
-      .eq('match_id', matchId),
-    supabase
-      .from('users')
-      .select('id, username')
-      .in('id', [match.player1_id, match.player2_id].filter(Boolean))
-  ]);
+  // ── Fetch results + player names in parallel (with retry) ───────
+  let results = null;
+  let players = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const [resResult, playersResult] = await Promise.all([
+      supabase.from('h2h_results').select('user_id, placements, score, max_score').eq('match_id', matchId),
+      supabase.from('users').select('id, username').in('id', [match.player1_id, match.player2_id].filter(Boolean))
+    ]);
+    if (!resResult.error && !playersResult.error) {
+      results = resResult.data;
+      players = playersResult.data;
+      break;
+    }
+    if (attempt < 2) await new Promise(r => setTimeout(r, 600 * (2 ** attempt)));
+  }
 
   const myResult   = results?.find(r => r.user_id === currentUserId);
   const oppResult  = results?.find(r => r.user_id !== currentUserId);

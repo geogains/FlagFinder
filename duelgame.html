@@ -576,6 +576,15 @@
       }
     } catch (_) { /* storage unavailable — not fatal */ }
 
+    // Phase 2C: stop further placement saves and remove the progress row.
+    // Submission succeeded — the progress record has served its purpose.
+    window._duelOnPlacement = null;
+    supabase.from('h2h_match_progress')
+      .delete()
+      .eq('match_id', duelMatch.matchId)
+      .eq('user_id', currentUserId)
+      .then(() => {}); // fire-and-forget
+
     // Broadcast game:finished to opponent
     duelChannel.emitFinished(rpcResult.score, rpcResult.max_score);
 
@@ -587,25 +596,63 @@
     await startWaitingForOpponent();
   };
 
+  // ── Phase 2C: Gameplay persistence wiring ────────────────────────────────
+  // livePlacements mirrors the DB state; _duelOnPlacement fires after each
+  // committed placement. Non-duel modes never set this callback — always no-op.
+  let livePlacements = [];
+
+  window._duelOnPlacement = (placement) => {
+    livePlacements.push(placement);
+    // Fire-and-forget upsert — gameplay must never pause waiting for DB writes
+    supabase.from('h2h_match_progress').upsert({
+      match_id:   duelMatch.matchId,
+      user_id:    currentUserId,
+      game_mode:  'classic',
+      placements: livePlacements,
+      saved_at:   new Date().toISOString()
+    }, { onConflict: 'match_id,user_id' }).then(({ error }) => {
+      if (error) console.warn('⚔️ Progress save failed (non-fatal):', error.message);
+    });
+  };
+
   // ── Set duel seed BEFORE importing game engine ───────────────────────────
   window._duelSeed = Number(duelMatch.seed);
 
-  // ── Load category data + game engine ────────────────────────────────────
+  // ── Load category data, game engine, and saved progress in parallel ──────
+  // Running the DB progress query alongside JS module imports costs nothing extra.
   const config = categoriesConfig[mode] || categoriesConfig.population;
-  const [categoryModule, { startBlindRankingGame, setupRankButtons }] = await Promise.all([
+  const [categoryModule, engineModule, progressResult] = await Promise.all([
     import(`./js/categories/${config.dataFile}.js`),
     import('./js/blind-ranking.js'),
+    supabase
+      .from('h2h_match_progress')
+      .select('placements')
+      .eq('match_id', duelMatch.matchId)
+      .eq('user_id', currentUserId)
+      .maybeSingle()
   ]);
+  const { startBlindRankingGame, setupRankButtons, loadSavedState } = engineModule;
+
+  // Seed the live accumulator from DB (empty array for a fresh game)
+  const restoredPlacements = progressResult.data?.placements ?? [];
+  livePlacements = [...restoredPlacements];
 
   window.countries = categoryModule[config.dataKey];
   document.querySelector('.top-card-title').textContent =
     classicTitles[mode] || config.title?.toUpperCase() || 'RANK THESE COUNTRIES';
 
-  // Hide loading overlay and start game
-  document.getElementById('authLoadingOverlay').style.display = 'none';
-
+  // Initialise game engine — overlay remains visible during state restoration
   startBlindRankingGame(CATEGORY_ID_MAP[mode] || 0);
   setupRankButtons();
+
+  // Phase 2C: replay saved placements so player resumes where they left off.
+  // All previously committed answers are locked in — no reroll is possible.
+  if (restoredPlacements.length > 0) {
+    loadSavedState(restoredPlacements);
+  }
+
+  // Reveal game only after restoration is complete
+  document.getElementById('authLoadingOverlay').style.display = 'none';
   window.scrollTo(0, 0);
 </script>
 

@@ -304,6 +304,20 @@ function handleRankClick(event) {
 
   flashSlotFeedback(slot, diff);
 
+  // Duel-mode placement persistence hook.
+  // Fires only when duelgame.html has wired window._duelOnPlacement.
+  // Non-duel modes (Classic, Daily Challenge) leave this undefined — no-op.
+  if (typeof window._duelOnPlacement === 'function') {
+    window._duelOnPlacement({
+      countryCode:    country.code,
+      ordinalIndex:   selectedCountries.findIndex(c => c.code === country.code),
+      placedRank:     userTier,
+      correctRankMin: range.min,
+      correctRankMax: range.max,
+      points:         roundPoints
+    });
+  }
+
   //
   // --- AUTO-SELECT NEXT UNUSED FLAG (SEQUENTIAL) ---
   //
@@ -501,6 +515,75 @@ async function endGame() {
   window.location.href = `classicresults?${params.toString()}`;
 }
 
+
+// ── Phase 2C: Authoritative state restoration ────────────────────────────
+// Called by duelgame.html AFTER startBlindRankingGame() if saved placements
+// exist in h2h_match_progress.  Replays each committed placement into the DOM
+// without firing _duelOnPlacement, so restoration never writes to the DB.
+// The player resumes exactly where they left off with all answers locked in.
+export function loadSavedState(placements) {
+  if (!placements || placements.length === 0) return;
+
+  const allRows = Array.from(document.querySelectorAll('.ranking-row'));
+
+  for (const p of placements) {
+    const country = selectedCountries.find(c => c.code === p.countryCode);
+    if (!country) continue;
+
+    // Commit to engine state
+    usedCountries.add(country.code);
+    totalScore += p.points;
+
+    // Mark flag as used in the pool
+    const flagItem = document.querySelector(`.country-flag-item[data-code="${country.code}"]`);
+    if (flagItem) {
+      flagItem.classList.add('used');
+      flagItem.classList.remove('active');
+    }
+
+    // Fill the ranking slot at the saved rank
+    const row = allRows[p.placedRank - 1];
+    if (!row) continue;
+
+    const slot    = row.querySelector('.rank-slot');
+    const rankBtn = row.querySelector('.rank-number');
+
+    if (slot && slot.classList.contains('empty-slot')) {
+      slot.innerHTML = `<img src="flags/${country.code}.png" alt="${country.name}" /><span class="country-name">${country.name}</span>`;
+      slot.classList.remove('empty-slot');
+      slot.classList.add('stomp');
+
+      // Restore the exact accuracy feedback from the original placement
+      const diff = p.placedRank < p.correctRankMin
+        ? p.correctRankMin - p.placedRank
+        : p.placedRank > p.correctRankMax
+          ? p.placedRank - p.correctRankMax
+          : 0;
+      flashSlotFeedback(slot, diff);
+    }
+
+    if (rankBtn) {
+      rankBtn.classList.add('used-rank');
+      rankBtn.style.cursor = 'default';
+    }
+  }
+
+  // Position cursor on the first unplaced country
+  const nextCountry = selectedCountries.find(c => !usedCountries.has(c.code));
+  if (nextCountry) {
+    selectedCountry = nextCountry;
+    updateFlagPreview(nextCountry);
+    document.querySelectorAll('.country-flag-item').forEach(el => el.classList.remove('active'));
+    const nextFlagEl = document.querySelector(`.country-flag-item[data-code="${nextCountry.code}"]`);
+    if (nextFlagEl) nextFlagEl.classList.add('active');
+  }
+
+  // All countries already placed — submission-failure recovery path.
+  // endGame() will call _duelOnComplete which re-submits the score.
+  if (usedCountries.size >= selectedCountries.length) {
+    endGame();
+  }
+}
 
 export function setupRankButtons() {
   console.log("✅ Rank buttons initialized");
