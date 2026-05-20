@@ -92,6 +92,29 @@
     .cat-btn.selected {
       border-color: #0d315a; background: #e0f2fe; color: #0d315a; font-weight: 700;
     }
+    .cat-btn.locked {
+      opacity: 0.42;
+      cursor: not-allowed;
+    }
+    .cat-btn.locked:hover {
+      border-color: #e5e7eb;
+      background: #f9fafb;
+    }
+    .cat-lock {
+      margin-left: auto;
+      font-size: 0.72rem;
+      flex-shrink: 0;
+    }
+    .cat-separator {
+      grid-column: 1 / -1;
+      padding: 0.3rem 0.4rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .cat-separator.locked { color: #d1d5db; }
     .cat-emoji { font-size: 1.3rem; flex-shrink: 0; }
 
     /* ── Create button ── */
@@ -297,9 +320,9 @@
   import { supabase } from './js/supabase-client.js';
   import { categoriesConfig } from './js/categories-config.js';
   import { createDuelChannel } from './js/duel-channel.js';
+  import { getUserCapabilities } from './js/permissions.js';
 
   const MATCH_EXPIRY_MINUTES = 30; // waiting room expires
-  const FREE_CATEGORIES = ['landmass','population','gdp','altitude','forest','olympic','passport','beer'];
 
   const urlParams   = new URLSearchParams(window.location.search);
   const matchIdParam = urlParams.get('match');
@@ -325,7 +348,8 @@
   if (matchIdParam) {
     await loadWaitingRoom(matchIdParam);
   } else {
-    showCategoryPicker();
+    const caps = await getUserCapabilities();
+    showCategoryPicker(caps);
   }
 
   overlay.style.display = 'none';
@@ -334,18 +358,31 @@
   // ================================================================
   // CATEGORY PICKER (no ?match= param)
   // ================================================================
-  function showCategoryPicker() {
-    // All categories are playable in duel — list free ones first, premium second
-    const allKeys = Object.keys(categoriesConfig).filter(k => {
-      // exclude aliases (rainfall, hightemp, precipitation)
-      return !['rainfall','hightemp','precipitation'].includes(k);
-    });
-    const freeCats    = allKeys.filter(k => !categoriesConfig[k].premium);
-    const premiumCats = allKeys.filter(k =>  categoriesConfig[k].premium);
+  function showCategoryPicker(caps) {
+    const allKeys = Object.keys(categoriesConfig).filter(k =>
+      !['rainfall', 'hightemp', 'precipitation'].includes(k)
+    );
 
-    // Pre-select category from ?category= param (used by rematch links)
-    const preselect = new URLSearchParams(window.location.search).get('category');
-    let selectedCategory = (preselect && categoriesConfig[preselect]) ? preselect : freeCats[0];
+    // Separate by tier — authoritative source is categoriesConfig[k].tier
+    const freeCats    = allKeys.filter(k => categoriesConfig[k].tier === 'free');
+    const lightCats   = allKeys.filter(k => categoriesConfig[k].tier === 'light');
+    const premiumCats = allKeys.filter(k => categoriesConfig[k].tier === 'premium');
+
+    // Host entitlement from permissions.js — no duplicated category arrays
+    const canHostLight   = caps.canAccessLightCategories;
+    const canHostPremium = caps.canAccessPremiumCategories;
+
+    // Pre-select from ?category= param (rematch links), validating host entitlement
+    const preselect     = new URLSearchParams(window.location.search).get('category');
+    const preselectTier = preselect ? (categoriesConfig[preselect]?.tier ?? null) : null;
+    const preselectOk   = !!preselectTier && (
+      preselectTier === 'free' ||
+      (preselectTier === 'light'   && canHostLight)   ||
+      (preselectTier === 'premium' && canHostPremium)
+    );
+    let selectedCategory = (preselect && categoriesConfig[preselect] && preselectOk)
+      ? preselect
+      : freeCats[0];
 
     card.innerHTML = `
       <div class="duel-header">
@@ -358,28 +395,55 @@
 
     const grid = card.querySelector('#categoryGrid');
 
-    function buildGrid(keys) {
+    function addSeparator(label, isLocked) {
+      const sep = document.createElement('div');
+      sep.className = 'cat-separator' + (isLocked ? ' locked' : '');
+      sep.textContent = label;
+      grid.appendChild(sep);
+    }
+
+    function buildSection(keys, isLocked) {
       keys.forEach(key => {
         const cfg = categoriesConfig[key];
         const btn = document.createElement('button');
-        btn.className = 'cat-btn' + (key === selectedCategory ? ' selected' : '');
         btn.dataset.key = key;
-        btn.innerHTML = `<span class="cat-emoji">${cfg.emoji}</span><span>${cfg.title}</span>`;
-        btn.addEventListener('click', () => {
-          selectedCategory = key;
-          grid.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('selected', b.dataset.key === key));
-        });
+
+        if (isLocked) {
+          btn.className = 'cat-btn locked';
+          btn.disabled = true;
+          btn.innerHTML = `<span class="cat-emoji">${cfg.emoji}</span><span>${cfg.title}</span><span class="cat-lock">🔒</span>`;
+        } else {
+          btn.className = 'cat-btn' + (key === selectedCategory ? ' selected' : '');
+          btn.innerHTML = `<span class="cat-emoji">${cfg.emoji}</span><span>${cfg.title}</span>`;
+          btn.addEventListener('click', () => {
+            selectedCategory = key;
+            grid.querySelectorAll('.cat-btn:not(.locked)').forEach(b =>
+              b.classList.toggle('selected', b.dataset.key === key)
+            );
+          });
+        }
         grid.appendChild(btn);
       });
     }
 
-    buildGrid(freeCats);
-    // Separator
-    const sep = document.createElement('div');
-    sep.style.cssText = 'grid-column:1/-1;padding:0.3rem 0.4rem;font-size:0.75rem;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:0.06em;';
-    sep.textContent = '🔒 Premium Categories';
-    grid.appendChild(sep);
-    buildGrid(premiumCats);
+    // Free section — always unlocked for any authenticated user
+    buildSection(freeCats, false);
+
+    // Light section — rendered only when light categories exist (future)
+    if (lightCats.length > 0) {
+      addSeparator(
+        canHostLight ? '✨ Light Categories' : '🔒 Light — Upgrade to Host',
+        !canHostLight
+      );
+      buildSection(lightCats, !canHostLight);
+    }
+
+    // Premium section
+    addSeparator(
+      canHostPremium ? '⭐ Premium Categories' : '🔒 Premium — Upgrade to Host',
+      !canHostPremium
+    );
+    buildSection(premiumCats, !canHostPremium);
 
     card.querySelector('#createBtn').addEventListener('click', async () => {
       const btn = card.querySelector('#createBtn');
@@ -471,6 +535,9 @@
       onBothReady:        handleBothReady,
       onGameStart:        handleGameStart,
       onOpponentFinished: () => {} // not needed in lobby
+    }, {
+      // participant IDs are authoritative from the DB fetch in loadWaitingRoom
+      participantIds: [matchData.player1_id, matchData.player2_id]
     });
   }
 
@@ -515,20 +582,25 @@
     }
   }
 
-  function handleBothReady() {
-    if (!isPlayer1) return; // only player1 starts the game
-    const startedAt = new Date().toISOString();
+  async function handleBothReady() {
+    if (!isPlayer1) return; // only player1 drives game start
 
-    // Update DB
-    supabase.from('h2h_matches').update({
-      status:     'active',
-      started_at: startedAt,
-      timeout_at: new Date(Date.now() + 5 * 60 * 1000).toISOString()
-    }).eq('id', matchIdParam).then(() => {
-      // Broadcast to both clients
-      duelChannel.emitGameStart(startedAt);
-      handleGameStart({ started_at: startedAt });
+    // Delegate the entire lifecycle transition to the server.
+    // start_duel_match validates caller, opponent presence, and match state,
+    // writes started_at/timeout_at from the DB server clock, and is idempotent
+    // (returns existing timestamps if the match was already started).
+    const { data: result, error } = await supabase.rpc('start_duel_match', {
+      p_match_id: matchIdParam
     });
+
+    if (error) {
+      console.error('⚔️ start_duel_match RPC error:', error.message);
+      return;
+    }
+
+    // Broadcast the authoritative DB-clock timestamp to both players
+    duelChannel.emitGameStart(result.started_at);
+    handleGameStart({ started_at: result.started_at });
   }
 
   function handleGameStart({ started_at }) {

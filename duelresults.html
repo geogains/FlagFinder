@@ -402,17 +402,14 @@
 
 <!-- Auth/premium menu buttons -->
 <script type="module">
-  import { supabase } from './js/supabase-client.js';
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session?.user) {
-    const { data: profile } = await supabase.from('users').select('is_premium').eq('id', session.user.id).single();
-    if (profile?.is_premium) {
-      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
-    } else {
-      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
-    }
-  } else {
+  import { getUserCapabilities } from './js/permissions.js';
+  const caps = await getUserCapabilities();
+  if (!caps.isAuthenticated) {
     document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+    document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
+  } else if (caps.canAccessPremiumCategories) {
+    document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+  } else {
     document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
   }
 </script>

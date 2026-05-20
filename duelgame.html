@@ -283,17 +283,14 @@
 
 <!-- Auth/premium menu buttons -->
 <script type="module">
-  import { supabase } from './js/supabase-client.js';
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session?.user) {
-    const { data: profile } = await supabase.from('users').select('is_premium').eq('id', session.user.id).single();
-    if (profile?.is_premium) {
-      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
-    } else {
-      document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
-    }
-  } else {
+  import { getUserCapabilities } from './js/permissions.js';
+  const caps = await getUserCapabilities();
+  if (!caps.isAuthenticated) {
     document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
+    document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
+  } else if (caps.canAccessPremiumCategories) {
+    document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+  } else {
     document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
   }
 </script>
@@ -386,10 +383,89 @@
   // ── Category from URL ────────────────────────────────────────────────────
   const mode = new URLSearchParams(window.location.search).get('mode') || 'population';
 
+  // Populated by the Stage 3 validation block; used for channel participant validation
+  let gameParticipants = null;
+
+  // ── Stage 3B fast-path: session already marked completed ─────────────────
+  // After a successful submission, duelMatch.completed is set to true.
+  // On any subsequent load (refresh, back button) we skip the DB query
+  // and redirect immediately — no round-trip needed.
+  if (duelMatch.completed === true) {
+    clearTimeout(timeoutHandle);
+    window.location.href = `duelresults.html?match=${duelMatch.matchId}`;
+    throw new Error('session already completed');
+  }
+
+  // ── Stage 3A + 3C: authoritative gameplay gate ───────────────────────────
+  // Must pass ALL checks before ANY game code initialises.
+  // Validates: match exists, caller belongs to it, match is active,
+  // no prior submission (replay prevention), and URL category is authoritative.
+  // Queries run in parallel to minimise latency.
+  {
+    const [matchFetch, resultFetch] = await Promise.all([
+      supabase
+        .from('h2h_matches')
+        .select('id, category, status, player1_id, player2_id')
+        .eq('id', duelMatch.matchId)
+        .single(),
+      supabase
+        .from('h2h_results')
+        .select('id')
+        .eq('match_id', duelMatch.matchId)
+        .eq('user_id', currentUserId)
+        .maybeSingle()
+    ]);
+
+    // Match must exist and be accessible to this user (RLS gates non-participants)
+    if (matchFetch.error || !matchFetch.data) {
+      clearTimeout(timeoutHandle);
+      sessionStorage.removeItem('duelMatch');
+      window.location.href = 'duel.html';
+      throw new Error('match not found or inaccessible');
+    }
+
+    const liveMatch = matchFetch.data;
+
+    // Stage 3A: existing result — player already submitted, send to results
+    if (resultFetch.data) {
+      clearTimeout(timeoutHandle);
+      window.location.href = `duelresults.html?match=${duelMatch.matchId}`;
+      throw new Error('result already submitted');
+    }
+
+    // Caller must be a participant in this specific match
+    if (liveMatch.player1_id !== currentUserId && liveMatch.player2_id !== currentUserId) {
+      clearTimeout(timeoutHandle);
+      sessionStorage.removeItem('duelMatch');
+      window.location.href = 'duel.html';
+      throw new Error('not a participant in this match');
+    }
+
+    // Match must be active — finished/abandoned/pre-start all redirect to results
+    if (liveMatch.status !== 'active') {
+      clearTimeout(timeoutHandle);
+      window.location.href = `duelresults.html?match=${duelMatch.matchId}`;
+      throw new Error(`match status is ${liveMatch.status}, expected active`);
+    }
+
+    // Stage 3C: URL category must match the authoritative DB value.
+    // Redirecting to the correct URL handles both accidental changes and tampering.
+    // The corrected URL will pass this check on the next load.
+    if (liveMatch.category !== mode) {
+      clearTimeout(timeoutHandle);
+      window.location.href = `duelgame.html?mode=${encodeURIComponent(liveMatch.category)}`;
+      throw new Error(`category mismatch — URL:${mode} DB:${liveMatch.category}`);
+    }
+
+    // Preserve participant IDs outside the block scope for channel creation.
+    // These are authoritative values fetched from the DB in this same request.
+    gameParticipants = [liveMatch.player1_id, liveMatch.player2_id];
+  }
+
   // ── Opponent badge ───────────────────────────────────────────────────────
   const badge = document.getElementById('opponentBadge');
 
-  // ── Duel channel — created early to receive opponent:finished during gameplay ──
+  // ── Duel channel — created after the gameplay gate, with known participant IDs ──
   let opponentFinishedDuringGame = false;
   const duelChannel = createDuelChannel(supabase, duelMatch.matchId, currentUserId, {
     onBothReady:        () => {},  // not needed on game page
@@ -400,6 +476,9 @@
       badge.classList.remove('pulsing');
       badge.classList.add('done');
     }
+  }, {
+    // Passed to validate game:finished sender identity without an extra DB read
+    participantIds: gameParticipants
   });
 
   // ── Waiting-for-opponent helpers ─────────────────────────────────────────
@@ -485,6 +564,17 @@
       document.getElementById('errorOverlay').classList.add('visible');
       return;
     }
+
+    // Stage 3B: mark session completed — replay prevention for refresh/back navigation.
+    // Wrapped in try/catch: private browsing throws QuotaExceededError on setItem,
+    // and the submission path must never be interrupted by a storage failure.
+    try {
+      const stored = JSON.parse(sessionStorage.getItem('duelMatch') || 'null');
+      if (stored) {
+        stored.completed = true;
+        sessionStorage.setItem('duelMatch', JSON.stringify(stored));
+      }
+    } catch (_) { /* storage unavailable — not fatal */ }
 
     // Broadcast game:finished to opponent
     duelChannel.emitFinished(rpcResult.score, rpcResult.max_score);

@@ -13,17 +13,25 @@
 // All callers must import { supabase } from './js/supabase-client.js' themselves
 // and pass the shared instance as the first argument.
 
-export function createDuelChannel(supabase, matchId, currentUserId, callbacks) {
+export function createDuelChannel(supabase, matchId, currentUserId, callbacks, options = {}) {
+  // options.participantIds: [player1_id, player2_id] — when provided, used to validate
+  //   sender identity in game:finished events without an extra DB read.
   // callbacks: { onBothReady, onGameStart, onOpponentFinished }
   //   onBothReady()                       — both players emitted player:ready
   //   onGameStart({ started_at })         — game:start received
   //   onOpponentFinished({ userId, score, maxScore })
 
-  let channel       = null;
-  let destroyed     = false;
-  let pollInterval  = null;
-  let gameStarted   = false;
-  let opponentDone  = false;
+  let channel        = null;
+  let destroyed      = false;
+  let pollInterval   = null;
+  let gameStarted    = false;
+  let opponentDone   = false;
+  // One-way latch: once onBothReady fires, it must NEVER fire again for this
+  // channel instance — even if the WebSocket reconnects and re-delivers
+  // player:ready events or readySet was already >= 2 before the resubscribe.
+  let bothReadyFired = false;
+  // Prevents concurrent DB queries if multiple player:ready events arrive quickly.
+  let checkPending   = false;
 
   // Track which user IDs have sent player:ready (includes self)
   const readySet = new Set();
@@ -44,12 +52,29 @@ export function createDuelChannel(supabase, matchId, currentUserId, callbacks) {
       })
       .on('broadcast', { event: 'game:start' }, ({ payload }) => {
         if (gameStarted) return;
+
+        // Sanity-check the started_at timestamp — treat as untrusted input.
+        // Rejects spoofed far-future timestamps (which would extend the game timer)
+        // and absurd past timestamps. Out-of-bounds events fall through to the
+        // DB polling fallback which recovers the authoritative started_at.
+        const ts  = payload?.started_at ? new Date(payload.started_at).getTime() : NaN;
+        const now = Date.now();
+        const MAX_PAST_MS   = 60_000; // 60 s — covers delayed delivery on reconnect
+        const MAX_FUTURE_MS =  5_000; // 5 s  — tolerates server/client clock drift
+        if (isNaN(ts) || ts < now - MAX_PAST_MS || ts > now + MAX_FUTURE_MS) {
+          // Invalid timestamp — DB poll will recover authoritative started_at within 3 s
+          return;
+        }
+
         gameStarted = true;
         clearInterval(pollInterval);
         if (callbacks.onGameStart) callbacks.onGameStart(payload);
       })
       .on('broadcast', { event: 'game:finished' }, ({ payload }) => {
         if (!payload?.userId || payload.userId === currentUserId) return;
+        // If participant IDs are known, validate the sender is the actual opponent.
+        // This prevents a spoofed game:finished from triggering premature results navigation.
+        if (options.participantIds && !options.participantIds.includes(payload.userId)) return;
         if (opponentDone) return;
         opponentDone = true;
         if (callbacks.onOpponentFinished) callbacks.onOpponentFinished(payload);
@@ -74,9 +99,40 @@ export function createDuelChannel(supabase, matchId, currentUserId, callbacks) {
   // ----------------------------------------------------------------
   // Both-ready check (called when any player:ready event arrives)
   // ----------------------------------------------------------------
-  function checkBothReady() {
-    if (readySet.size >= 2 && callbacks.onBothReady) {
+  // Validates against DB before triggering onBothReady.
+  // Realtime player:ready events are treated as hints, not authority —
+  // the actual participant list comes from h2h_matches.
+  async function checkBothReady() {
+    // Fast pre-check: avoid DB if conditions clearly aren't met
+    if (readySet.size < 2 || bothReadyFired || !callbacks.onBothReady || checkPending) return;
+
+    checkPending = true;
+    try {
+      const { data: match } = await supabase
+        .from('h2h_matches')
+        .select('player1_id, player2_id, status, started_at')
+        .eq('id', matchId)
+        .single();
+
+      // Re-check after the async gap — another concurrent call may have resolved first
+      if (bothReadyFired) return;
+
+      // Reject terminal or already-started matches
+      if (!match || match.started_at || match.status === 'abandoned' || match.status === 'finished') return;
+
+      // An opponent must have actually joined
+      if (!match.player2_id) return;
+
+      // Both REAL participants must be in the readySet.
+      // This blocks spoofed player:ready events — an adversary cannot know both
+      // participant UUIDs if they aren't a member of the match (RLS prevents reading
+      // the match row after player2 has joined).
+      if (!readySet.has(match.player1_id) || !readySet.has(match.player2_id)) return;
+
+      bothReadyFired = true;
       callbacks.onBothReady();
+    } finally {
+      checkPending = false;
     }
   }
 
