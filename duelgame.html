@@ -170,7 +170,7 @@
     <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
     <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
     <button class="menu-btn" onclick="location.href='about.html'">🌍 About Us</button>
-    <button class="menu-btn upgrade-access-btn" onclick="window.plausible?.('premium_clicked', {props:{source:'navbar'}}); window.location.href='premium.html'" style="display:none;">🔓 Unlock All Categories</button>
+    <button class="menu-btn upgrade-access-btn" onclick="window.plausible?.('premium_clicked_navbar'); window.location.href='premium.html'" style="display:none;">🔓 Unlock All Categories</button>
     <button class="menu-close-x" id="closeMenu">×</button>
   </div>
 </div>
@@ -386,6 +386,30 @@
   // Populated by the Stage 3 validation block; used for channel participant validation
   let gameParticipants = null;
 
+  // ── GAMEPLAY AUTHORITY LAYERS ────────────────────────────────────────────
+  // Three independent replay-prevention layers protect this page, ordered
+  // fast-to-authoritative:
+  //
+  //   Layer 1 — sessionStorage flag (Stage 3B):
+  //     duelMatch.completed = true is set after successful submission.
+  //     On any reload, the fast-path check below redirects immediately
+  //     without a DB round-trip.  Cleared by browser/private browsing;
+  //     covered by Layer 2 when missing.
+  //
+  //   Layer 2 — DB existence check (Stage 3A):
+  //     h2h_results is queried at load time.  An existing row means the
+  //     player already submitted — redirect to results regardless of
+  //     sessionStorage state.  This is the authoritative replay guard.
+  //
+  //   Layer 3 — gameplay persistence (Phase 2C):
+  //     h2h_match_progress stores each committed placement.  On reload,
+  //     saved state is restored so the player continues from where they
+  //     left off — no reroll is possible because prior answers are locked.
+  //
+  // ALL three must remain intact.  Removing any one degrades a different
+  // failure mode: (1) slow for clean restores, (2) breaks security, (3)
+  // allows oracle-knowledge rerolls.
+
   // ── Stage 3B fast-path: session already marked completed ─────────────────
   // After a successful submission, duelMatch.completed is set to true.
   // On any subsequent load (refresh, back button) we skip the DB query
@@ -576,8 +600,10 @@
       }
     } catch (_) { /* storage unavailable — not fatal */ }
 
-    // Phase 2C: stop further placement saves and remove the progress row.
-    // Submission succeeded — the progress record has served its purpose.
+    // Phase 2C: stop further saves, then delete the progress row.
+    // Null assignment MUST come before the delete — if a late placement
+    // callback fires between the two, it would race the DELETE by re-inserting
+    // the row.  Nulling the callback first prevents that window.
     window._duelOnPlacement = null;
     supabase.from('h2h_match_progress')
       .delete()
@@ -597,13 +623,25 @@
   };
 
   // ── Phase 2C: Gameplay persistence wiring ────────────────────────────────
-  // livePlacements mirrors the DB state; _duelOnPlacement fires after each
-  // committed placement. Non-duel modes never set this callback — always no-op.
+  // Authority split:
+  //   LIVE runtime authority  — the game engine (blind-ranking.js) runs locally.
+  //                             totalScore and placement slots are in-memory.
+  //   RECOVERY authority      — h2h_match_progress holds the committed placements.
+  //                             On any reload, the DB state is the source of truth.
+  //
+  // livePlacements accumulates the COMPLETE placements array (not deltas).
+  // Each upsert replaces the entire row so the DB always has a coherent
+  // snapshot — partial/interleaved writes cannot produce corrupt state.
+  //
+  // Fire-and-forget is intentional: a DB write failure logs a warning and is
+  // tolerated.  If the player reloads after a failed save, they replay from
+  // the last successful checkpoint (a small disadvantage, not a cheat vector).
+  // The _duelOnComplete RPC is still the authoritative final submission.
   let livePlacements = [];
 
   window._duelOnPlacement = (placement) => {
     livePlacements.push(placement);
-    // Fire-and-forget upsert — gameplay must never pause waiting for DB writes
+    // Non-blocking — gameplay never waits for persistence
     supabase.from('h2h_match_progress').upsert({
       match_id:   duelMatch.matchId,
       user_id:    currentUserId,
@@ -641,13 +679,18 @@
   document.querySelector('.top-card-title').textContent =
     classicTitles[mode] || config.title?.toUpperCase() || 'RANK THESE COUNTRIES';
 
-  // Initialise game engine — overlay remains visible during state restoration
+  // Ordering invariant — do NOT reorder these three calls:
+  //   1. startBlindRankingGame() populates selectedCountries (required by loadSavedState)
+  //   2. setupRankButtons() wires click handlers to the remaining empty slots
+  //   3. loadSavedState() fills committed slots; endGame() fires if all 10 are restored
+  // The overlay stays visible throughout so the player sees the complete
+  // restored state in a single reveal, with no flash of an empty game.
   startBlindRankingGame(CATEGORY_ID_MAP[mode] || 0);
   setupRankButtons();
 
-  // Phase 2C: replay saved placements so player resumes where they left off.
-  // All previously committed answers are locked in — no reroll is possible.
   if (restoredPlacements.length > 0) {
+    // If all 10 placements are saved (submission-failure recovery), loadSavedState
+    // will call endGame() → _duelOnComplete → re-submit.  This is intentional.
     loadSavedState(restoredPlacements);
   }
 

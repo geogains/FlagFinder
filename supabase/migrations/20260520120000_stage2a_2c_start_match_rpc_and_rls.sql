@@ -65,8 +65,14 @@ BEGIN
       USING errcode = 'P0004';
   END IF;
 
-  -- Idempotent path: already started — return the authoritative timestamps
-  -- without modifying the row.  This handles duplicate RPC calls safely.
+  -- Idempotent path: match already started — return existing timestamps without
+  -- modifying the row.  This is not merely "nice to have": the Stage 1 latch
+  -- (bothReadyFired) normally prevents duplicate calls, but a WebSocket
+  -- reconnect can resubscribe the channel, re-emit player:ready, and trigger
+  -- checkBothReady → handleBothReady again before the latch fires.  The FOR
+  -- UPDATE lock above serialises concurrent calls; this branch ensures the
+  -- second caller gets the authoritative timestamp the first caller wrote
+  -- rather than silently succeeding with a different value.
   IF v_match.started_at IS NOT NULL THEN
     RETURN jsonb_build_object(
       'started_at',      v_match.started_at,
@@ -127,10 +133,17 @@ GRANT EXECUTE ON FUNCTION public.start_duel_match(uuid) TO authenticated;
 -- Clients can no longer freely update any column.
 REVOKE UPDATE ON public.h2h_matches FROM authenticated;
 
--- Re-grant update access on only the two columns that client code
--- legitimately mutates via direct UPDATE:
---   player2_id: set during the join flow in loadWaitingRoom
---   status:     set to 'active' on join, or 'abandoned' on expiry
+-- Re-grant update access on only the two columns that client code legitimately
+-- mutates via direct UPDATE.  Column-level grants are enforced by PostgreSQL
+-- independently of RLS — even if an RLS policy permits a row, the client
+-- cannot write columns not listed here.
+--
+--   player2_id: set by loadWaitingRoom when the joiner claims the slot
+--   status:     set to 'active' (on join) or 'abandoned' (on expiry)
+--
+-- NOT granted to clients: started_at, timeout_at, seed, category, player1_id,
+-- host_subscription_tier, required_category_tier.  These are written only by
+-- SECURITY DEFINER RPCs (create_duel_match, start_duel_match, cleanup_*).
 GRANT UPDATE (player2_id, status) ON public.h2h_matches TO authenticated;
 
 -- Drop the old overly-permissive update policy

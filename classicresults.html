@@ -634,12 +634,6 @@
     window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
     plausible.init()
   </script>
-  <script>
-    window.addEventListener('DOMContentLoaded', function() {
-      var category = new URLSearchParams(window.location.search).get('category') || 'unknown';
-      window.plausible?.('results_viewed', { props: { mode: 'classic', category: category } });
-    });
-  </script>
 </head>
 <body>
 
@@ -693,7 +687,7 @@
       <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
       <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
       <button class="menu-btn" onclick="location.href='about.html'">🌍 About Us</button>
-      <button class="menu-btn upgrade-access-btn" onclick="window.plausible?.('premium_clicked', {props:{source:'navbar'}}); window.location.href='premium.html'" style="display:none;">🔓 Unlock All Categories</button>
+      <button class="menu-btn upgrade-access-btn" onclick="window.plausible?.('premium_clicked_navbar'); window.location.href='premium.html'" style="display:none;">🔓 Unlock All Categories</button>
     </div>
   </div>
 
@@ -1099,17 +1093,17 @@ Can you beat my score? Play at geo-ranks.com/game.html?mode=${categoryKey}`;
       else console.log('✅ Classic high score saved:', record.totalScore);
       if (record.isDailyChallenge) {
         const today = new Date().toISOString().split('T')[0];
-        const { error: dailyError } = await withRetry(
-          () => supabase.from('daily_challenge_scores').upsert({
-            user_id: session.user.id,
-            category_id: record.categoryId,
-            played_date: today,
-            score: record.totalScore,
-            completed: true
-          }, { onConflict: 'user_id,category_id,played_date' }).select(),
+        const { data: dailyData, error: dailyError } = await withRetry(
+          () => supabase.rpc('submit_daily_score', {
+            p_category_id: record.categoryId,
+            p_played_date: today,
+            p_score: record.totalScore
+          }),
           'Classic daily save'
         );
         if (dailyError) { console.error('❌ Classic daily save failed:', dailyError); allSucceeded = false; }
+        else if (dailyData?.error) { console.warn('⚠️ Classic daily save rejected by server:', dailyData.error); }
+        else if (dailyData?.status === 'already_completed') { console.log('ℹ️ Classic daily score already recorded — keeping existing score.'); }
         else console.log('✅ Classic daily challenge score saved.');
       }
       if (allSucceeded) {
@@ -1187,7 +1181,7 @@ Can you beat my score? Play at geo-ranks.com/game.html?mode=${categoryKey}`;
     <div class="pm-body">
       <p class="pm-title">Unlock 36 Premium Categories</p>
       <p class="pm-sub">You're only seeing the free ones. Go further.</p>
-      <button class="pm-btn" onclick="window.plausible?.('premium_clicked', {props: {source: 'results_modal'}}); window.location.href='premium.html'">View Premium Categories</button>
+      <button class="pm-btn" onclick="window.plausible?.('premium_clicked_results'); window.location.href='premium.html'">View Premium Categories</button>
     </div>
   </div>
 

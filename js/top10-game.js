@@ -325,7 +325,7 @@ async function initGame() {
     console.log('Starting standalone Top 10 game (no save/restore)');
   }
   
-  window.plausible?.('game_started', { props: { mode: 'top10', category: categoryKey, daily: isDailyChallenge } });
+  window.plausible?.('top10_game_started');
 
     // Build ranking grid with new layout (rank number outside slot)
   const grid = document.getElementById('rankingsGrid');
@@ -815,7 +815,7 @@ async function endGame(won) {
   }
   gameState.isGameOver = true;
   
-  window.plausible?.('game_completed', { props: { mode: 'top10', category: categoryKey, daily: isDailyChallenge } });
+  window.plausible?.('top10_game_completed');
 
   console.log('🎮 endGame called with won:', won);
   

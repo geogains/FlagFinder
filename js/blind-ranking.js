@@ -161,7 +161,7 @@ export function startBlindRankingGame() {
   console.log("🧭 Detected metricKey:", metricKey);
   console.log("🏅 Detected rankKey:", rankKey);
 
-  window.plausible?.('game_started', { props: { mode: 'classic', category: currentCategory, daily: isDailyChallenge } });
+  window.plausible?.('classic_game_started');
 
   // Duel mode: use externally-provided seed (window._duelSeed)
   if (window._duelSeed != null) {
@@ -392,7 +392,7 @@ function formatMetric(num) {
 async function endGame() {
   isGameOver = true;
 
-  window.plausible?.('game_completed', { props: { mode: 'classic', category: currentCategory, daily: isDailyChallenge } });
+  window.plausible?.('classic_game_completed');
 
   const maxScore = selectedCountries.length * 10;
   
@@ -518,9 +518,31 @@ async function endGame() {
 
 // ── Phase 2C: Authoritative state restoration ────────────────────────────
 // Called by duelgame.html AFTER startBlindRankingGame() if saved placements
-// exist in h2h_match_progress.  Replays each committed placement into the DOM
-// without firing _duelOnPlacement, so restoration never writes to the DB.
-// The player resumes exactly where they left off with all answers locked in.
+// exist in h2h_match_progress.  Replays each committed placement into the DOM.
+//
+// INVARIANTS — violating any of these breaks competitive integrity:
+//
+//   1. Must be called AFTER startBlindRankingGame().
+//      selectedCountries is populated there; this function depends on it.
+//
+//   2. Must NOT fire window._duelOnPlacement.
+//      Restoration replays committed facts — it is NOT a new placement event.
+//      Triggering the callback would re-upsert identical data (wasteful) and,
+//      more critically, would blur the line between "new placement" and
+//      "replay of old placement," which could corrupt livePlacements state.
+//
+//   3. Restored placements are IRREVERSIBLE from the player's perspective.
+//      The slots rendered here use the saved correctRankMin/Max from the DB
+//      rather than re-reading country.rankRange, so restoration is independent
+//      of computeBestRanks() execution order.
+//
+//   4. If all 10 placements are restored, endGame() is called.
+//      This is the submission-failure recovery path: the player completed the
+//      game but _duelOnComplete never ran (e.g. network failure).  Calling
+//      endGame() re-triggers _duelOnComplete → verify_and_save_duel_result RPC.
+//
+// NON-DUEL MODES: this function is exported but never called by game.html,
+// top10.html, or vs.html.  Those pages do not import or invoke it.
 export function loadSavedState(placements) {
   if (!placements || placements.length === 0) return;
 

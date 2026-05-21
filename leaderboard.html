@@ -561,7 +561,7 @@
     <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
     <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
     <button class="menu-btn" onclick="location.href='about.html'">🌍 About Us</button>
-    <button class="menu-btn upgrade-access-btn" onclick="window.plausible?.('premium_clicked', {props:{source:'leaderboard'}}); window.location.href='premium.html'">🔓 Unlock All Categories</button>
+    <button class="menu-btn upgrade-access-btn" onclick="window.plausible?.('premium_clicked_leaderboard'); window.location.href='premium.html'">🔓 Unlock All Categories</button>
     <button class="menu-close-x" id="closeMenu">×</button>
   </div>
 </div>
@@ -1221,11 +1221,6 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 </script>
 
-<script>
-  window.addEventListener('DOMContentLoaded', function() {
-    window.plausible?.('leaderboard_viewed');
-  });
-</script>
 
 </body>
 </html>

@@ -517,16 +517,12 @@ function selectMode(modeKey, categoryKey) {
     const randomMode = availableModes[Math.floor(Math.random() * availableModes.length)];
     console.log('Random mode selected:', randomMode);
 
-    window.plausible?.('mode_selected', { props: { mode: randomMode, category: categoryKey } });
-
     // Redirect to random mode
     const randomUrl = `${MODES[randomMode].gameFile}?mode=${categoryKey}`;
     console.log('[mode-selector] navigating → mode:', randomMode, '| category:', categoryKey, '| url:', randomUrl);
     window.location.href = randomUrl;
     return;
   }
-
-  window.plausible?.('mode_selected', { props: { mode: modeKey, category: categoryKey } });
 
   // Redirect to selected game
   const url = `${mode.gameFile}?mode=${categoryKey}`;

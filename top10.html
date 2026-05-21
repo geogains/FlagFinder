@@ -447,7 +447,7 @@
       <button class="menu-btn" onclick="location.href='feedback.html'">💬 Feedback</button>
       <button class="menu-btn" onclick="location.href='contact.html'">📩 Contact Us</button>
       <button class="menu-btn" onclick="location.href='about.html'">🌍 About Us</button>
-      <button class="menu-btn upgrade-access-btn" onclick="window.plausible?.('premium_clicked', {props:{source:'navbar'}}); window.location.href='premium.html'" style="display:none;">🔓 Unlock All Categories</button>
+      <button class="menu-btn upgrade-access-btn" onclick="window.plausible?.('premium_clicked_navbar'); window.location.href='premium.html'" style="display:none;">🔓 Unlock All Categories</button>
       <button class="menu-close-x" id="closeMenu">×</button>
     </div>
   </div>
@@ -586,7 +586,7 @@
   const isValidDaily = isDailyParam && isValidDailyChallenge('top10', mode);
 
   if (isDailyParam && !isValidDaily) {
-    console.warn('⚠️ Invalid daily challenge attempt detected - mode/category mismatch');
+    window.location.href = 'daily-challenge.html';
   }
 
   // Check if this mode requires premium (only bypass if VALID daily challenge)
@@ -594,10 +594,13 @@
 
   // Async IIFE for auth/premium checks
   (async () => {
+    // If daily=true but not today's valid challenge: redirect (sync redirect already fired above)
+    if (isDailyParam && !isValidDaily) return;
+
     const caps = await getUserCapabilities();
 
     if (requiresPremium && !caps.canAccessPremiumCategories) {
-      window.plausible?.('premium_clicked', { props: { source: 'premium_gate' } });
+      window.plausible?.('premium_clicked_gate');
       window.location.href = 'premium.html';
       return;
     }

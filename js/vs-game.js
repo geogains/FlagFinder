@@ -3,7 +3,7 @@ import soundManager from './sound-manager.js';
 import { categoriesConfig, CATEGORY_ID_MAP } from './categories-config.js';
 import { supabase } from './supabase-client.js';
 import { formatValue as sharedFormatValue } from './format-metric.js';
-import { makeSeededRNG, seededShuffle, getDailyGameSeed } from './daily-challenge.js';
+import { makeSeededRNG, seededShuffle, getDailyGameSeed, hasCompletedTodaysChallenge } from './daily-challenge.js';
 
 // Initialize sound manager
 const SOUND_MAP = {
@@ -101,6 +101,14 @@ gameState.countries = data.map(country => {
       gameState.dailySequence = seededShuffle([...gameState.countries], rng);
       gameState.dailySequenceIndex = 0;
       console.log('🎯 Daily VS sequence — seed:', seed, 'first 4:', gameState.dailySequence.slice(0, 4).map(c => c.name));
+
+      // Block replay: redirect to hub if user already completed today's VS challenge.
+      const completionStatus = await hasCompletedTodaysChallenge();
+      if (completionStatus.completed) {
+        console.log('✅ VS Daily Challenge already completed — redirecting.');
+        window.location.href = 'daily-challenge.html';
+        return;
+      }
     }
 
     // Initialize game
@@ -117,7 +125,7 @@ gameState.countries = data.map(country => {
 function initGame() {
   console.log('Initializing VS game...');
   
-  window.plausible?.('game_started', { props: { mode: 'vs', category: categoryKey, daily: isDailyChallenge } });
+  window.plausible?.('vs_game_started');
 
   // Set category title
   document.getElementById('categoryTitle').textContent = categoryConfig.questionText;
@@ -478,7 +486,7 @@ async function endGame() {
   }
   gameState.isGameOver = true;
   
-  window.plausible?.('game_completed', { props: { mode: 'vs', category: categoryKey, daily: isDailyChallenge } });
+  window.plausible?.('vs_game_completed');
 
   console.log('Game ended!');
   
