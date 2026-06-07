@@ -254,8 +254,7 @@
         <span class="daily-category" id="dailyChallengeCategory">Loading...</span>
       </div>
     </button>
-    <button class="menu-btn" onclick="window.location.href='duel.html'">⚔️ Duel a Friend</button>
-    <button class="menu-btn" onclick="window.location.href='upload.html'">⚔️ Battle Royale</button>
+    <button class="menu-btn" onclick="window.location.href='upload.html'">🛡️ Battle Royale</button>
     <button class="menu-btn" onclick="window.location.href='categories.html'">🎮 Categories</button>
     <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
     <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
@@ -668,12 +667,13 @@
   if (!caps.isAuthenticated) {
     document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
     document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
-  } else if (caps.canAccessDuel) {
+  } else if (caps.canAccessPremiumCategories) {
     document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
   } else {
     document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
   }
 </script>
 
+<script type="module" src="js/identity-gate.js"></script>
 </body>
 </html>

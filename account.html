@@ -325,6 +325,592 @@
         gap: 6px;
       }
     }
+
+    /* ── Flag selector — identical to Top 10 game country search ── */
+
+    /* Elevate the flag section above all subsequent siblings.
+       .form-section elements gain a stacking context from their animation's
+       transform end-state (animation-fill-mode: forwards keeps transform applied).
+       Without an explicit z-index here, the flag section paints at z-index:auto
+       and buttons that follow in the DOM paint on top of the open dropdown. */
+    #flagSection {
+      position: relative;
+      z-index: 10;
+    }
+
+    .flag-search-container {
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .flag-search-input {
+      width: 100%;
+      padding: 14px 18px;
+      font-size: 1rem;
+      border: 2px solid rgba(13, 49, 90, 0.15);
+      border-radius: 12px;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: 'Poppins', sans-serif;
+      box-sizing: border-box;
+      background: white;
+    }
+    .flag-search-input:focus { border-color: #0d315a; }
+
+    .flag-dropdown {
+      position: absolute;
+      top: 100%; left: 0; right: 0;
+      max-height: 240px;
+      overflow-y: auto;
+      background: white;
+      border: 2px solid rgba(13, 49, 90, 0.2);
+      border-top: none;
+      border-radius: 0 0 12px 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+      z-index: 200;
+      display: none;
+    }
+    .flag-dropdown.active { display: block; }
+
+    .flag-option {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 8px 18px;
+      cursor: pointer;
+      transition: background 0.15s;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      min-height: 44px;
+    }
+    .flag-option:hover { background: rgba(102, 126, 234, 0.08); }
+    .flag-option.selected { background: rgba(102, 126, 234, 0.12); }
+
+    .flag-option-img {
+      width: 40px; height: 28px;
+      object-fit: cover;
+      border-radius: 3px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+      flex-shrink: 0;
+    }
+    .flag-option-name {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #0d315a;
+    }
+
+    /* Current flag preview */
+    .flag-current-preview {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: rgba(102, 126, 234, 0.05);
+      border: 1px solid rgba(102, 126, 234, 0.15);
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
+    .flag-current-preview.visible { display: flex; }
+    .flag-current-preview img { width: 32px; height: 22px; border-radius: 3px; object-fit: cover; }
+    .flag-current-preview span { font-size: 0.9rem; font-weight: 600; color: #0d315a; flex: 1; }
+    .flag-clear-btn {
+      background: none; border: none; cursor: pointer;
+      color: #9ca3af; font-size: 1.1rem; padding: 2px 6px;
+      border-radius: 4px; transition: color 0.15s;
+    }
+    .flag-clear-btn:hover { color: #ef4444; }
+
+    /* ── Achievements & Badges ───────────────────────────────────── */
+    .ach-sub-label {
+      font-size: 0.72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: #9ca3af; margin: 0 0 12px;
+    }
+    .badge-slot-row { display: flex; gap: 10px; margin-bottom: 8px; }
+    .badge-slot {
+      flex: 1; min-height: 88px;
+      background: rgba(102,126,234,0.04);
+      border: 2px dashed rgba(102,126,234,0.18); border-radius: 16px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 4px;
+      padding: 12px 6px; transition: border-color 0.2s, background 0.2s;
+    }
+    .badge-slot.has-badge {
+      border: 2px solid rgba(102,126,234,0.2);
+      background: rgba(255,255,255,0.85);
+    }
+    .badge-slot-emoji { font-size: 1.75rem; line-height: 1; }
+    .badge-slot-img {
+      width: 46px; height: 46px;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.12));
+    }
+    .badge-slot-name {
+      font-size: 0.6rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.04em;
+      color: #6b7280; text-align: center; line-height: 1.3;
+    }
+    .badge-slot-empty { font-size: 0.65rem; color: #d1d5db; font-weight: 600; }
+    .badge-unequip-btn {
+      background: none; border: none; cursor: pointer;
+      font-size: 0.62rem; color: #d1d5db; padding: 0;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+      transition: color 0.15s;
+    }
+    .badge-unequip-btn:hover { color: #ef4444; }
+    .badge-hint { font-size: 0.78rem; color: #9ca3af; margin: 6px 0 20px; }
+
+    .achievement-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+    .ach-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; background: white;
+      border: 1.5px solid rgba(0,0,0,0.05); border-radius: 12px;
+    }
+    .ach-item.locked {
+      background: rgba(0,0,0,0.015);
+      border-color: rgba(0,0,0,0.04); opacity: 0.6;
+    }
+    .ach-icon { font-size: 1.25rem; flex-shrink: 0; width: 26px; text-align: center; }
+    .ach-body { flex: 1; min-width: 0; }
+    .ach-name {
+      font-size: 0.87rem; font-weight: 700; color: #1f2937;
+      margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .ach-item.locked .ach-name { color: #9ca3af; }
+    .ach-desc { font-size: 0.76rem; color: #9ca3af; line-height: 1.4; }
+    .ach-equip-btn {
+      background: rgba(102,126,234,0.08);
+      border: 1.5px solid rgba(102,126,234,0.2);
+      border-radius: 8px; padding: 6px 11px; cursor: pointer;
+      font-size: 0.72rem; font-weight: 700; color: #667eea;
+      white-space: nowrap; flex-shrink: 0;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .ach-equip-btn:hover { background: rgba(102,126,234,0.14); border-color: rgba(102,126,234,0.35); }
+    .slot-picker {
+      display: flex; align-items: center; gap: 6px; flex-shrink: 0; flex-wrap: wrap;
+    }
+    .slot-picker-label { font-size: 0.7rem; color: #9ca3af; font-weight: 600; }
+    .slot-pick-btn {
+      background: rgba(102,126,234,0.08);
+      border: 1.5px solid rgba(102,126,234,0.2);
+      border-radius: 6px; padding: 4px 8px; cursor: pointer;
+      font-size: 0.7rem; font-weight: 700; color: #667eea;
+      transition: background 0.12s;
+    }
+    .slot-pick-btn:hover { background: rgba(102,126,234,0.18); }
+
+    /* ── Badge Collection (Phase 3) ─────────────────────────────── */
+
+    .bc-header {
+      margin-bottom: 20px;
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    }
+    .bc-subtitle {
+      font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: #9ca3af; margin: 4px 0 0;
+    }
+    .bc-view-profile-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.8rem; font-weight: 700; white-space: nowrap;
+      padding: 8px 16px; border-radius: 10px;
+      background: rgba(102,126,234,0.1); color: #5a67d8; border: 1px solid rgba(102,126,234,0.25);
+      cursor: pointer; transition: background 0.15s ease, transform 0.15s ease;
+    }
+    .bc-view-profile-btn:hover { background: rgba(102,126,234,0.18); transform: translateY(-1px); }
+    .bc-view-profile-btn[hidden] { display: none; }
+
+    .bc-section {
+      margin-bottom: 8px;
+      border: 1.5px solid rgba(102,126,234,0.1);
+      border-radius: 16px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.5);
+    }
+    .bc-section-header {
+      width: 100%; display: flex;
+      align-items: center; justify-content: space-between;
+      padding: 12px 16px;
+      background: none; border: none; cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      transition: background 0.15s;
+      border-radius: 0;
+    }
+    .bc-section-header:hover { background: rgba(102,126,234,0.05); }
+    .bc-section-label { display: flex; align-items: center; gap: 8px; }
+    .bc-section-emoji { font-size: 1.05rem; }
+    .bc-section-name { font-size: 0.88rem; font-weight: 700; color: #0d315a; }
+    .bc-section-progress { font-size: 0.73rem; font-weight: 700; color: #9ca3af; margin-left: 4px; }
+    .bc-section-chevron {
+      font-size: 0.78rem; color: #9ca3af;
+      transition: transform 0.2s ease; line-height: 1;
+    }
+    .bc-section.bc-collapsed .bc-section-chevron { transform: rotate(-90deg); }
+
+    .bc-grid {
+      padding: 6px 10px 12px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+      gap: 6px;
+    }
+    .bc-section.bc-collapsed .bc-grid,
+    .bc-section.bc-collapsed .bc-tier-group { display: none; }
+
+    .bc-tier-group { margin-bottom: 4px; }
+    .bc-tier-group-header {
+      padding: 6px 10px 2px;
+      font-size: 0.72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: #6b7280;
+    }
+    .bc-tier-group-header span { font-weight: 400; margin-left: 4px; color: #9ca3af; font-style: italic; }
+
+    .bc-tile {
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      aspect-ratio: 1;
+      background: white;
+      border: 1.5px solid rgba(102,126,234,0.1);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: transform 0.18s cubic-bezier(0.34,1.4,0.64,1),
+                  box-shadow 0.18s ease, border-color 0.15s;
+      padding: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      outline: none;
+      -webkit-tap-highlight-color: transparent;
+      overflow: hidden;
+    }
+    .bc-tile:hover, .bc-tile:focus-visible {
+      transform: translateY(-3px) scale(1.06);
+      box-shadow: 0 7px 20px rgba(102,126,234,0.2);
+      border-color: rgba(102,126,234,0.3);
+      z-index: 1;
+    }
+    .bc-tile:active { transform: scale(0.95); transition-duration: 0.08s; }
+    .bc-tile.bc-locked { filter: grayscale(100%); opacity: 0.65; }
+    .bc-tile.bc-locked:hover { opacity: 0.8; }
+    .bc-tile-img {
+      width: 100%; height: 100%; object-fit: contain;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));
+    }
+    .bc-tile-emoji { font-size: 1.3rem; line-height: 1; display: block; }
+    .bc-equipped-pip {
+      position: absolute; top: 4px; right: 4px;
+      width: 8px; height: 8px;
+      background: #10b981; border-radius: 50%;
+      border: 1.5px solid white;
+      box-shadow: 0 1px 4px rgba(16,185,129,0.45);
+    }
+
+    /* Modal */
+    .bc-modal-backdrop {
+      position: fixed; inset: 0; z-index: 9000;
+      background: rgba(0,0,0,0.50);
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+      opacity: 0; transition: opacity 0.22s ease;
+    }
+    .bc-modal-backdrop.bc-modal-visible { opacity: 1; }
+
+    .bc-modal {
+      position: fixed; z-index: 9001;
+      top: 50%; left: 50%;
+      transform: translate(-50%, calc(-50% + 18px)) scale(0.93);
+      width: min(360px, calc(100vw - 32px));
+      max-height: calc(100dvh - 48px);
+      overflow-y: auto;
+      background: white; border-radius: 24px;
+      padding: 28px 24px 24px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.08);
+      opacity: 0;
+      transition: opacity 0.22s ease,
+                  transform 0.30s cubic-bezier(0.34,1.4,0.64,1);
+      text-align: center;
+    }
+    .bc-modal.bc-modal-visible {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    .bc-modal-close {
+      position: absolute; top: 12px; right: 14px;
+      width: 28px; height: 28px;
+      background: rgba(0,0,0,0.07); border: none; border-radius: 50%;
+      cursor: pointer; font-size: 1rem; color: #6b7280;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+    }
+    .bc-modal-close:hover { background: rgba(0,0,0,0.14); color: #374151; }
+
+    .bc-modal-visual {
+      width: 80px; height: 80px;
+      margin: 0 auto 16px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .bc-modal-visual-emoji {
+      background: rgba(102,126,234,0.07);
+      border-radius: 50%;
+      border: 2px solid rgba(102,126,234,0.12);
+    }
+    .bc-modal-img {
+      width: 80px; height: 80px; object-fit: contain;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.14));
+    }
+    .bc-modal-emoji { font-size: 2.5rem; line-height: 1; }
+    .bc-modal-name {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.1rem; font-weight: 700;
+      color: #0d315a; margin: 0 0 8px;
+    }
+    .bc-modal-desc {
+      font-size: 0.83rem; color: #6b7280;
+      line-height: 1.55; margin: 0 0 16px;
+    }
+
+    .bc-req-list {
+      display: flex; flex-direction: column; gap: 6px;
+      margin-bottom: 16px; text-align: left;
+    }
+    .bc-req-item {
+      font-size: 0.8rem; font-weight: 600;
+      padding: 7px 12px; border-radius: 8px;
+    }
+    .bc-req-pending { background: rgba(0,0,0,0.04); color: #9ca3af; }
+    .bc-req-met     { background: rgba(16,185,129,0.1); color: #059669; }
+
+    .bc-modal-footer {
+      display: flex; flex-direction: column;
+      gap: 10px; align-items: center;
+    }
+    .bc-modal-status {
+      font-size: 0.75rem; font-weight: 700;
+      padding: 5px 14px; border-radius: 20px;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .bc-status-unlocked { background: rgba(16,185,129,0.12); color: #059669; }
+    .bc-status-locked   { background: rgba(0,0,0,0.06); color: #9ca3af; }
+    .bc-modal-equip-btn {
+      width: 100%; padding: 12px;
+      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
+      color: white; border: none; border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem; font-weight: 700; cursor: pointer;
+      box-shadow: 0 4px 14px rgba(255,111,97,0.30);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .bc-modal-equip-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px rgba(255,111,97,0.42);
+    }
+    .bc-equip-change {
+      background: rgba(102,126,234,0.1); color: #667eea;
+      box-shadow: none;
+    }
+    .bc-equip-change:hover {
+      background: rgba(102,126,234,0.18); box-shadow: none;
+      transform: translateY(-1px);
+    }
+    .bc-modal-equipped-note {
+      font-size: 0.78rem; color: #10b981;
+      font-weight: 600; margin: 0;
+    }
+    .bc-slot-label {
+      font-size: 0.77rem; color: #9ca3af;
+      font-weight: 600; margin: 0 0 8px; text-align: center;
+    }
+    .bc-slot-btns { display: flex; gap: 8px; }
+    .bc-slot-btn {
+      flex: 1; padding: 10px;
+      background: rgba(102,126,234,0.08);
+      border: 1.5px solid rgba(102,126,234,0.2);
+      border-radius: 10px; cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.85rem; font-weight: 700; color: #667eea;
+      transition: background 0.14s;
+    }
+    .bc-slot-btn:hover { background: rgba(102,126,234,0.18); }
+
+    /* ── GeoDex ───────────────────────────────────────────────────── */
+    .gdx-summary { margin-bottom: 18px; }
+    .gdx-count-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 8px; }
+    .gdx-count { font-size: 1.6rem; font-weight: 800; color: #0d315a; line-height: 1; }
+    .gdx-total { font-size: 0.8rem; font-weight: 600; color: #9ca3af; }
+    .gdx-bar-track {
+      height: 8px; background: rgba(102,126,234,0.1); border-radius: 8px;
+      overflow: hidden; margin-bottom: 6px;
+    }
+    .gdx-bar-fill {
+      height: 100%; width: 0;
+      background: linear-gradient(90deg, #ff9770 0%, #ff6f61 100%);
+      border-radius: 8px;
+      transition: width 0.7s cubic-bezier(0.4,0,0.2,1);
+    }
+    .gdx-subtext { font-size: 0.75rem; color: #9ca3af; }
+
+    .gdx-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+    .gdx-tab {
+      padding: 5px 14px;
+      border: 1.5px solid rgba(102,126,234,0.2); border-radius: 20px;
+      background: none; font-size: 0.76rem; font-weight: 700;
+      color: #6b7280; cursor: pointer;
+      transition: all 0.15s; font-family: 'Poppins', sans-serif;
+    }
+    .gdx-tab.active {
+      background: rgba(102,126,234,0.1);
+      border-color: rgba(102,126,234,0.4); color: #0d315a;
+    }
+    .gdx-tab:hover:not(.active) { border-color: rgba(102,126,234,0.3); color: #374151; }
+
+    /* ── GeoDex card grid ─────────────────────────────────────────── */
+    .gdx-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 860px) { .gdx-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 520px) { .gdx-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .gdx-card {
+      position: relative; border-radius: 14px; overflow: hidden;
+      aspect-ratio: 0.82; cursor: pointer; user-select: none;
+      border: 1.5px solid rgba(0,0,0,0.08);
+      background: #1a3a5c; /* fallback while image loads */
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s;
+    }
+    .gdx-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px rgba(0,0,0,0.16);
+      border-color: rgba(102,126,234,0.4); z-index: 1;
+    }
+    .gdx-card:active { transform: scale(0.97); transition-duration: 0.08s; }
+
+    .gdx-card-bg {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+      filter: saturate(0.92) brightness(0.82);
+      transform: scale(1.06);
+      transition: transform 0.35s ease, filter 0.35s ease;
+    }
+    .gdx-card:hover .gdx-card-bg { transform: scale(1.12); filter: saturate(1) brightness(0.9); }
+
+    .gdx-card-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(8,14,28,0.88) 0%, rgba(8,14,28,0.34) 58%, rgba(8,14,28,0.12) 100%);
+    }
+
+    /* Untouched categories — desaturated + darkened, but text stays legible */
+    .gdx-card--none .gdx-card-bg      { filter: saturate(0.1) brightness(0.5); }
+    .gdx-card--none .gdx-card-overlay { background: linear-gradient(to top, rgba(8,14,28,0.92) 0%, rgba(8,14,28,0.55) 100%); }
+
+    /* Progress accent rings — reflect the highest tier reached */
+    .gdx-card--partial { border-color: rgba(245,158,11,0.55); }
+    .gdx-card--t1      { border-color: rgba(16,185,129,0.6); box-shadow: 0 0 0 1px rgba(16,185,129,0.2) inset; }
+    .gdx-card--t2      { border-color: rgba(167,139,250,0.7); box-shadow: 0 0 0 1px rgba(167,139,250,0.28) inset; }
+
+    .gdx-card-icon {
+      position: absolute; inset: 0; z-index: 1;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.6rem; line-height: 1; text-align: center;
+      filter: drop-shadow(0 4px 14px rgba(0,0,0,0.5));
+      opacity: 1;
+      transition: transform 0.35s ease;
+      pointer-events: none;
+    }
+    .gdx-card:hover .gdx-card-icon { transform: scale(1.08); }
+
+    .gdx-card-content {
+      position: relative; z-index: 1; height: 100%;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 10px 9px 9px; text-align: left;
+    }
+    .gdx-card-name {
+      font-size: 0.74rem; font-weight: 800; color: #fff;
+      line-height: 1.25; margin: 0 0 6px; text-shadow: 0 1px 5px rgba(0,0,0,0.45);
+      display: -webkit-box; -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical; overflow: hidden;
+    }
+
+    .gdx-card-tiers { display: flex; gap: 5px; }
+    .gdx-tier-pill {
+      font-size: 0.56rem; font-weight: 800; letter-spacing: 0.05em;
+      text-transform: uppercase; padding: 3px 7px; border-radius: 6px;
+      background: rgba(255,255,255,0.16); color: rgba(255,255,255,0.6);
+      backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
+    }
+    .gdx-tier-pill--t1.gdx-tier-pill--on { background: rgba(16,185,129,0.88); color: #fff; }
+    .gdx-tier-pill--t2.gdx-tier-pill--on { background: rgba(167,139,250,0.88); color: #fff; }
+
+    .gdx-empty { text-align: center; padding: 24px 0; color: #9ca3af; font-size: 0.85rem; grid-column: 1 / -1; }
+
+    /* ── GeoDex detail modal ──────────────────────────────────────── */
+    .gdx-modal-bd {
+      position: fixed; inset: 0; z-index: 9500;
+      background: rgba(0,0,0,0.52); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center; padding: 20px;
+      animation: gdxFadeIn 0.18s ease;
+    }
+    @keyframes gdxFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .gdx-modal-box {
+      background: #fff; border-radius: 22px; padding: 28px 24px 22px;
+      position: relative; width: min(400px, 100%); max-height: 88vh; overflow-y: auto;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.16), 0 4px 16px rgba(0,0,0,0.06);
+      animation: gdxSlideUp 0.26s cubic-bezier(0.34,1.4,0.64,1);
+    }
+    @keyframes gdxSlideUp {
+      from { transform: translateY(18px); opacity: 0; }
+      to   { transform: none; opacity: 1; }
+    }
+    .gdx-modal-close {
+      position: absolute; top: 14px; right: 16px;
+      font-size: 1.3rem; line-height: 1; padding: 3px 7px;
+      background: none; border: none; cursor: pointer; color: #9ca3af;
+      border-radius: 6px; transition: color 0.12s, background 0.12s;
+    }
+    .gdx-modal-close:hover { color: #374151; background: rgba(0,0,0,0.06); }
+    .gdx-modal-icon  { font-size: 2.6rem; text-align: center; display: block; margin-bottom: 6px; }
+    .gdx-modal-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.12rem; font-weight: 800; color: #0d315a;
+      text-align: center; margin: 0 0 4px;
+    }
+    /* Tier I / Tier II summary cards — explicit progress at a glance */
+    .gdx-modal-tiers { display: flex; flex-direction: column; gap: 7px; margin: 14px 0 16px; }
+    .gdx-modal-tier {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 12px; background: rgba(0,0,0,0.025);
+    }
+    .gdx-modal-tier-icon {
+      flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.78rem; font-weight: 800;
+      background: rgba(0,0,0,0.06); color: #c8cdd6;
+    }
+    .gdx-modal-tier-name { font-size: 0.8rem; font-weight: 700; color: #374151; margin: 0; }
+    .gdx-modal-tier-desc { font-size: 0.68rem; color: #9ca3af; margin: 1px 0 0; }
+    .gdx-modal-tier--done {
+      background: rgba(16,185,129,0.07);
+    }
+    .gdx-modal-tier--done .gdx-modal-tier-icon { background: rgba(16,185,129,0.16); color: #10b981; }
+    .gdx-modal-tier--done .gdx-modal-tier-name { color: #059669; }
+    .gdx-modal-tier--progress .gdx-modal-tier-icon { background: rgba(245,158,11,0.16); color: #f59e0b; }
+    .gdx-modal-tier--progress .gdx-modal-tier-name { color: #b45309; }
+    .gdx-modal-tier--locked .gdx-modal-tier-name { color: #9ca3af; }
+
+    .gdx-modal-scores { display: flex; flex-direction: column; gap: 7px; margin-bottom: 14px; }
+    .gdx-modal-row {
+      display: grid; grid-template-columns: 76px 1fr auto;
+      align-items: center; gap: 8px;
+      padding: 10px 12px; border-radius: 10px; background: rgba(0,0,0,0.025);
+    }
+    .gdx-modal-row--met { background: rgba(16,185,129,0.07); }
+    .gdx-modal-mode { font-size: 0.82rem; font-weight: 700; color: #374151; }
+    .gdx-modal-val  { font-size: 0.82rem; font-weight: 600; color: #1f2937; }
+    .gdx-modal-val--none { color: #c8cdd6; }
+    .gdx-modal-req  { font-size: 0.67rem; color: #9ca3af; text-align: right; white-space: nowrap; }
+    .gdx-modal-req--met { color: #10b981; font-weight: 700; }
+    .gdx-modal-footer {
+      font-size: 0.74rem; color: #9ca3af; text-align: center; line-height: 1.55;
+      border-top: 1px solid rgba(0,0,0,0.06); padding-top: 12px; margin-top: 2px;
+    }
   </style>
 
   <!-- Privacy-friendly analytics by Plausible -->
@@ -365,7 +951,8 @@
     </button>
     
     <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
-    <button class="menu-btn" onclick="window.location.href='upload.html'">⚔️ Battle Royale</button>
+    <button class="menu-btn" onclick="window.location.href='upload.html'">🛡️ Battle Royale</button>
+    <button class="menu-btn" onclick="window.location.href='/duel'">⚔️ Duel</button>
     <button class="menu-btn" onclick="window.location.href='categories.html'">🎮 Categories</button>
     <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
     <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
@@ -416,8 +1003,11 @@
   <!-- Change Username -->
   <div class="form-section">
     <h3>👤 Change Username</h3>
-    <input type="text" id="newUsername" placeholder="Enter new username" class="form-input" />
-    <button class="btn btn-primary" id="changeUsernameBtn">Update Username</button>
+    <p id="cooldownNotice" style="display:none; font-size:0.88rem; color:#6b7280; margin-bottom:12px;"></p>
+    <input type="text" id="newUsername" placeholder="Enter new username" class="form-input"
+           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+    <div id="usernameValidationMsg" style="min-height:20px; font-size:0.85rem; font-weight:500; margin:6px 0 12px; padding-left:2px;"></div>
+    <button class="btn btn-primary" id="changeUsernameBtn" disabled>Update Username</button>
     <div class="message" id="usernameMsg"></div>
   </div>
 
@@ -427,6 +1017,85 @@
     <input type="email" id="newEmail" placeholder="Enter new email" class="form-input" />
     <button class="btn btn-primary" id="changeEmailBtn">Update Email</button>
     <div class="message" id="emailMsg"></div>
+  </div>
+
+  <!-- Country Flag — uses same selector UI as Top 10 game -->
+  <div class="form-section" id="flagSection">
+    <h3>🌍 Country Flag</h3>
+    <p style="font-size:0.85rem;color:#6b7280;margin-bottom:14px;">
+      Your flag appears on your public profile. Search by country name.
+    </p>
+
+    <!-- Current selection preview -->
+    <div class="flag-current-preview" id="flagCurrentPreview">
+      <img id="currentFlagImg" alt="Flag" />
+      <span id="currentFlagLabel"></span>
+      <button class="flag-clear-btn" id="clearFlagBtn" title="Remove flag">×</button>
+    </div>
+
+    <!-- Searchable country dropdown — identical to Top 10 selector -->
+    <div class="flag-search-container">
+      <input type="text" id="flagSearchInput" class="flag-search-input"
+             placeholder="Search your country…" autocomplete="off" autocorrect="off" />
+      <div class="flag-dropdown" id="flagDropdown"></div>
+    </div>
+
+    <button class="btn btn-primary" id="saveFlagBtn">Save Flag</button>
+    <div class="message" id="flagMsg"></div>
+  </div>
+
+  <!-- Badge Collection -->
+  <div class="form-section" id="badges">
+    <div class="bc-header">
+      <div>
+        <h3 style="margin:0 0 4px;">🏆 Badge Collection</h3>
+        <p class="bc-subtitle" id="bcCount">Collected: 0 / 0</p>
+      </div>
+      <button class="bc-view-profile-btn" id="viewProfileBtn" hidden>👤 View Profile</button>
+    </div>
+
+    <!-- Equipped Badge Slots (unchanged) -->
+    <p class="ach-sub-label">Equipped Badges</p>
+    <div class="badge-slot-row" id="equippedSlots">
+      <div class="badge-slot" data-slot="1"><span class="badge-slot-empty">—</span></div>
+      <div class="badge-slot" data-slot="2"><span class="badge-slot-empty">—</span></div>
+      <div class="badge-slot" data-slot="3"><span class="badge-slot-empty">—</span></div>
+    </div>
+    <p class="badge-hint">These 3 badges are shown on your public profile.</p>
+
+    <!-- Tier sections populated by JS -->
+    <div id="bcSections"></div>
+
+    <div id="achLoading" style="text-align:center;padding:20px 0;color:#9ca3af;font-size:0.85rem;">
+      Loading badges…
+    </div>
+  </div>
+
+  <!-- GeoDex — Category Completion Tracker -->
+  <div class="form-section" id="geodex">
+    <h3>📖 GeoDex</h3>
+
+    <!-- Progress summary -->
+    <div class="gdx-summary">
+      <div class="gdx-count-row">
+        <span class="gdx-count" id="gdxCount">—</span>
+        <span class="gdx-total" id="gdxTotal">/ 37 categories</span>
+      </div>
+      <div class="gdx-bar-track"><div class="gdx-bar-fill" id="gdxBarFill"></div></div>
+      <p class="gdx-subtext">Played across Classic, VS Mode &amp; Top 10</p>
+    </div>
+
+    <!-- Filter tabs -->
+    <div class="gdx-tabs" id="gdxTabs">
+      <button class="gdx-tab active" data-filter="all">All</button>
+      <button class="gdx-tab" data-filter="played">Played</button>
+      <button class="gdx-tab" data-filter="unplayed">Unplayed</button>
+    </div>
+
+    <!-- Category grid (populated by JS) -->
+    <div class="gdx-grid" id="gdxList">
+      <div class="gdx-empty">Loading GeoDex…</div>
+    </div>
   </div>
 
   <!-- Upgrade Button -->
@@ -533,7 +1202,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Account Functionality -->
 <script type="module">
-  import { supabase, getSessionSafe, SUPABASE_URL } from './js/supabase-client.js';
+  import { supabase, getSessionSafe, SUPABASE_URL }  from './js/supabase-client.js';
+  import { clearPermissionsCache }                   from './js/permissions.js';
+  import { validateLocally, friendlyError, profileUrl } from './js/username-utils.js';
+  import { allCountries }                            from './js/countries-list.js';
+  import { evaluateAchievements }                    from './js/achievements.js';
 
   (async () => {
     const { data: { session } } = await getSessionSafe(5000);
@@ -557,6 +1230,69 @@ document.addEventListener('DOMContentLoaded', function() {
 
     emailSpan.textContent = currentUser.email;
 
+    // ── Country flag selector — matches Top 10 game search UI ─────
+    const flagSearchInput  = document.getElementById('flagSearchInput');
+    const flagDropdown     = document.getElementById('flagDropdown');
+    const flagCurrentPreview = document.getElementById('flagCurrentPreview');
+    const currentFlagImg   = document.getElementById('currentFlagImg');
+    const currentFlagLabel = document.getElementById('currentFlagLabel');
+    const clearFlagBtn     = document.getElementById('clearFlagBtn');
+    const saveFlagBtn_el   = document.getElementById('saveFlagBtn');
+
+    let selectedFlagCode = '';
+
+    // Build dropdown with all countries (sorted alphabetically)
+    const sortedCountries = [...allCountries].sort((a, b) => a.name.localeCompare(b.name));
+    sortedCountries.forEach(({ name, code }) => {
+      const opt = document.createElement('div');
+      opt.className = 'flag-option';
+      opt.dataset.code = code;
+      opt.innerHTML = `
+        <img src="flags/${code}.png" alt="${name}" class="flag-option-img" onerror="this.style.display='none'">
+        <span class="flag-option-name">${name}</span>
+      `;
+      opt.addEventListener('click', () => {
+        selectedFlagCode = code;
+        flagSearchInput.value = name;
+        flagDropdown.classList.remove('active');
+        // Show preview
+        currentFlagImg.src = `flags/${code}.png`;
+        currentFlagLabel.textContent = name;
+        flagCurrentPreview.classList.add('visible');
+        saveFlagBtn_el.disabled = false;
+      });
+      flagDropdown.appendChild(opt);
+    });
+
+    // Filter on type — same pattern as top10-game.js setupSearch()
+    flagSearchInput.addEventListener('input', () => {
+      const term = flagSearchInput.value.toLowerCase().trim();
+      const opts = flagDropdown.querySelectorAll('.flag-option');
+      let hasVisible = false;
+      opts.forEach(opt => {
+        const name = opt.querySelector('.flag-option-name').textContent.toLowerCase();
+        const show = name.includes(term);
+        opt.style.display = show ? 'flex' : 'none';
+        if (show) hasVisible = true;
+      });
+      flagDropdown.classList.toggle('active', hasVisible && term.length > 0);
+    });
+
+    // Close dropdown on outside click
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.flag-search-container')) {
+        flagDropdown.classList.remove('active');
+      }
+    });
+
+    // Clear flag
+    clearFlagBtn?.addEventListener('click', () => {
+      selectedFlagCode = '';
+      flagSearchInput.value = '';
+      flagCurrentPreview.classList.remove('visible');
+      saveFlagBtn_el.disabled = false; // allow saving "no flag"
+    });
+
     const createdAt = new Date(currentUser.created_at);
     userSinceSpan.textContent = createdAt.toLocaleDateString('en-US', { 
       year: 'numeric', 
@@ -574,6 +1310,177 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (profile) {
       usernameSpan.textContent = profile.username || 'Not set';
+
+      // ── Username change section ─────────────────────────────────
+      {
+        const cooldownNotice    = document.getElementById('cooldownNotice');
+        const validationMsg     = document.getElementById('usernameValidationMsg');
+        const changeBtn         = changeUsernameBtn;
+        let   debounceTimer     = null;
+        let   inputIsValid      = false;
+
+        function setValidMsg(text, color) {
+          validationMsg.textContent = text;
+          validationMsg.style.color = color;
+        }
+
+        // Calculate cooldown from loaded profile
+        const COOLDOWN_DAYS = 30;
+        const lastChange = profile.last_username_change_at;
+        let cooldownActive = false;
+
+        if (profile.username && lastChange) {
+          const msLeft = new Date(lastChange).getTime() + COOLDOWN_DAYS * 86400000 - Date.now();
+          if (msLeft > 0) {
+            cooldownActive = true;
+            const daysLeft = Math.ceil(msLeft / 86400000);
+            cooldownNotice.textContent =
+              `⏳ Next username change available in ${daysLeft} day${daysLeft === 1 ? '' : 's'}.`;
+            cooldownNotice.style.display = 'block';
+            newUsernameInput.disabled = true;
+          }
+        }
+
+        if (!cooldownActive) {
+          // Live validation with debounced availability check
+          newUsernameInput.addEventListener('input', () => {
+            const value = newUsernameInput.value.trim();
+            inputIsValid = false;
+            changeBtn.disabled = true;
+            clearTimeout(debounceTimer);
+
+            const { ok, msg } = validateLocally(value);
+            if (!ok) {
+              setValidMsg(value ? msg : '', value ? '#dc2626' : '');
+              return;
+            }
+
+            setValidMsg('Checking availability…', '#9ca3af');
+
+            debounceTimer = setTimeout(async () => {
+              const { data } = await supabase
+                .from('users')
+                .select('username')
+                .eq('username', value)
+                .maybeSingle();
+              if (newUsernameInput.value.trim() !== value) return;
+
+              if (data === null) {
+                inputIsValid = true;
+                setValidMsg('✓ Available', '#16a34a');
+                changeBtn.disabled = false;
+              } else {
+                setValidMsg('✗ Username already taken.', '#dc2626');
+              }
+            }, 400);
+          });
+        }
+
+        // Handle the update button click via the canonical RPC
+        changeBtn.addEventListener('click', async () => {
+          const value = newUsernameInput.value.trim();
+          if (!value || (!inputIsValid && !cooldownActive)) return;
+
+          // Re-run local validation as a guard (cooldown case: skip and let RPC decide)
+          if (!cooldownActive) {
+            const { ok } = validateLocally(value);
+            if (!ok) return;
+          }
+
+          changeBtn.disabled    = true;
+          changeBtn.textContent = 'Updating…';
+          usernameMsg.textContent = '';
+
+          const { data: result, error: rpcError } = await supabase.rpc('update_username', {
+            p_new_username: value
+          });
+
+          changeBtn.textContent = 'Update Username';
+
+          if (rpcError || !result?.ok) {
+            const msg = friendlyError(result?.code, result?.days_remaining);
+            usernameMsg.textContent       = `❌ ${msg}`;
+            usernameMsg.style.color       = '#ef4444';
+            usernameMsg.style.background  = 'rgba(239,68,68,0.1)';
+
+            // Refresh cooldown notice if a cooldown was hit
+            if (result?.code === 'cooldown' && result?.days_remaining) {
+              cooldownActive = true;
+              cooldownNotice.textContent =
+                `⏳ Next username change available in ${result.days_remaining} day${result.days_remaining === 1 ? '' : 's'}.`;
+              cooldownNotice.style.display = 'block';
+              newUsernameInput.disabled    = true;
+            } else {
+              changeBtn.disabled = false;
+            }
+            return;
+          }
+
+          // Success
+          clearPermissionsCache();
+          usernameSpan.textContent      = value;
+          newUsernameInput.value        = '';
+          inputIsValid                  = false;
+          changeBtn.disabled            = true;
+          setValidMsg('', '');
+          usernameMsg.textContent       = '✅ Username updated';
+          usernameMsg.style.color       = '#22c55e';
+          usernameMsg.style.background  = 'rgba(34,197,94,0.1)';
+
+          // Activate cooldown in the UI immediately after a successful change
+          cooldownActive = true;
+          const daysLeft = COOLDOWN_DAYS;
+          cooldownNotice.textContent =
+            `⏳ Next username change available in ${daysLeft} day${daysLeft === 1 ? '' : 's'}.`;
+          cooldownNotice.style.display = 'block';
+          newUsernameInput.disabled    = true;
+        });
+      }
+      // ── End username change section ─────────────────────────────
+
+      // ── Country flag: load current + wire save ─────────────────
+      {
+        const flagMsg = document.getElementById('flagMsg');
+
+        // Restore current flag if already set
+        if (profile.country_code) {
+          const country = allCountries.find(c => c.code === profile.country_code);
+          selectedFlagCode       = profile.country_code;
+          flagSearchInput.value  = country?.name || profile.country_code;
+          currentFlagImg.src     = `flags/${profile.country_code}.png`;
+          currentFlagLabel.textContent = country?.name || profile.country_code;
+          flagCurrentPreview.classList.add('visible');
+        }
+
+        saveFlagBtn_el?.addEventListener('click', async () => {
+          const code = selectedFlagCode;
+          saveFlagBtn_el.disabled    = true;
+          saveFlagBtn_el.textContent = 'Saving…';
+          flagMsg.textContent = '';
+
+          const { error } = await supabase
+            .from('users')
+            .update({ country_code: code || null })
+            .eq('id', currentUser.id);
+
+          saveFlagBtn_el.disabled    = false;
+          saveFlagBtn_el.textContent = 'Save Flag';
+
+          if (error) {
+            const isSchemaError = error.message?.includes('country_code') || error.code === 'PGRST204';
+            flagMsg.textContent      = isSchemaError
+              ? '❌ Migration not yet applied. Run: ALTER TABLE public.users ADD COLUMN IF NOT EXISTS country_code text;'
+              : `❌ ${error.message}`;
+            flagMsg.style.color      = '#ef4444';
+            flagMsg.style.background = 'rgba(239,68,68,0.1)';
+          } else {
+            flagMsg.textContent      = '✅ Flag updated';
+            flagMsg.style.color      = '#22c55e';
+            flagMsg.style.background = 'rgba(34,197,94,0.1)';
+          }
+        });
+      }
+      // ── End country flag section ───────────────────────────────
 
       const premiumBadge = document.getElementById('premiumBadge');
 
@@ -625,6 +1532,32 @@ document.addEventListener('DOMContentLoaded', function() {
         // Reveal upgrade buttons only now that we've confirmed user is not premium
         document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
         document.querySelectorAll('.upgrade-btn').forEach(btn => btn.classList.add('visible'));
+      }
+
+      // ── Profile navigation — reuses the same /u?username= route as the leaderboard ──
+      {
+        const viewProfileBtn = document.getElementById('viewProfileBtn');
+        const profilePreviewLink = document.getElementById('profilePreview');
+        const url = profileUrl(profile.username);
+
+        const goToProfile = () => {
+          if (url) {
+            window.location.href = url;
+          } else {
+            // No username claimed yet — send through the same claim flow identity-gate uses.
+            const next = encodeURIComponent(window.location.href);
+            window.location.href = `claim-username.html?next=${next}`;
+          }
+        };
+
+        if (url) {
+          viewProfileBtn.hidden = false;
+          viewProfileBtn.addEventListener('click', goToProfile);
+        }
+
+        profilePreviewLink.style.cursor = 'pointer';
+        profilePreviewLink.title = url ? 'View your public profile' : 'Claim a username to get a public profile';
+        profilePreviewLink.addEventListener('click', goToProfile);
       }
 
       // Avatar logic
@@ -753,6 +1686,7 @@ document.addEventListener('DOMContentLoaded', function() {
             avatarMsg.textContent = '✅ Avatar updated!';
             avatarMsg.style.color = '#22c55e';
             avatarMsg.style.background = 'rgba(34, 197, 94, 0.1)';
+            evaluateAchievements(supabase, session);
           } else {
             avatarMsg.textContent = '❌ Failed to update profile';
             avatarMsg.style.color = '#ef4444';
@@ -804,27 +1738,7 @@ document.addEventListener('DOMContentLoaded', function() {
       usernameSpan.textContent = '—';
     }
 
-    changeUsernameBtn?.addEventListener('click', async () => {
-      const newUsername = newUsernameInput.value.trim();
-      if (!newUsername) return;
-
-      const { error } = await supabase
-        .from('users')
-        .update({ username: newUsername })
-        .eq('id', currentUser.id);
-
-      if (error) {
-        usernameMsg.textContent = `❌ ${error.message}`;
-        usernameMsg.style.color = '#ef4444';
-        usernameMsg.style.background = 'rgba(239, 68, 68, 0.1)';
-      } else {
-        usernameMsg.textContent = '✅ Username updated';
-        usernameMsg.style.color = '#22c55e';
-        usernameMsg.style.background = 'rgba(34, 197, 94, 0.1)';
-        usernameSpan.textContent = newUsername;
-        newUsernameInput.value = '';
-      }
-    });
+    // Username change is now handled inside the if(profile) block above.
 
     changeEmailBtn?.addEventListener('click', async () => {
       const newEmail = newEmailInput.value.trim();
@@ -866,6 +1780,1069 @@ document.addEventListener('DOMContentLoaded', function() {
   })();
 </script>
 
+<script type="module" src="js/identity-gate.js"></script>
 
+<!-- ── Badge Collection — Phase 3 ───────────────────────────────── -->
+<script type="module">
+  import { supabase, getSessionSafe } from './js/supabase-client.js';
+  import { evaluateAchievements, BADGE_META } from './js/achievements.js';
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── Section config ─────────────────────────────────────────────
+  // Legacy mastery/streak/founding fold into Platinum/Gold for display.
+  // DB category values are NOT changed — this is frontend mapping only.
+  // Legacy categories (pre-Phase-2 DB): 'streak', 'mastery', 'founding'
+  // Phase-2 categories: 'gold', 'platinum' (after migration reclassifies those rows)
+  // Both sets are listed so the UI works before AND after Phase 2 deployment.
+  const SECTIONS = [
+    { key: 'bronze',     label: 'Bronze',     emoji: '🥉', cats: new Set(['bronze']) },
+    { key: 'silver',     label: 'Silver',     emoji: '🥈', cats: new Set(['silver']) },
+    { key: 'gold',       label: 'Gold',       emoji: '🥇', cats: new Set(['gold', 'streak']) },
+    { key: 'platinum',   label: 'Platinum',   emoji: '💎', cats: new Set(['platinum', 'mastery', 'founding']) },
+    { key: 'specialist', label: 'Specialist', emoji: '🌍', cats: new Set(['specialist']) },
+  ];
+
+  // ── Badge Catalogue ────────────────────────────────────────────
+  // Canonical ordered definition of all 102 collectible badges.
+  // Drives rendering regardless of DB state. Real DB rows take priority
+  // when they exist; missing rows render as locked catalogue placeholders.
+  // After Phase 2 deploys, all rows will exist and placeholders vanish naturally.
+  const BADGE_CATALOG = {
+    bronze: [
+      { achievement_key:'bronze_first_steps',      badge_key:'badge_bronze_first_steps',      name:'First Steps',           description:'Complete your first game on GeoRanks.',                                         sort_order:200 },
+      { achievement_key:'bronze_getting_started',  badge_key:'badge_bronze_getting_started',  name:'Getting Started',       description:'Complete 5 games across any mode.',                                              sort_order:210 },
+      { achievement_key:'bronze_streak_starter',   badge_key:'badge_bronze_streak_starter',   name:'Streak Starter',        description:'Reach a 3-day daily challenge streak.',                                          sort_order:220 },
+      { achievement_key:'bronze_fresh_face',       badge_key:'badge_bronze_fresh_face',       name:'Fresh Face',            description:'Upload a custom profile photo.',                                                  sort_order:240 },
+      { achievement_key:'bronze_explorer',         badge_key:'badge_bronze_explorer',         name:'Explorer',              description:'Play 3 different categories across any mode.',                                   sort_order:250 },
+      { achievement_key:'bronze_first_blood',      badge_key:'badge_bronze_first_blood',      name:'First Blood',           description:'Play your first head-to-head duel.',                                             sort_order:260 },
+      { achievement_key:'bronze_perfectionist',    badge_key:'badge_bronze_perfectionist',    name:'Precision Master',      description:'Achieve your first perfect score.',                                              sort_order:270 },
+      { achievement_key:'bronze_daily_debut',      badge_key:'badge_bronze_daily_debut',      name:'Daily Debut',           description:'Complete your first daily challenge.',                                           sort_order:280 },
+    ],
+    silver: [
+      { achievement_key:'silver_daily_warrior',    badge_key:'badge_silver_daily_warrior',    name:'Daily Warrior',         description:'Complete 10 daily challenges.',                                                  sort_order:300 },
+      { achievement_key:'silver_quarter_century',  badge_key:'badge_silver_quarter_century',  name:'Quarter Century',       description:'Complete 25 games across any mode.',                                             sort_order:310 },
+      { achievement_key:'silver_world_traveller',  badge_key:'badge_silver_world_traveller',  name:'World Traveller',       description:'Play 15 different categories across any mode.',                                  sort_order:320 },
+      { achievement_key:'silver_geodex_initiate',  badge_key:'badge_silver_geodex_initiate',  name:'GeoDex Initiate',       description:'Complete 25% of Specialist Tier I categories.',                                  sort_order:330 },
+      { achievement_key:'silver_duel_veteran',     badge_key:'badge_silver_duel_veteran',     name:'Duel Veteran',          description:'Complete 10 head-to-head duels.',                                               sort_order:350 },
+      { achievement_key:'silver_streak_keeper',    badge_key:'badge_silver_streak_keeper',    name:'Streak Keeper',         description:'Reach a 14-day daily challenge streak.',                                         sort_order:370 },
+    ],
+    gold: [
+      { achievement_key:'streak_30',              badge_key:'badge_streak_30',              name:'30-Day Streak',         description:'Reach a 30-day daily challenge streak.',                                         sort_order:396 },
+      { achievement_key:'gold_centurion',         badge_key:'badge_gold_centurion',         name:'Centurion',             description:'Complete 100 games across any mode.',                                            sort_order:400 },
+      { achievement_key:'gold_geography_scholar', badge_key:'badge_gold_geography_scholar', name:'Geography Scholar',     description:'Earn Tier II specialist mastery in 5 different categories.',                     sort_order:410 },
+      { achievement_key:'gold_duel_master',       badge_key:'badge_gold_duel_master',       name:'Duel Master',           description:'Complete 50 head-to-head duels.',                                               sort_order:420 },
+      { achievement_key:'gold_precision_master',  badge_key:'badge_gold_precision_master',  name:'Perfectionist',         description:'Earn 20 perfect results across Classic and Top 10.',                             sort_order:430 },
+      { achievement_key:'gold_game_mode_master',  badge_key:'badge_gold_game_mode_master',  name:'Game Mode Master',      description:'Play the same 5 categories in Classic, VS, and Top 10.',                        sort_order:440 },
+      { achievement_key:'silver_top10_challenger',badge_key:'badge_silver_top10_challenger',name:'Top 10 Challenger',     description:'Achieve a perfect board in 10 different Top 10 categories.',                    sort_order:445 },
+    ],
+    platinum: [
+      { achievement_key:'founding_explorer',             badge_key:'badge_founding_explorer',             name:'Founding Explorer',     description:'An early adopter of GeoRanks — you were here before achievements existed.',    sort_order:490 },
+      { achievement_key:'platinum_georanks_legend',      badge_key:'badge_platinum_georanks_legend',      name:'GeoRanks Legend',       description:'Complete 500 games across any mode.',                                           sort_order:500 },
+      { achievement_key:'platinum_geodex_completionist', badge_key:'badge_platinum_geodex_completionist', name:'GeoDex Completionist',  description:'Complete all Specialist Tier I categories.',                                    sort_order:510 },
+    ],
+    specialist: [
+      // Tier I (37) ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+      { achievement_key:'specialist_population_t1',      badge_key:'badge_population_t1',       name:'Census Taker',           description:'Play Population in Classic, VS, and Top 10.',            sort_order:1001, specialist_tier:1, specialist_category_id:1  },
+      { achievement_key:'specialist_altitude_t1',        badge_key:'badge_altitude_t1',         name:'Summit Chaser',          description:'Play Highest Altitude in Classic, VS, and Top 10.',      sort_order:1002, specialist_tier:1, specialist_category_id:2  },
+      { achievement_key:'specialist_gdp_t1',             badge_key:'badge_gdp_t1',              name:'GDP Grinder',            description:'Play GDP Per Capita in Classic, VS, and Top 10.',        sort_order:1003, specialist_tier:1, specialist_category_id:3  },
+      { achievement_key:'specialist_happiness_t1',       badge_key:'badge_happiness_t1',        name:'Joy Seeker',             description:'Play Happiness Index in Classic, VS, and Top 10.',       sort_order:1004, specialist_tier:1, specialist_category_id:4  },
+      { achievement_key:'specialist_forest_t1',          badge_key:'badge_forest_t1',           name:'Forest Wanderer',        description:'Play Forest Cover in Classic, VS, and Top 10.',          sort_order:1005, specialist_tier:1, specialist_category_id:5  },
+      { achievement_key:'specialist_coastline_t1',       badge_key:'badge_coastline_t1',        name:'Shore Explorer',         description:'Play Coastline Length in Classic, VS, and Top 10.',      sort_order:1006, specialist_tier:1, specialist_category_id:6  },
+      { achievement_key:'specialist_cuisine_t1',         badge_key:'badge_cuisine_t1',          name:'Food Lover',             description:'Play Cuisine Ranking in Classic, VS, and Top 10.',       sort_order:1007, specialist_tier:1, specialist_category_id:7  },
+      { achievement_key:'specialist_olympic_t1',         badge_key:'badge_olympic_t1',          name:'Olympic Fan',            description:'Play Olympic Medals in Classic, VS, and Top 10.',        sort_order:1008, specialist_tier:1, specialist_category_id:8  },
+      { achievement_key:'specialist_worldcup_t1',        badge_key:'badge_worldcup_t1',         name:'Football Fan',           description:'Play World Cup Winners in Classic, VS, and Top 10.',     sort_order:1009, specialist_tier:1, specialist_category_id:9  },
+      { achievement_key:'specialist_landmass_t1',        badge_key:'badge_landmass_t1',         name:'Land Mapper',            description:'Play Landmass in Classic, VS, and Top 10.',              sort_order:1010, specialist_tier:1, specialist_category_id:10 },
+      { achievement_key:'specialist_crimerate_t1',       badge_key:'badge_crimerate_t1',        name:'Crime Watcher',          description:'Play Crime Rate in Classic, VS, and Top 10.',            sort_order:1011, specialist_tier:1, specialist_category_id:11 },
+      { achievement_key:'specialist_passport_t1',        badge_key:'badge_passport_t1',         name:'Frequent Flyer',         description:'Play Passport Power in Classic, VS, and Top 10.',        sort_order:1012, specialist_tier:1, specialist_category_id:12 },
+      { achievement_key:'specialist_beer_t1',            badge_key:'badge_beer_t1',             name:'Beer Enthusiast',        description:'Play Beer Consumption in Classic, VS, and Top 10.',      sort_order:1013, specialist_tier:1, specialist_category_id:13 },
+      { achievement_key:'specialist_nobelprize_t1',      badge_key:'badge_nobelprize_t1',       name:'Nobel Follower',         description:'Play Nobel Prize Winners in Classic, VS, and Top 10.',   sort_order:1014, specialist_tier:1, specialist_category_id:14 },
+      { achievement_key:'specialist_temperature_t1',     badge_key:'badge_temperature_t1',      name:'Weather Watcher',        description:'Play Temperature in Classic, VS, and Top 10.',           sort_order:1015, specialist_tier:1, specialist_category_id:15 },
+      { achievement_key:'specialist_rainfall_t1',        badge_key:'badge_rainfall_t1',         name:'Rain Chaser',            description:'Play Rainfall in Classic, VS, and Top 10.',              sort_order:1016, specialist_tier:1, specialist_category_id:16 },
+      { achievement_key:'specialist_tourism_t1',         badge_key:'badge_tourism_t1',          name:'Tourist Scout',          description:'Play Tourism in Classic, VS, and Top 10.',               sort_order:1017, specialist_tier:1, specialist_category_id:17 },
+      { achievement_key:'specialist_michelin_t1',        badge_key:'badge_michelin_t1',         name:'Food Explorer',          description:'Play Michelin Stars in Classic, VS, and Top 10.',        sort_order:1018, specialist_tier:1, specialist_category_id:18 },
+      { achievement_key:'specialist_bigmac_t1',          badge_key:'badge_bigmac_t1',           name:'Price Tracker',          description:'Play Big Mac Index in Classic, VS, and Top 10.',         sort_order:1019, specialist_tier:1, specialist_category_id:19 },
+      { achievement_key:'specialist_lifeexpectancy_t1',  badge_key:'badge_lifeexpectancy_t1',   name:'Life Tracker',           description:'Play Life Expectancy in Classic, VS, and Top 10.',       sort_order:1020, specialist_tier:1, specialist_category_id:20 },
+      { achievement_key:'specialist_marriageage_t1',     badge_key:'badge_marriageage_t1',      name:'Life Stage Watcher',     description:'Play Marriage Age in Classic, VS, and Top 10.',          sort_order:1021, specialist_tier:1, specialist_category_id:21 },
+      { achievement_key:'specialist_sexratio_t1',        badge_key:'badge_sexratio_t1',         name:'Demographics Fan',       description:'Play Sex Ratio in Classic, VS, and Top 10.',             sort_order:1022, specialist_tier:1, specialist_category_id:22 },
+      { achievement_key:'specialist_tallestbuilding_t1', badge_key:'badge_tallestbuilding_t1',  name:'Sky Gazer',              description:'Play Tallest Buildings in Classic, VS, and Top 10.',     sort_order:1023, specialist_tier:1, specialist_category_id:23 },
+      { achievement_key:'specialist_density_t1',         badge_key:'badge_density_t1',          name:'Crowd Watcher',          description:'Play Population Density in Classic, VS, and Top 10.',   sort_order:1024, specialist_tier:1, specialist_category_id:24 },
+      { achievement_key:'specialist_carexports_t1',      badge_key:'badge_carexports_t1',       name:'Auto Enthusiast',        description:'Play Car Exports in Classic, VS, and Top 10.',           sort_order:1025, specialist_tier:1, specialist_category_id:25 },
+      { achievement_key:'specialist_militarypersonel_t1',badge_key:'badge_militarypersonel_t1', name:'Military Recruit',       description:'Play Military Personnel in Classic, VS, and Top 10.',    sort_order:1026, specialist_tier:1, specialist_category_id:26 },
+      { achievement_key:'specialist_rent_t1',            badge_key:'badge_rent_t1',             name:'Cost of Living Watcher', description:'Play Rent Prices in Classic, VS, and Top 10.',           sort_order:1027, specialist_tier:1, specialist_category_id:27 },
+      { achievement_key:'specialist_poorestgdp_t1',      badge_key:'badge_poorestgdp_t1',       name:'Development Watcher',    description:'Play Poorest GDP in Classic, VS, and Top 10.',           sort_order:1028, specialist_tier:1, specialist_category_id:28 },
+      { achievement_key:'specialist_university_t1',      badge_key:'badge_university_t1',       name:'Campus Explorer',        description:'Play University Rankings in Classic, VS, and Top 10.',   sort_order:1029, specialist_tier:1, specialist_category_id:29 },
+      { achievement_key:'specialist_volcano_t1',         badge_key:'badge_volcano_t1',          name:'Volcano Chaser',         description:'Play Most Volcanoes in Classic, VS, and Top 10.',        sort_order:1030, specialist_tier:1, specialist_category_id:30 },
+      { achievement_key:'specialist_flamingo_t1',        badge_key:'badge_flamingo_t1',         name:'Nature Watcher',         description:'Play Flamingo Population in Classic, VS, and Top 10.',   sort_order:1031, specialist_tier:1, specialist_category_id:31 },
+      { achievement_key:'specialist_disasterrisk_t1',    badge_key:'badge_disasterrisk_t1',     name:'Risk Watcher',           description:'Play Disaster Risk in Classic, VS, and Top 10.',         sort_order:1032, specialist_tier:1, specialist_category_id:32 },
+      { achievement_key:'specialist_longestriver_t1',    badge_key:'badge_longestriver_t1',     name:'River Explorer',         description:'Play Longest Rivers in Classic, VS, and Top 10.',        sort_order:1033, specialist_tier:1, specialist_category_id:33 },
+      { achievement_key:'specialist_renewableenergy_t1', badge_key:'badge_renewableenergy_t1',  name:'Green Watcher',          description:'Play Renewable Energy in Classic, VS, and Top 10.',      sort_order:1034, specialist_tier:1, specialist_category_id:34 },
+      { achievement_key:'specialist_millionaires_t1',    badge_key:'badge_millionaires_t1',     name:'Wealth Watcher',         description:'Play Millionaires in Classic, VS, and Top 10.',          sort_order:1035, specialist_tier:1, specialist_category_id:35 },
+      { achievement_key:'specialist_gm_t1',              badge_key:'badge_gm_t1',               name:'Chess Enthusiast',       description:'Play Grandmasters in Classic, VS, and Top 10.',          sort_order:1036, specialist_tier:1, specialist_category_id:36 },
+      { achievement_key:'specialist_f1_t1',              badge_key:'badge_f1_t1',               name:'Race Fan',               description:'Play F1 Titles in Classic, VS, and Top 10.',             sort_order:1037, specialist_tier:1, specialist_category_id:37 },
+      // Tier II (37 — all categories) ─────────────────────────────────────────────────────────────────────────────────────────────
+      { achievement_key:'population_expert',             badge_key:'badge_population_expert',   name:'Population Expert',      description:'Master Population — 90+ Classic, 1000+ VS, perfect Top 10.',              sort_order:2001, specialist_tier:2, specialist_category_id:1  },
+      { achievement_key:'specialist_altitude_t2',        badge_key:'badge_altitude_t2',         name:'Altitude Expert',        description:'Master Highest Altitude — 90+ Classic, 1000+ VS, perfect Top 10.',        sort_order:2002, specialist_tier:2, specialist_category_id:2  },
+      { achievement_key:'gdp_master',                   badge_key:'badge_gdp_master',          name:'GDP Master',             description:'Master GDP Per Capita — 90+ Classic, 1000+ VS, perfect Top 10.',           sort_order:2003, specialist_tier:2, specialist_category_id:3  },
+      { achievement_key:'specialist_happiness_t2',       badge_key:'badge_happiness_t2',        name:'Happiness Guru',         description:'Master Happiness Index — 90+ Classic, 1000+ VS, perfect Top 10.',         sort_order:2004, specialist_tier:2, specialist_category_id:4  },
+      { achievement_key:'specialist_forest_t2',          badge_key:'badge_forest_t2',           name:'Forest Ranger',          description:'Master Forest Cover — 90+ Classic, 1000+ VS, perfect Top 10.',            sort_order:2005, specialist_tier:2, specialist_category_id:5  },
+      { achievement_key:'specialist_coastline_t2',       badge_key:'badge_coastline_t2',        name:'Coastline Cartographer', description:'Master Coastline Length — 90+ Classic, 1000+ VS, perfect Top 10.',        sort_order:2006, specialist_tier:2, specialist_category_id:6  },
+      { achievement_key:'specialist_cuisine_t2',         badge_key:'badge_cuisine_t2',          name:'Culinary Master',        description:'Master Cuisine Ranking — 90+ Classic, 1000+ VS, perfect Top 10.',         sort_order:2007, specialist_tier:2, specialist_category_id:7  },
+      { achievement_key:'specialist_olympic_t2',         badge_key:'badge_olympic_t2',          name:'Olympic Scholar',        description:'Master Olympic Medals — 90+ Classic, 1000+ VS, perfect Top 10.',          sort_order:2008, specialist_tier:2, specialist_category_id:8  },
+      { achievement_key:'specialist_worldcup_t2',        badge_key:'badge_worldcup_t2',         name:'World Cup Historian',    description:'Master World Cup — 90+ Classic, 1000+ VS, perfect Top 10.',               sort_order:2009, specialist_tier:2, specialist_category_id:9  },
+      { achievement_key:'specialist_landmass_t2',        badge_key:'badge_landmass_t2',         name:'Territory Expert',       description:'Master Landmass — 90+ Classic, 1000+ VS, perfect Top 10.',                sort_order:2010, specialist_tier:2, specialist_category_id:10 },
+      { achievement_key:'specialist_crimerate_t2',       badge_key:'badge_crimerate_t2',        name:'Crime Analyst',          description:'Master Crime Rate — 90+ Classic, 1000+ VS, perfect Top 10.',              sort_order:2011, specialist_tier:2, specialist_category_id:11 },
+      { achievement_key:'specialist_passport_t2',        badge_key:'badge_passport_t2',         name:'Passport Collector',     description:'Master Passport Power — 90+ Classic, 1000+ VS, perfect Top 10.',          sort_order:2012, specialist_tier:2, specialist_category_id:12 },
+      { achievement_key:'specialist_beer_t2',            badge_key:'badge_beer_t2',             name:'Beer Connoisseur',       description:'Master Beer Consumption — 90+ Classic, 1000+ VS, perfect Top 10.',        sort_order:2013, specialist_tier:2, specialist_category_id:13 },
+      { achievement_key:'specialist_nobelprize_t2',      badge_key:'badge_nobelprize_t2',       name:'Nobel Scholar',          description:'Master Nobel Prize Winners — 90+ Classic, 1000+ VS, perfect Top 10.',     sort_order:2014, specialist_tier:2, specialist_category_id:14 },
+      { achievement_key:'specialist_temperature_t2',     badge_key:'badge_temperature_t2',      name:'Climate Expert',         description:'Master Temperature — 90+ Classic, 1000+ VS, perfect Top 10.',             sort_order:2015, specialist_tier:2, specialist_category_id:15 },
+      { achievement_key:'specialist_rainfall_t2',        badge_key:'badge_rainfall_t2',         name:'Precipitation Expert',   description:'Master Rainfall — 90+ Classic, 1000+ VS, perfect Top 10.',               sort_order:2016, specialist_tier:2, specialist_category_id:16 },
+      { achievement_key:'specialist_tourism_t2',         badge_key:'badge_tourism_t2',          name:'Tourism Expert',         description:'Master Tourism — 90+ Classic, 1000+ VS, perfect Top 10.',                sort_order:2017, specialist_tier:2, specialist_category_id:17 },
+      { achievement_key:'specialist_michelin_t2',        badge_key:'badge_michelin_t2',         name:'Michelin Master',        description:'Master Michelin Stars — 90+ Classic, 1000+ VS, perfect Top 10.',          sort_order:2018, specialist_tier:2, specialist_category_id:18 },
+      { achievement_key:'specialist_bigmac_t2',          badge_key:'badge_bigmac_t2',           name:'Big Mac Economist',      description:'Master Big Mac Index — 90+ Classic, 1000+ VS, perfect Top 10.',           sort_order:2019, specialist_tier:2, specialist_category_id:19 },
+      { achievement_key:'specialist_lifeexpectancy_t2',  badge_key:'badge_lifeexpectancy_t2',   name:'Longevity Expert',       description:'Master Life Expectancy — 90+ Classic, 1000+ VS, perfect Top 10.',         sort_order:2020, specialist_tier:2, specialist_category_id:20 },
+      { achievement_key:'specialist_marriageage_t2',     badge_key:'badge_marriageage_t2',      name:'Marriage Age Analyst',   description:'Master Marriage Age — 90+ Classic, 1000+ VS, perfect Top 10.',            sort_order:2021, specialist_tier:2, specialist_category_id:21 },
+      { achievement_key:'specialist_sexratio_t2',        badge_key:'badge_sexratio_t2',         name:'Demographics Expert',    description:'Master Sex Ratio — 90+ Classic, 1000+ VS, perfect Top 10.',              sort_order:2022, specialist_tier:2, specialist_category_id:22 },
+      { achievement_key:'specialist_tallestbuilding_t2', badge_key:'badge_tallestbuilding_t2',  name:'Architecture Expert',    description:'Master Tallest Buildings — 90+ Classic, 1000+ VS, perfect Top 10.',      sort_order:2023, specialist_tier:2, specialist_category_id:23 },
+      { achievement_key:'specialist_density_t2',         badge_key:'badge_density_t2',          name:'Density Expert',         description:'Master Population Density — 90+ Classic, 1000+ VS, perfect Top 10.',     sort_order:2024, specialist_tier:2, specialist_category_id:24 },
+      { achievement_key:'specialist_carexports_t2',      badge_key:'badge_carexports_t2',       name:'Car Export Expert',      description:'Master Car Exports — 90+ Classic, 1000+ VS, perfect Top 10.',            sort_order:2025, specialist_tier:2, specialist_category_id:25 },
+      { achievement_key:'specialist_militarypersonel_t2',badge_key:'badge_militarypersonel_t2', name:'Military Analyst',       description:'Master Military Personnel — 90+ Classic, 1000+ VS, perfect Top 10.',     sort_order:2026, specialist_tier:2, specialist_category_id:26 },
+      { achievement_key:'specialist_rent_t2',            badge_key:'badge_rent_t2',             name:'Real Estate Expert',     description:'Master Rent Prices — 90+ Classic, 1000+ VS, perfect Top 10.',            sort_order:2027, specialist_tier:2, specialist_category_id:27 },
+      { achievement_key:'specialist_poorestgdp_t2',      badge_key:'badge_poorestgdp_t2',       name:'Development Expert',     description:'Master Poorest GDP — 90+ Classic, 1000+ VS, perfect Top 10.',            sort_order:2028, specialist_tier:2, specialist_category_id:28 },
+      { achievement_key:'specialist_university_t2',      badge_key:'badge_university_t2',       name:'Academic Expert',        description:'Master University Rankings — 90+ Classic, 1000+ VS, perfect Top 10.',    sort_order:2029, specialist_tier:2, specialist_category_id:29 },
+      { achievement_key:'specialist_volcano_t2',         badge_key:'badge_volcano_t2',          name:'Volcanologist',          description:'Master Most Volcanoes — 90+ Classic, 1000+ VS, perfect Top 10.',          sort_order:2030, specialist_tier:2, specialist_category_id:30 },
+      { achievement_key:'specialist_flamingo_t2',        badge_key:'badge_flamingo_t2',         name:'Flamingo Expert',        description:'Master Flamingo Population — 90+ Classic, 1000+ VS, perfect Top 10.',    sort_order:2031, specialist_tier:2, specialist_category_id:31 },
+      { achievement_key:'specialist_disasterrisk_t2',    badge_key:'badge_disasterrisk_t2',     name:'Risk Analyst',           description:'Master Disaster Risk — 90+ Classic, 1000+ VS, perfect Top 10.',          sort_order:2032, specialist_tier:2, specialist_category_id:32 },
+      { achievement_key:'specialist_longestriver_t2',    badge_key:'badge_longestriver_t2',     name:'Hydrologist',            description:'Master Longest Rivers — 90+ Classic, 1000+ VS, perfect Top 10.',         sort_order:2033, specialist_tier:2, specialist_category_id:33 },
+      { achievement_key:'specialist_renewableenergy_t2', badge_key:'badge_renewableenergy_t2',  name:'Energy Expert',          description:'Master Renewable Energy — 90+ Classic, 1000+ VS, perfect Top 10.',       sort_order:2034, specialist_tier:2, specialist_category_id:34 },
+      { achievement_key:'specialist_millionaires_t2',    badge_key:'badge_millionaires_t2',     name:'Wealth Expert',          description:'Master Millionaires — 90+ Classic, 1000+ VS, perfect Top 10.',           sort_order:2035, specialist_tier:2, specialist_category_id:35 },
+      { achievement_key:'specialist_gm_t2',              badge_key:'badge_gm_t2',               name:'Grandmaster Scholar',    description:'Master Grandmasters — 90+ Classic, 1000+ VS, perfect Top 10.',           sort_order:2036, specialist_tier:2, specialist_category_id:36 },
+      { achievement_key:'specialist_f1_t2',              badge_key:'badge_f1_t2',               name:'F1 Historian',           description:'Master F1 Titles — 90+ Classic, 1000+ VS, perfect Top 10.',              sort_order:2037, specialist_tier:2, specialist_category_id:37 },
+    ],
+  };
+
+  const CAT_EMOJI = {
+    bronze:'🥉', silver:'🥈', gold:'🥇', platinum:'💎', specialist:'🌍',
+    mastery:'🏆', streak:'🔥', founding:'🌍', foundational:'🎮',
+    exploration:'🗺️', performance:'⭐',
+  };
+  function tileEmoji(ach) {
+    return (ach.badge_key && BADGE_META[ach.badge_key]?.emoji)
+      || CAT_EMOJI[ach.category]
+      || '🏅';
+  }
+
+  // ── Equipped slots (preserved exactly) ────────────────────────
+  function renderEquippedSlots(equipped) {
+    const container = document.getElementById('equippedSlots');
+    container.querySelectorAll('[data-slot]').forEach(slot => {
+      const slotNum = parseInt(slot.dataset.slot);
+      const entry   = equipped.find(e => e.slot_number === slotNum);
+      if (entry) {
+        const meta   = BADGE_META[entry.badge_key] || { emoji: '🏅', label: entry.badge_key };
+        const visual = meta.img
+          ? `<img class="badge-slot-img" src="${meta.img}" alt="${escHtml(meta.label)}" draggable="false">`
+          : `<span class="badge-slot-emoji">${meta.emoji}</span>`;
+        slot.className = 'badge-slot has-badge';
+        slot.innerHTML = `
+          ${visual}
+          <span class="badge-slot-name">${escHtml(meta.label)}</span>
+          <button class="badge-unequip-btn" data-slot="${slotNum}">Remove</button>`;
+        slot.querySelector('.badge-unequip-btn').addEventListener('click', async () => {
+          const { error } = await supabase.from('user_equipped_badges')
+            .delete().eq('slot_number', slotNum);
+          if (error) { console.warn('⚠️ Unequip failed:', error.message); return; }
+          await refreshAchievements();
+        });
+      } else {
+        slot.className = 'badge-slot';
+        slot.innerHTML = `<span class="badge-slot-empty">—</span>`;
+      }
+    });
+  }
+
+  // ── Equip via RPC (preserved exactly) ─────────────────────────
+  async function doEquip(badgeKey, slot) {
+    const { error } = await supabase.rpc('equip_badge', {
+      p_badge_key: badgeKey, p_slot_number: slot
+    });
+    if (error) {
+      console.warn('⚠️ Equip failed:', error.message);
+      alert('Could not equip badge. Please try again.');
+      return;
+    }
+    await refreshAchievements();
+  }
+
+  // ── Badge Collection renderer ──────────────────────────────────
+  function renderBadgeCollection(userAchs, allAchs, equipped) {
+    _unlockedKeys      = new Set(userAchs.map(a => a.achievement_key));
+    const unlockedKeys = _unlockedKeys;
+    const equippedKeys = new Set(equipped.map(e => e.badge_key));
+
+    // Catalogue-driven count: all 102 entries regardless of DB state
+    const dbMap = new Map(allAchs.map(a => [a.achievement_key, a]));
+    let totalEarned = 0;
+    let totalPossible = 0;
+    SECTIONS.forEach(sec => {
+      const cat = BADGE_CATALOG[sec.key] || [];
+      totalPossible += cat.length;
+      totalEarned   += cat.filter(e => unlockedKeys.has(e.achievement_key)).length;
+    });
+    document.getElementById('bcCount').textContent =
+      `Collected: ${totalEarned} / ${totalPossible}`;
+
+    const container = document.getElementById('bcSections');
+    container.innerHTML = '';
+
+    SECTIONS.forEach(section => {
+      const catalogue = BADGE_CATALOG[section.key];
+      if (!catalogue?.length) return;
+
+      // Real DB row wins; missing entry → catalogue placeholder (always locked).
+      // specialist_tier and specialist_category_id fall back to catalogue values when
+      // the DB row has nulls (pre-deployment rows that predate the specialist columns).
+      const sectionAchs = catalogue.map(entry => {
+        const dbRow = dbMap.get(entry.achievement_key);
+        if (!dbRow) return { ...entry, is_badge_reward: false, is_active: true };
+        return {
+          ...entry,
+          ...dbRow,
+          specialist_tier:        dbRow.specialist_tier        ?? entry.specialist_tier,
+          specialist_category_id: dbRow.specialist_category_id ?? entry.specialist_category_id,
+        };
+      });
+
+      const total  = sectionAchs.length;
+      const earned = sectionAchs.filter(a => unlockedKeys.has(a.achievement_key)).length;
+
+      const wrap = document.createElement('div');
+      const isSpecialist = section.key === 'specialist';
+      wrap.className = `bc-section${isSpecialist ? ' bc-collapsed' : ''}`;
+
+      const hdr = document.createElement('button');
+      hdr.className = 'bc-section-header';
+      hdr.setAttribute('aria-expanded', String(!isSpecialist));
+      hdr.innerHTML = `
+        <span class="bc-section-label">
+          <span class="bc-section-emoji">${section.emoji}</span>
+          <span class="bc-section-name">${section.label}</span>
+          <span class="bc-section-progress">${earned} / ${total}</span>
+        </span>
+        <span class="bc-section-chevron" aria-hidden="true">▾</span>`;
+      hdr.addEventListener('click', () => {
+        const collapsed = wrap.classList.toggle('bc-collapsed');
+        hdr.setAttribute('aria-expanded', String(!collapsed));
+      });
+
+      const makeTile = (ach) => {
+        const isUnlocked = unlockedKeys.has(ach.achievement_key);
+        const isEquipped = !!ach.badge_key && equippedKeys.has(ach.badge_key);
+        const meta       = ach.badge_key ? BADGE_META[ach.badge_key] : null;
+        const tile = document.createElement('button');
+        tile.className = `bc-tile${isUnlocked ? ' bc-unlocked' : ' bc-locked'}${isEquipped ? ' bc-equipped' : ''}`;
+        tile.setAttribute('aria-label', ach.name);
+        if (meta?.img) {
+          tile.innerHTML = `
+            <img class="bc-tile-img" src="${meta.img}" alt="${escHtml(ach.name)}" draggable="false"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+            <span class="bc-tile-emoji" style="display:none">${meta.emoji || tileEmoji(ach)}</span>`;
+        } else {
+          tile.innerHTML = `<span class="bc-tile-emoji">${tileEmoji(ach)}</span>`;
+        }
+        if (isEquipped) {
+          const pip = document.createElement('span');
+          pip.className = 'bc-equipped-pip';
+          tile.appendChild(pip);
+        }
+        tile.addEventListener('click', () =>
+          openBadgeModal(ach, isUnlocked, isEquipped, equipped)
+        );
+        return tile;
+      };
+
+      wrap.appendChild(hdr);
+
+      if (isSpecialist) {
+        const t1 = sectionAchs.filter(a => a.specialist_tier === 1);
+        const t2 = sectionAchs.filter(a => a.specialist_tier === 2);
+        const makeGroup = (label, desc, achs) => {
+          const group = document.createElement('div');
+          group.className = 'bc-tier-group';
+          const ghdr = document.createElement('div');
+          ghdr.className = 'bc-tier-group-header';
+          ghdr.innerHTML = `${label}<span>${desc}</span>`;
+          const ggrid = document.createElement('div');
+          ggrid.className = 'bc-grid';
+          achs.forEach(ach => ggrid.appendChild(makeTile(ach)));
+          group.appendChild(ghdr);
+          group.appendChild(ggrid);
+          return group;
+        };
+        wrap.appendChild(makeGroup('Tier I — Participation', 'Play in Classic, VS, and Top 10', t1));
+        wrap.appendChild(makeGroup('Tier II — Mastery', '90+ Classic · 1000+ VS · Perfect Top 10', t2));
+      } else {
+        const grid = document.createElement('div');
+        grid.className = 'bc-grid';
+        sectionAchs.forEach(ach => grid.appendChild(makeTile(ach)));
+        wrap.appendChild(grid);
+      }
+
+      container.appendChild(wrap);
+    });
+  }
+
+  // ── Badge modal ────────────────────────────────────────────────
+  let _modalBackdrop = null;
+  let _modalEl       = null;
+
+  function openBadgeModal(ach, isUnlocked, isEquipped, equipped) {
+    closeBadgeModal();
+
+    const meta = (ach.badge_key && BADGE_META[ach.badge_key]) || null;
+
+    const visualHtml = meta?.img
+      ? `<img class="bc-modal-img" src="${meta.img}" alt="${escHtml(ach.name)}"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+         <span class="bc-modal-emoji" style="display:none">${meta.emoji || tileEmoji(ach)}</span>`
+      : `<span class="bc-modal-emoji">${tileEmoji(ach)}</span>`;
+    const visualClass = `bc-modal-visual${meta?.img ? '' : ' bc-modal-visual-emoji'}`;
+
+    const statusHtml = isUnlocked
+      ? `<span class="bc-modal-status bc-status-unlocked">✓ Unlocked</span>`
+      : `<span class="bc-modal-status bc-status-locked">🔒 Locked</span>`;
+
+    let equipHtml = '';
+    if (isUnlocked && ach.badge_key) {
+      if (isEquipped) {
+        const slotNum = equipped.find(e => e.badge_key === ach.badge_key)?.slot_number;
+        equipHtml = `
+          <p class="bc-modal-equipped-note">Equipped in slot ${slotNum ?? '?'} ✓</p>
+          <button class="bc-modal-equip-btn bc-equip-change" id="_bcEquipBtn">Change Slot</button>`;
+      } else {
+        equipHtml = `<button class="bc-modal-equip-btn" id="_bcEquipBtn">Equip Badge</button>`;
+      }
+    }
+
+    const reqsInner = buildRequirementsHtml(ach);
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'bc-modal-backdrop';
+    backdrop.addEventListener('click', e => { if (e.target === backdrop) closeBadgeModal(); });
+
+    const modal = document.createElement('div');
+    modal.className = 'bc-modal';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', ach.name);
+    modal.innerHTML = `
+      <button class="bc-modal-close" id="_bcClose" aria-label="Close">×</button>
+      <div class="${visualClass}">${visualHtml}</div>
+      <h3 class="bc-modal-name">${escHtml(ach.name)}</h3>
+      <p class="bc-modal-desc">${escHtml(ach.description)}</p>
+      ${reqsInner ? `<div class="bc-req-list" id="_bcReqs">${reqsInner}</div>` : ''}
+      <div class="bc-modal-footer">
+        ${statusHtml}
+        ${equipHtml}
+        <div id="_bcSlotPicker" style="display:none; width:100%;">
+          <p class="bc-slot-label">Choose a slot:</p>
+          <div class="bc-slot-btns">
+            <button class="bc-slot-btn" data-slot="1">Slot 1</button>
+            <button class="bc-slot-btn" data-slot="2">Slot 2</button>
+            <button class="bc-slot-btn" data-slot="3">Slot 3</button>
+          </div>
+        </div>
+      </div>`;
+
+    document.body.appendChild(backdrop);
+    document.body.appendChild(modal);
+    _modalBackdrop = backdrop;
+    _modalEl       = modal;
+
+    requestAnimationFrame(() => {
+      backdrop.classList.add('bc-modal-visible');
+      modal.classList.add('bc-modal-visible');
+    });
+
+    modal.querySelector('#_bcClose').addEventListener('click', closeBadgeModal);
+    modal.querySelector('#_bcClose').focus();
+
+    const equipBtn = modal.querySelector('#_bcEquipBtn');
+    if (equipBtn) {
+      equipBtn.addEventListener('click', () => {
+        modal.querySelector('#_bcSlotPicker').style.display = '';
+        equipBtn.style.display = 'none';
+      });
+    }
+
+    modal.querySelectorAll('.bc-slot-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        closeBadgeModal();
+        await doEquip(ach.badge_key, parseInt(btn.dataset.slot));
+      });
+    });
+
+    if (ach.specialist_tier && ach.specialist_category_id && _session) {
+      loadSpecialistProgress(ach, modal);
+    } else if (_session) {
+      loadBadgeProgress(ach, modal);
+    }
+  }
+
+  function closeBadgeModal() {
+    const bd = _modalBackdrop;
+    const md = _modalEl;
+    _modalBackdrop = null;
+    _modalEl       = null;
+    if (!bd && !md) return;
+    bd?.classList.remove('bc-modal-visible');
+    md?.classList.remove('bc-modal-visible');
+    setTimeout(() => { bd?.remove(); md?.remove(); }, 260);
+  }
+
+  // ── Requirements HTML ──────────────────────────────────────────
+  function buildRequirementsHtml(ach) {
+    if (ach.specialist_tier === 1) return `
+      <div class="bc-req-item bc-req-pending" id="_bcReqClassic">⬜ Played in Classic</div>
+      <div class="bc-req-item bc-req-pending" id="_bcReqVS">⬜ Played in VS Mode</div>
+      <div class="bc-req-item bc-req-pending" id="_bcReqTop10">⬜ Played in Top 10</div>`;
+    if (ach.specialist_tier === 2) return `
+      <div class="bc-req-item bc-req-pending" id="_bcReqClassic">⬜ Classic score ≥ 90</div>
+      <div class="bc-req-item bc-req-pending" id="_bcReqVS">⬜ VS score ≥ 1000</div>
+      <div class="bc-req-item bc-req-pending" id="_bcReqTop10">⬜ Perfect Top 10 board</div>`;
+    // Non-specialist badges: render one loading row filled by loadBadgeProgress.
+    const progressable = new Set([
+      'bronze_first_steps','bronze_getting_started','bronze_streak_starter',
+      'bronze_fresh_face','bronze_explorer','bronze_first_blood',
+      'bronze_perfectionist','bronze_daily_debut',
+      'silver_daily_warrior','silver_quarter_century','silver_world_traveller',
+      'silver_geodex_initiate','silver_duel_veteran','silver_streak_keeper',
+      'silver_top10_challenger','streak_30',
+      'gold_centurion','gold_geography_scholar','gold_duel_master',
+      'gold_precision_master','gold_game_mode_master',
+      'founding_explorer','platinum_georanks_legend','platinum_geodex_completionist',
+    ]);
+    if (progressable.has(ach.achievement_key)) {
+      return `<div class="bc-req-item bc-req-pending" id="_bcReqProgress">⬜ &thinsp;Loading…</div>`;
+    }
+    return '';
+  }
+
+  // ── Live per-requirement progress (specialist only) ────────────
+  async function loadSpecialistProgress(ach, modal) {
+    const uid   = _session.user.id;
+    const catId = ach.specialist_category_id;
+    try {
+      if (ach.specialist_tier === 1) {
+        const [cRes, vRes, tRes] = await Promise.all([
+          supabase.from('category_scores').select('category_id').eq('user_id', uid).eq('category_id', catId).limit(1),
+          supabase.from('vs_scores').select('category_id').eq('user_id', uid).eq('category_id', catId).limit(1),
+          supabase.from('top10_best_scores').select('category_id').eq('user_id', uid).eq('category_id', catId).limit(1),
+        ]);
+        setReq(modal, '_bcReqClassic', (cRes.data?.length ?? 0) > 0, 'Played in Classic');
+        setReq(modal, '_bcReqVS',      (vRes.data?.length ?? 0) > 0, 'Played in VS Mode');
+        setReq(modal, '_bcReqTop10',   (tRes.data?.length ?? 0) > 0, 'Played in Top 10');
+      } else if (ach.specialist_tier === 2) {
+        const [cRes, vRes, tRes] = await Promise.all([
+          supabase.from('category_scores').select('score').eq('user_id', uid).eq('category_id', catId).order('score', { ascending: false }).limit(1),
+          supabase.from('vs_scores').select('score').eq('user_id', uid).eq('category_id', catId).order('score', { ascending: false }).limit(1),
+          supabase.from('top10_best_scores').select('correct_count,playable_count').eq('user_id', uid).eq('category_id', catId),
+        ]);
+        const cOk = (cRes.data?.[0]?.score ?? 0) >= 90;
+        const vOk = (vRes.data?.[0]?.score ?? 0) >= 1000;
+        const tOk = (tRes.data ?? []).some(r => r.correct_count === (r.playable_count ?? 10));
+        setReq(modal, '_bcReqClassic', cOk, 'Classic score ≥ 90');
+        setReq(modal, '_bcReqVS',      vOk, 'VS score ≥ 1000');
+        setReq(modal, '_bcReqTop10',   tOk, 'Perfect Top 10 board');
+      }
+    } catch (e) {
+      console.warn('Progress load failed:', e);
+    }
+  }
+
+  function setReq(modal, id, met, label) {
+    const el = modal?.querySelector(`#${id}`);
+    if (!el) return;
+    el.textContent = (met ? '✓ ' : '⬜ ') + label;
+    el.className   = `bc-req-item ${met ? 'bc-req-met' : 'bc-req-pending'}`;
+  }
+
+  // ── All T1 specialist achievement keys (for geodex_initiate / geodex_completionist) ──
+  const SPEC_T1_KEYS = new Set([
+    'specialist_population_t1','specialist_altitude_t1','specialist_gdp_t1',
+    'specialist_happiness_t1','specialist_forest_t1','specialist_coastline_t1',
+    'specialist_cuisine_t1','specialist_olympic_t1','specialist_worldcup_t1',
+    'specialist_landmass_t1','specialist_crimerate_t1','specialist_passport_t1',
+    'specialist_beer_t1','specialist_nobelprize_t1','specialist_temperature_t1',
+    'specialist_rainfall_t1','specialist_tourism_t1','specialist_michelin_t1',
+    'specialist_bigmac_t1','specialist_lifeexpectancy_t1','specialist_marriageage_t1',
+    'specialist_sexratio_t1','specialist_tallestbuilding_t1','specialist_density_t1',
+    'specialist_carexports_t1','specialist_militarypersonel_t1','specialist_rent_t1',
+    'specialist_poorestgdp_t1','specialist_university_t1','specialist_volcano_t1',
+    'specialist_flamingo_t1','specialist_disasterrisk_t1','specialist_longestriver_t1',
+    'specialist_renewableenergy_t1','specialist_millionaires_t1','specialist_gm_t1',
+    'specialist_f1_t1',
+  ]);
+
+  // ── All T2 specialist achievement keys (for geography_scholar) ──
+  const SPEC_T2_KEYS = new Set([
+    'population_expert','gdp_master',
+    'specialist_altitude_t2','specialist_happiness_t2','specialist_forest_t2',
+    'specialist_coastline_t2','specialist_cuisine_t2','specialist_olympic_t2',
+    'specialist_worldcup_t2','specialist_landmass_t2','specialist_crimerate_t2',
+    'specialist_passport_t2','specialist_beer_t2','specialist_nobelprize_t2',
+    'specialist_temperature_t2','specialist_rainfall_t2','specialist_tourism_t2',
+    'specialist_michelin_t2','specialist_bigmac_t2','specialist_lifeexpectancy_t2',
+    'specialist_marriageage_t2','specialist_sexratio_t2','specialist_tallestbuilding_t2',
+    'specialist_density_t2','specialist_carexports_t2','specialist_militarypersonel_t2',
+    'specialist_rent_t2','specialist_poorestgdp_t2','specialist_university_t2',
+    'specialist_volcano_t2','specialist_flamingo_t2','specialist_disasterrisk_t2',
+    'specialist_longestriver_t2','specialist_renewableenergy_t2',
+    'specialist_millionaires_t2','specialist_gm_t2','specialist_f1_t2',
+  ]);
+
+  // ── Live progress for all non-specialist badges ────────────────
+  async function loadBadgeProgress(ach, modal) {
+    if (!_session) return;
+    const uid = _session.user.id;
+    const key = ach.achievement_key;
+
+    const setProgress = (met, text) => {
+      const el = modal.querySelector('#_bcReqProgress');
+      if (!el) return;
+      el.textContent = (met ? '✓ ' : '⬜ ') + text;
+      el.className   = `bc-req-item ${met ? 'bc-req-met' : 'bc-req-pending'}`;
+    };
+
+    try {
+      // ── Streak-based ──────────────────────────────────────────────
+      if (key === 'bronze_streak_starter' || key === 'silver_streak_keeper' || key === 'streak_30') {
+        const target = key === 'bronze_streak_starter' ? 3 : key === 'silver_streak_keeper' ? 14 : 30;
+        const { data } = await supabase.from('user_streaks')
+          .select('current_streak,longest_streak').eq('user_id', uid).maybeSingle();
+        const cur  = data?.current_streak ?? 0;
+        const best = data?.longest_streak  ?? 0;
+        const val  = Math.max(cur, best);
+        setProgress(val >= target, `${val} / ${target} day streak  (current: ${cur}, best: ${best})`);
+        return;
+      }
+
+      // ── Daily challenge count ─────────────────────────────────────
+      if (key === 'bronze_daily_debut' || key === 'silver_daily_warrior') {
+        const target = key === 'bronze_daily_debut' ? 1 : 10;
+        const { count } = await supabase.from('daily_challenge_scores')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', uid).eq('completed', true);
+        const n = count ?? 0;
+        if (key === 'bronze_daily_debut') {
+          setProgress(n >= 1, n >= 1 ? 'First daily challenge completed' : 'Complete your first Daily Challenge');
+        } else {
+          setProgress(n >= 10, `${n} / 10 daily challenges completed`);
+        }
+        return;
+      }
+
+      // ── Total game count ──────────────────────────────────────────
+      // Mirrors evaluate_and_award_achievements(): GREATEST(live game_sessions
+      // count, historical lower-bound sum across legacy best-score tables).
+      // Keeps the modal in sync with what actually unlocked the badge — a
+      // user can be shown e.g. "0 / 100" while the badge sits unlocked if
+      // this only reads game_sessions (which is empty for retroactive awards).
+      if (['bronze_first_steps','bronze_getting_started','silver_quarter_century',
+           'gold_centurion','platinum_georanks_legend'].includes(key)) {
+        const targets = {
+          bronze_first_steps: 1, bronze_getting_started: 5,
+          silver_quarter_century: 25, gold_centurion: 100, platinum_georanks_legend: 500,
+        };
+        const target = targets[key];
+        const [sessRes, catRes, t10Res, vsRes, dailyRes, h2hRes] = await Promise.all([
+          supabase.from('game_sessions').select('id', { count: 'exact', head: true }).eq('user_id', uid),
+          supabase.from('category_scores').select('id', { count: 'exact', head: true }).eq('user_id', uid),
+          supabase.from('top10_best_scores').select('id', { count: 'exact', head: true }).eq('user_id', uid),
+          supabase.from('vs_scores').select('id', { count: 'exact', head: true }).eq('user_id', uid),
+          supabase.from('daily_challenge_scores').select('id', { count: 'exact', head: true }).eq('user_id', uid).eq('completed', true),
+          supabase.from('h2h_results').select('id', { count: 'exact', head: true }).eq('user_id', uid),
+        ]);
+        const live = sessRes.count ?? 0;
+        const historical = (catRes.count ?? 0) + (t10Res.count ?? 0) + (vsRes.count ?? 0)
+                         + (dailyRes.count ?? 0) + (h2hRes.count ?? 0);
+        const n = Math.max(live, historical);
+        if (key === 'bronze_first_steps') {
+          setProgress(n >= 1, n >= 1 ? 'First game completed' : 'Complete your first game');
+        } else {
+          setProgress(n >= target, `${n} / ${target} games played`);
+        }
+        return;
+      }
+
+      // ── Duel count ────────────────────────────────────────────────
+      // Mirrors evaluate_and_award_achievements(): GREATEST(live game_sessions
+      // duel count, h2h_results count — one row per finished duel per user).
+      if (key === 'bronze_first_blood' || key === 'silver_duel_veteran' || key === 'gold_duel_master') {
+        const targets = { bronze_first_blood: 1, silver_duel_veteran: 10, gold_duel_master: 50 };
+        const target = targets[key];
+        const [sessRes, h2hRes] = await Promise.all([
+          supabase.from('game_sessions').select('id', { count: 'exact', head: true })
+            .eq('user_id', uid).eq('game_mode', 'duel'),
+          supabase.from('h2h_results').select('id', { count: 'exact', head: true }).eq('user_id', uid),
+        ]);
+        const n = Math.max(sessRes.count ?? 0, h2hRes.count ?? 0);
+        if (key === 'bronze_first_blood') {
+          setProgress(n >= 1, n >= 1 ? 'First duel played' : 'Play your first Duel');
+        } else {
+          setProgress(n >= target, `${n} / ${target} duels played`);
+        }
+        return;
+      }
+
+      // ── GeoDex badges — Tier I specialist count ──────────────────
+      if (key === 'silver_geodex_initiate') {
+        const n = [..._unlockedKeys].filter(k => SPEC_T1_KEYS.has(k)).length;
+        setProgress(n >= 10, `${n} / 10 Tier I specialist badges`);
+        return;
+      }
+
+      // ── Cross-mode category count ─────────────────────────────────
+      if (key === 'bronze_explorer' || key === 'silver_world_traveller') {
+        const targets = { bronze_explorer: 3, silver_world_traveller: 15 };
+        const target = targets[key];
+        const [cRes, t10Res, vsRes, dailyRes] = await Promise.all([
+          supabase.from('category_scores').select('category_id').eq('user_id', uid),
+          supabase.from('top10_best_scores').select('category_id').eq('user_id', uid),
+          supabase.from('vs_scores').select('category_id').eq('user_id', uid),
+          supabase.from('daily_challenge_scores').select('category_id').eq('user_id', uid).eq('completed', true),
+        ]);
+        const cats = new Set([
+          ...(cRes.data   || []).map(r => r.category_id),
+          ...(t10Res.data || []).map(r => r.category_id),
+          ...(vsRes.data  || []).map(r => r.category_id),
+          ...(dailyRes.data || []).map(r => r.category_id),
+        ]);
+        setProgress(cats.size >= target, `${cats.size} / ${target} categories played`);
+        return;
+      }
+
+      // ── Fresh Face — avatar check ──────────────────────────────────
+      if (key === 'bronze_fresh_face') {
+        const { data } = await supabase.from('users').select('avatar_url').eq('id', uid).single();
+        const url = data?.avatar_url ?? '';
+        const has = url.trim() !== '' && !url.toLowerCase().includes('profile-icon.jpg');
+        setProgress(has, has ? 'Profile photo uploaded' : 'Upload a profile photo');
+        return;
+      }
+
+      // ── Precision Master — any perfect score ──────────────────────
+      if (key === 'bronze_perfectionist') {
+        const [cRes, gsRes, t10Res] = await Promise.all([
+          supabase.from('category_scores').select('id').eq('user_id', uid).eq('score', 100).limit(1),
+          supabase.from('game_sessions').select('id').eq('user_id', uid).eq('game_mode', 'classic').eq('score', 100).limit(1),
+          supabase.from('top10_best_scores').select('id').eq('user_id', uid).gte('correct_count', 10).limit(1),
+        ]);
+        const has = (cRes.data?.length > 0) || (gsRes.data?.length > 0) || (t10Res.data?.length > 0);
+        setProgress(has, has ? 'Perfect score achieved' : 'Achieve a perfect score in any mode');
+        return;
+      }
+
+      // ── Top 10 Challenger — distinct perfect-board categories ─────
+      // Mirrors RPC: correct_count = COALESCE(playable_count, 10)
+      if (key === 'silver_top10_challenger') {
+        const { data } = await supabase.from('top10_best_scores')
+          .select('category_id,correct_count,playable_count').eq('user_id', uid);
+        const cats = new Set(
+          (data || [])
+            .filter(r => r.correct_count === (r.playable_count ?? 10))
+            .map(r => r.category_id)
+        );
+        setProgress(cats.size >= 10, `${cats.size} / 10 categories with a perfect Top 10`);
+        return;
+      }
+
+      // ── Founding Explorer — session created_at check ──────────────
+      if (key === 'founding_explorer') {
+        const CUTOFF   = '2026-05-23T00:00:00.000Z';
+        const created  = _session.user.created_at;
+        const isFounder = created && new Date(created) < new Date(CUTOFF);
+        setProgress(isFounder, isFounder ? 'Founding Explorer status confirmed' : 'Account must be created before 23 May 2026');
+        return;
+      }
+
+      // ── Geography Scholar — T2 specialist badge count ─────────────
+      if (key === 'gold_geography_scholar') {
+        const n = [..._unlockedKeys].filter(k => SPEC_T2_KEYS.has(k)).length;
+        setProgress(n >= 5, `${n} / 5 Tier II specialist badges`);
+        return;
+      }
+
+      // ── GeoDex Completionist — full T1 count ─────────────────────
+      if (key === 'platinum_geodex_completionist') {
+        const n = [..._unlockedKeys].filter(k => SPEC_T1_KEYS.has(k)).length;
+        setProgress(n >= 37, `${n} / 37 Tier I specialist badges`);
+        return;
+      }
+
+      // ── Perfectionist (Gold) — (category, mode) perfect pairs ────
+      // Mirrors RPC: correct_count = COALESCE(playable_count, 10) for Top 10 perfects.
+      if (key === 'gold_precision_master') {
+        const [cRes, gsRes, t10Res] = await Promise.all([
+          supabase.from('category_scores').select('category_id').eq('user_id', uid).eq('score', 100),
+          supabase.from('game_sessions').select('category_id').eq('user_id', uid)
+            .eq('game_mode', 'classic').eq('score', 100).not('category_id', 'is', null),
+          supabase.from('top10_best_scores').select('category_id,correct_count,playable_count').eq('user_id', uid),
+        ]);
+        const classicCats = new Set([
+          ...(cRes.data  || []).map(r => r.category_id),
+          ...(gsRes.data || []).map(r => r.category_id),
+        ]);
+        const top10Cats = new Set(
+          (t10Res.data || [])
+            .filter(r => r.correct_count === (r.playable_count ?? 10))
+            .map(r => r.category_id)
+        );
+        const total = classicCats.size + top10Cats.size;
+        setProgress(total >= 20, `${total} / 20 perfect results across Classic & Top 10`);
+        return;
+      }
+
+      // ── Game Mode Master — categories in Classic + VS + Top 10 ────
+      if (key === 'gold_game_mode_master') {
+        const [cRes, vsRes, t10Res, gsRes] = await Promise.all([
+          supabase.from('category_scores').select('category_id').eq('user_id', uid),
+          supabase.from('vs_scores').select('category_id').eq('user_id', uid),
+          supabase.from('top10_best_scores').select('category_id').eq('user_id', uid),
+          supabase.from('game_sessions').select('category_id').eq('user_id', uid)
+            .eq('game_mode', 'classic').not('category_id', 'is', null),
+        ]);
+        const classicCats = new Set([
+          ...(cRes.data  || []).map(r => r.category_id),
+          ...(gsRes.data || []).map(r => r.category_id),
+        ]);
+        const vsCats  = new Set((vsRes.data  || []).map(r => r.category_id));
+        const t10Cats = new Set((t10Res.data || []).map(r => r.category_id));
+        let n = 0;
+        classicCats.forEach(id => { if (vsCats.has(id) && t10Cats.has(id)) n++; });
+        setProgress(n >= 5, `${n} / 5 categories across Classic, VS & Top 10`);
+        return;
+      }
+
+    } catch (e) {
+      console.warn('Badge progress load failed for', key, ':', e);
+    }
+  }
+
+  // ── Data loading ───────────────────────────────────────────────
+  let _session      = null;
+  let _unlockedKeys = new Set(); // synced each render; read by loadBadgeProgress
+
+  async function refreshAchievements() {
+    if (!_session) return;
+    const [{ data: userAchs }, { data: equipped }, { data: allAchs }] = await Promise.all([
+      supabase.from('user_achievements').select('achievement_key').eq('user_id', _session.user.id),
+      supabase.from('user_equipped_badges').select('slot_number, badge_key').eq('user_id', _session.user.id).order('slot_number'),
+      supabase.from('achievements').select('*').eq('is_active', true).order('sort_order'),
+    ]);
+    renderEquippedSlots(equipped || []);
+    renderBadgeCollection(userAchs || [], allAchs || [], equipped || []);
+  }
+
+  (async () => {
+    const { data: { session } } = await getSessionSafe(5000);
+    if (!session?.user) return;
+    _session = session;
+
+    await evaluateAchievements(supabase, session);
+
+    document.getElementById('achLoading').style.display = 'none';
+    await refreshAchievements();
+
+    if (window.location.hash === '#badges') {
+      document.getElementById('badges')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  })();
+</script>
+
+<!-- ── GeoDex — Category Completion Tracker ──────────────────── -->
+<script type="module">
+  import { supabase, getSessionSafe } from './js/supabase-client.js';
+  import { categoriesConfig, CATEGORY_ID_MAP } from './js/categories-config.js';
+
+  // ---------------------------------------------------------------------------
+  // Build canonical category list — 37 unique categories, no alias duplicates.
+  // Aliases (temperature/hightemp → 15, rainfall/precipitation → 16) are
+  // collapsed to the first occurrence in CATEGORY_ID_MAP insertion order.
+  // ---------------------------------------------------------------------------
+  const seenIds = new Set();
+  const CANONICAL = [];
+  for (const [key, id] of Object.entries(CATEGORY_ID_MAP)) {
+    if (seenIds.has(id)) continue;
+    seenIds.add(id);
+    const cfg = categoriesConfig[key];
+    if (!cfg) continue;
+    CANONICAL.push({ key, id, title: cfg.title, emoji: cfg.emoji, premium: cfg.premium, image: cfg.image });
+  }
+  CANONICAL.sort((a, b) => a.id - b.id);
+  const TOTAL = CANONICAL.length; // 37
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // catData: categoryId → { classic?: { score }, top10?: { score, correct }, vs?: { correct } }
+  let catData = {};
+  let _filter = 'all';
+
+  // T2 mastery thresholds — mirrors SPEC_CLASSIC / SPEC_VS_SCORE constants in the RPC.
+  const T2_CLASSIC  = 90;
+  const T2_VS_SCORE = 1000; // correct_count × 100 pts per VS session
+
+  function modesPlayed(d) {
+    if (!d) return 0;
+    return (d.classic ? 1 : 0) + (d.vs ? 1 : 0) + (d.top10 ? 1 : 0);
+  }
+
+  // Derives Tier I (participation) and Tier II (mastery) status from catData,
+  // mirroring the thresholds used by evaluate_and_award_achievements().
+  function tierStatus(d) {
+    const cScore   = d?.classic?.score ?? null;
+    const vCorrect = d?.vs?.correct ?? null;
+    const vScore   = vCorrect !== null ? vCorrect * 100 : null;
+    const tCorrect = d?.top10?.correct ?? null;
+
+    const cMet = cScore   !== null && cScore   >= T2_CLASSIC;
+    const vMet = vScore   !== null && vScore   >= T2_VS_SCORE;
+    const tMet = tCorrect !== null && tCorrect >= 10;
+
+    const t1 = modesPlayed(d) === 3;
+    const t2 = cMet && vMet && tMet;
+    const t2Count = (cMet ? 1 : 0) + (vMet ? 1 : 0) + (tMet ? 1 : 0);
+
+    return { t1, t2, t2Count, cMet, vMet, tMet };
+  }
+
+  function renderGeoDex() {
+    const playedCount = CANONICAL.filter(c => catData[c.id]).length;
+
+    document.getElementById('gdxCount').textContent = playedCount;
+    document.getElementById('gdxTotal').textContent = `/ ${TOTAL} categories`;
+    requestAnimationFrame(() => {
+      document.getElementById('gdxBarFill').style.width =
+        `${Math.round((playedCount / TOTAL) * 100)}%`;
+    });
+
+    let cats = CANONICAL;
+    if (_filter === 'played')   cats = CANONICAL.filter(c =>  catData[c.id]);
+    if (_filter === 'unplayed') cats = CANONICAL.filter(c => !catData[c.id]);
+
+    const grid = document.getElementById('gdxList');
+
+    if (!cats.length) {
+      const msg = _filter === 'played'
+        ? 'No categories played yet. Start a game!'
+        : 'All categories played — impressive!';
+      grid.innerHTML = `<div class="gdx-empty">${msg}</div>`;
+      return;
+    }
+
+    grid.innerHTML = cats.map(cat => {
+      const d = catData[cat.id];
+      const n = modesPlayed(d);
+      const { t1, t2 } = tierStatus(d);
+
+      const cls = n === 0 ? 'gdx-card--none'
+                : t2       ? 'gdx-card--t2'
+                : t1       ? 'gdx-card--t1'
+                :            'gdx-card--partial';
+
+      const bgUrl = cat.image ? `images/categories/${cat.image}` : '';
+
+      return `
+        <div class="gdx-card ${cls}" data-cat-id="${cat.id}" role="button" tabindex="0" aria-label="${escHtml(cat.title)}">
+          <div class="gdx-card-bg"${bgUrl ? ` style="background-image:url('${bgUrl}')"` : ''}></div>
+          <div class="gdx-card-overlay"></div>
+          <span class="gdx-card-icon">${cat.emoji}</span>
+          <div class="gdx-card-content">
+            <p class="gdx-card-name">${escHtml(cat.title)}</p>
+            <div class="gdx-card-tiers">
+              <span class="gdx-tier-pill gdx-tier-pill--t1${t1 ? ' gdx-tier-pill--on' : ''}">T1 ${t1 ? '✓' : ''}</span>
+              <span class="gdx-tier-pill gdx-tier-pill--t2${t2 ? ' gdx-tier-pill--on' : ''}">T2 ${t2 ? '✓' : ''}</span>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+
+    grid.querySelectorAll('.gdx-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const id  = parseInt(card.dataset.catId, 10);
+        const cat = CANONICAL.find(c => c.id === id);
+        if (cat) openGdxModal(cat, catData[id] ?? null);
+      });
+      card.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
+      });
+    });
+  }
+
+  let _gdxModalEl = null;
+
+  function closeGdxModal() {
+    if (_gdxModalEl) { _gdxModalEl.remove(); _gdxModalEl = null; }
+  }
+
+  function openGdxModal(cat, d) {
+    closeGdxModal();
+
+    const n = modesPlayed(d);
+    const { t1, t2, t2Count, cMet, vMet, tMet } = tierStatus(d);
+
+    // Classic
+    const cScore   = d?.classic?.score ?? null;
+    const cVal     = cScore !== null ? `${cScore} pts` : '—';
+    const cReq     = cMet ? '✓ 90+ pts' : '90+ pts for T2';
+
+    // VS (stored as correct_count; score = correct × 100)
+    const vCorrect = d?.vs?.correct ?? null;
+    const vScore   = vCorrect !== null ? vCorrect * 100 : null;
+    const vVal     = vScore !== null ? `${vScore.toLocaleString()} pts` : '—';
+    const vReq     = vMet ? '✓ 1,000+ pts' : '1,000+ pts for T2';
+
+    // Top 10 (perfect board = correct_count ≥ 10, mirrors RPC's COALESCE(playable_count,10))
+    const tCorrect = d?.top10?.correct ?? null;
+    const tVal     = tCorrect !== null ? `${tCorrect}/10` : '—';
+    const tReq     = tMet ? '✓ Perfect board' : 'Perfect board for T2';
+
+    const t1Cls  = t1 ? 'gdx-modal-tier--done' : n > 0 ? 'gdx-modal-tier--progress' : 'gdx-modal-tier--locked';
+    const t1Icon = t1 ? '✓' : n > 0 ? `${n}/3` : '⚪';
+    const t1Name = t1 ? 'T1 Complete' : n > 0 ? 'T1 In Progress' : 'T1 Not Started';
+    const t1Desc = t1 ? 'All three game modes played'
+                 : n > 0 ? `${n}/3 game modes played`
+                 :         'Play this category in Classic, VS, and Top 10';
+
+    const t2Cls  = t2 ? 'gdx-modal-tier--done' : t2Count > 0 ? 'gdx-modal-tier--progress' : 'gdx-modal-tier--locked';
+    const t2Icon = t2 ? '✓' : t2Count > 0 ? `${t2Count}/3` : '⚪';
+    const t2Name = t2 ? 'T2 Complete' : t2Count > 0 ? 'T2 In Progress' : 'T2 Locked';
+    const t2Desc = t2 ? 'Mastery thresholds met in all three modes'
+                 : t2Count > 0 ? `${t2Count}/3 mastery requirements met`
+                 :               '90+ Classic · 1,000+ VS · Perfect Top 10';
+
+    const rowHtml = (mode, val, valMet, req, reqMet) => `
+      <div class="gdx-modal-row${valMet ? ' gdx-modal-row--met' : ''}">
+        <span class="gdx-modal-mode">${mode}</span>
+        <span class="gdx-modal-val${val === '—' ? ' gdx-modal-val--none' : ''}">${val}</span>
+        <span class="gdx-modal-req${reqMet ? ' gdx-modal-req--met' : ''}">${req}</span>
+      </div>`;
+
+    const bd = document.createElement('div');
+    bd.className = 'gdx-modal-bd';
+    bd.addEventListener('click', e => { if (e.target === bd) closeGdxModal(); });
+
+    bd.innerHTML = `
+      <div class="gdx-modal-box" role="dialog" aria-modal="true" aria-label="${escHtml(cat.title)}">
+        <button class="gdx-modal-close" aria-label="Close">×</button>
+        <span class="gdx-modal-icon">${cat.emoji}</span>
+        <h3 class="gdx-modal-title">${escHtml(cat.title)}</h3>
+        <div class="gdx-modal-tiers">
+          <div class="gdx-modal-tier ${t1Cls}">
+            <span class="gdx-modal-tier-icon">${t1Icon}</span>
+            <div>
+              <p class="gdx-modal-tier-name">${t1Name}</p>
+              <p class="gdx-modal-tier-desc">${t1Desc}</p>
+            </div>
+          </div>
+          <div class="gdx-modal-tier ${t2Cls}">
+            <span class="gdx-modal-tier-icon">${t2Icon}</span>
+            <div>
+              <p class="gdx-modal-tier-name">${t2Name}</p>
+              <p class="gdx-modal-tier-desc">${t2Desc}</p>
+            </div>
+          </div>
+        </div>
+        <div class="gdx-modal-scores">
+          ${rowHtml('Classic', cVal, cMet, cReq, cMet)}
+          ${rowHtml('VS Mode', vVal, vMet, vReq, vMet)}
+          ${rowHtml('Top 10',  tVal, tMet, tReq, tMet)}
+        </div>
+        <p class="gdx-modal-footer">
+          <b>Tier I:</b> Play all 3 modes &nbsp;·&nbsp; <b>Tier II:</b> 90+ Classic · 1,000+ VS · Perfect Top 10
+        </p>
+      </div>`;
+
+    document.body.appendChild(bd);
+    _gdxModalEl = bd;
+
+    bd.querySelector('.gdx-modal-close').addEventListener('click', closeGdxModal);
+    const escHandler = e => {
+      if (e.key === 'Escape') { closeGdxModal(); document.removeEventListener('keydown', escHandler); }
+    };
+    document.addEventListener('keydown', escHandler);
+  }
+
+  (async () => {
+    const { data: { session } } = await getSessionSafe(5000);
+    if (!session?.user) return;
+    const uid = session.user.id;
+
+    // Fetch all category progress in parallel.
+    // game_sessions is canonical going forward; best-score tables provide retroactive coverage.
+    // TODO: once game_sessions has sufficient history, best-score tables can be phased out here.
+    const [classicRes, top10Res, vsRes, sessionRes] = await Promise.all([
+      supabase.from('category_scores').select('category_id, score').eq('user_id', uid),
+      supabase.from('top10_best_scores').select('category_id, score, correct_count').eq('user_id', uid),
+      supabase.from('vs_scores').select('category_id, correct_count').eq('user_id', uid),
+      supabase.from('game_sessions')
+        .select('category_id, game_mode')
+        .eq('user_id', uid)
+        .not('category_id', 'is', null),
+    ]);
+
+    const ensure = id => { if (!catData[id]) catData[id] = {}; };
+
+    // Classic best scores (retroactive + forward)
+    for (const row of classicRes.data || []) {
+      ensure(row.category_id);
+      catData[row.category_id].classic = { score: row.score };
+    }
+
+    // Top 10 best scores
+    for (const row of top10Res.data || []) {
+      ensure(row.category_id);
+      catData[row.category_id].top10 = {
+        score: row.score,
+        correct: row.correct_count ?? null,
+      };
+    }
+
+    // VS best scores
+    for (const row of vsRes.data || []) {
+      ensure(row.category_id);
+      catData[row.category_id].vs = { correct: row.correct_count ?? null };
+    }
+
+    // game_sessions — marks a mode as played even when no best-score row exists yet
+    for (const row of sessionRes.data || []) {
+      ensure(row.category_id);
+      if (row.game_mode === 'classic' && !catData[row.category_id].classic)
+        catData[row.category_id].classic = {};
+      if (row.game_mode === 'top10' && !catData[row.category_id].top10)
+        catData[row.category_id].top10 = {};
+      if (row.game_mode === 'vs' && !catData[row.category_id].vs)
+        catData[row.category_id].vs = {};
+      // Duel excluded from V1 GeoDex mode indicators
+      // TODO: decide whether duel sessions should count toward category completion
+    }
+
+    // Filter tabs
+    document.getElementById('gdxTabs').addEventListener('click', e => {
+      const tab = e.target.closest('.gdx-tab');
+      if (!tab) return;
+      _filter = tab.dataset.filter;
+      document.querySelectorAll('.gdx-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      renderGeoDex();
+    });
+
+    renderGeoDex();
+  })();
+</script>
 </body>
 </html>

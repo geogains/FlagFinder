@@ -464,7 +464,8 @@ export async function loadTop10CategoryData(categoryKey) {
       emoji: config.emoji,
       unit: config.unit,
       countries: countries,
-      lockedSlots: lockedSlots  // ✅ NEW: [9, 10] for World Cup
+      lockedSlots: lockedSlots,
+      playableCount: countries.length
     };
     
   } catch (error) {

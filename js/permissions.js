@@ -9,10 +9,15 @@ import { categoriesConfig } from './categories-config.js';
 // Feature name constants
 // Use these with canAccessFeature() — avoids silent typo failures and
 // provides a single auditable list of every gateable feature in the app.
+//
+// Note: Duel access is NOT gated here. All authenticated users can create
+// duel rooms (free categories) and join any match. Premium entitlement on
+// Duel is category-level, enforced server-side by the create_duel_match RPC.
+// CHALLENGE_USERS is reserved for the Phase 3 "challenge a specific user"
+// social flow, which is distinct from the generic duel lobby.
 // ---------------------------------------------------------------------------
 export const FEATURES = {
   STATS:               'canAccessStats',
-  DUEL:                'canAccessDuel',
   LIGHT_CATEGORIES:    'canAccessLightCategories',
   PREMIUM_CATEGORIES:  'canAccessPremiumCategories',
   CHALLENGE_USERS:     'canChallengeUsers',
@@ -28,7 +33,6 @@ export const FEATURES = {
 const TIER_CAPABILITIES = {
   free: {
     canAccessStats: false,
-    canAccessDuel: false,
     canAccessLightCategories: false,
     canAccessPremiumCategories: false,
     canChallengeUsers: false,
@@ -36,7 +40,6 @@ const TIER_CAPABILITIES = {
   },
   light: {
     canAccessStats: false,
-    canAccessDuel: false,
     canAccessLightCategories: true,
     canAccessPremiumCategories: false,
     canChallengeUsers: false,
@@ -44,7 +47,6 @@ const TIER_CAPABILITIES = {
   },
   premium: {
     canAccessStats: true,
-    canAccessDuel: true,
     canAccessLightCategories: true,
     canAccessPremiumCategories: true,
     canChallengeUsers: true,
@@ -53,8 +55,9 @@ const TIER_CAPABILITIES = {
 };
 
 // Prebuilt base objects for the two unauthenticated/error paths.
-const GUEST_CAPABILITIES      = { isAuthenticated: false, tier: 'free', ...TIER_CAPABILITIES.free };
-const AUTH_FREE_CAPABILITIES  = { isAuthenticated: true,  tier: 'free', ...TIER_CAPABILITIES.free };
+// username: null on both — guests have no identity; auth errors default to free with no username.
+const GUEST_CAPABILITIES      = { isAuthenticated: false, tier: 'free', username: null, ...TIER_CAPABILITIES.free };
+const AUTH_FREE_CAPABILITIES  = { isAuthenticated: true,  tier: 'free', username: null, ...TIER_CAPABILITIES.free };
 
 // Module-level cache — one DB read per page load.
 let _cachedPermissions = null;
@@ -99,7 +102,7 @@ export async function getUserCapabilities() {
 
   const { data: profile, error } = await supabase
     .from('users')
-    .select('subscription_tier, is_premium')
+    .select('subscription_tier, is_premium, username')
     .eq('id', session.user.id)
     .single();
 
@@ -112,7 +115,7 @@ export async function getUserCapabilities() {
 
   const tier = resolveEffectiveTier(profile);
   const capabilities = TIER_CAPABILITIES[tier] ?? TIER_CAPABILITIES.free;
-  _cachedPermissions = { isAuthenticated: true, tier, ...capabilities };
+  _cachedPermissions = { isAuthenticated: true, tier, username: profile.username ?? null, ...capabilities };
   return _cachedPermissions;
 }
 

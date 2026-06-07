@@ -112,6 +112,10 @@
       text-transform: uppercase; letter-spacing: 0.05em;
       margin-bottom: 0.3rem;
     }
+    .player-profile-link {
+      color: inherit; text-decoration: none;
+    }
+    .player-profile-link:hover { text-decoration: underline; }
     .score-player-name .you-tag {
       display: inline-block; margin-left: 0.3rem;
       background: #0d315a; color: white;
@@ -339,8 +343,7 @@
         <span class="daily-category" id="dailyChallengeCategory">Loading...</span>
       </div>
     </button>
-    <button class="menu-btn" onclick="window.location.href='duel.html'">⚔️ Duel a Friend</button>
-    <button class="menu-btn" onclick="window.location.href='upload.html'">⚔️ Battle Royale</button>
+    <button class="menu-btn" onclick="window.location.href='upload.html'">🛡️ Battle Royale</button>
     <button class="menu-btn" onclick="window.location.href='categories.html'">🎮 Categories</button>
     <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
     <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
@@ -418,6 +421,7 @@
 <script type="module">
   import { supabase }         from './js/supabase-client.js';
   import { categoriesConfig } from './js/categories-config.js';
+  import { profileUrl }       from './js/username-utils.js';
 
   const urlParams   = new URLSearchParams(window.location.search);
   const matchId     = urlParams.get('match');
@@ -515,13 +519,15 @@
     if (attempt < 2) await new Promise(r => setTimeout(r, 600 * (2 ** attempt)));
   }
 
-  const myResult   = results?.find(r => r.user_id === currentUserId);
-  const oppResult  = results?.find(r => r.user_id !== currentUserId);
-  const myName     = players?.find(p => p.id === currentUserId)?.username || 'You';
-  const oppId      = myResult
+  const myResult    = results?.find(r => r.user_id === currentUserId);
+  const oppResult   = results?.find(r => r.user_id !== currentUserId);
+  const myUsername  = players?.find(p => p.id === currentUserId)?.username || null;
+  const myName      = myUsername || 'You';
+  const oppId       = myResult
     ? (match.player1_id === currentUserId ? match.player2_id : match.player1_id)
     : null;
-  const oppName    = players?.find(p => p.id === oppId)?.username || 'Opponent';
+  const oppUsername = players?.find(p => p.id === oppId)?.username || null;
+  const oppName     = oppUsername || 'Opponent';
 
   const catCfg     = categoriesConfig[match.category];
   const catEmoji   = catCfg?.emoji || '🌍';
@@ -540,7 +546,7 @@
   }
 
   // ── Render page ───────────────────────────────────────────────────
-  renderResults(match, myResult, oppResult, myName, oppName, catEmoji, catTitle, outcome);
+  renderResults(match, myResult, oppResult, myName, oppName, catEmoji, catTitle, outcome, myUsername, oppUsername);
 
   overlay.style.display = 'none';
   mainContent.style.display = 'block';
@@ -552,7 +558,7 @@
   // and accessible inside the IIFE above via closure.
   // ================================================================
 
-  function renderResults(match, myResult, oppResult, myName, oppName, catEmoji, catTitle, outcome) {
+  function renderResults(match, myResult, oppResult, myName, oppName, catEmoji, catTitle, outcome, myUsername, oppUsername) {
     // ── Winner banner ──
     const bannerHtml = buildBannerHtml(outcome, myName, oppName, myResult, oppResult);
 
@@ -561,6 +567,10 @@
     const oppScore = oppResult ? oppResult.score : '—';
     const myMax    = myResult  ? myResult.max_score  : 100;
     const oppMax   = oppResult ? oppResult.max_score : 100;
+
+    const oppNameHtml = oppUsername
+      ? `<a href="${profileUrl(oppUsername)}" class="player-profile-link">${escHtml(oppName)}</a>`
+      : escHtml(oppName);
 
     const scoreSummaryHtml = `
       <div class="score-summary">
@@ -574,7 +584,7 @@
         </div>
         <div class="score-divider"></div>
         <div class="score-player">
-          <div class="score-player-name">${escHtml(oppName)}</div>
+          <div class="score-player-name">${oppNameHtml}</div>
           <div class="score-value">${oppScore}
             <span class="score-max">/ ${oppMax}</span>
           </div>
@@ -782,5 +792,6 @@
   }
 </script>
 
+<script type="module" src="js/identity-gate.js"></script>
 </body>
 </html>

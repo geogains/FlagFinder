@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claim Your Username | GeoRanks</title>
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0d315a 0%, #1a4a7a 40%, #0f2a4a 100%);
+      font-family: 'Rubik', sans-serif;
+      padding: 24px;
+    }
+
+    /* Loading state — shown before JS runs */
+    #pageLoader {
+      position: fixed;
+      inset: 0;
+      background: #0d315a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    #pageLoader .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid rgba(255,255,255,0.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Card */
+    .claim-card {
+      width: 100%;
+      max-width: 480px;
+      background: rgba(255,255,255,0.96);
+      border-radius: 24px;
+      padding: 48px 44px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+
+    .globe-icon {
+      font-size: 3.2rem;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .claim-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #0d315a;
+      margin-bottom: 10px;
+      line-height: 1.2;
+    }
+
+    .claim-subtitle {
+      font-size: 0.95rem;
+      color: #6b7280;
+      line-height: 1.55;
+      margin-bottom: 36px;
+    }
+
+    /* Input section */
+    .input-wrapper {
+      position: relative;
+      margin-bottom: 10px;
+    }
+
+    .username-prefix {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      font-weight: 600;
+      color: #9ca3af;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    #usernameInput {
+      width: 100%;
+      padding: 16px 16px 16px 36px;
+      font-size: 1.1rem;
+      font-family: 'Rubik', sans-serif;
+      font-weight: 500;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      color: #111827;
+      background: #f9fafb;
+    }
+
+    #usernameInput:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+      background: #fff;
+    }
+
+    #usernameInput.valid {
+      border-color: #22c55e;
+      box-shadow: 0 0 0 3px rgba(34,197,94,0.1);
+    }
+
+    #usernameInput.error {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 3px rgba(239,68,68,0.1);
+    }
+
+    /* Validation message */
+    #validationMsg {
+      min-height: 22px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 24px;
+      text-align: left;
+      padding-left: 4px;
+      transition: color 0.15s;
+    }
+    #validationMsg.success { color: #16a34a; }
+    #validationMsg.error   { color: #dc2626; }
+    #validationMsg.neutral { color: #9ca3af; }
+
+    /* Claim button */
+    #claimBtn {
+      width: 100%;
+      padding: 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'Rubik', sans-serif;
+      color: #fff;
+      background: linear-gradient(135deg, #1d4ed8, #2563eb);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      letter-spacing: 0.02em;
+    }
+
+    #claimBtn:hover:not(:disabled) {
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
+
+    #claimBtn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    #claimBtn:disabled {
+      background: linear-gradient(135deg, #93c5fd, #bfdbfe);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Rules hint */
+    .rules-hint {
+      margin-top: 24px;
+      font-size: 0.78rem;
+      color: #9ca3af;
+      line-height: 1.6;
+    }
+
+    .rules-hint strong {
+      color: #6b7280;
+    }
+
+    /* Success state */
+    #successState {
+      display: none;
+    }
+
+    .success-icon {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .success-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #0d315a;
+      margin-bottom: 8px;
+    }
+
+    .success-sub {
+      font-size: 0.95rem;
+      color: #6b7280;
+    }
+
+    @media (max-width: 520px) {
+      .claim-card { padding: 36px 28px; }
+      .claim-title { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loader shown until JS auth check completes -->
+  <div id="pageLoader"><div class="spinner"></div></div>
+
+  <div class="claim-card" id="mainCard" style="display:none;">
+
+    <!-- Claim form -->
+    <div id="claimState">
+      <span class="globe-icon">🌍</span>
+      <h1 class="claim-title">Claim your GeoRanks username</h1>
+      <p class="claim-subtitle">
+        This is how other players will recognize you across GeoRanks.<br>
+        Choose wisely.
+      </p>
+
+      <div class="input-wrapper">
+        <span class="username-prefix">@</span>
+        <input
+          type="text"
+          id="usernameInput"
+          placeholder="yourhandle"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          maxlength="30"
+        />
+      </div>
+
+      <div id="validationMsg" class="neutral"></div>
+
+      <button id="claimBtn" disabled>Claim Identity</button>
+
+      <p class="rules-hint">
+        <strong>3–30 characters.</strong> Letters, numbers, and underscores only.<br>
+        Must start with a letter. Usernames are public and permanent until changed in settings.
+      </p>
+    </div>
+
+    <!-- Success state -->
+    <div id="successState">
+      <span class="success-icon">🎉</span>
+      <h2 class="success-title" id="successTitle">Welcome, @username!</h2>
+      <p class="success-sub">Your GeoRanks identity is set. Taking you in…</p>
+    </div>
+
+  </div>
+
+<script type="module">
+  import { supabase }                        from './js/supabase-client.js';
+  import { clearPermissionsCache }           from './js/permissions.js';
+  import { validateLocally, friendlyError }  from './js/username-utils.js';
+
+  // ── Safe same-origin redirect target ─────────────────────────────
+  function getSafeNext() {
+    const params = new URLSearchParams(window.location.search);
+    const raw = params.get('next');
+    if (!raw) return 'index.html';
+    try {
+      const url = new URL(decodeURIComponent(raw));
+      if (url.origin === window.location.origin) return url.href;
+    } catch (_) {}
+    return 'index.html';
+  }
+
+  // ── Auth check ────────────────────────────────────────────────────
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if (!session?.user) {
+    window.location.replace('auth.html');
+    throw new Error('unauthenticated');
+  }
+
+  // Already has a username — nothing to do here
+  const { data: profile } = await supabase
+    .from('users')
+    .select('username')
+    .eq('id', session.user.id)
+    .single();
+
+  if (profile?.username) {
+    window.location.replace(getSafeNext());
+    throw new Error('username already set');
+  }
+
+  // ── Reveal page ───────────────────────────────────────────────────
+  document.getElementById('pageLoader').style.display = 'none';
+  document.getElementById('mainCard').style.display = 'block';
+
+  // ── DOM refs ──────────────────────────────────────────────────────
+  const input    = document.getElementById('usernameInput');
+  const msgEl    = document.getElementById('validationMsg');
+  const claimBtn = document.getElementById('claimBtn');
+
+  // ── Validation state ──────────────────────────────────────────────
+  let debounceTimer  = null;
+  let currentlyValid = false;
+
+  function setMsg(text, type) {
+    msgEl.textContent = text;
+    msgEl.className   = type; // 'success' | 'error' | 'neutral'
+  }
+
+  function setInputState(state) {
+    input.classList.remove('valid', 'error');
+    if (state) input.classList.add(state);
+  }
+
+  async function checkAvailability(value) {
+    const { data } = await supabase
+      .from('users')
+      .select('username')
+      .eq('username', value)
+      .maybeSingle();
+    return data === null;
+  }
+
+  input.addEventListener('input', () => {
+    const value = input.value.trim();
+    currentlyValid = false;
+    claimBtn.disabled = true;
+    clearTimeout(debounceTimer);
+
+    const { ok, msg } = validateLocally(value);
+
+    if (!ok) {
+      setInputState(value ? 'error' : null);
+      setMsg(msg || '', value ? 'error' : 'neutral');
+      return;
+    }
+
+    setInputState(null);
+    setMsg('Checking availability…', 'neutral');
+
+    debounceTimer = setTimeout(async () => {
+      const available = await checkAvailability(value);
+      if (input.value.trim() !== value) return; // input changed mid-flight
+
+      if (available) {
+        currentlyValid = true;
+        setInputState('valid');
+        setMsg('✓ Available', 'success');
+        claimBtn.disabled = false;
+      } else {
+        setInputState('error');
+        setMsg('✗ Username already taken.', 'error');
+      }
+    }, 400);
+  });
+
+  // ── Claim submission ──────────────────────────────────────────────
+  claimBtn.addEventListener('click', async () => {
+    const value = input.value.trim();
+    if (!currentlyValid) return;
+
+    const { ok } = validateLocally(value);
+    if (!ok) return;
+
+    claimBtn.disabled    = true;
+    claimBtn.textContent = 'Claiming…';
+
+    const { data: result, error: rpcError } = await supabase.rpc('update_username', {
+      p_new_username: value
+    });
+
+    if (rpcError || !result?.ok) {
+      claimBtn.disabled    = false;
+      claimBtn.textContent = 'Claim Identity';
+      currentlyValid = false;
+      setInputState('error');
+      setMsg('✗ ' + friendlyError(result?.code, result?.days_remaining), 'error');
+      return;
+    }
+
+    // ── Success ───────────────────────────────────────────────────
+    clearPermissionsCache();
+
+    document.getElementById('claimState').style.display = 'none';
+    document.getElementById('successTitle').textContent = `Welcome, @${value}!`;
+    document.getElementById('successState').style.display = 'block';
+
+    setTimeout(() => window.location.replace(getSafeNext()), 1400);
+  });
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !claimBtn.disabled) claimBtn.click();
+  });
+
+  input.focus();
+</script>
+
+</body>
+</html>

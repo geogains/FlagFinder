@@ -147,7 +147,8 @@ async function showCompletedGameResults(gameData) {
   const wrongCount = gameData.wrong_count || 0;
   const timeElapsed = 120 - (gameData.time_remaining || 0);
   const lives = Math.max(0, 3 - wrongCount);
-  const won = correctCount === 10;
+  const playableCount = currentCategory?.playableCount ?? currentCategory?.countries?.length ?? 10;
+  const won = correctCount === playableCount;
   
   // Update the GLOBAL gameState so buildResultsTable and shareResults work
   if (savedGameState) {
@@ -166,6 +167,7 @@ async function showCompletedGameResults(gameData) {
     lives,
     categoryName: currentCategory.title,
     categoryKey,
+    playableCount,
     incorrectGuesses: gameState.incorrectGuesses,
     resultsTable: currentCategory.countries.map(country => ({
       rank: country.rank,
@@ -186,7 +188,8 @@ async function showCompletedGameResults(gameData) {
     score: gameState.score,
     correct: correctCount,
     time: timeElapsed,
-    lives
+    lives,
+    playable: playableCount
   });
   redirectParams.set('daily', '1');
 
@@ -858,6 +861,8 @@ async function endGame(won) {
 
 
 function showResults(won, correctGuesses, timeElapsed) {
+  const playableCount = currentCategory?.playableCount ?? currentCategory?.countries?.length ?? 10;
+
   // Prepare results data for results page
   const resultsData = {
     score: gameState.score,
@@ -866,6 +871,7 @@ function showResults(won, correctGuesses, timeElapsed) {
     lives: gameState.lives,
     categoryName: currentCategory.title,
     categoryKey: categoryKey,
+    playableCount,
     incorrectGuesses: gameState.incorrectGuesses,
     resultsTable: currentCategory.countries.map(country => ({
       rank: country.rank,
@@ -878,7 +884,7 @@ function showResults(won, correctGuesses, timeElapsed) {
       riverName: country.riverName || null
     }))
   };
-  
+
   // Save to localStorage as backup
   localStorage.setItem('top10Results', JSON.stringify(resultsData));
 
@@ -891,7 +897,8 @@ function showResults(won, correctGuesses, timeElapsed) {
     timeElapsed,
     timeRemaining: gameState.timeRemaining,
     incorrectGuessCount: gameState.incorrectGuesses.length,
-    isDailyChallenge
+    isDailyChallenge,
+    playableCount
   }));
 
   // Redirect to results page with URL parameters
@@ -900,7 +907,8 @@ function showResults(won, correctGuesses, timeElapsed) {
     score: gameState.score,
     correct: correctGuesses,
     time: timeElapsed,
-    lives: gameState.lives
+    lives: gameState.lives,
+    playable: playableCount
   });
   if (isDailyChallenge) params.set('daily', '1');
 

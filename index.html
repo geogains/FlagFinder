@@ -756,7 +756,8 @@
         <span class="daily-category" id="dailyChallengeCategory">Loading...</span>
       </div>
     </button>
-    <button class="menu-btn" onclick="window.location.href='upload.html'">⚔️ Battle Royale</button>
+    <button class="menu-btn" onclick="window.location.href='upload.html'">🛡️ Battle Royale</button>
+    <button class="menu-btn" onclick="window.location.href='/duel'">⚔️ Duel</button>
     <button class="menu-btn" onclick="window.location.href='categories.html'">🎮 Categories</button>
     <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
     <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
@@ -987,11 +988,13 @@
   window._attachModeSelector(originalOpenModeSelector);
 </script>
 
-<!-- ③ Supabase auth — purely for sign-in text + premium button.
-     Slow or failed CDN has ZERO effect on the conveyor or page render. -->
+<!-- ③ Supabase auth — sign-in text, premium button, streak badge.
+     Identity sourced exclusively from public.users.username via getUserCapabilities().
+     getUserCapabilities() is already called by identity-gate.js (cached) — no extra DB call. -->
 <script type="module">
-  import { supabase } from './js/supabase-client.js';
-  import { getEffectiveStreak } from './js/streak-celebration.js';
+  import { getUserCapabilities } from './js/permissions.js';
+  import { supabase }            from './js/supabase-client.js';
+  import { getEffectiveStreak }  from './js/streak-celebration.js';
 
   const signInText = document.getElementById('signInText');
 
@@ -1000,60 +1003,56 @@
     signInText.href = "auth.html";
   }, 3000);
 
-  supabase.auth.getSession()
-    .then(async ({ data: { session } }) => {
+  (async () => {
+    try {
+      const caps = await getUserCapabilities();
       clearTimeout(authTimeout);
 
-      if (session?.user) {
-        const userMeta = session.user.user_metadata;
-        let displayName = userMeta.full_name || userMeta.username;
-
-        try {
-          const { data: userData } = await supabase
-            .from('users')
-            .select('username, is_premium')
-            .eq('id', session.user.id)
-            .single();
-
-          if (!displayName && userData?.username) displayName = userData.username;
-          if (userData?.is_premium) {
-            document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
-          } else {
-            document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
-          }
-        } catch (_) {}
-
-        signInText.textContent = displayName || "Account";
+      if (caps.isAuthenticated) {
+        // caps.username is sourced from public.users — the canonical identity authority.
+        signInText.textContent = caps.username || "Account";
         signInText.href = "account.html";
 
-        try {
-          const { data: streakData } = await supabase
-            .from('user_streaks')
-            .select('current_streak, last_played_date')
-            .eq('user_id', session.user.id)
-            .maybeSingle();
+        if (caps.canAccessPremiumCategories) {
+          document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+        } else {
+          document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
+        }
 
-          const effectiveStreak = getEffectiveStreak(
-            streakData?.current_streak,
-            streakData?.last_played_date,
-            Intl.DateTimeFormat().resolvedOptions().timeZone
-          );
-          if (effectiveStreak > 0) {
-            document.getElementById('streakCount').textContent = effectiveStreak;
-            document.getElementById('streakBadge').style.display = 'inline';
+        // Streak badge — needs session for user_id (fast: Supabase client caches the session)
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user) {
+            const { data: streakData } = await supabase
+              .from('user_streaks')
+              .select('current_streak, last_played_date')
+              .eq('user_id', session.user.id)
+              .maybeSingle();
+
+            const effectiveStreak = getEffectiveStreak(
+              streakData?.current_streak,
+              streakData?.last_played_date,
+              Intl.DateTimeFormat().resolvedOptions().timeZone
+            );
+            if (effectiveStreak > 0) {
+              document.getElementById('streakCount').textContent = effectiveStreak;
+              document.getElementById('streakBadge').style.display = 'inline';
+            }
           }
         } catch (_) {}
+
       } else {
         document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
         document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
         signInText.textContent = "Sign In | Create Account";
         signInText.href = "auth.html";
       }
-    })
-    .catch(() => {
+    } catch (_) {
+      clearTimeout(authTimeout);
       signInText.textContent = "Sign In | Create Account";
       signInText.href = "auth.html";
-    });
+    }
+  })();
 </script>
 
 <!-- Daily Challenge Menu Button -->
@@ -1145,5 +1144,6 @@
   });
 </script>
 
+<script type="module" src="js/identity-gate.js"></script>
 </body>
 </html>

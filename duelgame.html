@@ -160,8 +160,7 @@
         <span class="daily-category" id="dailyChallengeCategory">Loading...</span>
       </div>
     </button>
-    <button class="menu-btn" onclick="window.location.href='duel.html'">⚔️ Duel a Friend</button>
-    <button class="menu-btn" onclick="window.location.href='upload.html'">⚔️ Battle Royale</button>
+    <button class="menu-btn" onclick="window.location.href='upload.html'">🛡️ Battle Royale</button>
     <button class="menu-btn" onclick="window.location.href='categories.html'">🎮 Categories</button>
     <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
     <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
@@ -301,6 +300,7 @@
   import { categoriesConfig }  from './js/categories-config.js';
   import { CATEGORY_ID_MAP }   from './js/top10-categories-loader.js';
   import { createDuelChannel } from './js/duel-channel.js';
+  import { evaluateAchievements } from './js/achievements.js';
 
   // ── Category question titles (mirrors game.html) ────────────────────────
   const classicTitles = {
@@ -570,12 +570,12 @@
       flag:            entry.flag
     }));
 
-    // Call server-side RPC to verify and save score
+    // Call server-side RPC to verify and save score.
+    // Identity is derived from auth.uid() server-side — do not pass p_user_id.
     const { data: rpcResult, error: rpcError } = await supabase.rpc(
       'verify_and_save_duel_result',
       {
         p_match_id:   duelMatch.matchId,
-        p_user_id:    currentUserId,
         p_placements: placements
       }
     );
@@ -588,6 +588,21 @@
       document.getElementById('errorOverlay').classList.add('visible');
       return;
     }
+
+    // Append to game_sessions — fire-and-forget, non-critical.
+    supabase.from('game_sessions').insert({
+      user_id:     currentUserId,
+      game_mode:   'duel',
+      category_id: CATEGORY_ID_MAP[mode] || null,
+      score:       rpcResult.score,
+      max_score:   rpcResult.max_score,
+      correct:     null,
+      duration_ms: duelMatch.startedAt ? Date.now() - new Date(duelMatch.startedAt).getTime() : null,
+      is_daily:    false
+    }).then(({ error }) => {
+      if (error) console.warn('⚠️ game_sessions (duel) insert failed:', error.message);
+    });
+    evaluateAchievements(supabase, session);
 
     // Stage 3B: mark session completed — replay prevention for refresh/back navigation.
     // Wrapped in try/catch: private browsing throws QuotaExceededError on setItem,
@@ -699,5 +714,6 @@
   window.scrollTo(0, 0);
 </script>
 
+<script type="module" src="js/identity-gate.js"></script>
 </body>
 </html>

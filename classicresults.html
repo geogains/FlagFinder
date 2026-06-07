@@ -678,7 +678,8 @@
       </button>
       
       <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
-      <button class="menu-btn" onclick="window.location.href='upload.html'">⚔️ Battle Royale</button>
+      <button class="menu-btn" onclick="window.location.href='upload.html'">🛡️ Battle Royale</button>
+      <button class="menu-btn" onclick="window.location.href='/duel'">⚔️ Duel</button>
       <button class="menu-btn" onclick="window.location.href='categories.html'">🎮 Categories</button>
       <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
       <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
@@ -762,10 +763,9 @@
 
     // Get URL parameters
     const params = new URLSearchParams(window.location.search);
-    const categoryKey = params.get('category') || 'population';
     const score = params.get('score') || '0';
     const maxScore = params.get('maxScore') || '100';
-    
+
     // Calculate score percentage and play appropriate sound
     const scorePercentage = (parseInt(score) / parseInt(maxScore)) * 100;
     if (scorePercentage >= 90) {
@@ -787,6 +787,9 @@
         console.error('Error parsing saved results:', e);
       }
     }
+
+    // URL param is authoritative; localStorage categoryKey is the fallback
+    const categoryKey = params.get('category') || resultsData?.categoryKey || 'population';
 
     // Use URL params or saved data
     const finalScore = resultsData?.score || score;
@@ -1037,6 +1040,7 @@ Can you beat my score? Play at geo-ranks.com/game.html?mode=${categoryKey}`;
   <script type="module">
     import { supabase } from './js/supabase-client.js';
     import { recordActivityAndMaybeCelebrate } from './js/streak-celebration.js';
+    import { evaluateAchievements } from './js/achievements.js';
 
     // Block navigation while save is in flight
     const _hasSave = !!localStorage.getItem('classicPendingSave');
@@ -1111,6 +1115,20 @@ Can you beat my score? Play at geo-ranks.com/game.html?mode=${categoryKey}`;
           categoryId: record.categoryId,
           gameMode: record.isDailyChallenge ? 'daily_challenge' : 'classic'
         });
+        // Append to game_sessions — fire-and-forget, non-critical.
+        supabase.from('game_sessions').insert({
+          user_id:     session.user.id,
+          game_mode:   'classic',
+          category_id: record.categoryId,
+          score:       record.totalScore,
+          max_score:   100,
+          correct:     null,
+          duration_ms: null,
+          is_daily:    record.isDailyChallenge ?? false
+        }).then(({ error }) => {
+          if (error) console.warn('⚠️ game_sessions (classic) insert failed:', error.message);
+        });
+        evaluateAchievements(supabase, session);
         localStorage.removeItem('classicPendingSave');
       }
     })();

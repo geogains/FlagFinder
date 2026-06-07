@@ -394,6 +394,16 @@
       font-size: 1.25rem;
     }
 
+    .player-profile-link {
+      color: #0d315a;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .player-profile-link:hover {
+      text-decoration: underline;
+      color: #1a4a7a;
+    }
+
     .leaderboard-rank:has(> .medal) {
       line-height: 1;
     }
@@ -553,7 +563,8 @@
 </button>
     
     <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
-    <button class="menu-btn" onclick="window.location.href='upload.html'">⚔️ Battle Royale</button>
+    <button class="menu-btn" onclick="window.location.href='upload.html'">🛡️ Battle Royale</button>
+    <button class="menu-btn" onclick="window.location.href='/duel'">⚔️ Duel</button>
     <button class="menu-btn" onclick="window.location.href='categories.html'">🎮 Categories</button>
     <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
     <button class="menu-btn" onclick="window.location.href='stats.html'">📊 My Stats</button>
@@ -763,6 +774,7 @@ document.addEventListener('DOMContentLoaded', function() {
   import { supabase } from './js/supabase-client.js';
   import { categoriesConfig, CATEGORY_ID_MAP } from './js/categories-config.js';
   import { getDailyChallengeForDate } from './js/daily-challenge.js';
+  import { profileUrl } from './js/username-utils.js';
 
   const leaderboardBody        = document.getElementById("leaderboardBody");
   const dateDropdown           = document.getElementById("dateDropdown");
@@ -830,7 +842,10 @@ document.addEventListener('DOMContentLoaded', function() {
           ${user.is_premium ? '<img src="assets/GeoRanksPremium.png" class="premium-badge" />' : ''}
         </div>
       </td>
-      <td>${user.username || 'Anonymous'}</td>
+      <td>${user.username
+        ? `<a href="${profileUrl(user.username)}" class="player-profile-link">${user.username.replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]))}</a>`
+        : 'Anonymous'
+      }</td>
       <td>${entry.score}</td>
     `;
     return row;
@@ -1221,6 +1236,6 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 </script>
 
-
+<script type="module" src="js/identity-gate.js"></script>
 </body>
 </html>

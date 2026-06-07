@@ -1,5 +1,8 @@
 {
   "cleanUrls": true,
+  "rewrites": [
+    { "source": "/u/:username", "destination": "/u" }
+  ],
   "headers": [
     {
       "source": "/images/categories/(.*)",

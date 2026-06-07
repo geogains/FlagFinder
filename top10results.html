@@ -622,7 +622,8 @@
       </button>
       
       <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
-      <button class="menu-btn" onclick="window.location.href='upload.html'">⚔️ Battle Royale</button>
+      <button class="menu-btn" onclick="window.location.href='upload.html'">🛡️ Battle Royale</button>
+      <button class="menu-btn" onclick="window.location.href='/duel'">⚔️ Duel</button>
       <button class="menu-btn" onclick="window.location.href='categories.html'">🎮 Categories</button>
       <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
       <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
@@ -717,17 +718,17 @@
 
     // Get URL parameters
     const params = new URLSearchParams(window.location.search);
-    const categoryKey = params.get('category') || 'population';
     const score = parseInt(params.get('score')) || 0;
     const correct = parseInt(params.get('correct')) || 0;
     const timeUsed = parseInt(params.get('time')) || 0;
     const lives = parseInt(params.get('lives')) || 0;
-    
+    const playableParam = parseInt(params.get('playable')) || 10;
+
     // Play appropriate sound based on performance
-    if (correct >= 8) {
-      soundManager.play('perfect'); // 8+ correct = excellent!
+    if (correct >= playableParam) {
+      soundManager.play('perfect'); // perfect score for this category
     } else if (correct >= 5) {
-      soundManager.play('correct');  // 5-7 correct = good job
+      soundManager.play('correct');  // 5+ correct = good job
     } else {
       soundManager.play('tryagain'); // <5 correct = try again
     }
@@ -744,6 +745,9 @@
       }
     }
 
+    // URL param is authoritative; localStorage categoryKey is the fallback
+    const categoryKey = params.get('category') || resultsData?.categoryKey || 'population';
+
     // Use URL params or saved data
     const finalScore = resultsData?.score || score;
     const finalCorrect = resultsData?.correct || correct;
@@ -752,6 +756,11 @@
     const categoryName = resultsData?.categoryName || getCategoryDisplayName(categoryKey);
     const resultsTable = resultsData?.resultsTable || [];
     const incorrectGuesses = resultsData?.incorrectGuesses || [];
+
+    // Safe playable count: localStorage is primary, URL param is fallback, 10 is the default.
+    // Protects against in-flight sessions from before Phase 1 deployment.
+    const _rawPlayable = Number(resultsData?.playableCount ?? params.get('playable') ?? 10);
+    const safePlayableCount = Number.isFinite(_rawPlayable) && _rawPlayable > 0 ? _rawPlayable : 10;
 
     // Hide loading overlay and show content
     function hideLoading() {
@@ -774,8 +783,8 @@
 
     function displayResults() {
       // Update emoji and title based on performance
-      const emoji = finalCorrect >= 10 ? '🏆' : finalCorrect >= 8 ? '🌟' : finalCorrect >= 5 ? '🎉' : '💪';
-      const title = finalCorrect >= 10 ? 'Perfect!' : finalCorrect >= 8 ? 'Excellent!' : finalCorrect >= 5 ? 'Great Job!' : 'Try Again!';
+      const emoji = finalCorrect >= safePlayableCount ? '🏆' : finalCorrect >= 8 ? '🌟' : finalCorrect >= 5 ? '🎉' : '💪';
+      const title = finalCorrect >= safePlayableCount ? 'Perfect!' : finalCorrect >= 8 ? 'Excellent!' : finalCorrect >= 5 ? 'Great Job!' : 'Try Again!';
       
       document.getElementById('resultsEmoji').textContent = emoji;
       document.getElementById('resultsTitle').textContent = title;
@@ -791,7 +800,7 @@
       const minutes = Math.floor(finalTime / 60);
       const seconds = finalTime % 60;
       document.getElementById('finalTime').textContent = `${minutes}:${seconds.toString().padStart(2, '0')} / 2:00`;
-      document.getElementById('finalAccuracy').textContent = `${finalCorrect}/10 correct`;
+      document.getElementById('finalAccuracy').textContent = `${finalCorrect}/${safePlayableCount} correct`;
 
       // Build results table
       buildResultsTable();
@@ -923,7 +932,7 @@
       const livesDisplay = whiteHearts + redHearts;
       
       const text = `🌍 GeoRanks - ${categoryName}
-Score: ${finalScore} | ${finalCorrect}/10 correct
+Score: ${finalScore} | ${finalCorrect}/${safePlayableCount} correct
 Lives: ${livesDisplay}
 
 Can you beat my score? Play at geo-ranks.com/top10.html?mode=${categoryKey}`;
@@ -963,6 +972,7 @@ Can you beat my score? Play at geo-ranks.com/top10.html?mode=${categoryKey}`;
   <script type="module">
     import { supabase } from './js/supabase-client.js';
     import { recordActivityAndMaybeCelebrate } from './js/streak-celebration.js';
+    import { evaluateAchievements } from './js/achievements.js';
 
     // Block navigation while save is in flight
     const _hasSave = !!localStorage.getItem('top10PendingSave');
@@ -988,6 +998,8 @@ Can you beat my score? Play at geo-ranks.com/top10.html?mode=${categoryKey}`;
       try { record = JSON.parse(raw); } catch { localStorage.removeItem('top10PendingSave'); return; }
       // Relevance guard: only process if record matches this page's game
       const urlParams = new URLSearchParams(window.location.search);
+      const _pc = Number(record.playableCount ?? 10);
+      const safePlayableCount = Number.isFinite(_pc) && _pc > 0 ? _pc : 10;
       if (!record.categoryKey || !record.categoryId || record.score == null) return;
       if (record.categoryKey !== urlParams.get('category')) return;
       const { data: { session } } = await supabase.auth.getSession();
@@ -1016,7 +1028,8 @@ Can you beat my score? Play at geo-ranks.com/top10.html?mode=${categoryKey}`;
             p_played_date: today,
             p_score: record.score,
             p_correct_count: record.correctGuesses,
-            p_time_taken: record.timeElapsed
+            p_time_taken: record.timeElapsed,
+            p_playable_count: safePlayableCount
           }),
           'Top 10 daily save'
         );
@@ -1040,7 +1053,8 @@ Can you beat my score? Play at geo-ranks.com/top10.html?mode=${categoryKey}`;
             score: record.score,
             correct_count: record.correctGuesses,
             wrong_count: record.incorrectGuessCount,
-            time_remaining: record.timeRemaining
+            time_remaining: record.timeRemaining,
+            playable_count: safePlayableCount
           }, { onConflict: 'user_id,category_id' }).select(),
           'Top 10 best score'
         );
@@ -1052,6 +1066,20 @@ Can you beat my score? Play at geo-ranks.com/top10.html?mode=${categoryKey}`;
           categoryId: record.categoryId,
           gameMode: record.isDailyChallenge ? 'daily_challenge' : 'top10'
         });
+        // Append to game_sessions — fire-and-forget, non-critical.
+        supabase.from('game_sessions').insert({
+          user_id:     session.user.id,
+          game_mode:   'top10',
+          category_id: record.categoryId,
+          score:       record.score,
+          max_score:   null,
+          correct:     record.correctGuesses ?? null,
+          duration_ms: record.timeElapsed != null ? record.timeElapsed * 1000 : null,
+          is_daily:    record.isDailyChallenge ?? false
+        }).then(({ error }) => {
+          if (error) console.warn('⚠️ game_sessions (top10) insert failed:', error.message);
+        });
+        evaluateAchievements(supabase, session);
         localStorage.removeItem('top10PendingSave');
       }
     })();

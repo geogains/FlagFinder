@@ -487,7 +487,8 @@
       </button>
       
       <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
-      <button class="menu-btn" onclick="window.location.href='upload.html'">⚔️ Battle Royale</button>
+      <button class="menu-btn" onclick="window.location.href='upload.html'">🛡️ Battle Royale</button>
+      <button class="menu-btn" onclick="window.location.href='/duel'">⚔️ Duel</button>
       <button class="menu-btn" onclick="window.location.href='categories.html'">🎮 Categories</button>
       <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
       <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
@@ -576,14 +577,13 @@
     });
 
     const params = new URLSearchParams(window.location.search);
-    const categoryKey = params.get('category') || 'population';
     const score = parseInt(params.get('score')) || 0;
     const correct = parseInt(params.get('correct')) || 0;
     const total = parseInt(params.get('total')) || 0;
     const accuracy = parseInt(params.get('accuracy')) || 0;
     const timeUsed = parseInt(params.get('time')) || 0;
     const lives = parseInt(params.get('lives')) || 0;
-    
+
     // Play appropriate sound based on performance
     if (accuracy >= 80) {
       soundManager.play('perfect'); // 80%+ accuracy = excellent!
@@ -603,6 +603,9 @@
         console.error('Error parsing saved results:', e);
       }
     }
+
+    // URL param is authoritative; localStorage categoryKey is the fallback
+    const categoryKey = params.get('category') || resultsData?.categoryKey || 'population';
 
     const finalScore = resultsData?.score || score;
     const finalCorrect = resultsData?.correct || correct;
@@ -725,6 +728,7 @@ Can you beat my score? Play at geo-ranks.com/vs.html?mode=${categoryKey}`;
   <script type="module">
     import { supabase } from './js/supabase-client.js';
     import { recordActivityAndMaybeCelebrate } from './js/streak-celebration.js';
+    import { evaluateAchievements } from './js/achievements.js';
 
     // Block navigation while save is in flight
     const _hasSave = !!localStorage.getItem('vsPendingSave');
@@ -803,6 +807,20 @@ Can you beat my score? Play at geo-ranks.com/vs.html?mode=${categoryKey}`;
           categoryId: record.categoryId,
           gameMode: record.isDailyChallenge ? 'daily_challenge' : 'vs'
         });
+        // Append to game_sessions — fire-and-forget, non-critical.
+        supabase.from('game_sessions').insert({
+          user_id:     session.user.id,
+          game_mode:   'vs',
+          category_id: record.categoryId,
+          score:       record.score,
+          max_score:   null,
+          correct:     record.correct ?? null,
+          duration_ms: record.timePlayed != null ? record.timePlayed * 1000 : null,
+          is_daily:    record.isDailyChallenge ?? false
+        }).then(({ error }) => {
+          if (error) console.warn('⚠️ game_sessions (vs) insert failed:', error.message);
+        });
+        evaluateAchievements(supabase, session);
         localStorage.removeItem('vsPendingSave');
       }
     })();

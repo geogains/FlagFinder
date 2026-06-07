@@ -681,7 +681,8 @@
     </button>
     
     <button class="menu-btn" onclick="window.location.href='index.html'">🏠 Home</button>
-    <button class="menu-btn" onclick="window.location.href='upload.html'">⚔️ Battle Royale</button>
+    <button class="menu-btn" onclick="window.location.href='upload.html'">🛡️ Battle Royale</button>
+    <button class="menu-btn" onclick="window.location.href='/duel'">⚔️ Duel</button>
     <button class="menu-btn" onclick="window.location.href='categories.html'">🎮 Categories</button>
     <button class="menu-btn menu-btn-account" onclick="window.location.href='account.html'">👤 Account</button>
     <button class="menu-btn" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
@@ -986,7 +987,7 @@ document.addEventListener('DOMContentLoaded', function() {
       profileTimeout
     ]);
 
-    document.getElementById('userUsername').textContent = profile?.username || user.email.split('@')[0];
+    document.getElementById('userUsername').textContent = profile?.username || 'Player';
     document.getElementById('userAvatar').src           = profile?.avatar_url || 'assets/default-avatar.png';
     document.getElementById('userSince').textContent    = `Member since ${new Date(user.created_at).toDateString()}`;
 
@@ -1135,6 +1136,6 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 </script>
 
-
+<script type="module" src="js/identity-gate.js"></script>
 </body>
 </html>

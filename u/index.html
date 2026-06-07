@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeoRanks Profile</title>
+  <link rel="icon" href="../assets/favicon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/page.css">
+
+  <style>
+    /* ─── Keyframes ───────────────────────────────────────────────── */
+    @keyframes fadeInContainer {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes shimmer {
+      0%   { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse-globe {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50%       { transform: scale(1.1); opacity: 0.75; }
+    }
+
+    /* ─── Loading overlay ─────────────────────────────────────────── */
+    #pageLoader {
+      position: fixed; inset: 0;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 999;
+    }
+    .loader-inner { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+    .loader-spinner { position: relative; width: 60px; height: 60px; }
+    .loader-spinner::before,
+    .loader-spinner::after { content: ''; position: absolute; inset: 0; border-radius: 50%; }
+    .loader-spinner::before { border: 4px solid rgba(13,49,90,0.08); }
+    .loader-spinner::after  {
+      border: 4px solid transparent;
+      border-top-color: #ff6f61; border-right-color: #ff9770;
+      animation: spin 0.9s cubic-bezier(0.45,0.05,0.55,0.95) infinite;
+    }
+    .loader-globe {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      animation: pulse-globe 1.8s ease-in-out infinite;
+    }
+    .loader-text { font-size: 0.85rem; color: #9ca3af; font-weight: 500; }
+
+    /* ─── Outer card ──────────────────────────────────────────────── */
+    .profile-container {
+      max-width: 680px;
+      margin: 100px auto 60px;
+      padding: 40px 36px;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 24px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+      opacity: 0;
+      animation: fadeInContainer 0.5s ease-out forwards;
+    }
+
+    /* ─────────────────────────────────────────────────────────────── */
+    /* SECTION 1 — HERO IDENTITY CARD                                 */
+    /* ─────────────────────────────────────────────────────────────── */
+    .hero-card {
+      background: linear-gradient(160deg, rgba(13,49,90,0.04) 0%, rgba(102,126,234,0.025) 100%);
+      border: 2px solid rgba(102,126,234,0.1);
+      border-radius: 20px;
+      padding: 40px 28px 32px;
+      text-align: center;
+      margin-bottom: 14px;
+      opacity: 0;
+      animation: fadeIn 0.5s ease-out 0.15s forwards;
+    }
+
+    /* Avatar — 100px for showcase prominence */
+    .avatar-container { position: relative; display: inline-block; margin-bottom: 18px; }
+    .user-avatar {
+      width: 100px; height: 100px;
+      border-radius: 50%; object-fit: cover;
+      border: 3px solid rgba(102,126,234,0.3);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .user-avatar:hover { transform: scale(1.03); box-shadow: 0 8px 24px rgba(0,0,0,0.18); }
+    .avatar-container.is-premium .user-avatar {
+      border-color: rgba(245,158,11,0.5);
+      box-shadow: 0 6px 20px rgba(245,158,11,0.18), 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .premium-badge-img {
+      position: absolute; bottom: 2px; right: 2px;
+      width: 28px; height: 28px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+
+    /* Identity row — flag + username on one line */
+    .identity-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    /* Flag — larger for national identity presence */
+    .player-flag-wrap { display: flex; align-items: center; }
+    .player-flag {
+      width: 38px; height: 27px;
+      border-radius: 4px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    /* Username — gradient clip, no bottom margin (identity-row owns that) */
+    .profile-username {
+      font-size: 2.2rem; font-weight: 700;
+      letter-spacing: -0.025em;
+      background: #0d315a;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Equipped badge slots in hero */
+    .achievement-area { margin-bottom: 20px; }
+    .ach-slots {
+      display: flex; align-items: center; justify-content: center; gap: 14px;
+      margin-bottom: 8px;
+    }
+    .ach-slot {
+      width: 88px; height: 88px;
+      border: 2px dashed rgba(102,126,234,0.18);
+      border-radius: 22px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.4rem; color: #d1d5db;
+      transition: border-color 0.2s, box-shadow 0.22s;
+      flex-shrink: 0;
+    }
+    .ach-slot.has-badge {
+      border: 2px solid rgba(102,126,234,0.18);
+      background: rgba(255,255,255,0.82);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .ach-slot.has-badge-img {
+      background: rgba(251,191,36,0.07);
+      border-color: rgba(245,158,11,0.22);
+    }
+    .ach-slot.has-badge:hover     { box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+    .ach-slot.has-badge-img:hover { box-shadow: 0 6px 20px rgba(245,158,11,0.15); }
+    .ach-slot-img {
+      display: block;
+      width: 68px; height: 68px;
+      object-fit: contain;
+      max-width: 100%; max-height: 100%;
+    }
+    @media (max-width: 480px) {
+      .ach-slot { width: 72px; height: 72px; border-radius: 18px; font-size: 2rem; }
+      .ach-slot-img { width: 56px; height: 56px; }
+      .ach-slots { gap: 10px; }
+    }
+    .ach-label {
+      font-size: 0.65rem; font-weight: 600;
+      color: #d1d5db;
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .ach-label.has-badges { color: #9ca3af; }
+
+
+    /* Disabled challenge button placeholder */
+    .challenge-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 10px 20px;
+      background: rgba(102,126,234,0.05);
+      border: 1.5px dashed rgba(102,126,234,0.2);
+      border-radius: 20px; color: #d1d5db;
+      font-size: 0.8rem; font-weight: 600;
+      cursor: not-allowed; user-select: none;
+      font-family: 'Rubik', sans-serif; letter-spacing: 0.02em;
+    }
+
+    /* ─── Section label ───────────────────────────────────────────── */
+    .section-label {
+      font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.65px;
+      color: #9ca3af; margin-bottom: 14px;
+    }
+
+    /* ─── Inner card ──────────────────────────────────────────────── */
+    .inner-card {
+      background: rgba(255,255,255,0.6);
+      border: 2px solid rgba(102,126,234,0.1);
+      border-radius: 16px; padding: 22px 20px 18px;
+      margin-bottom: 14px;
+    }
+
+    /* ─────────────────────────────────────────────────────────────── */
+    /* SECTION 2 — CORE STATS                                         */
+    /* ─────────────────────────────────────────────────────────────── */
+    .stats-card { opacity: 0; animation: fadeIn 0.5s ease-out 0.3s forwards; }
+
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+    }
+    @media (min-width: 480px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 600px) { .stats-grid { grid-template-columns: repeat(5, 1fr); } }
+    /* 5th stat: span 2 cols on 2-col mobile */
+    .stat-cell:nth-child(5) { grid-column: span 2; }
+    @media (min-width: 480px) { .stat-cell:nth-child(5) { grid-column: span 1; } }
+
+    .stat-cell {
+      background: rgba(102,126,234,0.05);
+      border: 1px solid rgba(102,126,234,0.1);
+      border-radius: 14px; padding: 16px 10px; text-align: center;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+      cursor: default;
+    }
+    .stat-cell:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(102,126,234,0.1);
+      background: rgba(102,126,234,0.09);
+    }
+    .stat-icon { font-size: 1.05rem; margin-bottom: 6px; }
+    .stat-value {
+      font-size: 1.65rem; font-weight: 800;
+      color: #0d315a; line-height: 1;
+      margin-bottom: 6px; letter-spacing: -0.02em;
+    }
+    .stat-label {
+      font-size: 0.65rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.5px; color: #9ca3af;
+    }
+
+    /* ─────────────────────────────────────────────────────────────── */
+    /* SECTION 3 — SIGNATURE STRENGTHS                                 */
+    /* ─────────────────────────────────────────────────────────────── */
+    .strengths-card { opacity: 0; animation: fadeIn 0.5s ease-out 0.44s forwards; }
+
+    .category-list { display: flex; flex-direction: column; gap: 9px; }
+
+    .cat-row {
+      display: grid; grid-template-columns: 38px 1fr 48px;
+      align-items: center; gap: 12px;
+      padding: 13px 14px; background: white;
+      border: 1.5px solid rgba(0,0,0,0.05); border-radius: 12px;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .cat-row:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(0,0,0,0.07); }
+    .cat-row.rank-first {
+      background: linear-gradient(135deg, rgba(251,191,36,0.07), white);
+      border-color: rgba(245,158,11,0.2);
+    }
+    .cat-row.rank-first:hover { box-shadow: 0 5px 16px rgba(245,158,11,0.1); }
+
+    .cat-rank { text-align: center; font-size: 1.1rem; }
+
+    .cat-info { min-width: 0; }
+    .cat-name {
+      font-size: 0.87rem; font-weight: 600; color: #1f2937;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      margin-bottom: 7px;
+    }
+    .cat-bar-track { height: 7px; background: rgba(102,126,234,0.1); border-radius: 8px; overflow: hidden; }
+    .cat-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff9770 0%, #ff6f61 100%);
+      border-radius: 8px; transition: width 0.6s ease-out;
+      position: relative; overflow: hidden;
+    }
+    .cat-bar-fill::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: shimmer 2s infinite;
+    }
+    .cat-score { font-size: 0.92rem; font-weight: 800; color: #0d315a; text-align: right; white-space: nowrap; }
+
+    /* ─── Strengths mode sections ─────────────────────────────────── */
+    .strengths-mode-section { margin-bottom: 16px; }
+    .strengths-mode-section:last-child { margin-bottom: 0; }
+    .strengths-mode-header {
+      font-size: 0.72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: #6b7280; margin-bottom: 8px; padding-left: 2px;
+    }
+
+    /* ─────────────────────────────────────────────────────────────── */
+    /* SECTION 4 — RECENT ACTIVITY                                     */
+    /* ─────────────────────────────────────────────────────────────── */
+    .activity-card { opacity: 0; animation: fadeIn 0.5s ease-out 0.57s forwards; }
+
+    .activity-list { display: flex; flex-direction: column; gap: 8px; }
+    .activity-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 11px 14px; background: white;
+      border: 1px solid rgba(0,0,0,0.05); border-radius: 10px;
+      transition: box-shadow 0.15s;
+    }
+    .activity-row:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.05); }
+    .activity-info { flex: 1; min-width: 0; }
+    .activity-cat {
+      font-size: 0.87rem; font-weight: 600; color: #1f2937;
+      display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      margin-bottom: 2px;
+    }
+    .activity-meta { font-size: 0.73rem; font-weight: 500; color: #9ca3af; white-space: nowrap; }
+    .activity-score { font-size: 0.9rem; font-weight: 800; color: #0d315a; white-space: nowrap; min-width: 36px; text-align: right; flex-shrink: 0; }
+
+    /* ─── CTA ─────────────────────────────────────────────────────── */
+    .cta-btn {
+      display: block; text-align: center; margin-top: 8px; padding: 14px;
+      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
+      color: white; border-radius: 12px; text-decoration: none;
+      font-weight: 600; font-size: 0.92rem;
+      box-shadow: 0 4px 14px rgba(255,111,97,0.3);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      opacity: 0; animation: fadeIn 0.5s ease-out 0.7s forwards;
+    }
+    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 20px rgba(255,111,97,0.42); }
+
+    /* ─── Empty state ─────────────────────────────────────────────── */
+    .empty-state { text-align: center; padding: 24px 0; color: #9ca3af; font-size: 0.85rem; }
+    .empty-state .e-icon { font-size: 1.6rem; margin-bottom: 8px; opacity: 0.5; }
+
+    /* ─── Error card ──────────────────────────────────────────────── */
+    .error-body { text-align: center; padding: 52px 0 36px; }
+    .error-body .e-globe { font-size: 3rem; margin-bottom: 20px; opacity: 0.5; }
+
+    /* ─── Mobile ──────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .profile-container { margin: 90px 12px 40px; padding: 32px 20px; }
+      .profile-username { font-size: 1.85rem; }
+      .user-avatar { width: 88px; height: 88px; }
+    }
+    @media (max-width: 480px) {
+      .profile-container { margin: 80px 8px 32px; padding: 24px 14px; }
+      .profile-username { font-size: 1.65rem; }
+      .hero-card { padding: 28px 16px 24px; }
+      .inner-card { padding: 18px 14px 14px; }
+      .stat-value { font-size: 1.45rem; }
+      .user-avatar { width: 80px; height: 80px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ========== HEADER (shared GeoRanks pattern) =================== -->
+<header class="home-glass-header">
+  <div class="logo-header">
+    <a href="../index.html" class="logo-link">
+      <img src="../assets/logo2.png" alt="GeoRanks Logo" />
+    </a>
+  </div>
+  <div class="menu-icon" id="menuToggle">
+    <span></span><span></span><span></span>
+  </div>
+</header>
+
+<!-- ========== HAMBURGER MENU ==================================== -->
+<div class="menu-overlay" id="menuOverlay">
+  <div class="menu-panel">
+    <h2>Menu</h2>
+    <button class="menu-btn" onclick="window.location.href='../index.html'">🏠 Home</button>
+    <button class="menu-btn" onclick="window.location.href='../daily-challenge.html'">📅 Daily Challenge</button>
+    <button class="menu-btn" onclick="window.location.href='../categories.html'">🎮 Categories</button>
+    <button class="menu-btn menu-btn-account" onclick="window.location.href='../account.html'">👤 Account</button>
+    <button class="menu-btn" onclick="window.location.href='../leaderboard.html'">🏆 Leaderboard</button>
+    <button class="menu-btn" onclick="window.location.href='../stats.html'">📊 My Stats</button>
+    <button class="menu-btn" onclick="window.location.href='../how-to-play.html'">💡 How to Play</button>
+    <button class="menu-btn" onclick="window.location.href='../feedback.html'">💬 Feedback</button>
+    <button class="menu-btn upgrade-access-btn" onclick="window.plausible?.('premium_clicked_navbar'); window.location.href='../premium.html'" style="display:none;">🔓 Unlock All Categories</button>
+    <button class="menu-close-x" id="closeMenu">×</button>
+  </div>
+</div>
+
+<!-- ── Loading overlay ───────────────────────────────────────────── -->
+<div id="pageLoader">
+  <div class="loader-inner">
+    <div class="loader-spinner"><div class="loader-globe">🌍</div></div>
+    <p class="loader-text">Loading profile…</p>
+  </div>
+</div>
+
+<!-- ── Main profile card ─────────────────────────────────────────── -->
+<div class="profile-container" id="profileContainer" style="display:none; opacity:0;">
+
+  <!-- ────────────────────────────────────────────────────────── -->
+  <!-- SECTION 1 — HERO IDENTITY CARD                            -->
+  <!-- ────────────────────────────────────────────────────────── -->
+  <div class="hero-card">
+
+    <div class="avatar-container" id="avatarContainer">
+      <img id="profileAvatar" class="user-avatar" src="../assets/profile-icon.jpg" alt="Avatar" />
+      <img id="premiumBadgeImg" class="premium-badge-img" src="../assets/GeoRanksPremium.png"
+           alt="Premium" style="display:none;" />
+    </div>
+
+    <!-- Identity row: flag (optional) + username inline -->
+    <div class="identity-row">
+      <div class="player-flag-wrap" id="flagWrap" style="display:none;">
+        <img id="playerFlag" class="player-flag" alt="Country" />
+      </div>
+      <h1 class="profile-username" id="profileUsername">—</h1>
+    </div>
+
+    <!-- Achievement badge slots — prestige placeholder -->
+    <div class="achievement-area">
+      <div class="ach-slots">
+        <div class="ach-slot" title="Achievement slot">—</div>
+        <div class="ach-slot" title="Achievement slot">—</div>
+        <div class="ach-slot" title="Achievement slot">—</div>
+      </div>
+      <p class="ach-label">Achievements · Coming Soon</p>
+    </div>
+
+    <!-- Future challenge button — disabled placeholder -->
+    <span class="challenge-btn">⚔️ Challenge Player — Coming Soon</span>
+  </div>
+
+  <!-- ────────────────────────────────────────────────────────── -->
+  <!-- SECTION 2 — CORE STATS SNAPSHOT                           -->
+  <!-- ────────────────────────────────────────────────────────── -->
+  <div class="inner-card stats-card">
+    <p class="section-label">Stats</p>
+    <div class="stats-grid">
+      <div class="stat-cell">
+        <div class="stat-icon">🎮</div>
+        <div class="stat-value" id="statGames">—</div>
+        <div class="stat-label">Games Played</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-icon">🏅</div>
+        <div class="stat-value" id="statAch">0</div>
+        <div class="stat-label">Achievements</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-icon">🗺️</div>
+        <div class="stat-value" id="statCats">—</div>
+        <div class="stat-label">Categories</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-icon">🔥</div>
+        <div class="stat-value" id="statStreak">—</div>
+        <div class="stat-label">Streak</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-icon">🏆</div>
+        <div class="stat-value" id="statBest">—</div>
+        <div class="stat-label">Best Streak</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────────────────────────────────────────────────────── -->
+  <!-- SECTION 3 — SIGNATURE STRENGTHS                           -->
+  <!-- ────────────────────────────────────────────────────────── -->
+  <div class="inner-card strengths-card">
+    <p class="section-label">Signature Strengths</p>
+    <div id="strengthsContent">
+      <div class="empty-state">
+        <div class="e-icon">🗺️</div>
+        <p>No games completed yet.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────────────────────────────────────────────────────── -->
+  <!-- SECTION 4 — RECENT ACTIVITY                               -->
+  <!-- ────────────────────────────────────────────────────────── -->
+  <div class="inner-card activity-card">
+    <p class="section-label">Recent Activity</p>
+    <div class="activity-list" id="activityList">
+      <div class="empty-state">
+        <div class="e-icon">📅</div>
+        <p>No recent activity yet.</p>
+      </div>
+    </div>
+  </div>
+
+  <a href="../index.html" class="cta-btn">Play GeoRanks →</a>
+</div>
+
+<!-- ── Error card ─────────────────────────────────────────────────── -->
+<div class="profile-container" id="errorContainer" style="display:none;">
+  <div class="error-body">
+    <div class="e-globe">🌍</div>
+    <h1 style="font-size:1.65rem;font-weight:700;color:#0d315a;margin-bottom:10px;" id="errorTitle">Player not found</h1>
+    <p style="color:#9ca3af;font-size:0.9rem;" id="errorSub">That username doesn't exist on GeoRanks yet.</p>
+    <a href="../index.html" class="cta-btn" style="max-width:280px;margin:28px auto 0;">← Back to GeoRanks</a>
+  </div>
+</div>
+
+<!-- ── Menu toggle ────────────────────────────────────────────────── -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const toggle  = document.getElementById('menuToggle');
+    const overlay = document.getElementById('menuOverlay');
+    const close   = document.getElementById('closeMenu');
+    toggle?.addEventListener('click',  () => overlay.classList.add('active'));
+    close?.addEventListener('click',   () => overlay.classList.remove('active'));
+    overlay?.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('active'); });
+  });
+</script>
+
+<!-- ── Profile logic ──────────────────────────────────────────────── -->
+<script type="module">
+  import { supabase }        from '../js/supabase-client.js';
+  import { CATEGORY_ID_MAP } from '../js/top10-categories-loader.js';
+  import { BADGE_META }      from '../js/achievement-celebration.js';
+
+  const ID_TO_KEY = {};
+  for (const [key, id] of Object.entries(CATEGORY_ID_MAP)) {
+    if (!ID_TO_KEY[id]) ID_TO_KEY[id] = key;
+  }
+
+  const CATEGORY_META = {
+    population:      { title: 'Population',        emoji: '👥' },
+    gdp:             { title: 'GDP per Capita',     emoji: '💰' },
+    landmass:        { title: 'Landmass',           emoji: '🗺️' },
+    altitude:        { title: 'Altitude',           emoji: '⛰️' },
+    forest:          { title: 'Forest Coverage',    emoji: '🌲' },
+    coastline:       { title: 'Coastline',          emoji: '🏖️' },
+    passport:        { title: 'Passport Power',     emoji: '🛂' },
+    beer:            { title: 'Beer Consumption',   emoji: '🍺' },
+    nobelprize:      { title: 'Nobel Prizes',       emoji: '🏅' },
+    hightemp:        { title: 'Highest Temp',       emoji: '☀️' },
+    temperature:     { title: 'Highest Temp',       emoji: '☀️' },
+    rainfall:        { title: 'Rainfall',           emoji: '🌧️' },
+    precipitation:   { title: 'Rainfall',           emoji: '🌧️' },
+    tourism:         { title: 'Tourism',            emoji: '✈️' },
+    michelin:        { title: 'Michelin Stars',     emoji: '⭐' },
+    bigmac:          { title: 'Big Mac Index',      emoji: '🍔' },
+    lifeexpectancy:  { title: 'Life Expectancy',    emoji: '🤍' },
+    happiness:       { title: 'Happiness',          emoji: '😊' },
+    olympic:         { title: 'Olympic Medals',     emoji: '🥇' },
+    worldcup:        { title: 'World Cup',          emoji: '⚽' },
+    cuisine:         { title: 'Cuisine',            emoji: '🍽️' },
+    crimerate:       { title: 'Crime Rate',         emoji: '🚨' },
+    marriageage:     { title: 'Marriage Age',       emoji: '💍' },
+    sexratio:        { title: 'Gender Ratio',       emoji: '⚖️' },
+    tallestbuilding: { title: 'Skyscrapers',        emoji: '🏙️' },
+    density:         { title: 'Pop. Density',       emoji: '👥' },
+    carexports:      { title: 'Car Exports',        emoji: '🚗' },
+    militarypersonel:{ title: 'Military',           emoji: '🪖' },
+    rent:            { title: 'Rent Prices',        emoji: '🏠' },
+    poorestgdp:      { title: 'Poorest GDP',        emoji: '📉' },
+    university:      { title: 'Universities',       emoji: '🎓' },
+    volcano:         { title: 'Volcanoes',          emoji: '🌋' },
+    flamingo:        { title: 'Flamingos',          emoji: '🦩' },
+    disasterrisk:    { title: 'Disaster Risk',      emoji: '🌪️' },
+    longestriver:    { title: 'Longest River',      emoji: '🌊' },
+    renewableenergy: { title: 'Renewable Energy',   emoji: '♻️' },
+    millionaires:    { title: 'Millionaires',       emoji: '💰' },
+    gm:              { title: 'Chess GMs',          emoji: '♟️' },
+    f1:              { title: 'F1 Titles',          emoji: '🏎️' },
+  };
+
+  function getUsernameFromPath() {
+    const parts = window.location.pathname.replace(/\/$/, '').split('/');
+    const candidate = parts[parts.length - 1];
+    if (candidate && candidate !== 'u') return decodeURIComponent(candidate);
+    const q = new URLSearchParams(window.location.search);
+    return q.get('username') || q.get('u') || null;
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function showError(title, sub) {
+    document.getElementById('pageLoader').style.display     = 'none';
+    document.getElementById('errorTitle').textContent       = title;
+    document.getElementById('errorSub').textContent         = sub;
+    document.getElementById('errorContainer').style.display = 'block';
+  }
+
+  function formatActivityDate(dateStr) {
+    // Handles both YYYY-MM-DD (daily_challenge_scores) and ISO timestamps (game_sessions)
+    const date     = new Date(dateStr);
+    const diffDays = Math.floor((Date.now() - date.getTime()) / 86400000);
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7)  return `${diffDays}d ago`;
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  const MODE_LABELS = {
+    classic: 'Classic',
+    top10:   'Top 10',
+    vs:      'VS Mode',
+    duel:    'Duel',
+    daily:   'Daily Challenge',
+  };
+
+  // ── Main ──────────────────────────────────────────────────────────
+  const username = getUsernameFromPath();
+  if (!username) {
+    showError('No player specified', 'Use /u?username=YourName to view a profile.');
+    throw new Error('no username in path');
+  }
+
+  document.title = `${username} — GeoRanks`;
+
+  // Try with country_code (requires migration 20260522000000 applied to DB).
+  // If PostgREST rejects the column (schema cache miss), fall back to the safe
+  // baseline select so the profile always loads — flag becomes a progressive enhancement.
+  async function loadUser(uname) {
+    // Full select including stat cache columns (migration 20260525000000)
+    // and country_code (migration 20260522000000).
+    const full = await supabase
+      .from('users')
+      .select('id, username, avatar_url, is_premium, subscription_tier, country_code, total_games, current_streak, best_streak, achievement_count, categories_played')
+      .eq('username', uname)
+      .maybeSingle();
+    if (!full.error) return full;
+
+    // Schema cache hasn't caught up to the latest migration — fall back to
+    // the guaranteed-stable baseline. Stat columns will be undefined;
+    // JS fallbacks (?? 0) handle this gracefully.
+    if (full.error.code === 'PGRST204' || full.error.message?.includes('column')) {
+      return supabase
+        .from('users')
+        .select('id, username, avatar_url, is_premium, subscription_tier')
+        .eq('username', uname)
+        .maybeSingle();
+    }
+    return full;
+  }
+
+  const { data: user, error: userErr } = await loadUser(username);
+
+  if (userErr || !user) {
+    showError('Player not found', `"${escHtml(username)}" hasn't joined GeoRanks yet.`);
+    throw new Error('user not found');
+  }
+
+  // Stats (gamesPlayed, streaks, achCount) are now read from the public cache
+  // columns on public.users — no separate protected-table queries needed.
+  // category_scores / top10_best_scores / vs_leaderboard_scores are still
+  // fetched because they're needed for Signature Strengths.
+  const [scoresResult, classicResult, top10Result, vsResult, badgesResult, activityResult] = await Promise.all([
+    // daily_challenge_scores — recentActivity fallback + categories fallback
+    supabase
+      .from('daily_challenge_scores')
+      .select('category_id, score, played_date')
+      .eq('user_id', user.id)
+      .eq('completed', true)
+      .limit(500),
+    // Best-score tables — Signature Strengths per mode
+    supabase.from('category_scores').select('category_id, score').eq('user_id', user.id),
+    supabase.from('top10_best_scores').select('category_id, score').eq('user_id', user.id),
+    supabase.from('vs_leaderboard_scores').select('category_id, score').eq('user_id', user.id),
+    // Equipped badges — public SELECT
+    supabase.from('user_equipped_badges').select('slot_number, badge_key').eq('user_id', user.id).order('slot_number'),
+    // Recent activity from game_sessions (has game_mode).
+    // RLS is auth.uid() = user_id — returns rows only for the profile owner.
+    // Public viewers get 0 rows and fall back to daily_challenge_scores below.
+    supabase
+      .from('game_sessions')
+      .select('category_id, game_mode, score, created_at, is_daily')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(5),
+  ]);
+
+  const scores        = scoresResult.data || [];
+  const classicScores = classicResult.data || [];
+  const top10Scores   = top10Result.data  || [];
+  const vsScores      = vsResult.data     || [];
+  const equippedBadges = badgesResult.data || [];
+
+  // Public stat cache — read directly from the users row (set by DB triggers).
+  // ?? 0 fallbacks handle the case where the migration hasn't been applied yet.
+  const gamesPlayed  = user.total_games       ?? 0;
+  const achCount     = user.achievement_count ?? 0;
+  const curStreak    = user.current_streak    ?? 0;
+  const topStreak    = user.best_streak       ?? 0;
+
+  // categoriesPlayed: prefer the cached counter; fall back to the union of
+  // best-score tables for deployments where the migration is still pending.
+  const allCatIds = new Set([
+    ...classicScores.map(r => r.category_id),
+    ...top10Scores.map(r => r.category_id),
+    ...vsScores.map(r => r.category_id),
+    ...scores.map(r => r.category_id),
+  ]);
+  const categoriesPlayed = (user.categories_played > 0)
+    ? user.categories_played
+    : allCatIds.size;
+
+  // Recent Activity: prefer game_sessions (has game_mode, covers all modes).
+  // Falls back to daily_challenge_scores when game_sessions is inaccessible
+  // (public viewer — RLS on game_sessions only allows the profile owner to read).
+  const sessionRows = activityResult.data || [];
+  const recentActivity = sessionRows.length > 0
+    ? sessionRows.slice(0, 3).map(row => ({
+        category_id: row.category_id,
+        score:       row.score,
+        dateStr:     row.created_at,
+        mode:        row.is_daily ? 'daily' : (row.game_mode || 'classic'),
+      }))
+    : [...scores]
+        .sort((a, b) => new Date(b.played_date) - new Date(a.played_date))
+        .slice(0, 3)
+        .map(row => ({
+          category_id: row.category_id,
+          score:       row.score,
+          dateStr:     row.played_date + 'T00:00:00Z',
+          mode:        'daily',
+        }));
+
+  // Signature Strengths: top 3 per mode, normalized within that mode
+  function topForMode(rows, n = 3) {
+    const best = {};
+    for (const row of rows) {
+      if (row.score > (best[row.category_id] ?? -1)) best[row.category_id] = row.score;
+    }
+    return Object.entries(best).sort((a, b) => b[1] - a[1]).slice(0, n);
+  }
+  const topClassic = topForMode(classicScores);
+  const topTop10   = topForMode(top10Scores);
+  const topVS      = topForMode(vsScores);
+
+  // ── Render hero ───────────────────────────────────────────────────
+  const isPremium = user.is_premium || user.subscription_tier === 'premium';
+  document.title = `${user.username} — GeoRanks`;
+
+  document.getElementById('profileAvatar').src = user.avatar_url || '../assets/profile-icon.jpg';
+  // Username — no @ prefix
+  document.getElementById('profileUsername').textContent = user.username;
+
+  if (isPremium) {
+    document.getElementById('avatarContainer').classList.add('is-premium');
+    document.getElementById('premiumBadgeImg').style.display = 'block';
+  }
+
+  // Country flag
+  if (user.country_code) {
+    const flagEl = document.getElementById('playerFlag');
+    flagEl.src = `../flags/${user.country_code}.png`;
+    flagEl.alt = user.country_code;
+    document.getElementById('flagWrap').style.display = 'block';
+  }
+
+  // ── Render stats ──────────────────────────────────────────────────
+  document.getElementById('statGames').textContent   = gamesPlayed      || '—';
+  document.getElementById('statAch').textContent     = achCount         || '—';
+  document.getElementById('statCats').textContent    = categoriesPlayed || '—';
+  document.getElementById('statStreak').textContent  = curStreak        || '—';
+  document.getElementById('statBest').textContent    = topStreak        || '—';
+
+  // ── Render equipped badge slots ───────────────────────────────────
+  const achSlots = document.querySelectorAll('.ach-slot');
+  let badgeLabelText = 'Achievements';
+  if (equippedBadges.length > 0) {
+    equippedBadges.forEach(eb => {
+      const slotIdx = eb.slot_number - 1;
+      if (slotIdx < 0 || slotIdx >= achSlots.length) return;
+      const meta = BADGE_META[eb.badge_key] || { emoji: '🏅', label: eb.badge_key };
+      const slot = achSlots[slotIdx];
+      // Clear placeholder text, apply base class + title
+      slot.textContent = '';
+      slot.title = meta.label;
+
+      if (meta.img) {
+        // Real image asset — use createElement so the browser definitively creates
+        // the img node and begins loading, regardless of any innerHTML caching quirks.
+        slot.className = 'ach-slot has-badge has-badge-img';
+        const img = document.createElement('img');
+        img.className = 'ach-slot-img';
+        img.src       = meta.img;
+        img.alt       = meta.label;
+        img.draggable = false;
+        // Fallback: if the image fails to load, show the emoji from BADGE_META
+        img.onerror = () => {
+          slot.removeChild(img);
+          slot.textContent = meta.emoji || '🏅';
+        };
+        slot.appendChild(img);
+      } else {
+        slot.className = 'ach-slot has-badge';
+        slot.textContent = meta.emoji || '🏅';
+      }
+    });
+    const achLabel = document.querySelector('.ach-label');
+    if (achLabel) { achLabel.className = 'ach-label has-badges'; achLabel.textContent = 'Badges'; }
+  }
+
+  // ── Render strengths ──────────────────────────────────────────────
+  const MEDALS = ['🥇', '🥈', '🥉'];
+  function renderModeSection(entries, modeClass, label) {
+    if (!entries.length) return '';
+    const maxScore = entries[0][1];
+    const rows = entries.map(([catId, score], idx) => {
+      const catKey = ID_TO_KEY[catId];
+      const meta   = (catKey && CATEGORY_META[catKey]) || { title: catKey || `Category ${catId}`, emoji: '🌍' };
+      const barPct = Math.round((score / Math.max(maxScore, 1)) * 100);
+      return `
+        <div class="cat-row${idx === 0 ? ' rank-first' : ''}">
+          <span class="cat-rank">${MEDALS[idx]}</span>
+          <div class="cat-info">
+            <div class="cat-name">${meta.emoji} ${escHtml(meta.title)}</div>
+            <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${barPct}%"></div></div>
+          </div>
+          <span class="cat-score">${score}</span>
+        </div>`;
+    }).join('');
+    return `
+      <div class="strengths-mode-section ${modeClass}">
+        <div class="strengths-mode-header">${label}</div>
+        <div class="category-list">${rows}</div>
+      </div>`;
+  }
+
+  const strengthsHtml =
+    renderModeSection(topClassic, 'mode-classic', 'Classic') +
+    renderModeSection(topVS,      'mode-vs',      'VS Mode') +
+    renderModeSection(topTop10,   'mode-top10',   'Top 10');
+
+  if (strengthsHtml) {
+    document.getElementById('strengthsContent').innerHTML = strengthsHtml;
+  }
+
+  // ── Render recent activity ────────────────────────────────────────
+  if (recentActivity.length > 0) {
+    document.getElementById('activityList').innerHTML = recentActivity.map(row => {
+      const catKey    = ID_TO_KEY[row.category_id];
+      const meta      = (catKey && CATEGORY_META[catKey]) || { title: catKey || `Category ${row.category_id}`, emoji: '🌍' };
+      const dateLabel = row.dateStr ? formatActivityDate(row.dateStr) : '—';
+      const modeLabel = MODE_LABELS[row.mode] || row.mode || '—';
+      return `
+        <div class="activity-row">
+          <div class="activity-info">
+            <span class="activity-cat">${meta.emoji} ${escHtml(meta.title)}</span>
+            <span class="activity-meta">${modeLabel} · ${dateLabel}</span>
+          </div>
+          <span class="activity-score">${row.score}</span>
+        </div>`;
+    }).join('');
+  }
+
+  // ── Reveal ────────────────────────────────────────────────────────
+  const card = document.getElementById('profileContainer');
+  card.style.opacity = '';
+  card.style.display = 'block';
+  document.getElementById('pageLoader').style.display = 'none';
+</script>
+
+</body>
+</html>
