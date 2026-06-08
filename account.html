@@ -114,6 +114,55 @@
       margin-top: 16px;
     }
     
+    /* Quick Navigation */
+    .account-quicknav {
+      position: sticky;
+      top: 76px;
+      z-index: 50;
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.78);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1.5px solid rgba(102, 126, 234, 0.12);
+      border-radius: 14px;
+      padding: 8px;
+      margin-bottom: 28px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    }
+
+    .quicknav-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 9px 10px;
+      border: none;
+      border-radius: 10px;
+      background: transparent;
+      color: #4b5563;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .quicknav-btn:hover,
+    .quicknav-btn:focus-visible {
+      background: rgba(102, 126, 234, 0.12);
+      color: #0d315a;
+    }
+
+    @media (max-width: 480px) {
+      .quicknav-btn { font-size: 0.74rem; padding: 8px 6px; gap: 4px; }
+    }
+
+    #accountInfo, #badges, #geodex { scroll-margin-top: 150px; }
+
     /* Account Info Cards */
     .info-card {
       background: rgba(255, 255, 255, 0.6);
@@ -432,11 +481,21 @@
       border: 2px dashed rgba(102,126,234,0.18); border-radius: 16px;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center; gap: 4px;
-      padding: 12px 6px; transition: border-color 0.2s, background 0.2s;
+      padding: 12px 6px; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s, transform 0.18s ease;
+    }
+    .badge-slot:hover, .badge-slot:focus-visible {
+      border-color: rgba(102,126,234,0.4);
+      background: rgba(102,126,234,0.09);
+      transform: translateY(-2px);
     }
     .badge-slot.has-badge {
       border: 2px solid rgba(102,126,234,0.2);
       background: rgba(255,255,255,0.85);
+    }
+    .badge-slot.has-badge:hover, .badge-slot.has-badge:focus-visible {
+      border-color: rgba(102,126,234,0.4);
+      background: rgba(255,255,255,0.95);
     }
     .badge-slot-emoji { font-size: 1.75rem; line-height: 1; }
     .badge-slot-img {
@@ -729,6 +788,93 @@
     }
     .bc-slot-btn:hover { background: rgba(102,126,234,0.18); }
 
+    /* ── My Collection — badge slot picker ─────────────────────────── */
+    .bc-collection-modal {
+      position: fixed; z-index: 9001;
+      top: 50%; left: 50%;
+      transform: translate(-50%, calc(-50% + 18px)) scale(0.93);
+      width: min(440px, calc(100vw - 32px));
+      max-height: calc(100dvh - 64px);
+      overflow-y: auto;
+      background: white; border-radius: 24px;
+      padding: 26px 22px 22px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.08);
+      opacity: 0;
+      transition: opacity 0.22s ease,
+                  transform 0.30s cubic-bezier(0.34,1.4,0.64,1);
+      text-align: center;
+    }
+    .bc-collection-modal.bc-modal-visible {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    .bc-collection-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.15rem; font-weight: 800; color: #0d315a;
+      margin: 0 0 4px;
+    }
+    .bc-collection-subtitle {
+      font-size: 0.82rem; color: #6b7280; margin: 0 0 18px;
+    }
+    .bc-collection-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+      gap: 10px;
+      justify-content: center;
+    }
+    .bc-collection-tile {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      background: rgba(102,126,234,0.04);
+      border: 1.5px solid rgba(102,126,234,0.12);
+      border-radius: 16px;
+      padding: 12px 8px 10px;
+      cursor: pointer; outline: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.18s cubic-bezier(0.34,1.4,0.64,1),
+                  box-shadow 0.18s ease, border-color 0.15s, background 0.15s;
+    }
+    .bc-collection-tile:hover, .bc-collection-tile:focus-visible {
+      transform: translateY(-3px);
+      box-shadow: 0 7px 20px rgba(102,126,234,0.18);
+      border-color: rgba(102,126,234,0.35);
+      background: rgba(102,126,234,0.08);
+    }
+    .bc-collection-tile:active { transform: scale(0.96); transition-duration: 0.08s; }
+    .bc-collection-visual {
+      width: 52px; height: 52px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .bc-collection-img {
+      width: 100%; height: 100%; object-fit: contain;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));
+    }
+    .bc-collection-emoji { font-size: 1.8rem; line-height: 1; }
+    .bc-collection-name {
+      font-size: 0.78rem; font-weight: 700; color: #374151; line-height: 1.2;
+    }
+    .bc-collection-section {
+      font-size: 0.64rem; color: #9ca3af; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .bc-collection-tag {
+      font-size: 0.64rem; font-weight: 700;
+      padding: 2px 8px; border-radius: 10px; margin-top: 1px;
+      background: rgba(16,185,129,0.12); color: #059669;
+    }
+    .bc-collection-tag--current {
+      background: rgba(102,126,234,0.16); color: #4f46e5;
+    }
+    .bc-collection-empty { padding: 26px 6px 10px; }
+    .bc-collection-empty-title {
+      font-size: 0.95rem; font-weight: 700; color: #374151; margin: 0 0 6px;
+    }
+    .bc-collection-empty-sub {
+      font-size: 0.82rem; color: #9ca3af; margin: 0;
+    }
+    @media (max-width: 380px) {
+      .bc-collection-grid { grid-template-columns: repeat(auto-fill, minmax(82px, 1fr)); }
+    }
+
     /* ── GeoDex ───────────────────────────────────────────────────── */
     .gdx-summary { margin-bottom: 18px; }
     .gdx-count-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 8px; }
@@ -872,6 +1018,38 @@
       font-size: 1.12rem; font-weight: 800; color: #0d315a;
       text-align: center; margin: 0 0 4px;
     }
+    .gdx-modal-play-heading {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.78rem; font-weight: 800; color: #9ca3af;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      text-align: center; margin: 14px 0 8px;
+    }
+    .gdx-modal-play-row {
+      display: flex; gap: 8px; margin-bottom: 16px;
+    }
+    .gdx-modal-play-btn {
+      flex: 1; text-align: center;
+      padding: 12px 8px;
+      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
+      color: white; border: none; border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.84rem; font-weight: 700; text-decoration: none;
+      box-shadow: 0 4px 14px rgba(255,111,97,0.30);
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .gdx-modal-play-btn:hover,
+    .gdx-modal-play-btn:focus-visible {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px rgba(255,111,97,0.42);
+    }
+    .gdx-modal-play-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 8px rgba(255,111,97,0.30);
+    }
+    @media (max-width: 380px) {
+      .gdx-modal-play-btn { font-size: 0.76rem; padding: 11px 4px; }
+    }
     /* Tier I / Tier II summary cards — explicit progress at a glance */
     .gdx-modal-tiers { display: flex; flex-direction: column; gap: 7px; margin: 14px 0 16px; }
     .gdx-modal-tier {
@@ -984,8 +1162,15 @@
     <div class="message" id="avatarMsg"></div>
   </div>
 
+  <!-- Quick Navigation -->
+  <nav class="account-quicknav" id="accountQuickNav" aria-label="Account page sections">
+    <button class="quicknav-btn" data-target="accountInfo">👤 Account</button>
+    <button class="quicknav-btn" data-target="badges">🏆 Badges</button>
+    <button class="quicknav-btn" data-target="geodex">🌍 GeoDex</button>
+  </nav>
+
   <!-- Account Info -->
-  <div class="info-card">
+  <div class="info-card" id="accountInfo">
     <div class="info-row">
       <span class="info-label">👤 Username</span>
       <span class="info-value" id="currentUsername">Loading...</span>
@@ -1180,6 +1365,13 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
+
+  document.querySelectorAll('.quicknav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = document.getElementById(btn.dataset.target);
+      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
 });
 </script>
 
@@ -1950,17 +2142,32 @@ document.addEventListener('DOMContentLoaded', function() {
           ${visual}
           <span class="badge-slot-name">${escHtml(meta.label)}</span>
           <button class="badge-unequip-btn" data-slot="${slotNum}">Remove</button>`;
-        slot.querySelector('.badge-unequip-btn').addEventListener('click', async () => {
-          const { error } = await supabase.from('user_equipped_badges')
-            .delete().eq('slot_number', slotNum);
-          if (error) { console.warn('⚠️ Unequip failed:', error.message); return; }
-          await refreshAchievements();
-        });
       } else {
         slot.className = 'badge-slot';
         slot.innerHTML = `<span class="badge-slot-empty">—</span>`;
       }
     });
+
+    // Delegated listener (attached once) — handles slot clicks (open picker)
+    // and Remove-button clicks (unequip), surviving re-renders without stacking.
+    if (!container.dataset.delegated) {
+      container.dataset.delegated = '1';
+      container.addEventListener('click', async (e) => {
+        const removeBtn = e.target.closest('.badge-unequip-btn');
+        if (removeBtn) {
+          const slotNum = parseInt(removeBtn.dataset.slot);
+          const { error } = await supabase.from('user_equipped_badges')
+            .delete().eq('slot_number', slotNum);
+          if (error) { console.warn('⚠️ Unequip failed:', error.message); return; }
+          await refreshAchievements();
+          return;
+        }
+        const slotEl = e.target.closest('[data-slot]');
+        if (slotEl) {
+          openCollectionPicker(parseInt(slotEl.dataset.slot));
+        }
+      });
+    }
   }
 
   // ── Equip via RPC (preserved exactly) ─────────────────────────
@@ -2200,6 +2407,109 @@ document.addEventListener('DOMContentLoaded', function() {
     bd?.classList.remove('bc-modal-visible');
     md?.classList.remove('bc-modal-visible');
     setTimeout(() => { bd?.remove(); md?.remove(); }, 260);
+  }
+
+  // ── Collection picker (equip from "My Collection") ─────────────
+  let _collectionBackdrop = null;
+  let _collectionEl       = null;
+
+  function closeCollectionPicker() {
+    const bd = _collectionBackdrop;
+    const md = _collectionEl;
+    _collectionBackdrop = null;
+    _collectionEl       = null;
+    if (!bd && !md) return;
+    bd?.classList.remove('bc-modal-visible');
+    md?.classList.remove('bc-modal-visible');
+    setTimeout(() => { bd?.remove(); md?.remove(); }, 260);
+  }
+
+  function openCollectionPicker(slotNum) {
+    closeBadgeModal();
+    closeCollectionPicker();
+
+    const equippedKeysBySlot = new Map(_equippedBadges.map(e => [e.badge_key, e.slot_number]));
+
+    const unlocked = [];
+    SECTIONS.forEach(section => {
+      const catalogue = BADGE_CATALOG[section.key];
+      if (!catalogue?.length) return;
+      catalogue.forEach(ach => {
+        if (!ach.badge_key) return;
+        if (!_unlockedKeys.has(ach.achievement_key)) return;
+        unlocked.push({ ach, section });
+      });
+    });
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'bc-modal-backdrop';
+    backdrop.addEventListener('click', e => { if (e.target === backdrop) closeCollectionPicker(); });
+
+    const modal = document.createElement('div');
+    modal.className = 'bc-modal bc-collection-modal';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'My Collection');
+
+    const bodyHtml = unlocked.length
+      ? `<div class="bc-collection-grid" id="_bcCollectionGrid"></div>`
+      : `<div class="bc-collection-empty">
+           <p class="bc-collection-empty-title">You haven't unlocked any badges yet.</p>
+           <p class="bc-collection-empty-sub">Play games and complete achievements to build your collection.</p>
+         </div>`;
+
+    modal.innerHTML = `
+      <button class="bc-modal-close" id="_bcCollectionClose" aria-label="Close">×</button>
+      <h3 class="bc-collection-title">My Collection</h3>
+      <p class="bc-collection-subtitle">Choose a badge to equip to this slot.</p>
+      ${bodyHtml}`;
+
+    document.body.appendChild(backdrop);
+    document.body.appendChild(modal);
+    _collectionBackdrop = backdrop;
+    _collectionEl       = modal;
+
+    requestAnimationFrame(() => {
+      backdrop.classList.add('bc-modal-visible');
+      modal.classList.add('bc-modal-visible');
+    });
+
+    modal.querySelector('#_bcCollectionClose').addEventListener('click', closeCollectionPicker);
+    modal.querySelector('#_bcCollectionClose').focus();
+
+    const grid = modal.querySelector('#_bcCollectionGrid');
+    if (grid) {
+      unlocked.forEach(({ ach, section }) => {
+        const meta = BADGE_META[ach.badge_key] || { emoji: '🏅', label: ach.name };
+        const visualHtml = meta.img
+          ? `<img class="bc-collection-img" src="${meta.img}" alt="${escHtml(ach.name)}" draggable="false"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+             <span class="bc-collection-emoji" style="display:none">${meta.emoji || '🏅'}</span>`
+          : `<span class="bc-collection-emoji">${meta.emoji || '🏅'}</span>`;
+
+        const equippedSlot = equippedKeysBySlot.get(ach.badge_key);
+        let tagHtml = '';
+        if (equippedSlot === slotNum) {
+          tagHtml = `<span class="bc-collection-tag bc-collection-tag--current">In this slot</span>`;
+        } else if (equippedSlot != null) {
+          tagHtml = `<span class="bc-collection-tag">Equipped · Slot ${equippedSlot}</span>`;
+        }
+
+        const tile = document.createElement('button');
+        tile.className = 'bc-collection-tile';
+        tile.setAttribute('aria-label', ach.name);
+        tile.innerHTML = `
+          <div class="bc-collection-visual">${visualHtml}</div>
+          <span class="bc-collection-name">${escHtml(meta.label || ach.name)}</span>
+          <span class="bc-collection-section">${section.label}</span>
+          ${tagHtml}`;
+        tile.addEventListener('click', async () => {
+          closeCollectionPicker();
+          await doEquip(ach.badge_key, slotNum);
+        });
+        grid.appendChild(tile);
+      });
+    }
   }
 
   // ── Requirements HTML ──────────────────────────────────────────
@@ -2532,8 +2842,9 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // ── Data loading ───────────────────────────────────────────────
-  let _session      = null;
-  let _unlockedKeys = new Set(); // synced each render; read by loadBadgeProgress
+  let _session       = null;
+  let _unlockedKeys  = new Set(); // synced each render; read by loadBadgeProgress
+  let _equippedBadges = []; // synced each render; read by openCollectionPicker
 
   async function refreshAchievements() {
     if (!_session) return;
@@ -2542,6 +2853,7 @@ document.addEventListener('DOMContentLoaded', function() {
       supabase.from('user_equipped_badges').select('slot_number, badge_key').eq('user_id', _session.user.id).order('slot_number'),
       supabase.from('achievements').select('*').eq('is_active', true).order('sort_order'),
     ]);
+    _equippedBadges = equipped || [];
     renderEquippedSlots(equipped || []);
     renderBadgeCollection(userAchs || [], allAchs || [], equipped || []);
   }
@@ -2741,6 +3053,12 @@ document.addEventListener('DOMContentLoaded', function() {
         <button class="gdx-modal-close" aria-label="Close">×</button>
         <span class="gdx-modal-icon">${cat.emoji}</span>
         <h3 class="gdx-modal-title">${escHtml(cat.title)}</h3>
+        <p class="gdx-modal-play-heading">Play Now</p>
+        <div class="gdx-modal-play-row">
+          <a class="gdx-modal-play-btn" href="game?mode=${encodeURIComponent(cat.key)}">Classic</a>
+          <a class="gdx-modal-play-btn" href="top10?mode=${encodeURIComponent(cat.key)}">Top 10</a>
+          <a class="gdx-modal-play-btn" href="vs?mode=${encodeURIComponent(cat.key)}">VS</a>
+        </div>
         <div class="gdx-modal-tiers">
           <div class="gdx-modal-tier ${t1Cls}">
             <span class="gdx-modal-tier-icon">${t1Icon}</span>
