@@ -43,6 +43,9 @@ export const CATEGORY_ID_MAP = {
   millionaires: 35,
   gm: 36,
   f1: 37,
+  worldcupgoals: 38,
+  worldcupappearances: 39,
+  worldcupwins: 40,
 };
 
 // Category configurations for Top 10 mode
@@ -400,6 +403,35 @@ f1: {
   dataKey: "f1Data",
   valueField: "f1",
   rankField: "f1Rank"
+},
+worldcupgoals: {
+  title: "World Cup Goals",
+  emoji: "⚽",
+  unit: "goals",
+  dataFile: "worldcupgoals",
+  dataKey: "worldCupGoalsScoredData",
+  valueField: "goalsScored",
+  rankField: "goalsRank",
+  filterZeroValues: true
+},
+worldcupappearances: {
+  title: "World Cup Appearances",
+  emoji: "⚽",
+  unit: "appearances",
+  dataFile: "worldcupappearances",
+  dataKey: "worldCupAppearancesData",
+  valueField: "appearances",
+  rankField: "appearancesRank"
+},
+worldcupwins: {
+  title: "World Cup Wins",
+  emoji: "⚽",
+  unit: "wins",
+  dataFile: "worldcupwins",
+  dataKey: "worldCupWinsData",
+  valueField: "wins",
+  rankField: "winsRank",
+  filterZeroValues: true
 }
 };
 

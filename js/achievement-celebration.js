@@ -59,7 +59,7 @@ export const BADGE_META = {
   badge_platinum_georanks_legend:      { img: '/assets/badges/gr2_platinum_georanks_legend.png',      emoji: '🌟', label: 'GeoRanks Legend',      grad: _G.plat },
   badge_platinum_geodex_completionist: { img: '/assets/badges/gr2_platinum_geodex_completionist.png', emoji: '📚', label: 'GeoDex Completionist', grad: _G.plat },
 
-  // ── Specialist Tier I (37) ────────────────────────────────────────
+  // ── Specialist Tier I (40) ────────────────────────────────────────
   badge_population_t1:       { img: '/assets/badges/gr2_specialist_population_t1.png',        emoji: '👥', label: 'Census Taker',           grad: _G.s1 },
   badge_altitude_t1:         { img: '/assets/badges/gr2_specialist_altitude_t1.png',           emoji: '🏔️', label: 'Summit Chaser',          grad: _G.s1 },
   badge_gdp_t1:              { img: '/assets/badges/gr2_specialist_gdp_t1.png',               emoji: '💰', label: 'GDP Grinder',             grad: _G.s1 },
@@ -97,8 +97,11 @@ export const BADGE_META = {
   badge_millionaires_t1:     { img: '/assets/badges/gr2_specialist_millionaires_t1.png',       emoji: '💎', label: 'Wealth Watcher',          grad: _G.s1 },
   badge_gm_t1:               { img: '/assets/badges/gr2_specialist_chess_gm_t1.png',           emoji: '♟️', label: 'Chess Enthusiast',        grad: _G.s1 },
   badge_f1_t1:               { img: '/assets/badges/gr2_specialist_f1_t1.png',                 emoji: '🏎️', label: 'Race Fan',                grad: _G.s1 },
+  badge_worldcupgoals_t1:        { img: '/assets/badges/gr2_specialist_world_cup_goals_t1.png',        emoji: '⚽', label: 'Goal Tracker',            grad: _G.s1 },
+  badge_worldcupappearances_t1:  { img: '/assets/badges/gr2_specialist_world_cup_appearances_t1.png',  emoji: '⚽', label: 'Tournament Regular',      grad: _G.s1 },
+  badge_worldcupwins_t1:         { img: '/assets/badges/gr2_specialist_world_cup_wins_t1.png',         emoji: '⚽', label: 'Trophy Watcher',          grad: _G.s1 },
 
-  // ── Specialist Tier II (35 — no population/gdp; those use existing badges above) ──
+  // ── Specialist Tier II (38 — no population/gdp; those use existing badges above) ──
   badge_altitude_t2:         { img: '/assets/badges/gr2_specialist_altitude_t2.png',           emoji: '🏔️', label: 'Altitude Expert',          grad: _G.s2 },
   badge_happiness_t2:        { img: '/assets/badges/gr2_specialist_happiness_t2.png',          emoji: '😊', label: 'Happiness Guru',            grad: _G.s2 },
   badge_forest_t2:           { img: '/assets/badges/gr2_specialist_forest_t2.png',             emoji: '🌲', label: 'Forest Ranger',             grad: _G.s2 },
@@ -134,6 +137,9 @@ export const BADGE_META = {
   badge_millionaires_t2:     { img: '/assets/badges/gr2_specialist_millionaires_t2.png',       emoji: '💎', label: 'Wealth Expert',             grad: _G.s2 },
   badge_gm_t2:               { img: '/assets/badges/gr2_specialist_chess_gm_t2.png',           emoji: '♟️', label: 'Grandmaster Scholar',       grad: _G.s2 },
   badge_f1_t2:               { img: '/assets/badges/gr2_specialist_f1_t2.png',                 emoji: '🏎️', label: 'F1 Historian',              grad: _G.s2 },
+  badge_worldcupgoals_t2:        { img: '/assets/badges/gr2_specialist_world_cup_goals_t2.png',        emoji: '⚽', label: 'Goal Scoring Expert',       grad: _G.s2 },
+  badge_worldcupappearances_t2:  { img: '/assets/badges/gr2_specialist_world_cup_appearances_t2.png',  emoji: '⚽', label: 'World Cup Historian',       grad: _G.s2 },
+  badge_worldcupwins_t2:         { img: '/assets/badges/gr2_specialist_world_cup_wins_t2.png',         emoji: '⚽', label: 'Champion Tracker',          grad: _G.s2 },
 };
 
 // ---------------------------------------------------------------------------

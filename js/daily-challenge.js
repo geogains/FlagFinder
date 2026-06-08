@@ -15,7 +15,7 @@ const allCategories = [
   'marriageage', 'sexratio', 'tallestbuilding', 'density', 'carexports',
   'militarypersonel', 'rent', 'poorestgdp', 'university', 'volcano',
   'flamingo', 'disasterrisk', 'longestriver', 'renewableenergy', 'millionaires', 'gm',
-  'f1'
+  'f1', 'worldcupgoals', 'worldcupappearances', 'worldcupwins'
 ];
 
 // Categories with at least 10 countries (valid for Top 10 mode)
@@ -27,7 +27,7 @@ const top10ValidCategories = [
   'marriageage', 'sexratio', 'tallestbuilding', 'density', 'carexports',
   'militarypersonel', 'rent', 'poorestgdp', 'university', 'volcano',
   'flamingo', 'disasterrisk', 'longestriver', 'renewableenergy', 'millionaires', 'gm',
-  'f1'
+  'f1', 'worldcupgoals', 'worldcupappearances', 'worldcupwins'
 ];
 
 // All categories valid for Classic and VS (no minimum requirement)
@@ -248,6 +248,9 @@ export const categoryDisplayNames = {
   millionaires: 'Millionaires',
   gm: 'Grandmasters',
   f1: 'F1 Championships',
+  worldcupgoals: 'World Cup Goals',
+  worldcupappearances: 'World Cup Appearances',
+  worldcupwins: 'World Cup Wins',
 };
 
 // Get emoji for each category
@@ -290,6 +293,9 @@ export const categoryEmojis = {
   millionaires: '💰',
   gm: '♟️',
   f1: '🏎️',
+  worldcupgoals: '⚽',
+  worldcupappearances: '⚽',
+  worldcupwins: '⚽',
 };
 
 console.log('Daily Challenge utilities ready');

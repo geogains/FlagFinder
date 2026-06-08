@@ -47,6 +47,17 @@ function detectMetricKey(data) {
   if (!data.length) return null;
   const sample = data[0];
   const keys = Object.keys(sample);
+
+  // Prefer the explicit valueField from category config — avoids false positives
+  // when a dataset contains multiple numeric fields (e.g. worldcup has both
+  // "trophies" and "worldcup"; config says valueField:"worldcup").
+  const configValueField = categoriesConfig[currentCategory]?.valueField;
+  if (configValueField && keys.includes(configValueField)) {
+    return configValueField;
+  }
+
+  // Fallback scan for datasets that pre-date categories-config.js or are loaded
+  // outside the normal category pipeline.
   const possibleKeys = [
     "population",
     "gdp",
@@ -68,7 +79,6 @@ function detectMetricKey(data) {
     "michelinTotal",
     "bigMacPrice",
     "lifeExpectancy",
-    // NEW CATEGORIES
     "marriageAge",
     "sexRatio",
     "height",
@@ -85,7 +95,10 @@ function detectMetricKey(data) {
     "sharepercent",
     "millionaires",
     "grandmasters",
-    "f1"
+    "f1",
+    "goalsScored",
+    "appearances",
+    "wins"
   ];
   return possibleKeys.find((k) => keys.includes(k)) || null;
 }
@@ -472,7 +485,10 @@ async function endGame() {
     disasterrisk: 'Natural Disasters',
     longestriver: 'Longest River',
     renewableenergy: 'Renewable Energy',
-    f1: 'F1 Championships'
+    f1: 'F1 Championships',
+    worldcupgoals: 'World Cup Goals',
+    worldcupappearances: 'World Cup Appearances',
+    worldcupwins: 'World Cup Wins'
   };
   const categoryName = categoryNames[categoryParam] || categoryParam;
 

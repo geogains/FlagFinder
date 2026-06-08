@@ -404,6 +404,9 @@ export function openModeSelector(categoryKey, categoryDisplayName, categoryEmoji
     millionaires: "millionaires.jpg",
     gm: "gm.jpg",
     f1: "f1.jpg",
+    worldcupgoals: "worldcupgoals.jpg",
+    worldcupappearances: "worldcupappearances.jpg",
+    worldcupwins: "worldcupwins.jpg",
   };
 
   const bgImage = bgMap[categoryKey];

@@ -459,7 +459,7 @@ export const categoriesConfig = {
     dataKey: "worldcupData",
     valueField: "worldcup",
     questionText: "WHICH COUNTRY HAS THE MOST WORLD CUP TROPHIES?",
-    premium: true,
+    premium: false,
     image: "worldcup.jpg"
   },
 
@@ -473,6 +473,42 @@ export const categoriesConfig = {
     questionText: "WHICH COUNTRY HAS MORE FORMULA 1 WORLD DRIVERS' CHAMPIONSHIPS?",
     premium: true,
     image: "f1.jpg"
+  },
+
+  worldcupgoals: {
+    title: "World Cup Goals",
+    emoji: "⚽",
+    unit: "goals",
+    dataFile: "worldcupgoals",
+    dataKey: "worldCupGoalsScoredData",
+    valueField: "goalsScored",
+    questionText: "WHICH COUNTRY HAS SCORED MORE WORLD CUP GOALS?",
+    premium: false,
+    image: "worldcupgoals.jpg"
+  },
+
+  worldcupappearances: {
+    title: "World Cup Appearances",
+    emoji: "⚽",
+    unit: "appearances",
+    dataFile: "worldcupappearances",
+    dataKey: "worldCupAppearancesData",
+    valueField: "appearances",
+    questionText: "WHICH COUNTRY HAS MORE WORLD CUP APPEARANCES?",
+    premium: false,
+    image: "worldcupappearances.jpg"
+  },
+
+  worldcupwins: {
+    title: "World Cup Wins",
+    emoji: "⚽",
+    unit: "wins",
+    dataFile: "worldcupwins",
+    dataKey: "worldCupWinsData",
+    valueField: "wins",
+    questionText: "WHICH COUNTRY HAS WON MORE WORLD CUP MATCHES?",
+    premium: false,
+    image: "worldcupwins.jpg"
   }
 };
 
@@ -523,4 +559,7 @@ export const CATEGORY_ID_MAP = {
   millionaires: 35,
   gm: 36,
   f1: 37,
+  worldcupgoals: 38,
+  worldcupappearances: 39,
+  worldcupwins: 40,
 };

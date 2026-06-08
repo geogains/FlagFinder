@@ -1264,7 +1264,7 @@
     <div class="gdx-summary">
       <div class="gdx-count-row">
         <span class="gdx-count" id="gdxCount">—</span>
-        <span class="gdx-total" id="gdxTotal">/ 37 categories</span>
+        <span class="gdx-total" id="gdxTotal">/ 40 categories</span>
       </div>
       <div class="gdx-bar-track"><div class="gdx-bar-fill" id="gdxBarFill"></div></div>
       <p class="gdx-subtext">Played across Classic, VS Mode &amp; Top 10</p>
@@ -1998,7 +1998,7 @@ document.addEventListener('DOMContentLoaded', function() {
   ];
 
   // ── Badge Catalogue ────────────────────────────────────────────
-  // Canonical ordered definition of all 102 collectible badges.
+  // Canonical ordered definition of all 108 collectible badges.
   // Drives rendering regardless of DB state. Real DB rows take priority
   // when they exist; missing rows render as locked catalogue placeholders.
   // After Phase 2 deploys, all rows will exist and placeholders vanish naturally.
@@ -2036,7 +2036,7 @@ document.addEventListener('DOMContentLoaded', function() {
       { achievement_key:'platinum_geodex_completionist', badge_key:'badge_platinum_geodex_completionist', name:'GeoDex Completionist',  description:'Complete all Specialist Tier I categories.',                                    sort_order:510 },
     ],
     specialist: [
-      // Tier I (37) ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+      // Tier I (40) ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
       { achievement_key:'specialist_population_t1',      badge_key:'badge_population_t1',       name:'Census Taker',           description:'Play Population in Classic, VS, and Top 10.',            sort_order:1001, specialist_tier:1, specialist_category_id:1  },
       { achievement_key:'specialist_altitude_t1',        badge_key:'badge_altitude_t1',         name:'Summit Chaser',          description:'Play Highest Altitude in Classic, VS, and Top 10.',      sort_order:1002, specialist_tier:1, specialist_category_id:2  },
       { achievement_key:'specialist_gdp_t1',             badge_key:'badge_gdp_t1',              name:'GDP Grinder',            description:'Play GDP Per Capita in Classic, VS, and Top 10.',        sort_order:1003, specialist_tier:1, specialist_category_id:3  },
@@ -2074,7 +2074,10 @@ document.addEventListener('DOMContentLoaded', function() {
       { achievement_key:'specialist_millionaires_t1',    badge_key:'badge_millionaires_t1',     name:'Wealth Watcher',         description:'Play Millionaires in Classic, VS, and Top 10.',          sort_order:1035, specialist_tier:1, specialist_category_id:35 },
       { achievement_key:'specialist_gm_t1',              badge_key:'badge_gm_t1',               name:'Chess Enthusiast',       description:'Play Grandmasters in Classic, VS, and Top 10.',          sort_order:1036, specialist_tier:1, specialist_category_id:36 },
       { achievement_key:'specialist_f1_t1',              badge_key:'badge_f1_t1',               name:'Race Fan',               description:'Play F1 Titles in Classic, VS, and Top 10.',             sort_order:1037, specialist_tier:1, specialist_category_id:37 },
-      // Tier II (37 — all categories) ─────────────────────────────────────────────────────────────────────────────────────────────
+      { achievement_key:'specialist_worldcupgoals_t1',       badge_key:'badge_worldcupgoals_t1',        name:'Goal Tracker',           description:'Play World Cup Goals in Classic, VS, and Top 10.',       sort_order:1038, specialist_tier:1, specialist_category_id:38 },
+      { achievement_key:'specialist_worldcupappearances_t1', badge_key:'badge_worldcupappearances_t1',  name:'Tournament Regular',     description:'Play World Cup Appearances in Classic, VS, and Top 10.', sort_order:1039, specialist_tier:1, specialist_category_id:39 },
+      { achievement_key:'specialist_worldcupwins_t1',        badge_key:'badge_worldcupwins_t1',         name:'Trophy Watcher',         description:'Play World Cup Wins in Classic, VS, and Top 10.',        sort_order:1040, specialist_tier:1, specialist_category_id:40 },
+      // Tier II (40 — all categories) ─────────────────────────────────────────────────────────────────────────────────────────────
       { achievement_key:'population_expert',             badge_key:'badge_population_expert',   name:'Population Expert',      description:'Master Population — 90+ Classic, 1000+ VS, perfect Top 10.',              sort_order:2001, specialist_tier:2, specialist_category_id:1  },
       { achievement_key:'specialist_altitude_t2',        badge_key:'badge_altitude_t2',         name:'Altitude Expert',        description:'Master Highest Altitude — 90+ Classic, 1000+ VS, perfect Top 10.',        sort_order:2002, specialist_tier:2, specialist_category_id:2  },
       { achievement_key:'gdp_master',                   badge_key:'badge_gdp_master',          name:'GDP Master',             description:'Master GDP Per Capita — 90+ Classic, 1000+ VS, perfect Top 10.',           sort_order:2003, specialist_tier:2, specialist_category_id:3  },
@@ -2112,6 +2115,9 @@ document.addEventListener('DOMContentLoaded', function() {
       { achievement_key:'specialist_millionaires_t2',    badge_key:'badge_millionaires_t2',     name:'Wealth Expert',          description:'Master Millionaires — 90+ Classic, 1000+ VS, perfect Top 10.',           sort_order:2035, specialist_tier:2, specialist_category_id:35 },
       { achievement_key:'specialist_gm_t2',              badge_key:'badge_gm_t2',               name:'Grandmaster Scholar',    description:'Master Grandmasters — 90+ Classic, 1000+ VS, perfect Top 10.',           sort_order:2036, specialist_tier:2, specialist_category_id:36 },
       { achievement_key:'specialist_f1_t2',              badge_key:'badge_f1_t2',               name:'F1 Historian',           description:'Master F1 Titles — 90+ Classic, 1000+ VS, perfect Top 10.',              sort_order:2037, specialist_tier:2, specialist_category_id:37 },
+      { achievement_key:'specialist_worldcupgoals_t2',       badge_key:'badge_worldcupgoals_t2',        name:'Goal Scoring Expert', description:'Master World Cup Goals — 90+ Classic, 1000+ VS, perfect Top 10.',        sort_order:2038, specialist_tier:2, specialist_category_id:38 },
+      { achievement_key:'specialist_worldcupappearances_t2', badge_key:'badge_worldcupappearances_t2',  name:'World Cup Historian', description:'Master World Cup Appearances — 90+ Classic, 1000+ VS, perfect Top 10.',  sort_order:2039, specialist_tier:2, specialist_category_id:39 },
+      { achievement_key:'specialist_worldcupwins_t2',        badge_key:'badge_worldcupwins_t2',         name:'Champion Tracker',    description:'Master World Cup Wins — 90+ Classic, 1000+ VS, perfect Top 10.',         sort_order:2040, specialist_tier:2, specialist_category_id:40 },
     ],
   };
 
@@ -2594,6 +2600,7 @@ document.addEventListener('DOMContentLoaded', function() {
     'specialist_flamingo_t1','specialist_disasterrisk_t1','specialist_longestriver_t1',
     'specialist_renewableenergy_t1','specialist_millionaires_t1','specialist_gm_t1',
     'specialist_f1_t1',
+    'specialist_worldcupgoals_t1','specialist_worldcupappearances_t1','specialist_worldcupwins_t1',
   ]);
 
   // ── All T2 specialist achievement keys (for geography_scholar) ──
@@ -2611,6 +2618,7 @@ document.addEventListener('DOMContentLoaded', function() {
     'specialist_volcano_t2','specialist_flamingo_t2','specialist_disasterrisk_t2',
     'specialist_longestriver_t2','specialist_renewableenergy_t2',
     'specialist_millionaires_t2','specialist_gm_t2','specialist_f1_t2',
+    'specialist_worldcupgoals_t2','specialist_worldcupappearances_t2','specialist_worldcupwins_t2',
   ]);
 
   // ── Live progress for all non-specialist badges ────────────────
@@ -2788,7 +2796,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // ── GeoDex Completionist — full T1 count ─────────────────────
       if (key === 'platinum_geodex_completionist') {
         const n = [..._unlockedKeys].filter(k => SPEC_T1_KEYS.has(k)).length;
-        setProgress(n >= 37, `${n} / 37 Tier I specialist badges`);
+        setProgress(n >= 40, `${n} / 40 Tier I specialist badges`);
         return;
       }
 
@@ -2880,7 +2888,7 @@ document.addEventListener('DOMContentLoaded', function() {
   import { categoriesConfig, CATEGORY_ID_MAP } from './js/categories-config.js';
 
   // ---------------------------------------------------------------------------
-  // Build canonical category list — 37 unique categories, no alias duplicates.
+  // Build canonical category list — 40 unique categories, no alias duplicates.
   // Aliases (temperature/hightemp → 15, rainfall/precipitation → 16) are
   // collapsed to the first occurrence in CATEGORY_ID_MAP insertion order.
   // ---------------------------------------------------------------------------
@@ -2894,7 +2902,7 @@ document.addEventListener('DOMContentLoaded', function() {
     CANONICAL.push({ key, id, title: cfg.title, emoji: cfg.emoji, premium: cfg.premium, image: cfg.image });
   }
   CANONICAL.sort((a, b) => a.id - b.id);
-  const TOTAL = CANONICAL.length; // 37
+  const TOTAL = CANONICAL.length; // 40
 
   function escHtml(s) {
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
