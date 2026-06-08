@@ -203,6 +203,21 @@ export const CATEGORY_HINTS = {
     detail: "Only titles won by drivers competing under that country's nationality count. Countries with multiple champion drivers across different eras can accumulate a high total.",
     example: "A country whose drivers have won 8 championships ranks above one whose drivers have won 2."
   },
+  worldcupgoals: {
+    description: "Rank countries from most to fewest FIFA World Cup goals scored.",
+    detail: "Only goals scored in FIFA World Cup final tournaments count. Qualification goals and continental tournament goals do not affect the ranking.",
+    example: "A country with 237 goals ranks above one with 152, which ranks above one with 0."
+  },
+  worldcupappearances: {
+    description: "Rank countries from most to fewest FIFA World Cup tournament appearances.",
+    detail: "Only appearances at FIFA World Cup final tournaments count. Qualification campaigns do not count.",
+    example: "A country with 23 appearances ranks above one with 17, which ranks above one with 1."
+  },
+  worldcupwins: {
+    description: "Rank countries from most to fewest FIFA World Cup match wins.",
+    detail: "Only individual match wins at FIFA World Cup final tournaments count. Winning the tournament itself is not the same as this category.",
+    example: "A country with 76 match wins ranks above one with 47, which ranks above one with 0."
+  },
 };
 
 // Mode configurations
