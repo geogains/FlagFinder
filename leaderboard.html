@@ -239,6 +239,144 @@
       font-size: 0.95rem;
     }
 
+    /* ========================================
+       PLAYER SEARCH
+    ======================================== */
+    .player-search-wrapper {
+      position: relative;
+      margin: 4px 0 20px;
+      opacity: 0;
+      animation: fadeIn 0.5s ease-out 0.35s forwards;
+      z-index: 200;
+    }
+
+    .player-search-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid rgba(102, 126, 234, 0.15);
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .player-search-bar:focus-within {
+      border-color: rgba(102, 126, 234, 0.4);
+      box-shadow: 0 4px 18px rgba(102, 126, 234, 0.12);
+    }
+
+    .player-search-icon {
+      font-size: 1rem;
+      flex-shrink: 0;
+      opacity: 0.45;
+      line-height: 1;
+    }
+
+    .player-search-bar input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 0.95rem;
+      font-family: 'Poppins', sans-serif;
+      color: #0d315a;
+      outline: none;
+      min-width: 0;
+    }
+
+    .player-search-bar input::placeholder {
+      color: #9caabb;
+      font-weight: 400;
+    }
+
+    .player-search-dropdown {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 8px 36px rgba(0, 0, 0, 0.14);
+      z-index: 10000;
+      overflow: hidden;
+      display: none;
+    }
+
+    .player-search-dropdown.active {
+      display: block;
+      animation: dropdownSlide 0.2s ease-out;
+    }
+
+    .player-result-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .player-result-item:last-child {
+      border-bottom: none;
+    }
+
+    .player-result-item:hover {
+      background: rgba(102, 126, 234, 0.07);
+    }
+
+    .player-result-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 2px solid rgba(102, 126, 234, 0.12);
+    }
+
+    .player-result-name {
+      flex: 1;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: #0d315a;
+    }
+
+    .player-result-hint {
+      font-size: 0.76rem;
+      color: #9caabb;
+    }
+
+    /* ── Leaderboard row flag ── */
+    .lb-flag {
+      width: 24px;
+      height: 16px;
+      border-radius: 2px;
+      object-fit: cover;
+      vertical-align: middle;
+      margin-right: 5px;
+      flex-shrink: 0;
+      display: inline-block;
+    }
+
+    @media (max-width: 768px) {
+      .lb-flag { width: 22px; height: 15px; }
+    }
+
+    .player-search-no-results,
+    .player-search-loading {
+      padding: 14px 16px;
+      text-align: center;
+      color: #8899aa;
+      font-size: 0.9rem;
+    }
+
+    .player-result-item.ps-active {
+      background: rgba(102, 126, 234, 0.12);
+    }
+
     .mode-toggle {
       display: flex;
       gap: 12px;
@@ -589,6 +727,21 @@
     <a href="auth.html">Sign in</a> or <a href="auth.html">create an account</a> to add your score to the leaderboard
   </p>
 
+  <!-- Player Search -->
+  <div class="player-search-wrapper" id="playerSearchWrapper">
+    <div class="player-search-bar">
+      <span class="player-search-icon">👤</span>
+      <input
+        type="text"
+        id="playerSearchInput"
+        placeholder="Search for a player..."
+        autocomplete="off"
+        spellcheck="false"
+      />
+    </div>
+    <div class="player-search-dropdown" id="playerSearchDropdown"></div>
+  </div>
+
   <!-- Mode Toggle -->
   <div class="mode-toggle">
     <button class="mode-btn active" data-mode="daily-challenge">Daily</button>
@@ -817,6 +970,10 @@ document.addEventListener('DOMContentLoaded', function() {
     return name.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   }
 
+  function flagSrc(country_code) {
+    return country_code ? `flags/${country_code}.png` : 'flags/user.png';
+  }
+
   // ── Row builder ────────────────────────────────────────────────────────────
   function buildRow(entry, globalIndex, animate = false) {
     const user = entry.users || {};
@@ -826,6 +983,8 @@ document.addEventListener('DOMContentLoaded', function() {
       globalIndex === 1 ? '<span class="medal">🥈</span>' :
       globalIndex === 2 ? '<span class="medal">🥉</span>' :
       `#${globalIndex + 1}`;
+
+    const flag = `<img src="${flagSrc(user.country_code)}" class="lb-flag" alt="" onerror="this.src='flags/user.png'" loading="lazy" />`;
 
     const row = document.createElement('tr');
     if (animate) row.classList.add('row-append');
@@ -842,7 +1001,7 @@ document.addEventListener('DOMContentLoaded', function() {
           ${user.is_premium ? '<img src="assets/GeoRanksPremium.png" class="premium-badge" />' : ''}
         </div>
       </td>
-      <td>${user.username
+      <td>${flag}${user.username
         ? `<a href="${profileUrl(user.username)}" class="player-profile-link">${user.username.replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]))}</a>`
         : 'Anonymous'
       }</td>
@@ -940,7 +1099,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const { data: scores, error } = await supabase
       .from("daily_challenge_scores")
-      .select('score, user_id, users!fk_user(id, username, avatar_url, is_premium)')
+      .select('score, user_id, users!fk_user(id, username, avatar_url, is_premium, country_code)')
       .eq("category_id", categoryId)
       .eq("played_date", date)
       .order("score", { ascending: false })
@@ -1005,7 +1164,7 @@ document.addEventListener('DOMContentLoaded', function() {
     _classicCategoryId = cat.id;
 
     const { data: scores, count } = await supabase.from("category_scores")
-      .select('score, user_id, users!inner(id, username, avatar_url, is_premium)', { count: 'exact' })
+      .select('score, user_id, users!inner(id, username, avatar_url, is_premium, country_code)', { count: 'exact' })
       .eq("category_id", cat.id)
       .order("score", { ascending: false })
       .range(0, PAGE_SIZE - 1);
@@ -1016,7 +1175,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   async function appendClassicPage() {
     const { data: scores } = await supabase.from("category_scores")
-      .select('score, user_id, users!inner(id, username, avatar_url, is_premium)')
+      .select('score, user_id, users!inner(id, username, avatar_url, is_premium, country_code)')
       .eq("category_id", _classicCategoryId)
       .order("score", { ascending: false })
       .range(currentOffset, currentOffset + PAGE_SIZE - 1);
@@ -1030,7 +1189,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     const { data: scores, count } = await supabase.from("top10_best_scores")
-      .select('score, user_id, users!fk_user(id, username, avatar_url, is_premium)', { count: 'exact' })
+      .select('score, user_id, users!fk_user(id, username, avatar_url, is_premium, country_code)', { count: 'exact' })
       .eq("category_id", _top10CategoryId)
       .order("score", { ascending: false })
       .range(0, PAGE_SIZE - 1);
@@ -1041,7 +1200,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   async function appendTop10Page() {
     const { data: scores } = await supabase.from("top10_best_scores")
-      .select('score, user_id, users!fk_user(id, username, avatar_url, is_premium)')
+      .select('score, user_id, users!fk_user(id, username, avatar_url, is_premium, country_code)')
       .eq("category_id", _top10CategoryId)
       .order("score", { ascending: false })
       .range(currentOffset, currentOffset + PAGE_SIZE - 1);
@@ -1055,7 +1214,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     const { data: scores, count } = await supabase.from('vs_leaderboard_scores')
-      .select('user_id, score, correct_count, accuracy, rank, username, avatar_url, is_premium', { count: 'exact' })
+      .select('user_id, score, correct_count, accuracy, rank, username, avatar_url, is_premium, country_code', { count: 'exact' })
       .eq('category_id', _vsCategoryId)
       .order('score', { ascending: false })
       .range(0, PAGE_SIZE - 1);
@@ -1066,7 +1225,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   async function appendVSPage() {
     const { data: scores } = await supabase.from('vs_leaderboard_scores')
-      .select('user_id, score, correct_count, accuracy, rank, username, avatar_url, is_premium')
+      .select('user_id, score, correct_count, accuracy, rank, username, avatar_url, is_premium, country_code')
       .eq('category_id', _vsCategoryId)
       .order('score', { ascending: false })
       .range(currentOffset, currentOffset + PAGE_SIZE - 1);
@@ -1076,7 +1235,7 @@ document.addEventListener('DOMContentLoaded', function() {
   function normalizeVsRows(rows) {
     return rows.map(r => ({
       ...r,
-      users: { id: r.user_id, username: r.username, avatar_url: r.avatar_url, is_premium: r.is_premium }
+      users: { id: r.user_id, username: r.username, avatar_url: r.avatar_url, is_premium: r.is_premium, country_code: r.country_code }
     }));
   }
 
@@ -1135,7 +1294,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Fetch ALL daily scores for this date/category so we can find the user anywhere
     const { data: allScores } = await supabase
       .from('daily_challenge_scores')
-      .select('score, user_id, users!fk_user(id, username, avatar_url, is_premium)')
+      .select('score, user_id, users!fk_user(id, username, avatar_url, is_premium, country_code)')
       .eq('category_id', _dailyCategoryId)
       .eq('played_date', _dailyDate)
       .order('score', { ascending: false });
@@ -1237,5 +1396,10 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <script type="module" src="js/identity-gate.js"></script>
+
+<script type="module">
+  import { initPlayerSearch } from './js/player-search.js';
+  initPlayerSearch();
+</script>
 </body>
 </html>

@@ -117,6 +117,36 @@
     .cat-separator.locked { color: #d1d5db; }
     .cat-emoji { font-size: 1.3rem; flex-shrink: 0; }
 
+    /* ── Mode selector ── */
+    .mode-grid {
+      display: flex; flex-direction: column; gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .mode-btn {
+      display: flex; align-items: flex-start; gap: 0.9rem;
+      padding: 1rem 1.1rem; border: 2px solid #e5e7eb;
+      border-radius: 14px; background: #f9fafb;
+      cursor: pointer; font-family: 'Poppins', sans-serif;
+      text-align: left; transition: all 0.15s ease; width: 100%;
+    }
+    .mode-btn:hover { border-color: #38bdf8; background: #f0fffe; }
+    .mode-btn.selected {
+      border-color: #0d315a; background: #e0f2fe; color: #0d315a;
+    }
+    .mode-btn .mode-icon { font-size: 1.6rem; flex-shrink: 0; line-height: 1.2; }
+    .mode-btn .mode-info { display: flex; flex-direction: column; gap: 2px; }
+    .mode-btn .mode-name { font-size: 0.95rem; font-weight: 700; color: #0d315a; }
+    .mode-btn .mode-desc { font-size: 0.78rem; color: #6b7280; line-height: 1.4; }
+    .mode-btn.selected .mode-name { color: #0d315a; }
+    .mode-btn.selected .mode-desc { color: #0369a1; }
+    .btn-back {
+      width: 100%; padding: 0.75rem; font-size: 0.95rem; font-weight: 600;
+      background: #f3f4f6; color: #374151; border: none; border-radius: 12px;
+      cursor: pointer; font-family: 'Poppins', sans-serif;
+      transition: background 0.15s ease; margin-bottom: 0.75rem;
+    }
+    .btn-back:hover { background: #e5e7eb; }
+
     /* ── Create button ── */
     .btn-create {
       width: 100%; padding: 1rem; font-size: 1.1rem; font-weight: 700;
@@ -389,7 +419,7 @@
         <p>Pick a category, share the link, and race your friend head-to-head</p>
       </div>
       <div class="category-grid" id="categoryGrid"></div>
-      <button class="btn-create" id="createBtn">Create Challenge →</button>
+      <button class="btn-create" id="nextBtn">Next: Choose Mode →</button>
     `;
 
     const grid = card.querySelector('#categoryGrid');
@@ -444,6 +474,77 @@
     );
     buildSection(premiumCats, !canHostPremium);
 
+    card.querySelector('#nextBtn').addEventListener('click', () => {
+      showModePicker(selectedCategory, caps);
+    });
+  }
+
+  // ================================================================
+  // MODE PICKER (step 2 of create flow)
+  // ================================================================
+  function showModePicker(category, caps) {
+    const cfg = categoriesConfig[category];
+
+    // Pre-select mode from ?duel_mode= rematch param
+    const preselectMode = new URLSearchParams(window.location.search).get('duel_mode');
+    let selectedMode = ['classic', 'vs', 'top10'].includes(preselectMode) ? preselectMode : 'classic';
+
+    const modes = [
+      {
+        key: 'classic',
+        icon: '⚔️',
+        name: 'Classic',
+        desc: 'Rank 10 countries in the correct order — place them all to win'
+      },
+      {
+        key: 'vs',
+        icon: '🆚',
+        name: 'VS Mode',
+        desc: 'Pick the higher-ranked country in each pair — 3 lives, 2 minutes'
+      },
+      {
+        key: 'top10',
+        icon: '📋',
+        name: 'Top 10',
+        desc: 'Type the top 10 countries — name as many as you can in 2 minutes'
+      }
+    ];
+
+    card.innerHTML = `
+      <div class="duel-header">
+        <h1>Choose Game Mode</h1>
+        <p>Category: <strong>${cfg?.emoji || ''} ${cfg?.title || category}</strong></p>
+      </div>
+      <div class="mode-grid" id="modeGrid"></div>
+      <button class="btn-back" id="backBtn">← Back to Categories</button>
+      <button class="btn-create" id="createBtn">Create Challenge</button>
+    `;
+
+    const modeGrid = card.querySelector('#modeGrid');
+    modes.forEach(m => {
+      const btn = document.createElement('button');
+      btn.className = 'mode-btn' + (m.key === selectedMode ? ' selected' : '');
+      btn.dataset.mode = m.key;
+      btn.innerHTML = `
+        <span class="mode-icon">${m.icon}</span>
+        <span class="mode-info">
+          <span class="mode-name">${m.name}</span>
+          <span class="mode-desc">${m.desc}</span>
+        </span>
+      `;
+      btn.addEventListener('click', () => {
+        selectedMode = m.key;
+        modeGrid.querySelectorAll('.mode-btn').forEach(b =>
+          b.classList.toggle('selected', b.dataset.mode === m.key)
+        );
+      });
+      modeGrid.appendChild(btn);
+    });
+
+    card.querySelector('#backBtn').addEventListener('click', () => {
+      showCategoryPicker(caps);
+    });
+
     card.querySelector('#createBtn').addEventListener('click', async () => {
       const btn = card.querySelector('#createBtn');
       btn.disabled = true;
@@ -451,13 +552,14 @@
 
       const seed = Number(crypto.getRandomValues(new Uint32Array(1))[0]);
       const { data: match, error } = await supabase.rpc('create_duel_match', {
-        p_category: selectedCategory,
-        p_seed:     seed
+        p_category:  category,
+        p_seed:      seed,
+        p_duel_mode: selectedMode
       });
 
       if (error || !match) {
         btn.disabled = false;
-        btn.textContent = 'Create Challenge →';
+        btn.textContent = 'Create Challenge';
         alert('Could not create match. Please try again.');
         return;
       }
@@ -544,11 +646,13 @@
     const cfg = categoriesConfig[matchData.category];
     const inviteUrl = `${window.location.origin}/duel.html?match=${matchId}`;
     const isWaiting = matchData.status === 'waiting' || matchData.player2_id === null;
+    const modeLabelMap = { classic: '⚔️ Classic', vs: '🆚 VS Mode', top10: '📋 Top 10' };
+    const modeLabel = modeLabelMap[matchData.duel_mode] || '⚔️ Classic';
 
     card.innerHTML = `
       <div class="waiting-section">
         <div class="waiting-title">⚔️ Challenge Created!</div>
-        <div class="waiting-subtitle">Category: <strong>${cfg?.title || matchData.category}</strong></div>
+        <div class="waiting-subtitle">Category: <strong>${cfg?.title || matchData.category}</strong> · ${modeLabel}</div>
         <div class="category-badge">${cfg?.emoji || '🌍'} ${cfg?.title || matchData.category}</div>
 
         ${isWaiting ? `
@@ -607,12 +711,20 @@
     sessionStorage.setItem('duelMatch', JSON.stringify({
       matchId:   matchIdParam,
       seed:      matchData.seed,
-      startedAt: started_at
+      startedAt: started_at,
+      duelMode:  matchData.duel_mode || 'classic'
     }));
-    runCountdownThenNavigate(started_at, matchData.category);
+    runCountdownThenNavigate(started_at, matchData.category, matchData.duel_mode || 'classic');
   }
 
-  function runCountdownThenNavigate(startedAtISO, category) {
+  function gamePageUrl(category, duelMode) {
+    const enc = encodeURIComponent(category);
+    if (duelMode === 'vs')    return `duelgame-vs.html?mode=${enc}`;
+    if (duelMode === 'top10') return `duelgame-top10.html?mode=${enc}`;
+    return `duelgame.html?mode=${enc}`;
+  }
+
+  function runCountdownThenNavigate(startedAtISO, category, duelMode) {
     const startedAt    = new Date(startedAtISO).getTime();
     const countdownEnd = startedAt + 3000; // 3 second countdown
     const overlay      = document.getElementById('countdownOverlay');
@@ -624,7 +736,7 @@
     function tick() {
       const remaining = Math.ceil((countdownEnd - Date.now()) / 1000);
       if (remaining <= 0) {
-        window.location.href = `duelgame.html?mode=${encodeURIComponent(category)}`;
+        window.location.href = gamePageUrl(category, duelMode);
         return;
       }
       numEl.textContent = remaining;
@@ -654,9 +766,10 @@
     sessionStorage.setItem('duelMatch', JSON.stringify({
       matchId:   match.id,
       seed:      match.seed,
-      startedAt: match.started_at
+      startedAt: match.started_at,
+      duelMode:  match.duel_mode || 'classic'
     }));
-    window.location.href = `duelgame.html?mode=${encodeURIComponent(match.category)}`;
+    window.location.href = gamePageUrl(match.category, match.duel_mode || 'classic');
   }
 </script>
 

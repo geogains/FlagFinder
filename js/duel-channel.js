@@ -188,6 +188,20 @@ export function createDuelChannel(supabase, matchId, currentUserId, callbacks, o
 
       if (!match) return;
 
+      // Recover missed onBothReady: both players have joined but started_at is
+      // still null, meaning player:ready broadcasts were never delivered
+      // (e.g. Realtime briefly disrupted after a schema migration or reconnect).
+      // The DB is authoritative here — no broadcast trust required.
+      // bothReadyFired latch prevents a duplicate trigger on subsequent ticks.
+      if (!bothReadyFired && !gameStarted &&
+          match.status === 'active' && !match.started_at &&
+          match.player1_id && match.player2_id) {
+        console.log('[duel] fallback detected both players joined but match not started; triggering onBothReady');
+        bothReadyFired = true;
+        if (callbacks.onBothReady) callbacks.onBothReady();
+        return;
+      }
+
       // Recover missed game:start
       if (!gameStarted && match.status === 'active' && match.started_at) {
         gameStarted = true;

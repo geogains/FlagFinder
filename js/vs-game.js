@@ -52,7 +52,10 @@ let gameState = {
   countries: [], // Will be loaded from category file
   recentCountries: [], // Track recently used countries to avoid repetition (non-daily only)
   dailySequence: [], // Pre-generated seeded shuffle for daily challenge
-  dailySequenceIndex: 0 // Current position in the daily sequence
+  dailySequenceIndex: 0, // Current position in the daily sequence
+  duelSequence: [], // Pre-generated seeded shuffle for duel mode
+  duelSequenceIndex: 0, // Current position in the duel sequence
+  roundResults: [] // Per-round {wasCorrect} for duel mode submission
 };
 
 // Load category data and initialize game
@@ -91,6 +94,14 @@ gameState.countries = data.map(country => {
 });
     
     console.log('Transformed countries:', gameState.countries.slice(0, 3));
+
+    // For duel mode, pre-generate the seeded pair sequence now.
+    if (window._duelSeed != null) {
+      const rng = makeSeededRNG(window._duelSeed);
+      gameState.duelSequence = seededShuffle([...gameState.countries], rng);
+      gameState.duelSequenceIndex = 0;
+      console.log('⚔️ Duel VS sequence — seed:', window._duelSeed, 'first 4:', gameState.duelSequence.slice(0, 4).map(c => c.name));
+    }
 
     // For daily challenge, pre-generate the full deterministic matchup sequence now.
     if (isDailyChallenge) {
@@ -278,8 +289,28 @@ function getTwoDailyCountries() {
   return [country1, country2];
 }
 
+// Return the next deterministic pair from the duel sequence (mirrors getTwoDailyCountries).
+function getTwoDuelCountries() {
+  const seq = gameState.duelSequence;
+  const len = seq.length;
+  const idx = gameState.duelSequenceIndex % len;
+  const country1 = seq[idx];
+  let country2 = seq[(idx + 1) % len];
+  let offset = 2;
+  while (country2.value === country1.value && offset < len) {
+    country2 = seq[(idx + offset) % len];
+    offset++;
+  }
+  gameState.duelSequenceIndex = idx + 2;
+  return [country1, country2];
+}
+
 // Get two random unique countries with smart repetition avoidance
 function getTwoRandomCountries() {
+  // In duel mode, use the pre-generated deterministic sequence.
+  if (window._duelSeed != null) {
+    return getTwoDuelCountries();
+  }
   // In daily challenge mode, use the pre-generated deterministic sequence instead
   if (isDailyChallenge) {
     return getTwoDailyCountries();
@@ -384,6 +415,8 @@ function handleSelection(optionNumber) {
     value2Element.classList.add('show');
   }, 100);
   
+  gameState.roundResults.push(isCorrect);
+
   if (isCorrect) {
     // Correct answer - only animate and border the selected flag
     selectedOption.classList.add('correct');
@@ -485,21 +518,28 @@ async function endGame() {
     return;
   }
   gameState.isGameOver = true;
-  
+
   window.plausible?.('vs_game_completed');
 
   console.log('Game ended!');
-  
+
   // Clear timer
   if (gameState.timerInterval) {
     clearInterval(gameState.timerInterval);
   }
-  
+
+  // Duel mode: hand off to the duel page's completion handler
+  if (typeof window._duelOnComplete === 'function') {
+    const placements = gameState.roundResults.map(wasCorrect => ({ wasCorrect }));
+    window._duelOnComplete(placements);
+    return;
+  }
+
   // Calculate stats
   const totalGuesses = gameState.correct + gameState.incorrect;
   const accuracy = totalGuesses > 0 ? Math.round((gameState.correct / totalGuesses) * 100) : 0;
   const timePlayed = 120 - gameState.timeRemaining;
-  
+
   // Prepare results data for results page
   const resultsData = {
     score: gameState.score,
@@ -511,7 +551,7 @@ async function endGame() {
     categoryName: categoryConfig.title,
     categoryKey: categoryKey
   };
-  
+
   // Save to localStorage as backup
   localStorage.setItem('vsResults', JSON.stringify(resultsData));
 
@@ -569,6 +609,13 @@ Can you beat my score? Play at geo-ranks.com`;
   }
 };
 
-// Load category data and start game when DOM is ready
-document.addEventListener('DOMContentLoaded', loadCategoryData);
+// Load category data and start game when DOM is ready.
+// In duel mode (_duelSeed is set), the duel page calls startVsGame() explicitly
+// after auth checks complete — DOMContentLoaded may have already fired by then.
+if (window._duelSeed == null) {
+  document.addEventListener('DOMContentLoaded', loadCategoryData);
+}
 console.log('Event listener added for DOMContentLoaded');
+
+// Exported for duel pages that dynamically import this module post-load.
+export async function startVsGame() { return loadCategoryData(); }

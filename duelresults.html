@@ -546,7 +546,7 @@
   }
 
   // ── Render page ───────────────────────────────────────────────────
-  renderResults(match, myResult, oppResult, myName, oppName, catEmoji, catTitle, outcome, myUsername, oppUsername);
+  renderResults(match, myResult, oppResult, myName, oppName, catEmoji, catTitle, outcome, myUsername, oppUsername, match.duel_mode || 'classic');
 
   overlay.style.display = 'none';
   mainContent.style.display = 'block';
@@ -558,7 +558,7 @@
   // and accessible inside the IIFE above via closure.
   // ================================================================
 
-  function renderResults(match, myResult, oppResult, myName, oppName, catEmoji, catTitle, outcome, myUsername, oppUsername) {
+  function renderResults(match, myResult, oppResult, myName, oppName, catEmoji, catTitle, outcome, myUsername, oppUsername, duelMode) {
     // ── Winner banner ──
     const bannerHtml = buildBannerHtml(outcome, myName, oppName, myResult, oppResult);
 
@@ -605,10 +605,12 @@
       : '';
 
     // ── Placement breakdown ──
-    const breakdownHtml = buildBreakdownHtml(myResult, oppResult, myName, oppName);
+    const breakdownHtml = buildBreakdownHtml(myResult, oppResult, myName, oppName, duelMode);
 
     // ── Action buttons ──
-    const rematchUrl = `duel.html?category=${encodeURIComponent(match.category)}`;
+    const rematchQuery = `category=${encodeURIComponent(match.category)}` +
+      (duelMode && duelMode !== 'classic' ? `&duel_mode=${encodeURIComponent(duelMode)}` : '');
+    const rematchUrl = `duel.html?${rematchQuery}`;
     const actionsHtml = `
       <div class="actions-row">
         <a href="${rematchUrl}" class="action-btn primary">⚔️ Rematch</a>
@@ -663,7 +665,46 @@
     `;
   }
 
-  function buildBreakdownHtml(myResult, oppResult, myName, oppName) {
+  function buildSimpleBreakdownHtml(myResult, oppResult, myName, oppName, duelMode) {
+    const modeLabel = duelMode === 'top10' ? 'Top 10' : 'VS Mode';
+    const totalLabel = duelMode === 'top10' ? 'out of 10' : 'rounds played';
+
+    function countCorrect(result) {
+      if (!result?.placements) return null;
+      return result.placements.filter(p => p.wasCorrect).length;
+    }
+
+    const myCorrect  = countCorrect(myResult);
+    const oppCorrect = countCorrect(oppResult);
+    const myTotal    = myResult?.placements?.length ?? null;
+    const oppTotal   = oppResult?.placements?.length ?? null;
+
+    const myLine  = myCorrect  !== null ? `${myCorrect} correct` + (myTotal !== null ? ` / ${myTotal} ${totalLabel}` : '') : '—';
+    const oppLine = oppCorrect !== null ? `${oppCorrect} correct` + (oppTotal !== null ? ` / ${oppTotal} ${totalLabel}` : '') : '—';
+
+    return `
+      <div class="breakdown-section">
+        <h3>${modeLabel} Results</h3>
+        <div style="display:flex;gap:2rem;padding:0.5rem 0.5rem 1.5rem;">
+          <div style="flex:1;text-align:center;background:#f0f9ff;border-radius:12px;padding:1rem;">
+            <div style="font-size:0.75rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">${escHtml(myName)} (You)</div>
+            <div style="font-size:1.5rem;font-weight:700;color:#0d315a;">${myLine}</div>
+          </div>
+          <div style="flex:1;text-align:center;background:#f0f9ff;border-radius:12px;padding:1rem;">
+            <div style="font-size:0.75rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">${escHtml(oppName)}</div>
+            <div style="font-size:1.5rem;font-weight:700;color:#0d315a;">${oppLine}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function buildBreakdownHtml(myResult, oppResult, myName, oppName, duelMode) {
+    // VS and Top10 use {wasCorrect} placements — show a simple summary instead
+    if (duelMode === 'vs' || duelMode === 'top10') {
+      return buildSimpleBreakdownHtml(myResult, oppResult, myName, oppName, duelMode);
+    }
+
     if (!myResult?.placements) {
       return '<div style="padding:2rem;text-align:center;color:#9ca3af;">No placement data available.</div>';
     }

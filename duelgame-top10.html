@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Duel | GeoRanks</title>
+  <title>Duel (Top 10) | GeoRanks</title>
   <link rel="icon" href="assets/favicon.png" type="image/png">
 
   <!-- Plausible -->
@@ -19,8 +19,97 @@
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./css/page.css" />
   <link rel="stylesheet" href="./css/game-modes.css" />
+  <link rel="stylesheet" href="./css/top10.css" />
 
   <style>
+    /* ── Top10 game styles (mirrors top10.html inline styles) ── */
+    .game-container {
+      max-width: 550px; margin: 120px auto 60px;
+      background: rgba(255,255,255,0.92); backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px); padding: 40px 30px;
+      border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    }
+    .game-header-inline { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .top-card-title { font-size: 1.5rem; font-weight: 700; text-align: center; color: #0d315a; margin: 0 0 25px 0; font-family: 'Rubik', sans-serif; line-height: 1.3; }
+    .timer { font-size: 1.1rem; font-weight: 600; color: #0d315a; display: flex; align-items: center; gap: 6px; }
+    .lives { font-size: 1.4rem; display: flex; gap: 4px; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+      20%, 40%, 60%, 80% { transform: translateX(8px); }
+    }
+    .lives.shake { animation: shake 0.5s ease-in-out; }
+    .search-container { position: relative; margin-bottom: 30px; }
+    .search-input {
+      width: 100%; padding: 16px 20px; font-size: 1.05rem;
+      border: 2px solid rgba(13,49,90,0.15); border-radius: 12px; outline: none;
+      transition: border-color 0.3s; font-family: 'Poppins', sans-serif;
+      box-sizing: border-box; background: white;
+    }
+    .search-input:focus { border-color: #0d315a; }
+    .search-dropdown {
+      position: absolute; top: 100%; left: 0; right: 0;
+      max-height: 250px; overflow-y: auto; background: white;
+      border: 2px solid rgba(13,49,90,0.2); border-top: none;
+      border-radius: 0 0 12px 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+      z-index: 1000; display: none;
+    }
+    .search-dropdown.active { display: block; }
+    .country-option {
+      display: flex; align-items: center; gap: 14px;
+      padding: 8px 18px; cursor: pointer; transition: background 0.2s;
+      border-bottom: 1px solid rgba(0,0,0,0.05); min-height: 48px;
+    }
+    .country-option:hover { background: rgba(167,243,208,0.3); }
+    .country-option.highlighted { background: rgba(167,243,208,0.5); outline: 2px solid #10b981; outline-offset: -2px; }
+    .country-option.disabled { opacity: 0.35; cursor: not-allowed; background: #f9fafb; }
+    .country-option.disabled:hover { background: #f9fafb; }
+    .country-flag { width: 48px; height: 36px; object-fit: cover; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); flex-shrink: 0; }
+    .country-name { font-size: 1rem; font-weight: 500; color: #0d315a; }
+    .rankings-grid { display: flex; flex-direction: column; gap: 12px; }
+    .ranking-row { display: flex; align-items: center; gap: 12px; }
+    .rank-number {
+      font-weight: 700; font-size: 1.1rem; min-width: 60px; width: 60px; height: 45px;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-family: 'Rubik', sans-serif;
+      background: linear-gradient(135deg, #ff9770, #ff6f61);
+      padding: 0; border-radius: 8px; box-shadow: 0 3px 8px rgba(255,111,97,0.3); flex-shrink: 0;
+    }
+    .rank-slot {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 18px;
+      padding: 0 24px; background: rgba(13,49,90,0.04);
+      border: 2px solid rgba(13,49,90,0.12); border-radius: 12px;
+      transition: all 0.3s; height: 45px; min-height: 45px;
+    }
+    .rank-slot.correct {
+      background: linear-gradient(135deg, #10b981, #059669); border-color: #059669;
+      color: white; animation: slideIn 0.4s ease;
+    }
+    .rank-flag {
+      width: 70px !important; height: auto !important; max-height: 40px !important;
+      min-width: 70px !important; object-fit: contain !important; border-radius: 6px !important;
+      box-shadow: none !important; flex-shrink: 0 !important; display: block !important;
+      background: none !important; border: 0 !important; padding: 0 !important; margin: 0 !important;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25)) !important;
+    }
+    .rank-data { font-weight: 700; font-size: 1.3rem; color: white; letter-spacing: 0.5px; text-align: center; flex-shrink: 0; min-width: 70px; }
+    .rank-empty { color: #9ca3af; font-style: italic; font-size: 0.95rem; visibility: hidden; }
+    @keyframes slideIn {
+      from { transform: scale(0.96); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+    @media (max-width: 599px) {
+      .game-container { margin: 90px 16px 50px; padding: 25px 20px; }
+      .game-header-inline { margin-bottom: 10px; }
+      .top-card-title { font-size: 1.2rem; margin-bottom: 20px; }
+      .timer { font-size: 1rem; }
+      .lives { font-size: 1.2rem; }
+      .rank-number { min-width: 50px; width: 50px; height: 40px; font-size: 1rem; }
+      .rank-slot { padding: 0 18px; height: 40px; min-height: 40px; gap: 14px; }
+      .rank-flag { width: 60px !important; max-height: 35px !important; min-width: 60px !important; }
+      .rank-data { font-size: 1.1rem; min-width: 60px; }
+    }
+
     /* ── Auth / loading overlay ── */
     #authLoadingOverlay {
       position: fixed; top: 0; left: 0;
@@ -58,7 +147,7 @@
       50% { opacity: 0.55; }
     }
 
-    /* ── Full-screen overlays ── */
+    /* ── Full-screen duel overlays ── */
     .duel-fullscreen {
       position: fixed; inset: 0; z-index: 9000;
       background: linear-gradient(135deg, #b4f3e9 0%, #38bdf8 100%);
@@ -78,7 +167,6 @@
       margin-bottom: 1.5rem;
     }
 
-    /* Waiting pulse ring */
     .wait-pulse {
       width: 72px; height: 72px; border-radius: 50%;
       background: rgba(56,189,248,0.25);
@@ -93,7 +181,6 @@
       100% { transform: scale(0.9); opacity: 0.6; }
     }
 
-    /* Error overlay */
     .error-box {
       background: white; border-radius: 20px;
       padding: 2rem 2.5rem; max-width: 420px; width: 100%;
@@ -109,7 +196,6 @@
     }
     .btn-home:hover { opacity: 0.88; }
 
-    /* Timeout warning inside waiting overlay */
     #timeoutMsg {
       background: rgba(254,243,199,0.9);
       border: 2px solid #fbbf24; border-radius: 12px;
@@ -177,43 +263,28 @@
 <!-- Opponent status badge -->
 <div id="opponentBadge" class="pulsing">⚔️ Opponent is playing…</div>
 
-<!-- Game wrapper (identical structure to game.html — blind-ranking.js requires this exact DOM) -->
-<div class="blind-ranking-wrapper">
-  <div class="top-card">
-    <h2 class="top-card-title">Loading category…</h2>
-    <div class="country-pool-panel"></div>
-  </div>
-
-  <div class="ranking-card">
-    <div class="current-flag">
-      <div class="flag-box"><span>&lt;Country Flag&gt;</span></div>
+<!-- Top 10 game DOM (identical to top10.html game section — top10-game.js requires these exact IDs) -->
+<div class="game-container">
+  <div class="game-header-inline">
+    <div class="timer">
+      <span id="timerDisplay">2:00</span>
     </div>
-    <div class="flag-country-name">COUNTRY</div>
-
-    <div class="ranking-list">
-      <div class="ranking-row"><div class="rank-number">1</div><div class="rank-slot empty-slot"></div></div>
-      <div class="ranking-row"><div class="rank-number">2</div><div class="rank-slot empty-slot"></div></div>
-      <div class="ranking-row"><div class="rank-number">3</div><div class="rank-slot empty-slot"></div></div>
-      <div class="ranking-row"><div class="rank-number">4</div><div class="rank-slot empty-slot"></div></div>
-      <div class="ranking-row"><div class="rank-number">5</div><div class="rank-slot empty-slot"></div></div>
-      <div class="ranking-row"><div class="rank-number">6</div><div class="rank-slot empty-slot"></div></div>
-      <div class="ranking-row"><div class="rank-number">7</div><div class="rank-slot empty-slot"></div></div>
-      <div class="ranking-row"><div class="rank-number">8</div><div class="rank-slot empty-slot"></div></div>
-      <div class="ranking-row"><div class="rank-number">9</div><div class="rank-slot empty-slot"></div></div>
-      <div class="ranking-row"><div class="rank-number">10</div><div class="rank-slot empty-slot"></div></div>
+    <div class="lives" id="livesDisplay">
+      ❤️❤️❤️
     </div>
   </div>
-
-  <div class="result-panel" style="display:none;">
-    <div class="result-score">Score: <span class="result-score-value">0</span></div>
-    <div class="result-breakdown"></div>
-    <div class="result-buttons">
-      <button class="btn action-play-again">Play Again</button>
-      <button class="btn action-play-random">Play Random</button>
-      <button class="btn action-leaderboard" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</button>
-      <button class="btn action-share">📲 Share Results</button>
-    </div>
+  <h2 class="top-card-title" id="categoryTitle">TOP 10: LOADING...</h2>
+  <div class="search-container">
+    <input
+      type="text"
+      id="searchInput"
+      class="search-input"
+      placeholder="Type a country name..."
+      autocomplete="off"
+    />
+    <div class="search-dropdown" id="searchDropdown"></div>
   </div>
+  <div class="rankings-grid" id="rankingsGrid"></div>
 </div>
 
 <!-- Footer -->
@@ -294,61 +365,14 @@
   }
 </script>
 
-<!-- Main duel game logic -->
+<!-- Main duel Top10 game logic -->
 <script type="module">
   import { supabase }          from './js/supabase-client.js';
-  import { categoriesConfig }  from './js/categories-config.js';
   import { CATEGORY_ID_MAP }   from './js/top10-categories-loader.js';
   import { createDuelChannel } from './js/duel-channel.js';
   import { evaluateAchievements } from './js/achievements.js';
 
-  // ── Category question titles (mirrors game.html) ────────────────────────
-  const classicTitles = {
-    population:      'RANK THESE COUNTRIES FROM LARGEST TO SMALLEST POPULATION 👥',
-    gdp:             'RANK THESE COUNTRIES BY GDP PER PERSON 💰',
-    happiness:       'RANK THESE COUNTRIES BY NATIONAL HAPPINESS SCORES 😊',
-    forest:          'RANK THESE COUNTRIES BY TOTAL AREA COVERED BY FORESTS 🌲',
-    coastline:       'RANK THESE COUNTRIES BY TOTAL COASTLINE LENGTH 🏝️',
-    cuisine:         'RANK THESE COUNTRIES BY CUISINE POPULARITY AND QUALITY 🍽️',
-    olympic:         'RANK THESE COUNTRIES BY TOTAL OLYMPIC MEDALS WON 🥇',
-    worldcup:        'RANK THESE COUNTRIES BY NUMBER OF FIFA WORLD CUP TITLES ⚽',
-    landmass:        'RANK THESE COUNTRIES FROM LARGEST TO SMALLEST TOTAL LAND AREA 🌍',
-    crimerate:       'RANK THESE COUNTRIES BY HIGHEST CRIME RATE SCORE 🚨',
-    altitude:        'RANK THESE COUNTRIES BY HIGHEST MOUNTAIN ELEVATION 🏔️',
-    passport:        'RANK THESE COUNTRIES BY STRONGEST PASSPORT 🛂',
-    beer:            'RANK THESE COUNTRIES BY ANNUAL BEER CONSUMPTION PER PERSON 🍺',
-    nobelprize:      'RANK THESE COUNTRIES BY MOST NOBEL PRIZE WINNERS 🕊️',
-    temperature:     'RANK THESE COUNTRIES BY HIGHEST AVERAGE TEMPERATURE ☀️',
-    hightemp:        'RANK THESE COUNTRIES BY HIGHEST AVERAGE TEMPERATURE ☀️',
-    precipitation:   'RANK THESE COUNTRIES BY HIGHEST AVERAGE PRECIPITATION 🌧️',
-    rainfall:        'RANK THESE COUNTRIES BY HIGHEST AVERAGE PRECIPITATION 🌧️',
-    tourism:         'RANK THESE COUNTRIES BY NUMBER OF TOURIST VISITS IN 2025 ✈️',
-    michelin:        'RANK THESE COUNTRIES BY MICHELIN STARRED RESTAURANTS ⭐',
-    bigmac:          'RANK THESE COUNTRIES BY HIGHEST BIG MAC PRICE 🍔',
-    lifeexpectancy:  'RANK THESE COUNTRIES BY HIGHEST LIFE EXPECTANCY 🤍',
-    marriageage:     'RANK THESE COUNTRIES BY HIGHEST AVERAGE MARRIAGE AGE 💍',
-    sexratio:        'RANK THESE COUNTRIES BY MOST MEN PER 100 WOMEN ⚖️',
-    tallestbuilding: 'RANK THESE COUNTRIES BY TALLEST BUILDINGS 🏙️',
-    density:         'RANK THESE COUNTRIES BY BIGGEST POPULATION DENSITY 👨‍👩‍👧‍👦',
-    carexports:      'RANK THESE COUNTRIES BY HIGHEST CAR EXPORTS 🚗',
-    militarypersonel:'RANK THESE COUNTRIES BY MOST MILITARY PERSONNEL 🪖',
-    rent:            'RANK THESE COUNTRIES BY HIGHEST AVERAGE 1-BED, CAPITAL CITY RENT PRICE 🏠',
-    poorestgdp:      'RANK THESE COUNTRIES BY LOWEST GDP PER CAPITA 📉',
-    university:      'RANK THESE COUNTRIES BY HIGHEST NUMBER OF UNIVERSITIES 🎓',
-    volcano:         'RANK THESE COUNTRIES BY HIGHEST NUMBER OF HOLOCENE VOLCANOES 🌋',
-    flamingo:        'RANK THESE COUNTRIES BY HIGHEST FLAMINGO POPULATION 🦩',
-    disasterrisk:    'RANK THESE COUNTRIES BY HIGHEST NATURAL DISASTER RISK 🌪️',
-    longestriver:    'RANK THESE COUNTRIES BY LONGEST RIVER 🌊',
-    renewableenergy: 'RANK THESE COUNTRIES BY HIGHEST % ENERGY USE FROM RENEWABLE SOURCES ♻️',
-    millionaires:    'RANK THESE COUNTRIES BY HIGHEST NUMBER OF MILLIONAIRES 💰',
-    gm:              'RANK THESE COUNTRIES BY HIGHEST NUMBER OF CHESS GRANDMASTERS ♟️',
-    f1:              'RANK THESE COUNTRIES BY MOST FORMULA 1 DRIVERS\' CHAMPIONSHIP TITLES 🏎️',
-    worldcupgoals:        'RANK THESE COUNTRIES BY MOST FIFA WORLD CUP GOALS SCORED ⚽',
-    worldcupappearances:  'RANK THESE COUNTRIES BY MOST FIFA WORLD CUP APPEARANCES ⚽',
-    worldcupwins:         'RANK THESE COUNTRIES BY MOST FIFA WORLD CUP MATCH WINS ⚽',
-  };
-
-  // ── Validate session ─────────────────────────────────────────────────────
+  // ── Auth guard ───────────────────────────────────────────────────────────
   const { data: { session } } = await supabase.auth.getSession();
   if (!session?.user) {
     window.location.href = 'auth.html?next=' + encodeURIComponent(window.location.href);
@@ -370,15 +394,14 @@
 
   // ── Check match timeout ──────────────────────────────────────────────────
   const GAME_DURATION_MS = 5 * 60 * 1000;
-  const startedAt  = new Date(duelMatch.startedAt).getTime();
-  const timeLeft   = (startedAt + GAME_DURATION_MS) - Date.now();
+  const startedAt = new Date(duelMatch.startedAt).getTime();
+  const timeLeft  = (startedAt + GAME_DURATION_MS) - Date.now();
 
   if (timeLeft <= 0) {
     window.location.href = `duelresults.html?match=${duelMatch.matchId}&timeout=1`;
     throw new Error('match already timed out');
   }
 
-  // Auto-navigate to results when time runs out (if player hasn't finished yet)
   const timeoutHandle = setTimeout(() => {
     window.location.href = `duelresults.html?match=${duelMatch.matchId}&timeout=1`;
   }, timeLeft);
@@ -386,48 +409,16 @@
   // ── Category from URL ────────────────────────────────────────────────────
   const mode = new URLSearchParams(window.location.search).get('mode') || 'population';
 
-  // Populated by the Stage 3 validation block; used for channel participant validation
   let gameParticipants = null;
 
-  // ── GAMEPLAY AUTHORITY LAYERS ────────────────────────────────────────────
-  // Three independent replay-prevention layers protect this page, ordered
-  // fast-to-authoritative:
-  //
-  //   Layer 1 — sessionStorage flag (Stage 3B):
-  //     duelMatch.completed = true is set after successful submission.
-  //     On any reload, the fast-path check below redirects immediately
-  //     without a DB round-trip.  Cleared by browser/private browsing;
-  //     covered by Layer 2 when missing.
-  //
-  //   Layer 2 — DB existence check (Stage 3A):
-  //     h2h_results is queried at load time.  An existing row means the
-  //     player already submitted — redirect to results regardless of
-  //     sessionStorage state.  This is the authoritative replay guard.
-  //
-  //   Layer 3 — gameplay persistence (Phase 2C):
-  //     h2h_match_progress stores each committed placement.  On reload,
-  //     saved state is restored so the player continues from where they
-  //     left off — no reroll is possible because prior answers are locked.
-  //
-  // ALL three must remain intact.  Removing any one degrades a different
-  // failure mode: (1) slow for clean restores, (2) breaks security, (3)
-  // allows oracle-knowledge rerolls.
-
-  // ── Stage 3B fast-path: session already marked completed ─────────────────
-  // After a successful submission, duelMatch.completed is set to true.
-  // On any subsequent load (refresh, back button) we skip the DB query
-  // and redirect immediately — no round-trip needed.
+  // ── Stage 3B fast-path ───────────────────────────────────────────────────
   if (duelMatch.completed === true) {
     clearTimeout(timeoutHandle);
     window.location.href = `duelresults.html?match=${duelMatch.matchId}`;
     throw new Error('session already completed');
   }
 
-  // ── Stage 3A + 3C: authoritative gameplay gate ───────────────────────────
-  // Must pass ALL checks before ANY game code initialises.
-  // Validates: match exists, caller belongs to it, match is active,
-  // no prior submission (replay prevention), and URL category is authoritative.
-  // Queries run in parallel to minimise latency.
+  // ── DB validation ────────────────────────────────────────────────────────
   {
     const [matchFetch, resultFetch] = await Promise.all([
       supabase
@@ -443,7 +434,6 @@
         .maybeSingle()
     ]);
 
-    // Match must exist and be accessible to this user (RLS gates non-participants)
     if (matchFetch.error || !matchFetch.data) {
       clearTimeout(timeoutHandle);
       sessionStorage.removeItem('duelMatch');
@@ -453,14 +443,12 @@
 
     const liveMatch = matchFetch.data;
 
-    // Stage 3A: existing result — player already submitted, send to results
     if (resultFetch.data) {
       clearTimeout(timeoutHandle);
       window.location.href = `duelresults.html?match=${duelMatch.matchId}`;
       throw new Error('result already submitted');
     }
 
-    // Caller must be a participant in this specific match
     if (liveMatch.player1_id !== currentUserId && liveMatch.player2_id !== currentUserId) {
       clearTimeout(timeoutHandle);
       sessionStorage.removeItem('duelMatch');
@@ -468,54 +456,48 @@
       throw new Error('not a participant in this match');
     }
 
-    // Match must be active — finished/abandoned/pre-start all redirect to results
     if (liveMatch.status !== 'active') {
       clearTimeout(timeoutHandle);
       window.location.href = `duelresults.html?match=${duelMatch.matchId}`;
       throw new Error(`match status is ${liveMatch.status}, expected active`);
     }
 
-    // Stage 3C: URL category must match the authoritative DB value.
-    // Also redirect if this is a VS/Top10 match that landed on the Classic page.
+    // If this is not a Top10 match, redirect to the correct game page
+    if (liveMatch.duel_mode === 'classic') {
+      clearTimeout(timeoutHandle);
+      window.location.href = `duelgame.html?mode=${encodeURIComponent(liveMatch.category)}`;
+      throw new Error('duel_mode is classic — redirecting to classic page');
+    }
     if (liveMatch.duel_mode === 'vs') {
       clearTimeout(timeoutHandle);
       window.location.href = `duelgame-vs.html?mode=${encodeURIComponent(liveMatch.category)}`;
-      throw new Error(`duel_mode is vs — redirecting to vs page`);
+      throw new Error('duel_mode is vs — redirecting to vs page');
     }
-    if (liveMatch.duel_mode === 'top10') {
-      clearTimeout(timeoutHandle);
-      window.location.href = `duelgame-top10.html?mode=${encodeURIComponent(liveMatch.category)}`;
-      throw new Error(`duel_mode is top10 — redirecting to top10 page`);
-    }
+
     if (liveMatch.category !== mode) {
       clearTimeout(timeoutHandle);
-      window.location.href = `duelgame.html?mode=${encodeURIComponent(liveMatch.category)}`;
+      window.location.href = `duelgame-top10.html?mode=${encodeURIComponent(liveMatch.category)}`;
       throw new Error(`category mismatch — URL:${mode} DB:${liveMatch.category}`);
     }
 
-    // Preserve participant IDs outside the block scope for channel creation.
-    // These are authoritative values fetched from the DB in this same request.
     gameParticipants = [liveMatch.player1_id, liveMatch.player2_id];
   }
 
   // ── Opponent badge ───────────────────────────────────────────────────────
   const badge = document.getElementById('opponentBadge');
 
-  // ── Duel channel — created after the gameplay gate, with known participant IDs ──
+  // ── Duel channel ─────────────────────────────────────────────────────────
   let opponentFinishedDuringGame = false;
   const duelChannel = createDuelChannel(supabase, duelMatch.matchId, currentUserId, {
-    onBothReady:        () => {},  // not needed on game page
-    onGameStart:        () => {},  // already started
+    onBothReady:        () => {},
+    onGameStart:        () => {},
     onOpponentFinished: () => {
       opponentFinishedDuringGame = true;
       badge.textContent = '✅ Opponent finished!';
       badge.classList.remove('pulsing');
       badge.classList.add('done');
     }
-  }, {
-    // Passed to validate game:finished sender identity without an extra DB read
-    participantIds: gameParticipants
-  });
+  }, { participantIds: gameParticipants });
 
   // ── Waiting-for-opponent helpers ─────────────────────────────────────────
   let waitPollInterval = null;
@@ -532,13 +514,11 @@
     document.getElementById('waitingOverlay').classList.add('visible');
     waitStart = Date.now();
 
-    // If opponent already finished during my game, go straight to results
     if (opponentFinishedDuringGame) {
       goToResults();
       return;
     }
 
-    // Poll h2h_results every 3 s until both rows exist
     waitPollInterval = setInterval(async () => {
       const elapsed = Date.now() - waitStart;
 
@@ -562,28 +542,16 @@
   }
 
   // ── _duelOnComplete handler ──────────────────────────────────────────────
-  window._duelOnComplete = async (resultsTable, totalScore, maxScore) => {
-    // Cancel the match timeout navigator — we finished in time
+  // Receives placements = [{wasCorrect: bool}, ...] from top10-game.js
+  window._duelOnComplete = async (placements) => {
     clearTimeout(timeoutHandle);
 
-    // Remove the speculative classic pending save (duel results go via RPC, not classicresults)
-    localStorage.removeItem('classicPendingSave');
+    // Remove any Top10 pending save (duel results go via RPC, not top10results)
+    localStorage.removeItem('top10PendingSave');
+    localStorage.removeItem('top10Results');
 
-    // Show submitting overlay
     document.getElementById('submitOverlay').classList.add('visible');
 
-    // Build placements array — field names must match verify_and_save_duel_result RPC
-    const placements = resultsTable.map(entry => ({
-      placedRank:      entry.rank,
-      correctRankMin:  entry.correctRankMin,
-      correctRankMax:  entry.correctRankMax,
-      country_code:    entry.countryCode,
-      name:            entry.name,
-      flag:            entry.flag
-    }));
-
-    // Call server-side RPC to verify and save score.
-    // Identity is derived from auth.uid() server-side — do not pass p_user_id.
     const { data: rpcResult, error: rpcError } = await supabase.rpc(
       'verify_and_save_duel_result',
       {
@@ -601,7 +569,7 @@
       return;
     }
 
-    // Append to game_sessions — fire-and-forget, non-critical.
+    // Fire-and-forget game_sessions record
     supabase.from('game_sessions').insert({
       user_id:     currentUserId,
       game_mode:   'duel',
@@ -612,118 +580,38 @@
       duration_ms: duelMatch.startedAt ? Date.now() - new Date(duelMatch.startedAt).getTime() : null,
       is_daily:    false
     }).then(({ error }) => {
-      if (error) console.warn('⚠️ game_sessions (duel) insert failed:', error.message);
+      if (error) console.warn('⚠️ game_sessions (duel-top10) insert failed:', error.message);
     });
     evaluateAchievements(supabase, session);
 
-    // Stage 3B: mark session completed — replay prevention for refresh/back navigation.
-    // Wrapped in try/catch: private browsing throws QuotaExceededError on setItem,
-    // and the submission path must never be interrupted by a storage failure.
+    // Stage 3B: mark session completed
     try {
       const stored = JSON.parse(sessionStorage.getItem('duelMatch') || 'null');
       if (stored) {
         stored.completed = true;
         sessionStorage.setItem('duelMatch', JSON.stringify(stored));
       }
-    } catch (_) { /* storage unavailable — not fatal */ }
+    } catch (_) {}
 
-    // Phase 2C: stop further saves, then delete the progress row.
-    // Null assignment MUST come before the delete — if a late placement
-    // callback fires between the two, it would race the DELETE by re-inserting
-    // the row.  Nulling the callback first prevents that window.
-    window._duelOnPlacement = null;
-    supabase.from('h2h_match_progress')
-      .delete()
-      .eq('match_id', duelMatch.matchId)
-      .eq('user_id', currentUserId)
-      .then(() => {}); // fire-and-forget
-
-    // Broadcast game:finished to opponent
     duelChannel.emitFinished(rpcResult.score, rpcResult.max_score);
-
-    // Destroy channel — no longer needed for lobby events
     duelChannel.destroy();
 
-    // Hide submit overlay, show waiting screen
     document.getElementById('submitOverlay').classList.remove('visible');
     await startWaitingForOpponent();
   };
 
-  // ── Phase 2C: Gameplay persistence wiring ────────────────────────────────
-  // Authority split:
-  //   LIVE runtime authority  — the game engine (blind-ranking.js) runs locally.
-  //                             totalScore and placement slots are in-memory.
-  //   RECOVERY authority      — h2h_match_progress holds the committed placements.
-  //                             On any reload, the DB state is the source of truth.
-  //
-  // livePlacements accumulates the COMPLETE placements array (not deltas).
-  // Each upsert replaces the entire row so the DB always has a coherent
-  // snapshot — partial/interleaved writes cannot produce corrupt state.
-  //
-  // Fire-and-forget is intentional: a DB write failure logs a warning and is
-  // tolerated.  If the player reloads after a failed save, they replay from
-  // the last successful checkpoint (a small disadvantage, not a cheat vector).
-  // The _duelOnComplete RPC is still the authoritative final submission.
-  let livePlacements = [];
-
-  window._duelOnPlacement = (placement) => {
-    livePlacements.push(placement);
-    // Non-blocking — gameplay never waits for persistence
-    supabase.from('h2h_match_progress').upsert({
-      match_id:   duelMatch.matchId,
-      user_id:    currentUserId,
-      game_mode:  'classic',
-      placements: livePlacements,
-      saved_at:   new Date().toISOString()
-    }, { onConflict: 'match_id,user_id' }).then(({ error }) => {
-      if (error) console.warn('⚔️ Progress save failed (non-fatal):', error.message);
-    });
-  };
-
   // ── Set duel seed BEFORE importing game engine ───────────────────────────
+  // _duelSeed signals duel mode to top10-game.js (skips DOMContentLoaded auto-start)
   window._duelSeed = Number(duelMatch.seed);
 
-  // ── Load category data, game engine, and saved progress in parallel ──────
-  // Running the DB progress query alongside JS module imports costs nothing extra.
-  const config = categoriesConfig[mode] || categoriesConfig.population;
-  const [categoryModule, engineModule, progressResult] = await Promise.all([
-    import(`./js/categories/${config.dataFile}.js`),
-    import('./js/blind-ranking.js'),
-    supabase
-      .from('h2h_match_progress')
-      .select('placements')
-      .eq('match_id', duelMatch.matchId)
-      .eq('user_id', currentUserId)
-      .maybeSingle()
-  ]);
-  const { startBlindRankingGame, setupRankButtons, loadSavedState } = engineModule;
+  // ── Import and start Top10 game engine ───────────────────────────────────
+  const { startTop10Game } = await import('./js/top10-game.js');
 
-  // Seed the live accumulator from DB (empty array for a fresh game)
-  const restoredPlacements = progressResult.data?.placements ?? [];
-  livePlacements = [...restoredPlacements];
-
-  window.countries = categoryModule[config.dataKey];
-  document.querySelector('.top-card-title').textContent =
-    classicTitles[mode] || config.title?.toUpperCase() || 'RANK THESE COUNTRIES';
-
-  // Ordering invariant — do NOT reorder these three calls:
-  //   1. startBlindRankingGame() populates selectedCountries (required by loadSavedState)
-  //   2. setupRankButtons() wires click handlers to the remaining empty slots
-  //   3. loadSavedState() fills committed slots; endGame() fires if all 10 are restored
-  // The overlay stays visible throughout so the player sees the complete
-  // restored state in a single reveal, with no flash of an empty game.
-  startBlindRankingGame(CATEGORY_ID_MAP[mode] || 0);
-  setupRankButtons();
-
-  if (restoredPlacements.length > 0) {
-    // If all 10 placements are saved (submission-failure recovery), loadSavedState
-    // will call endGame() → _duelOnComplete → re-submit.  This is intentional.
-    loadSavedState(restoredPlacements);
-  }
-
-  // Reveal game only after restoration is complete
+  // Reveal game
   document.getElementById('authLoadingOverlay').style.display = 'none';
   window.scrollTo(0, 0);
+
+  startTop10Game();
 </script>
 
 <script type="module" src="js/identity-gate.js"></script>

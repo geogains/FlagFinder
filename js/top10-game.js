@@ -863,6 +863,15 @@ async function endGame(won) {
 function showResults(won, correctGuesses, timeElapsed) {
   const playableCount = currentCategory?.playableCount ?? currentCategory?.countries?.length ?? 10;
 
+  // Duel mode: hand off to the duel page's completion handler
+  if (typeof window._duelOnComplete === 'function') {
+    const placements = currentCategory.countries.map(country => ({
+      wasCorrect: gameState.guessedCountries.has(country.name)
+    }));
+    window._duelOnComplete(placements);
+    return;
+  }
+
   // Prepare results data for results page
   const resultsData = {
     score: gameState.score,
@@ -920,6 +929,13 @@ function showResults(won, correctGuesses, timeElapsed) {
 
 console.log('Top 10 game loaded');
 
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', initializeGame);
+// Initialize when DOM is ready.
+// In duel mode (_duelSeed is set), the duel page calls startTop10Game() explicitly
+// after auth checks complete — DOMContentLoaded may have already fired by then.
+if (window._duelSeed == null) {
+  document.addEventListener('DOMContentLoaded', initializeGame);
+}
 console.log('Event listener added for DOMContentLoaded');
+
+// Exported for duel pages that dynamically import this module post-load.
+export async function startTop10Game() { return initializeGame(); }
