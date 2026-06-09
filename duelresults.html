@@ -307,6 +307,73 @@
       .player-cell { display: none; }
       .country-row { grid-template-columns: 1fr; }
     }
+
+    /* ── Score correct count (Phase 2) ── */
+    .score-correct {
+      font-size: 0.78rem; color: #6b7280; font-weight: 600; margin-top: 3px;
+    }
+
+    /* ── Mini win indicator (Phase 4) ── */
+    .mini-win {
+      font-size: 0.63rem; font-weight: 700; padding: 2px 6px;
+      border-radius: 6px; white-space: nowrap; display: inline-block; margin-top: 4px;
+    }
+    .mini-win.you-win  { background: #d1fae5; color: #065f46; }
+    .mini-win.opp-win  { background: #fee2e2; color: #991b1b; }
+    .mini-win.equal    { background: #fef3c7; color: #92400e; }
+    .country-center    { min-width: 120px; }
+
+    /* ── Correct Order section (Phase 5) ── */
+    .correct-order-section {
+      padding: 1.5rem 2rem 0;
+    }
+    .correct-order-section h3 {
+      font-size: 0.75rem; font-weight: 700; color: #9ca3af;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin-bottom: 0.75rem;
+    }
+    .correct-order-row {
+      display: flex; align-items: flex-start; gap: 0.6rem;
+      padding: 0.6rem 0.5rem;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .correct-order-row:last-child { border-bottom: none; }
+    .correct-order-row.cor-match {
+      background: linear-gradient(135deg, rgba(16,185,129,0.05), rgba(5,150,105,0.05));
+    }
+    .cor-rank {
+      font-size: 0.78rem; font-weight: 700; color: #9ca3af;
+      min-width: 32px; padding-top: 2px; flex-shrink: 0; text-align: center;
+    }
+    .cor-body { flex: 1; }
+    .cor-main {
+      display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;
+    }
+    .cor-flag {
+      width: 26px; height: 18px; border-radius: 3px;
+      object-fit: cover; flex-shrink: 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    }
+    .cor-name {
+      font-size: 0.87rem; font-weight: 600; color: #0d315a;
+    }
+    .cor-sep  { color: #d1d5db; font-size: 0.8rem; }
+    .cor-value { font-size: 0.8rem; color: #6b7280; font-weight: 500; }
+    .cor-your  { font-size: 0.73rem; color: #9ca3af; margin-top: 3px; }
+    .cor-your strong { color: #374151; }
+    .cor-chip-inline {
+      font-size: 0.66rem; font-weight: 700; padding: 1px 5px;
+      border-radius: 5px; margin-left: 2px; display: inline-block; vertical-align: middle;
+    }
+    .cor-chip-inline.correct { background: #d1fae5; color: #065f46; }
+    .cor-chip-inline.wrong   { background: #fee2e2; color: #991b1b; }
+
+    @media (max-width: 768px) {
+      .correct-order-section { padding: 1.25rem 1rem 0; }
+    }
+    @media (max-width: 600px) {
+      .mini-win { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -568,6 +635,24 @@
     const myMax    = myResult  ? myResult.max_score  : 100;
     const oppMax   = oppResult ? oppResult.max_score : 100;
 
+    // Classic-only: X/10 correct count
+    let myCorrectCountHtml  = '';
+    let oppCorrectCountHtml = '';
+    if (duelMode === 'classic') {
+      if (myResult?.placements) {
+        const n = myResult.placements.filter(p =>
+          p.placedRank >= p.correctRankMin && p.placedRank <= p.correctRankMax
+        ).length;
+        myCorrectCountHtml = `<div class="score-correct">${n} / 10 Correct</div>`;
+      }
+      if (oppResult?.placements) {
+        const n = oppResult.placements.filter(p =>
+          p.placedRank >= p.correctRankMin && p.placedRank <= p.correctRankMax
+        ).length;
+        oppCorrectCountHtml = `<div class="score-correct">${n} / 10 Correct</div>`;
+      }
+    }
+
     const oppNameHtml = oppUsername
       ? `<a href="${profileUrl(oppUsername)}" class="player-profile-link">${escHtml(oppName)}</a>`
       : escHtml(oppName);
@@ -581,6 +666,7 @@
           <div class="score-value">${myScore}
             <span class="score-max">/ ${myMax}</span>
           </div>
+          ${myCorrectCountHtml}
         </div>
         <div class="score-divider"></div>
         <div class="score-player">
@@ -588,6 +674,7 @@
           <div class="score-value">${oppScore}
             <span class="score-max">/ ${oppMax}</span>
           </div>
+          ${oppCorrectCountHtml}
         </div>
       </div>
     `;
@@ -607,6 +694,9 @@
     // ── Placement breakdown ──
     const breakdownHtml = buildBreakdownHtml(myResult, oppResult, myName, oppName, duelMode);
 
+    // ── Correct order (Classic only) ──
+    const correctOrderHtml = duelMode === 'classic' ? buildCorrectOrderHtml(myResult) : '';
+
     // ── Action buttons ──
     const rematchQuery = `category=${encodeURIComponent(match.category)}` +
       (duelMode && duelMode !== 'classic' ? `&duel_mode=${encodeURIComponent(duelMode)}` : '');
@@ -619,7 +709,7 @@
       </div>
     `;
 
-    card.innerHTML = bannerHtml + scoreSummaryHtml + categoryHtml + timeoutHtml + breakdownHtml + actionsHtml;
+    card.innerHTML = bannerHtml + scoreSummaryHtml + categoryHtml + timeoutHtml + breakdownHtml + correctOrderHtml + actionsHtml;
   }
 
   function buildBannerHtml(outcome, myName, oppName, myResult, oppResult) {
@@ -733,6 +823,16 @@
       const myCorrect  = myP.placedRank >= myP.correctRankMin && myP.placedRank <= myP.correctRankMax;
       const oppCorrect = oppP ? (oppP.placedRank >= oppP.correctRankMin && oppP.placedRank <= oppP.correctRankMax) : null;
 
+      // Off-by distance (0 if correct, else distance to nearest boundary)
+      const myDiff  = myCorrect ? 0
+        : (myP.placedRank < myP.correctRankMin
+            ? myP.correctRankMin - myP.placedRank
+            : myP.placedRank - myP.correctRankMax);
+      const oppDiff = oppP ? (oppCorrect ? 0
+        : (oppP.placedRank < oppP.correctRankMin
+            ? oppP.correctRankMin - oppP.placedRank
+            : oppP.placedRank - oppP.correctRankMax)) : null;
+
       let rowClass = '';
       if (myCorrect && oppP && !oppCorrect)  rowClass = 'i-won';
       else if (!myCorrect && oppCorrect)     rowClass = 'opp-won';
@@ -750,12 +850,23 @@
       const flagPath = myP.flag || `flags/${myP.country_code}.png`;
       const name     = myP.name || myP.country_code;
 
+      // Who-won-this-country indicator (Phase 4)
+      let miniWinHtml = '';
+      if (oppP !== undefined && oppDiff !== null) {
+        if (myDiff < oppDiff)       miniWinHtml = `<div class="mini-win you-win">🏆 Point to You</div>`;
+        else if (oppDiff < myDiff)  miniWinHtml = `<div class="mini-win opp-win">🏆 Point to Opponent</div>`;
+        else                        miniWinHtml = `<div class="mini-win equal">🤝 Equal</div>`;
+      }
+
       // Desktop player cells
+      const myChipLabel  = myCorrect  ? '✅ Perfect' : `❌ Off by ${myDiff}`;
+      const oppChipLabel = oppCorrect ? '✅ Perfect' : (oppDiff !== null ? `❌ Off by ${oppDiff}` : '❌ Off');
+
       const myCellHtml = `
         <div class="player-cell left-align">
           <span class="placed-rank">#${myP.placedRank}</span>
           <span class="correct-range">Correct: ${myRange}</span>
-          <span class="result-chip ${myCorrect ? 'correct' : 'wrong'}">${myCorrect ? '✅ Perfect' : '❌ Off'}</span>
+          <span class="result-chip ${myCorrect ? 'correct' : 'wrong'}">${myChipLabel}</span>
         </div>
       `;
 
@@ -763,25 +874,28 @@
         <div class="player-cell right-align">
           <span class="placed-rank">#${oppP.placedRank}</span>
           <span class="correct-range">Correct: ${oppRange}</span>
-          <span class="result-chip ${oppCorrect ? 'correct' : 'wrong'}">${oppCorrect ? '✅ Perfect' : '❌ Off'}</span>
+          <span class="result-chip ${oppCorrect ? 'correct' : 'wrong'}">${oppChipLabel}</span>
         </div>
       ` : `<div class="player-cell right-align"><span class="placed-rank">—</span></div>`;
 
-      // Mobile stacked cells
+      // Mobile stacked cells (shorter chip label)
+      const myMobileChip  = myCorrect  ? '✅' : `❌ ${myDiff}`;
+      const oppMobileChip = oppCorrect ? '✅' : (oppDiff !== null ? `❌ ${oppDiff}` : '❌');
+
       const mobileCellsHtml = `
         <div class="players-mobile">
           <div class="player-col-mobile">
             <div class="mobile-label">${escHtml(myName)} (You)</div>
             <span class="placed-rank">#${myP.placedRank}</span>
             <span class="correct-range" style="display:block;">Correct: ${myRange}</span>
-            <span class="result-chip ${myCorrect ? 'correct' : 'wrong'}">${myCorrect ? '✅' : '❌'}</span>
+            <span class="result-chip ${myCorrect ? 'correct' : 'wrong'}">${myMobileChip}</span>
           </div>
           ${oppP ? `
           <div class="player-col-mobile">
             <div class="mobile-label">${escHtml(oppName)}</div>
             <span class="placed-rank">#${oppP.placedRank}</span>
             <span class="correct-range" style="display:block;">Correct: ${oppRange}</span>
-            <span class="result-chip ${oppCorrect ? 'correct' : 'wrong'}">${oppCorrect ? '✅' : '❌'}</span>
+            <span class="result-chip ${oppCorrect ? 'correct' : 'wrong'}">${oppMobileChip}</span>
           </div>` : `<div class="player-col-mobile"><div class="mobile-label">${escHtml(oppName)}</div><span class="placed-rank">—</span></div>`}
         </div>
       `;
@@ -793,6 +907,7 @@
             <img src="${flagPath}" alt="${escHtml(name)}" class="country-flag"
                  loading="lazy" onerror="this.src='flags/UN.png'">
             <span class="country-name">${escHtml(name)}</span>
+            ${miniWinHtml}
           </div>
           ${oppCellHtml}
           ${mobileCellsHtml}
@@ -804,6 +919,57 @@
       <div class="breakdown-section">
         <h3>Placement Breakdown</h3>
         ${headerHtml}
+        ${rowsHtml}
+      </div>
+    `;
+  }
+
+  function buildCorrectOrderHtml(myResult) {
+    if (!myResult?.placements) return '';
+
+    // Sort by correctRankMin to show the true ranking order
+    const sorted = [...myResult.placements].sort((a, b) => a.correctRankMin - b.correctRankMin);
+
+    const rowsHtml = sorted.map(p => {
+      const isCorrect = p.placedRank >= p.correctRankMin && p.placedRank <= p.correctRankMax;
+      const diff = isCorrect ? 0
+        : (p.placedRank < p.correctRankMin
+            ? p.correctRankMin - p.placedRank
+            : p.placedRank - p.correctRankMax);
+
+      const rankLabel = p.correctRankMin === p.correctRankMax
+        ? `#${p.correctRankMin}`
+        : `#${p.correctRankMin}–${p.correctRankMax}`;
+      const flagPath = p.flag || `flags/${p.country_code}.png`;
+      const name     = p.name || p.country_code;
+      const valueHtml = p.value
+        ? `<span class="cor-sep">·</span><span class="cor-value">${escHtml(p.value)}</span>`
+        : '';
+      const chipClass = isCorrect ? 'correct' : 'wrong';
+      const chipLabel = isCorrect ? '✅ Perfect' : `❌ Off by ${diff}`;
+
+      return `
+        <div class="correct-order-row${isCorrect ? ' cor-match' : ''}">
+          <div class="cor-rank">${rankLabel}</div>
+          <div class="cor-body">
+            <div class="cor-main">
+              <img src="${flagPath}" alt="${escHtml(name)}" class="cor-flag"
+                   loading="lazy" onerror="this.src='flags/UN.png'">
+              <span class="cor-name">${escHtml(name)}</span>
+              ${valueHtml}
+            </div>
+            <div class="cor-your">
+              You placed: <strong>#${p.placedRank}</strong>
+              <span class="cor-chip-inline ${chipClass}">${chipLabel}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <div class="correct-order-section">
+        <h3>Correct Order</h3>
         ${rowsHtml}
       </div>
     `;

@@ -579,7 +579,8 @@
       correctRankMax:  entry.correctRankMax,
       country_code:    entry.countryCode,
       name:            entry.name,
-      flag:            entry.flag
+      flag:            entry.flag,
+      value:           entry.value ?? null
     }));
 
     // Call server-side RPC to verify and save score.
