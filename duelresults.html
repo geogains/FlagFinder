@@ -576,6 +576,59 @@
       .vs-review-body.open { max-height: 500px; }
       .vsr-cname { font-size: 0.7rem; }
     }
+
+    /* ── Top 10 review rows ── */
+    .t10-review-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.4rem 1rem; background: #f9fafb;
+      font-size: 0.68rem; font-weight: 700; color: #9ca3af;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .t10-review-row {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.5rem 1rem; border-bottom: 1px solid #f3f4f6;
+    }
+    .t10-review-row:last-child { border-bottom: none; }
+    .t10-review-row.t10-i-won   { background: rgba(16,185,129,0.04); }
+    .t10-review-row.t10-opp-won { background: rgba(239,68,68,0.03); }
+    .t10-rc { flex: 1; display: flex; align-items: center; gap: 0.4rem; min-width: 0; }
+    .t10-rank-badge {
+      font-size: 0.65rem; font-weight: 700; color: white;
+      background: linear-gradient(135deg, #ff9770, #ff6f61);
+      border-radius: 4px; padding: 1px 4px; flex-shrink: 0;
+      min-width: 20px; text-align: center;
+    }
+    .t10-cflag {
+      width: 22px; height: 15px; object-fit: cover; border-radius: 2px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.12); flex-shrink: 0;
+    }
+    .t10-ctext { min-width: 0; }
+    .t10-cname {
+      font-size: 0.78rem; font-weight: 600; color: #0d315a;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .t10-cval { font-size: 0.7rem; font-weight: 700; color: #3b82f6; }
+    .t10-chips { display: flex; gap: 0.35rem; align-items: center; flex-shrink: 0; }
+    .t10-chip {
+      font-size: 0.68rem; font-weight: 700; padding: 2px 5px;
+      border-radius: 5px; white-space: nowrap; min-width: 54px; text-align: center;
+    }
+    .t10-chip.got  { background: #d1fae5; color: #065f46; }
+    .t10-chip.miss { background: #fee2e2; color: #991b1b; }
+    .t10-chip.na   { background: #f3f4f6; color: #9ca3af; }
+    .t10-win {
+      font-size: 0.62rem; font-weight: 700; padding: 2px 5px;
+      border-radius: 5px; white-space: nowrap; flex-shrink: 0;
+    }
+    .t10-win.you  { background: #d1fae5; color: #065f46; }
+    .t10-win.opp  { background: #fee2e2; color: #991b1b; }
+    .t10-win.eq   { background: #fef3c7; color: #92400e; }
+
+    @media (max-width: 600px) {
+      .t10-review-header { display: none; }
+      .t10-win { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -969,38 +1022,176 @@
     `;
   }
 
-  function buildSimpleBreakdownHtml(myResult, oppResult, myName, oppName, duelMode) {
-    const modeLabel = duelMode === 'top10' ? 'Top 10' : 'VS Mode';
-    const totalLabel = duelMode === 'top10' ? 'out of 10' : 'rounds played';
-
-    function countCorrect(result) {
-      if (!result?.placements) return null;
-      return result.placements.filter(p => p.wasCorrect).length;
+  function buildTop10BreakdownHtml(myResult, oppResult, myName, oppName) {
+    // ── Stat cards ──
+    function deriveTop10Stats(result) {
+      if (!result) return null;
+      const placements = result.placements || [];
+      const correct   = placements.filter(p => p.wasCorrect).length;
+      const incorrect = placements.length - correct;
+      const lives     = Math.max(0, 3 - incorrect);
+      const accuracy  = placements.length > 0 ? Math.round((correct / placements.length) * 100) : 0;
+      return { score: result.score, correct, lives, accuracy };
     }
 
-    const myCorrect  = countCorrect(myResult);
-    const oppCorrect = countCorrect(oppResult);
-    const myTotal    = myResult?.placements?.length ?? null;
-    const oppTotal   = oppResult?.placements?.length ?? null;
-
-    const myLine  = myCorrect  !== null ? `${myCorrect} correct` + (myTotal !== null ? ` / ${myTotal} ${totalLabel}` : '') : '—';
-    const oppLine = oppCorrect !== null ? `${oppCorrect} correct` + (oppTotal !== null ? ` / ${oppTotal} ${totalLabel}` : '') : '—';
-
-    return `
-      <div class="breakdown-section">
-        <h3>${modeLabel} Results</h3>
-        <div style="display:flex;gap:2rem;padding:0.5rem 0.5rem 1.5rem;">
-          <div style="flex:1;text-align:center;background:#f0f9ff;border-radius:12px;padding:1rem;">
-            <div style="font-size:0.75rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">${escHtml(myName)} (You)</div>
-            <div style="font-size:1.5rem;font-weight:700;color:#0d315a;">${myLine}</div>
+    function buildStatCard(stats, playerName, isYou) {
+      const nameHtml = `${escHtml(playerName)}${isYou ? ' <span class="you-tag">You</span>' : ''}`;
+      if (!stats) return `
+        <div class="vs-player-card">
+          <div class="vs-player-header">${nameHtml}</div>
+          <p class="vs-no-data-msg">No data</p>
+        </div>`;
+      const livesDisplay = '🤍'.repeat(3 - stats.lives) + '❤️'.repeat(stats.lives);
+      return `
+        <div class="vs-player-card">
+          <div class="vs-player-header">${nameHtml}</div>
+          <div class="vs-stat-row">
+            <span class="vs-stat-label">Correct</span>
+            <span class="vs-stat-val">${stats.correct} / 10</span>
           </div>
-          <div style="flex:1;text-align:center;background:#f0f9ff;border-radius:12px;padding:1rem;">
-            <div style="font-size:0.75rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">${escHtml(oppName)}</div>
-            <div style="font-size:1.5rem;font-weight:700;color:#0d315a;">${oppLine}</div>
+          <div class="vs-stat-row">
+            <span class="vs-stat-label">Lives</span>
+            <span class="vs-stat-val">${livesDisplay}</span>
+          </div>
+          <div class="vs-stat-row">
+            <span class="vs-stat-label">Accuracy</span>
+            <span class="vs-stat-val">${stats.accuracy}%</span>
+          </div>
+        </div>`;
+    }
+
+    const myStats  = deriveTop10Stats(myResult);
+    const oppStats = deriveTop10Stats(oppResult);
+
+    const statsHtml = `
+      <div class="breakdown-section">
+        <h3>Top 10 Results</h3>
+        <div class="vs-stats-grid">
+          ${buildStatCard(myStats,  myName,  true)}
+          ${buildStatCard(oppStats, oppName, false)}
+        </div>
+      </div>`;
+
+    // ── Check for rich placement data ──
+    const myPlacements  = myResult?.placements  || [];
+    const oppPlacements = oppResult?.placements || [];
+    const hasRichMy  = myPlacements.length  > 0 && myPlacements[0].name  != null;
+    const hasRichOpp = oppPlacements.length > 0 && oppPlacements[0].name != null;
+
+    if (!hasRichMy && !hasRichOpp) return statsHtml;
+
+    // Use whichever player has rich data for country info (prefer myResult)
+    const richSource = hasRichMy ? myPlacements : oppPlacements;
+    const sorted = [...richSource].sort((a, b) => (a.correctRank || 0) - (b.correctRank || 0));
+
+    // Lookup by correctRank for alignment
+    const myByRank  = {};
+    const oppByRank = {};
+    myPlacements.forEach((p, i)  => { myByRank[p.correctRank  || i] = p; });
+    oppPlacements.forEach((p, i) => { oppByRank[p.correctRank || i] = p; });
+
+    // ── Correct Top 10 section ──
+    const correctRowsHtml = sorted.map((p, i) => {
+      const rank     = p.correctRank || (i + 1);
+      const flagPath = p.flag || `flags/${p.code}.png`;
+      const valueHtml = p.value
+        ? `<span class="cor-sep">·</span><span class="cor-value">${escHtml(p.value)}</span>`
+        : '';
+      return `
+        <div class="correct-order-row">
+          <div class="cor-rank">#${rank}</div>
+          <div class="cor-body">
+            <div class="cor-main">
+              <img src="${flagPath}" alt="${escHtml(p.name)}" class="cor-flag"
+                   loading="lazy" onerror="this.src='flags/UN.png'">
+              <span class="cor-name">${escHtml(p.name)}</span>
+              ${valueHtml}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+
+    const correctOrderHtml = `
+      <div class="correct-order-section">
+        <h3>Correct Top 10</h3>
+        ${correctRowsHtml}
+      </div>`;
+
+    // ── Collapsible review ──
+    const hasOppData = oppPlacements.length > 0;
+    const myLabel    = escHtml(myName.length  > 8 ? myName.slice(0, 7)  + '…' : myName);
+    const oppLabel   = hasOppData
+      ? escHtml(oppName.length > 8 ? oppName.slice(0, 7) + '…' : oppName)
+      : '';
+
+    const reviewRowsHtml = sorted.map((p, i) => {
+      const rank     = p.correctRank || (i + 1);
+      const flagPath = p.flag || `flags/${p.code}.png`;
+
+      // Align by correctRank if rich, else by index
+      const myP  = hasRichMy  ? myByRank[rank]  : myPlacements[i];
+      const oppP = hasRichOpp ? oppByRank[rank] : (hasOppData ? oppPlacements[i] : null);
+
+      const myGot  = myP?.wasCorrect  ?? false;
+      const oppGot = oppP?.wasCorrect ?? false;
+
+      let rowClass = '';
+      if      (myGot && hasOppData && !oppGot)  rowClass = 't10-i-won';
+      else if (!myGot && hasOppData && oppGot)  rowClass = 't10-opp-won';
+
+      let winHtml = '';
+      if (hasOppData && oppP !== undefined) {
+        if      (myGot  && !oppGot)  winHtml = `<span class="t10-win you">🏆 You</span>`;
+        else if (!myGot &&  oppGot)  winHtml = `<span class="t10-win opp">🏆 Opp</span>`;
+        else if (myGot  &&  oppGot)  winHtml = `<span class="t10-win eq">🤝 Equal</span>`;
+        else                         winHtml = `<span class="t10-win eq">Both Missed</span>`;
+      }
+
+      const myChip  = `<span class="t10-chip ${myGot ? 'got' : 'miss'}">${myGot ? '✅ Got it' : '❌ Missed'}</span>`;
+      const oppChip = hasOppData
+        ? `<span class="t10-chip ${oppGot ? 'got' : 'miss'}">${oppGot ? '✅ Got it' : '❌ Missed'}</span>`
+        : '';
+
+      return `
+        <div class="t10-review-row ${rowClass}">
+          <div class="t10-rc">
+            <span class="t10-rank-badge">#${rank}</span>
+            <img src="${flagPath}" alt="${escHtml(p.name)}" class="t10-cflag"
+                 loading="lazy" onerror="this.src='flags/UN.png'">
+            <div class="t10-ctext">
+              <div class="t10-cname">${escHtml(p.name)}</div>
+              ${p.value ? `<div class="t10-cval">${escHtml(p.value)}</div>` : ''}
+            </div>
+          </div>
+          <div class="t10-chips">
+            ${myChip}
+            ${oppChip}
+            ${winHtml}
+          </div>
+        </div>`;
+    }).join('');
+
+    const reviewHtml = `
+      <div class="breakdown-section" style="padding-top:0;padding-bottom:1rem;">
+        <div class="vs-review-section">
+          <button class="vs-review-toggle" onclick="toggleVsReview(this)" aria-expanded="false">
+            <span>Review Player Guesses (10)</span>
+            <span class="vs-toggle-icon">▼</span>
+          </button>
+          <div class="vs-review-body">
+            <div class="t10-review-header">
+              <span>Country</span>
+              <div style="display:flex;gap:0.35rem;">
+                <span style="min-width:54px;text-align:center;">${myLabel}</span>
+                ${hasOppData ? `<span style="min-width:54px;text-align:center;">${oppLabel}</span>` : ''}
+              </div>
+            </div>
+            ${reviewRowsHtml}
           </div>
         </div>
-      </div>
-    `;
+      </div>`;
+
+    return statsHtml + correctOrderHtml + reviewHtml;
   }
 
   function buildBreakdownHtml(myResult, oppResult, myName, oppName, duelMode) {
@@ -1008,7 +1199,7 @@
       return buildVsBreakdownHtml(myResult, oppResult, myName, oppName);
     }
     if (duelMode === 'top10') {
-      return buildSimpleBreakdownHtml(myResult, oppResult, myName, oppName, duelMode);
+      return buildTop10BreakdownHtml(myResult, oppResult, myName, oppName);
     }
     // Classic: carousel
     return buildCarouselHtml(myResult, oppResult, myName, oppName);

@@ -866,7 +866,12 @@ function showResults(won, correctGuesses, timeElapsed) {
   // Duel mode: hand off to the duel page's completion handler
   if (typeof window._duelOnComplete === 'function') {
     const placements = currentCategory.countries.map(country => ({
-      wasCorrect: gameState.guessedCountries.has(country.name)
+      wasCorrect:  gameState.guessedCountries.has(country.name),
+      name:        country.name,
+      flag:        country.flag,
+      code:        country.code,
+      correctRank: country.rank,
+      value:       sharedFormatValue(country.value, currentCategory.unit, { categoryKey })
     }));
     window._duelOnComplete(placements);
     return;
