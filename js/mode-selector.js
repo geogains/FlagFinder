@@ -206,17 +206,20 @@ export const CATEGORY_HINTS = {
   worldcupgoals: {
     description: "Rank countries from most to fewest FIFA World Cup goals scored.",
     detail: "Only goals scored in FIFA World Cup final tournaments count. Qualification goals and continental tournament goals do not affect the ranking.",
-    example: "A country with 237 goals ranks above one with 152, which ranks above one with 0."
+    example: "A country with 237 goals ranks above one with 152, which ranks above one with 0.",
+    moreNotes: "Historical predecessor teams are included in their modern successor nations: West Germany in Germany, Soviet Union in Russia, Yugoslavia and Serbia & Montenegro in Serbia, Czechoslovakia in Czech Republic, Dutch East Indies in Indonesia, and Zaire in RD Congo."
   },
   worldcupappearances: {
     description: "Rank countries from most to fewest FIFA World Cup tournament appearances.",
     detail: "Only appearances at FIFA World Cup final tournaments count. Qualification campaigns do not count.",
-    example: "A country with 23 appearances ranks above one with 17, which ranks above one with 1."
+    example: "A country with 23 appearances ranks above one with 17, which ranks above one with 1.",
+    moreNotes: "Historical predecessor teams are included in their modern successor nations: West Germany in Germany, Soviet Union in Russia, Yugoslavia and Serbia & Montenegro in Serbia, Czechoslovakia in Czech Republic, Dutch East Indies in Indonesia, and Zaire in RD Congo."
   },
   worldcupwins: {
     description: "Rank countries from most to fewest FIFA World Cup match wins.",
     detail: "Only individual match wins at FIFA World Cup final tournaments count. Winning the tournament itself is not the same as this category.",
-    example: "A country with 76 match wins ranks above one with 47, which ranks above one with 0."
+    example: "A country with 76 match wins ranks above one with 47, which ranks above one with 0.",
+    moreNotes: "Historical predecessor teams are included in their modern successor nations: West Germany in Germany, Soviet Union in Russia, Yugoslavia and Serbia & Montenegro in Serbia, Czechoslovakia in Czech Republic, Dutch East Indies in Indonesia, and Zaire in RD Congo."
   },
 };
 
@@ -276,6 +279,7 @@ export function createModeSelectorModal() {
                 <p class="category-info-description" id="categoryInfoDescription"></p>
                 <p class="category-info-detail" id="categoryInfoDetail"></p>
                 <p class="category-info-example" id="categoryInfoExample"></p>
+                <p class="category-info-more-notes" id="categoryInfoMoreNotes" hidden></p>
               </div>
             </div>
           </div>
@@ -371,6 +375,17 @@ export function openModeSelector(categoryKey, categoryDisplayName, categoryEmoji
     document.getElementById('categoryInfoDescription').textContent = hint.description;
     document.getElementById('categoryInfoDetail').textContent      = hint.detail;
     document.getElementById('categoryInfoExample').textContent     = hint.example;
+    const moreNotesEl = document.getElementById('categoryInfoMoreNotes');
+    if (hint.moreNotes) {
+      moreNotesEl.textContent = '';
+      const label = document.createElement('strong');
+      label.textContent = 'More Notes: ';
+      moreNotesEl.appendChild(label);
+      moreNotesEl.appendChild(document.createTextNode(hint.moreNotes));
+      moreNotesEl.hidden = false;
+    } else {
+      moreNotesEl.hidden = true;
+    }
     infoRow.hidden = false;
   } else {
     infoRow.hidden = true;

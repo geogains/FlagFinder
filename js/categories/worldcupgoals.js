@@ -78,7 +78,7 @@ export const worldCupGoalsScoredData = [
   { name: 'Trinidad and Tobago', code: 'TT', goalsRank: 77, goalsScored: 0, tieGroup: 45 },
   { name: 'Indonesia', code: 'ID', goalsRank: 77, goalsScored: 0, tieGroup: 45 },
   { name: 'China', code: 'CN', goalsRank: 77, goalsScored: 0, tieGroup: 45 },
-  { name: 'RD Congo', code: 'CD', goalsRank: 77, goalsScored: 0, tieGroup: 45 },
+  { name: 'DR Congo', code: 'CD', goalsRank: 77, goalsScored: 0, tieGroup: 45 },
   { name: 'Cape Verde', code: 'CV', goalsRank: 77, goalsScored: 0, tieGroup: 45 },
   { name: 'Curacao', code: 'CW', goalsRank: 77, goalsScored: 0, tieGroup: 45 },
   { name: 'Jordan', code: 'JO', goalsRank: 77, goalsScored: 0, tieGroup: 45 },

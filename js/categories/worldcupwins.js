@@ -83,7 +83,7 @@ export const worldCupWinsData = [
   { name: 'China', code: 'CN', winsRank: 61, wins: 0, tieGroup: 28 },
   { name: 'Canada', code: 'CA', winsRank: 61, wins: 0, tieGroup: 28 },
   { name: 'Haiti', code: 'HT', winsRank: 61, wins: 0, tieGroup: 28 },
-  { name: 'RD Congo', code: 'CD', winsRank: 61, wins: 0, tieGroup: 28 },
+  { name: 'DR Congo', code: 'CD', winsRank: 61, wins: 0, tieGroup: 28 },
   { name: 'El Salvador', code: 'SV', winsRank: 61, wins: 0, tieGroup: 28 },
   { name: 'Cape Verde', code: 'CV', winsRank: 61, wins: 0, tieGroup: 28 },
   { name: 'Curacao', code: 'CW', winsRank: 61, wins: 0, tieGroup: 28 },

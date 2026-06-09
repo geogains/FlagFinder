@@ -62,7 +62,7 @@ export const worldCupAppearancesData = [
   { name: 'Qatar', code: 'QA', appearancesRank: 57, appearances: 2, tieGroup: 18 },
   { name: 'Panama', code: 'PA', appearancesRank: 57, appearances: 2, tieGroup: 18 },
   { name: 'Haiti', code: 'HT', appearancesRank: 57, appearances: 2, tieGroup: 18 },
-  { name: 'RD Congo', code: 'CD', appearancesRank: 57, appearances: 2, tieGroup: 18 },
+  { name: 'DR Congo', code: 'CD', appearancesRank: 57, appearances: 2, tieGroup: 18 },
   { name: 'El Salvador', code: 'SV', appearancesRank: 57, appearances: 2, tieGroup: 18 },
   { name: 'Iraq', code: 'IQ', appearancesRank: 57, appearances: 2, tieGroup: 18 },
   { name: 'Slovakia', code: 'SK', appearancesRank: 67, appearances: 1, tieGroup: 19 },

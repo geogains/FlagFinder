@@ -501,6 +501,15 @@
   line-height: 1.5;
 }
 
+.category-info-more-notes {
+  font-size: 0.74rem;
+  color: #9ca3af;
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px solid rgba(102, 126, 234, 0.1);
+  line-height: 1.5;
+}
+
 /* ========== RESPONSIVE DESIGN ========== */
 
 /* Disable hover effects on touch devices to prevent sticky hover states */
