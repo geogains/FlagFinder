@@ -97,6 +97,33 @@ function getDailySeed() {
   return seed;
 }
 
+// Cutoff date for the 2026-06-09 World Cup category expansion (worldcupgoals/appearances/wins).
+// getDailyChallengeForDate() uses the frozen v1 lists below for any date before this cutoff
+// so that historical date→category mappings are preserved and past leaderboard scores remain visible.
+const CATEGORY_LIST_EXPANSION_DATE = '2026-06-09';
+
+const allCategoriesV1 = [
+  'population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
+  'olympic', 'worldcup', 'passport', 'beer', 'nobelprize',
+  'hightemp', 'rainfall', 'crimerate', 'happiness', 'cuisine', 'tourism', 'michelin', 'bigmac', 'lifeexpectancy',
+  'marriageage', 'sexratio', 'tallestbuilding', 'density', 'carexports',
+  'militarypersonel', 'rent', 'poorestgdp', 'university', 'volcano',
+  'flamingo', 'disasterrisk', 'longestriver', 'renewableenergy', 'millionaires', 'gm',
+  'f1'
+];
+
+const top10ValidCategoriesV1 = [
+  'population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
+  'passport', 'beer', 'nobelprize', 'hightemp', 'rainfall',
+  'crimerate', 'happiness', 'tourism', 'michelin', 'bigmac', 'lifeexpectancy',
+  'marriageage', 'sexratio', 'tallestbuilding', 'density', 'carexports',
+  'militarypersonel', 'rent', 'poorestgdp', 'university', 'volcano',
+  'flamingo', 'disasterrisk', 'longestriver', 'renewableenergy', 'millionaires', 'gm',
+  'f1'
+];
+
+const vsEligibleCategoriesV1 = allCategoriesV1.filter(cat => !VS_SMALL_DATASET.has(cat));
+
 // Determine the daily challenge (mode + category) for any given UTC date string (YYYY-MM-DD).
 // This is the single source of truth — leaderboard and daily-challenge page both use this.
 export function getDailyChallengeForDate(dateString) {
@@ -106,13 +133,15 @@ export function getDailyChallengeForDate(dateString) {
   const modeIndex = Math.floor(seededRandom(seed) * gameModes.length);
   const selectedMode = gameModes[modeIndex];
 
+  const isHistorical = dateString < CATEGORY_LIST_EXPANSION_DATE;
+
   let validCategories;
   if (selectedMode === 'top10') {
-    validCategories = top10ValidCategories;
+    validCategories = isHistorical ? top10ValidCategoriesV1 : top10ValidCategories;
   } else if (selectedMode === 'vs') {
-    validCategories = vsEligibleCategories;
+    validCategories = isHistorical ? vsEligibleCategoriesV1 : vsEligibleCategories;
   } else {
-    validCategories = classicVsCategories;
+    validCategories = isHistorical ? allCategoriesV1 : classicVsCategories;
   }
 
   const selectedCategory = validCategories[Math.floor(seededRandom(seed + 1000) * validCategories.length)];
