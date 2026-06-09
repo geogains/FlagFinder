@@ -452,6 +452,79 @@
     @media (max-width: 768px) {
       .cc-card-inner { min-height: 160px; }
     }
+
+    /* ── VS Duel stat comparison ── */
+    .vs-stats-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+      margin: 0.5rem 0 1rem;
+    }
+    .vs-player-card {
+      background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(37,99,235,0.08));
+      border-radius: 16px; padding: 1.1rem 1.25rem;
+    }
+    .vs-player-header {
+      font-size: 0.78rem; font-weight: 700; color: #6b7280;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      margin-bottom: 0.7rem; display: flex; align-items: center; gap: 0.35rem;
+    }
+    .vs-stat-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.5rem 0; border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .vs-stat-row:last-child { border-bottom: none; }
+    .vs-stat-label { font-weight: 600; color: #6b7280; font-size: 0.875rem; }
+    .vs-stat-val {
+      font-weight: 700; color: #0d315a; font-size: 0.95rem;
+      font-family: 'Rubik', sans-serif;
+    }
+    .vs-no-data-msg { color: #9ca3af; font-size: 0.85rem; padding: 1rem 0; text-align: center; }
+
+    /* ── VS Review All Rounds ── */
+    .vs-review-section { margin-top: 0.75rem; }
+    .vs-review-toggle {
+      width: 100%; display: flex; align-items: center; justify-content: space-between;
+      background: #f9fafb; border: 1.5px solid #e5e7eb; border-radius: 10px;
+      padding: 0.7rem 1rem; cursor: pointer; font-family: 'Poppins', sans-serif;
+      font-size: 0.82rem; font-weight: 700; color: #374151;
+      transition: background 0.18s; text-align: left;
+    }
+    .vs-review-toggle:hover { background: #f3f4f6; }
+    .vs-toggle-icon {
+      font-size: 0.7rem; color: #9ca3af;
+      transition: transform 0.25s; flex-shrink: 0;
+    }
+    .vs-review-toggle.open .vs-toggle-icon { transform: rotate(180deg); }
+    .vs-review-body {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.32s ease;
+      border: 1.5px solid transparent; border-top: none;
+      border-radius: 0 0 10px 10px;
+    }
+    .vs-review-body.open {
+      max-height: 700px;
+      border-color: #e5e7eb;
+    }
+    .vs-rounds-header {
+      display: grid; grid-template-columns: 44px 1fr 1fr;
+      padding: 0.45rem 1rem; background: #f9fafb;
+      font-size: 0.68rem; font-weight: 700; color: #9ca3af;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .vs-round-row {
+      display: grid; grid-template-columns: 44px 1fr 1fr;
+      padding: 0.42rem 1rem; border-bottom: 1px solid #f3f4f6; align-items: center;
+    }
+    .vs-round-row:last-child { border-bottom: none; }
+    .vs-round-row.i-won   { background: rgba(16,185,129,0.04); }
+    .vs-round-row.opp-won { background: rgba(239,68,68,0.03); }
+    .vs-round-num { font-size: 0.75rem; color: #9ca3af; font-weight: 600; }
+    .vs-round-result { font-size: 0.9rem; }
+
+    @media (max-width: 600px) {
+      .vs-stats-grid { grid-template-columns: 1fr; }
+      .vs-review-body.open { max-height: 900px; }
+    }
   </style>
 </head>
 <body>
@@ -703,6 +776,14 @@
   // and accessible inside the IIFE above via closure.
   // ================================================================
 
+  // Exposed on window so inline onclick in dynamically-injected HTML can reach it.
+  window.toggleVsReview = function(btn) {
+    const body = btn.nextElementSibling;
+    const isOpen = body.classList.toggle('open');
+    btn.classList.toggle('open', isOpen);
+    btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  };
+
   function renderResults(match, myResult, oppResult, myName, oppName, catEmoji, catTitle, outcome, myUsername, oppUsername, duelMode) {
     // ── Winner banner ──
     const bannerHtml = buildBannerHtml(outcome, myName, oppName, myResult, oppResult);
@@ -872,8 +953,10 @@
   }
 
   function buildBreakdownHtml(myResult, oppResult, myName, oppName, duelMode) {
-    // VS and Top10 use {wasCorrect} placements — show a simple summary instead
-    if (duelMode === 'vs' || duelMode === 'top10') {
+    if (duelMode === 'vs') {
+      return buildVsBreakdownHtml(myResult, oppResult, myName, oppName);
+    }
+    if (duelMode === 'top10') {
       return buildSimpleBreakdownHtml(myResult, oppResult, myName, oppName, duelMode);
     }
     // Classic: carousel
@@ -979,6 +1062,118 @@
       </div>
     `;
   }
+
+  // ── VS mode breakdown ────────────────────────────────────────────────────
+
+  function deriveVsStats(result) {
+    if (!result) return null;
+    const placements = result.placements || [];
+    const total     = placements.length;
+    const correct   = placements.filter(p => p.wasCorrect).length;
+    const incorrect = total - correct;
+    const accuracy  = total > 0 ? Math.round((correct / total) * 100) : 0;
+    // Lives are exactly 3 − incorrect (game ends when time runs out OR lives hit 0)
+    const lives     = Math.max(0, 3 - incorrect);
+    return { score: result.score, total, correct, incorrect, accuracy, lives };
+  }
+
+  function buildVsPlayerCard(stats, playerName, isYou) {
+    const nameHtml = `${escHtml(playerName)}${isYou ? ' <span class="you-tag">You</span>' : ''}`;
+    if (!stats) {
+      return `
+        <div class="vs-player-card">
+          <div class="vs-player-header">${nameHtml}</div>
+          <p class="vs-no-data-msg">No data</p>
+        </div>`;
+    }
+    const livesDisplay = '🤍'.repeat(3 - stats.lives) + '❤️'.repeat(stats.lives);
+    return `
+      <div class="vs-player-card">
+        <div class="vs-player-header">${nameHtml}</div>
+        <div class="vs-stat-row">
+          <span class="vs-stat-label">Score</span>
+          <span class="vs-stat-val">${stats.score}</span>
+        </div>
+        <div class="vs-stat-row">
+          <span class="vs-stat-label">Lives</span>
+          <span class="vs-stat-val">${livesDisplay}</span>
+        </div>
+        <div class="vs-stat-row">
+          <span class="vs-stat-label">Correct</span>
+          <span class="vs-stat-val">${stats.correct} / ${stats.total}</span>
+        </div>
+        <div class="vs-stat-row">
+          <span class="vs-stat-label">Accuracy</span>
+          <span class="vs-stat-val">${stats.accuracy}%</span>
+        </div>
+        <div class="vs-stat-row">
+          <span class="vs-stat-label">Rounds</span>
+          <span class="vs-stat-val">${stats.total}</span>
+        </div>
+      </div>`;
+  }
+
+  function buildVsRoundsHtml(myResult, oppResult, myName, oppName) {
+    const myPlacements  = myResult?.placements  || [];
+    const oppPlacements = oppResult?.placements || [];
+    const total = Math.max(myPlacements.length, oppPlacements.length);
+    if (total === 0) return '';
+
+    // Truncate names for the compact table header
+    const myLabel  = escHtml(myName.length > 8 ? myName.slice(0, 7) + '…' : myName);
+    const oppLabel = escHtml(oppName.length > 8 ? oppName.slice(0, 7) + '…' : oppName);
+
+    const rowsHtml = Array.from({ length: total }, (_, i) => {
+      const myP  = myPlacements[i];
+      const oppP = oppPlacements[i];
+      const myIcon  = myP  ? (myP.wasCorrect  ? '✅' : '❌') : '—';
+      const oppIcon = oppP ? (oppP.wasCorrect ? '✅' : '❌') : '—';
+      let rowClass = '';
+      if (myP && oppP) {
+        if (myP.wasCorrect && !oppP.wasCorrect)       rowClass = 'i-won';
+        else if (!myP.wasCorrect && oppP.wasCorrect)  rowClass = 'opp-won';
+      }
+      return `
+        <div class="vs-round-row ${rowClass}">
+          <span class="vs-round-num">#${i + 1}</span>
+          <span class="vs-round-result">${myIcon}</span>
+          <span class="vs-round-result">${oppIcon}</span>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="vs-review-section">
+        <button class="vs-review-toggle" onclick="toggleVsReview(this)" aria-expanded="false">
+          <span>Review All Rounds (${total})</span>
+          <span class="vs-toggle-icon">▼</span>
+        </button>
+        <div class="vs-review-body">
+          <div class="vs-rounds-header">
+            <span>Round</span>
+            <span>${myLabel}</span>
+            <span>${oppLabel}</span>
+          </div>
+          ${rowsHtml}
+        </div>
+      </div>`;
+  }
+
+  function buildVsBreakdownHtml(myResult, oppResult, myName, oppName) {
+    const myStats  = deriveVsStats(myResult);
+    const oppStats = deriveVsStats(oppResult);
+
+    return `
+      <div class="breakdown-section">
+        <h3>Versus Mode</h3>
+        <div class="vs-stats-grid">
+          ${buildVsPlayerCard(myStats,  myName,  true)}
+          ${buildVsPlayerCard(oppStats, oppName, false)}
+        </div>
+        ${buildVsRoundsHtml(myResult, oppResult, myName, oppName)}
+      </div>`;
+  }
+
+  // ────────────────────────────────────────────────────────────────────────────
 
   function buildCorrectOrderHtml(myResult) {
     if (!myResult?.placements) return '';
