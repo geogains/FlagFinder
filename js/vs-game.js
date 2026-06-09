@@ -55,7 +55,8 @@ let gameState = {
   dailySequenceIndex: 0, // Current position in the daily sequence
   duelSequence: [], // Pre-generated seeded shuffle for duel mode
   duelSequenceIndex: 0, // Current position in the duel sequence
-  roundResults: [] // Per-round {wasCorrect} for duel mode submission
+  roundResults: [], // Per-round placement objects for duel mode submission
+  currentRound: null // { country1, country2 } for the round currently on screen
 };
 
 // Load category data and initialize game
@@ -225,7 +226,10 @@ function loadNewRound() {
   
   // Get two random unique countries
   const [country1, country2] = getTwoRandomCountries();
-  
+
+  // Track the current round's country objects so handleSelection can build rich placements.
+  gameState.currentRound = { country1, country2 };
+
   // Update option 1
   const flag1 = document.getElementById('flag1');
   flag1.src = country1.flag;
@@ -415,7 +419,30 @@ function handleSelection(optionNumber) {
     value2Element.classList.add('show');
   }, 100);
   
-  gameState.roundResults.push(isCorrect);
+  // Build rich round record for the duel results review.
+  // currentRound is set by loadNewRound() and holds the full country objects.
+  const _c1 = gameState.currentRound?.country1;
+  const _c2 = gameState.currentRound?.country2;
+  if (_c1 && _c2) {
+    const _toObj = (c) => ({
+      name:  c.name,
+      code:  c.code,
+      flag:  c.flag,
+      value: sharedFormatValue(c.value, categoryConfig.unit, { categoryKey })
+    });
+    // correctCountry = higher value (standard) or lower value (poorestgdp)
+    const _c1IsCorrect = categoryKey === 'poorestgdp' ? _c1.value <= _c2.value : _c1.value >= _c2.value;
+    gameState.roundResults.push({
+      leftCountry:    _toObj(_c1),
+      rightCountry:   _toObj(_c2),
+      correctCountry: _toObj(_c1IsCorrect ? _c1 : _c2),
+      playerAnswer:   _toObj(optionNumber === 1 ? _c1 : _c2),
+      wasCorrect:     isCorrect
+    });
+  } else {
+    // Safety fallback — currentRound not set (shouldn't happen in normal flow)
+    gameState.roundResults.push({ wasCorrect: isCorrect });
+  }
 
   if (isCorrect) {
     // Correct answer - only animate and border the selected flag
@@ -528,10 +555,11 @@ async function endGame() {
     clearInterval(gameState.timerInterval);
   }
 
-  // Duel mode: hand off to the duel page's completion handler
+  // Duel mode: hand off to the duel page's completion handler.
+  // roundResults now contains rich objects {leftCountry,rightCountry,correctCountry,playerAnswer,wasCorrect}.
+  // The RPC reads only wasCorrect for scoring; extra fields are stored in JSONB and ignored server-side.
   if (typeof window._duelOnComplete === 'function') {
-    const placements = gameState.roundResults.map(wasCorrect => ({ wasCorrect }));
-    window._duelOnComplete(placements);
+    window._duelOnComplete(gameState.roundResults);
     return;
   }
 

@@ -501,7 +501,8 @@
       border-radius: 0 0 10px 10px;
     }
     .vs-review-body.open {
-      max-height: 700px;
+      max-height: 480px;
+      overflow-y: auto;
       border-color: #e5e7eb;
     }
     .vs-rounds-header {
@@ -521,9 +522,59 @@
     .vs-round-num { font-size: 0.75rem; color: #9ca3af; font-weight: 600; }
     .vs-round-result { font-size: 0.9rem; }
 
+    /* ── Rich VS round cards ── */
+    .vsr-round {
+      display: flex; align-items: flex-start; gap: 0.5rem;
+      padding: 0.65rem 1rem; border-bottom: 1px solid #f3f4f6;
+    }
+    .vsr-round:last-child { border-bottom: none; }
+    .vsr-round.vsr-i-won   { background: rgba(16,185,129,0.04); }
+    .vsr-round.vsr-opp-won { background: rgba(239,68,68,0.025); }
+
+    .vsr-num {
+      font-size: 0.68rem; font-weight: 700; color: #9ca3af;
+      min-width: 20px; padding-top: 4px; flex-shrink: 0; text-align: center;
+    }
+    .vsr-body { flex: 1; min-width: 0; }
+    .vsr-matchup {
+      display: flex; align-items: stretch; gap: 0.3rem; margin-bottom: 0.35rem;
+    }
+    .vsr-side {
+      display: flex; align-items: center; gap: 0.3rem;
+      flex: 1; padding: 0.28rem 0.4rem; border-radius: 7px;
+      border: 1.5px solid #e5e7eb; min-width: 0;
+    }
+    .vsr-side.vsr-correct {
+      border-color: #10b981; background: rgba(16,185,129,0.07);
+    }
+    .vsr-flag {
+      width: 22px; height: 15px; object-fit: cover; border-radius: 2px;
+      flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+    }
+    .vsr-cname {
+      font-size: 0.75rem; font-weight: 600; color: #0d315a;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;
+    }
+    .vsr-cval {
+      font-size: 0.72rem; font-weight: 700; color: #3b82f6;
+      white-space: nowrap; flex-shrink: 0; margin-left: 0.2rem;
+    }
+    .vsr-vs {
+      font-size: 0.62rem; font-weight: 700; color: #9ca3af;
+      align-self: center; flex-shrink: 0; padding: 0 1px;
+    }
+    .vsr-chips { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .vsr-chip {
+      font-size: 0.68rem; font-weight: 700; padding: 2px 6px;
+      border-radius: 5px; white-space: nowrap;
+    }
+    .vsr-chip.vsr-chip-correct { background: #d1fae5; color: #065f46; }
+    .vsr-chip.vsr-chip-wrong   { background: #fee2e2; color: #991b1b; }
+
     @media (max-width: 600px) {
       .vs-stats-grid { grid-template-columns: 1fr; }
-      .vs-review-body.open { max-height: 900px; }
+      .vs-review-body.open { max-height: 500px; }
+      .vsr-cname { font-size: 0.7rem; }
     }
   </style>
 </head>
@@ -1119,27 +1170,86 @@
     const total = Math.max(myPlacements.length, oppPlacements.length);
     if (total === 0) return '';
 
-    // Truncate names for the compact table header
-    const myLabel  = escHtml(myName.length > 8 ? myName.slice(0, 7) + '…' : myName);
-    const oppLabel = escHtml(oppName.length > 8 ? oppName.slice(0, 7) + '…' : oppName);
+    // Detect rich data: new placements have leftCountry; old ones only have wasCorrect.
+    const isRich = myPlacements.length > 0 && myPlacements[0].leftCountry != null;
 
-    const rowsHtml = Array.from({ length: total }, (_, i) => {
-      const myP  = myPlacements[i];
-      const oppP = oppPlacements[i];
-      const myIcon  = myP  ? (myP.wasCorrect  ? '✅' : '❌') : '—';
-      const oppIcon = oppP ? (oppP.wasCorrect ? '✅' : '❌') : '—';
-      let rowClass = '';
-      if (myP && oppP) {
-        if (myP.wasCorrect && !oppP.wasCorrect)       rowClass = 'i-won';
-        else if (!myP.wasCorrect && oppP.wasCorrect)  rowClass = 'opp-won';
-      }
-      return `
-        <div class="vs-round-row ${rowClass}">
-          <span class="vs-round-num">#${i + 1}</span>
-          <span class="vs-round-result">${myIcon}</span>
-          <span class="vs-round-result">${oppIcon}</span>
+    let bodyHtml;
+
+    if (isRich) {
+      const trunc = (s, n) => (s || '').length > n ? (s || '').slice(0, n - 1) + '…' : (s || '');
+
+      bodyHtml = myPlacements.map((myP, i) => {
+        const oppP = oppPlacements[i];
+
+        const leftIsCorrect  = myP.leftCountry?.code  === myP.correctCountry?.code;
+        const rightIsCorrect = myP.rightCountry?.code === myP.correctCountry?.code;
+
+        let roundClass = '';
+        if      (myP.wasCorrect  && oppP && !oppP.wasCorrect) roundClass = 'vsr-i-won';
+        else if (!myP.wasCorrect && oppP?.wasCorrect)         roundClass = 'vsr-opp-won';
+
+        const myAnswerName  = myP.playerAnswer?.name  || '?';
+        const oppAnswerName = oppP?.playerAnswer?.name || null;
+
+        const myChipTxt  = `${escHtml(trunc(myAnswerName, 13))} ${myP.wasCorrect ? '✅' : '❌'}`;
+        const oppChipTxt = oppP
+          ? `${escHtml(trunc(oppAnswerName || '?', 13))} ${oppP.wasCorrect ? '✅' : '❌'}`
+          : null;
+
+        return `
+          <div class="vsr-round ${roundClass}">
+            <span class="vsr-num">${i + 1}</span>
+            <div class="vsr-body">
+              <div class="vsr-matchup">
+                <div class="vsr-side${leftIsCorrect ? ' vsr-correct' : ''}">
+                  <img src="${escHtml(myP.leftCountry?.flag || '')}" alt="${escHtml(myP.leftCountry?.name || '')}"
+                       class="vsr-flag" loading="lazy" onerror="this.src='flags/UN.png'">
+                  <span class="vsr-cname">${escHtml(myP.leftCountry?.name || '')}</span>
+                  <span class="vsr-cval">${escHtml(myP.leftCountry?.value || '')}</span>
+                </div>
+                <span class="vsr-vs">vs</span>
+                <div class="vsr-side${rightIsCorrect ? ' vsr-correct' : ''}">
+                  <img src="${escHtml(myP.rightCountry?.flag || '')}" alt="${escHtml(myP.rightCountry?.name || '')}"
+                       class="vsr-flag" loading="lazy" onerror="this.src='flags/UN.png'">
+                  <span class="vsr-cname">${escHtml(myP.rightCountry?.name || '')}</span>
+                  <span class="vsr-cval">${escHtml(myP.rightCountry?.value || '')}</span>
+                </div>
+              </div>
+              <div class="vsr-chips">
+                <span class="vsr-chip ${myP.wasCorrect ? 'vsr-chip-correct' : 'vsr-chip-wrong'}">You: ${myChipTxt}</span>
+                ${oppP ? `<span class="vsr-chip ${oppP.wasCorrect ? 'vsr-chip-correct' : 'vsr-chip-wrong'}">Opp: ${oppChipTxt}</span>` : ''}
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+
+    } else {
+      // Old-format fallback: simple ✅/❌ table (no country data stored)
+      const myLabel  = escHtml(myName.length > 8 ? myName.slice(0, 7) + '…' : myName);
+      const oppLabel = escHtml(oppName.length > 8 ? oppName.slice(0, 7) + '…' : oppName);
+      const header   = `
+        <div class="vs-rounds-header">
+          <span>Round</span><span>${myLabel}</span><span>${oppLabel}</span>
         </div>`;
-    }).join('');
+      const rows = Array.from({ length: total }, (_, i) => {
+        const myP  = myPlacements[i];
+        const oppP = oppPlacements[i];
+        const myIcon  = myP  ? (myP.wasCorrect  ? '✅' : '❌') : '—';
+        const oppIcon = oppP ? (oppP.wasCorrect ? '✅' : '❌') : '—';
+        let rc = '';
+        if (myP && oppP) {
+          if (myP.wasCorrect && !oppP.wasCorrect)       rc = 'i-won';
+          else if (!myP.wasCorrect && oppP.wasCorrect)  rc = 'opp-won';
+        }
+        return `
+          <div class="vs-round-row ${rc}">
+            <span class="vs-round-num">#${i + 1}</span>
+            <span class="vs-round-result">${myIcon}</span>
+            <span class="vs-round-result">${oppIcon}</span>
+          </div>`;
+      }).join('');
+      bodyHtml = header + rows;
+    }
 
     return `
       <div class="vs-review-section">
@@ -1147,14 +1257,7 @@
           <span>Review All Rounds (${total})</span>
           <span class="vs-toggle-icon">▼</span>
         </button>
-        <div class="vs-review-body">
-          <div class="vs-rounds-header">
-            <span>Round</span>
-            <span>${myLabel}</span>
-            <span>${oppLabel}</span>
-          </div>
-          ${rowsHtml}
-        </div>
+        <div class="vs-review-body">${bodyHtml}</div>
       </div>`;
   }
 
