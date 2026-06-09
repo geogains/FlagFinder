@@ -357,8 +357,8 @@
     .cor-name {
       font-size: 0.87rem; font-weight: 600; color: #0d315a;
     }
-    .cor-sep  { color: #d1d5db; font-size: 0.8rem; }
-    .cor-value { font-size: 0.8rem; color: #6b7280; font-weight: 500; }
+    .cor-sep   { color: #d1d5db; font-size: 0.8rem; }
+    .cor-value { font-size: 0.82rem; color: #3b82f6; font-weight: 700; }
     .cor-your  { font-size: 0.73rem; color: #9ca3af; margin-top: 3px; }
     .cor-your strong { color: #374151; }
     .cor-chip-inline {
@@ -373,6 +373,84 @@
     }
     @media (max-width: 600px) {
       .mini-win { display: none; }
+    }
+
+    /* ── Placement carousel ── */
+    .cc-wrap { overflow: hidden; }
+    .cc-track {
+      display: flex;
+      transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      will-change: transform;
+    }
+    .cc-card { box-sizing: border-box; padding: 0 6px; flex-shrink: 0; }
+    .cc-card-inner {
+      background: #fafafa; border: 1.5px solid #e5e7eb; border-radius: 14px;
+      padding: 0.875rem; min-height: 175px;
+      display: flex; flex-direction: column; gap: 0.45rem;
+    }
+    .cc-card.i-won    .cc-card-inner { border-color: #10b981; background: rgba(16,185,129,0.04); }
+    .cc-card.opp-won  .cc-card-inner { border-color: #ef4444; background: rgba(239,68,68,0.03); }
+    .cc-card.both-won .cc-card-inner { border-color: #f59e0b; background: rgba(245,158,11,0.04); }
+
+    .cc-card-header {
+      display: flex; align-items: center; justify-content: space-between; gap: 0.4rem;
+    }
+    .cc-country {
+      display: flex; align-items: center; gap: 0.45rem; min-width: 0; flex: 1;
+    }
+    .cc-flag {
+      width: 28px; height: 20px; object-fit: cover; border-radius: 3px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.15); flex-shrink: 0;
+    }
+    .cc-name {
+      font-size: 0.82rem; font-weight: 700; color: #0d315a;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .cc-value {
+      font-size: 0.82rem; font-weight: 700; color: #3b82f6;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .cc-divider { border: none; border-top: 1px solid #e5e7eb; margin: 0; }
+    .cc-correct-rank {
+      font-size: 0.71rem; color: #9ca3af; font-weight: 500;
+    }
+    .cc-body { display: flex; flex-direction: column; gap: 0.3rem; }
+    .cc-row  { display: flex; align-items: center; gap: 0.4rem; }
+    .cc-label {
+      font-size: 0.67rem; font-weight: 700; color: #9ca3af;
+      text-transform: uppercase; letter-spacing: 0.04em; min-width: 26px;
+    }
+    .cc-placed {
+      font-size: 0.87rem; font-weight: 700; color: #0d315a; min-width: 30px;
+      font-family: 'Rubik', sans-serif;
+    }
+    .cc-no-opp { color: #9ca3af !important; font-weight: 500 !important; }
+    .cc-footer { margin-top: auto; padding-top: 0.25rem; }
+
+    /* Carousel navigation */
+    .cc-nav {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0.75rem; padding: 0.75rem 0 0.25rem;
+    }
+    .cc-btn {
+      width: 30px; height: 30px; border-radius: 50%;
+      border: 2px solid #e5e7eb; background: white; cursor: pointer;
+      font-size: 1.05rem; font-weight: 700; color: #374151; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color 0.18s, background 0.18s; flex-shrink: 0;
+    }
+    .cc-btn:hover { border-color: #0d315a; background: #f0f9ff; }
+    .cc-btn:disabled { opacity: 0.35; cursor: default; }
+    .cc-dots { display: flex; gap: 6px; align-items: center; }
+    .cc-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      border: none; background: #d1d5db; cursor: pointer; padding: 0;
+      transition: background 0.18s, transform 0.18s;
+    }
+    .cc-dot.active { background: #0d315a; transform: scale(1.35); }
+
+    @media (max-width: 768px) {
+      .cc-card-inner { min-height: 160px; }
     }
   </style>
 </head>
@@ -710,6 +788,10 @@
     `;
 
     card.innerHTML = bannerHtml + scoreSummaryHtml + categoryHtml + timeoutHtml + breakdownHtml + correctOrderHtml + actionsHtml;
+
+    if (duelMode === 'classic') {
+      requestAnimationFrame(() => initCarousel());
+    }
   }
 
   function buildBannerHtml(outcome, myName, oppName, myResult, oppResult) {
@@ -794,63 +876,50 @@
     if (duelMode === 'vs' || duelMode === 'top10') {
       return buildSimpleBreakdownHtml(myResult, oppResult, myName, oppName, duelMode);
     }
+    // Classic: carousel
+    return buildCarouselHtml(myResult, oppResult, myName, oppName);
+  }
 
+  function buildCarouselHtml(myResult, oppResult, myName, oppName) {
     if (!myResult?.placements) {
       return '<div style="padding:2rem;text-align:center;color:#9ca3af;">No placement data available.</div>';
     }
 
-    const myPlacements  = myResult.placements;
-    // Build opponent lookup by country_code
-    const oppByCode     = {};
+    const oppByCode = {};
     if (oppResult?.placements) {
       oppResult.placements.forEach(p => { oppByCode[p.country_code] = p; });
     }
 
-    // Sort my placements by placedRank
-    const sorted = [...myPlacements].sort((a, b) => a.placedRank - b.placedRank);
+    const sorted = [...myResult.placements].sort((a, b) => a.placedRank - b.placedRank);
 
-    const headerHtml = `
-      <div class="breakdown-header-row">
-        <div class="col-header left">${escHtml(myName)} (You)</div>
-        <div class="col-header center">Country</div>
-        <div class="col-header right">${escHtml(oppName)}</div>
-      </div>
-    `;
-
-    const rowsHtml = sorted.map(myP => {
+    const cardsHtml = sorted.map(myP => {
       const oppP = oppByCode[myP.country_code];
 
       const myCorrect  = myP.placedRank >= myP.correctRankMin && myP.placedRank <= myP.correctRankMax;
       const oppCorrect = oppP ? (oppP.placedRank >= oppP.correctRankMin && oppP.placedRank <= oppP.correctRankMax) : null;
 
-      // Off-by distance (0 if correct, else distance to nearest boundary)
       const myDiff  = myCorrect ? 0
-        : (myP.placedRank < myP.correctRankMin
-            ? myP.correctRankMin - myP.placedRank
-            : myP.placedRank - myP.correctRankMax);
+        : (myP.placedRank < myP.correctRankMin ? myP.correctRankMin - myP.placedRank : myP.placedRank - myP.correctRankMax);
       const oppDiff = oppP ? (oppCorrect ? 0
-        : (oppP.placedRank < oppP.correctRankMin
-            ? oppP.correctRankMin - oppP.placedRank
-            : oppP.placedRank - oppP.correctRankMax)) : null;
+        : (oppP.placedRank < oppP.correctRankMin ? oppP.correctRankMin - oppP.placedRank : oppP.placedRank - oppP.correctRankMax)) : null;
 
-      let rowClass = '';
-      if (myCorrect && oppP && !oppCorrect)  rowClass = 'i-won';
-      else if (!myCorrect && oppCorrect)     rowClass = 'opp-won';
-      else if (myCorrect && oppCorrect)      rowClass = 'both-won';
+      let cardClass = '';
+      if (myCorrect && oppP && !oppCorrect)  cardClass = 'i-won';
+      else if (!myCorrect && oppCorrect)     cardClass = 'opp-won';
+      else if (myCorrect && oppCorrect)      cardClass = 'both-won';
 
-      const myRange  = myP.correctRankMin === myP.correctRankMax
-        ? `#${myP.correctRankMin}`
-        : `#${myP.correctRankMin}–${myP.correctRankMax}`;
-      const oppRange = oppP ? (
-        oppP.correctRankMin === oppP.correctRankMax
-          ? `#${oppP.correctRankMin}`
-          : `#${oppP.correctRankMin}–${oppP.correctRankMax}`
-      ) : '—';
+      const myRange = myP.correctRankMin === myP.correctRankMax
+        ? `#${myP.correctRankMin}` : `#${myP.correctRankMin}–${myP.correctRankMax}`;
 
       const flagPath = myP.flag || `flags/${myP.country_code}.png`;
       const name     = myP.name || myP.country_code;
 
-      // Who-won-this-country indicator (Phase 4)
+      const valueHtml = myP.value
+        ? `<span class="cc-value">${escHtml(myP.value)}</span>` : '';
+
+      const myChip  = myCorrect  ? '✅ Perfect' : `❌ Off by ${myDiff}`;
+      const oppChip = oppP ? (oppCorrect ? '✅ Perfect' : `❌ Off by ${oppDiff}`) : null;
+
       let miniWinHtml = '';
       if (oppP !== undefined && oppDiff !== null) {
         if (myDiff < oppDiff)       miniWinHtml = `<div class="mini-win you-win">🏆 Point to You</div>`;
@@ -858,68 +927,55 @@
         else                        miniWinHtml = `<div class="mini-win equal">🤝 Equal</div>`;
       }
 
-      // Desktop player cells
-      const myChipLabel  = myCorrect  ? '✅ Perfect' : `❌ Off by ${myDiff}`;
-      const oppChipLabel = oppCorrect ? '✅ Perfect' : (oppDiff !== null ? `❌ Off by ${oppDiff}` : '❌ Off');
-
-      const myCellHtml = `
-        <div class="player-cell left-align">
-          <span class="placed-rank">#${myP.placedRank}</span>
-          <span class="correct-range">Correct: ${myRange}</span>
-          <span class="result-chip ${myCorrect ? 'correct' : 'wrong'}">${myChipLabel}</span>
-        </div>
-      `;
-
-      const oppCellHtml = oppP ? `
-        <div class="player-cell right-align">
-          <span class="placed-rank">#${oppP.placedRank}</span>
-          <span class="correct-range">Correct: ${oppRange}</span>
-          <span class="result-chip ${oppCorrect ? 'correct' : 'wrong'}">${oppChipLabel}</span>
-        </div>
-      ` : `<div class="player-cell right-align"><span class="placed-rank">—</span></div>`;
-
-      // Mobile stacked cells (shorter chip label)
-      const myMobileChip  = myCorrect  ? '✅' : `❌ ${myDiff}`;
-      const oppMobileChip = oppCorrect ? '✅' : (oppDiff !== null ? `❌ ${oppDiff}` : '❌');
-
-      const mobileCellsHtml = `
-        <div class="players-mobile">
-          <div class="player-col-mobile">
-            <div class="mobile-label">${escHtml(myName)} (You)</div>
-            <span class="placed-rank">#${myP.placedRank}</span>
-            <span class="correct-range" style="display:block;">Correct: ${myRange}</span>
-            <span class="result-chip ${myCorrect ? 'correct' : 'wrong'}">${myMobileChip}</span>
-          </div>
-          ${oppP ? `
-          <div class="player-col-mobile">
-            <div class="mobile-label">${escHtml(oppName)}</div>
-            <span class="placed-rank">#${oppP.placedRank}</span>
-            <span class="correct-range" style="display:block;">Correct: ${oppRange}</span>
-            <span class="result-chip ${oppCorrect ? 'correct' : 'wrong'}">${oppMobileChip}</span>
-          </div>` : `<div class="player-col-mobile"><div class="mobile-label">${escHtml(oppName)}</div><span class="placed-rank">—</span></div>`}
-        </div>
-      `;
+      const oppRowHtml = oppP
+        ? `<div class="cc-row">
+             <span class="cc-label">${escHtml(oppName.slice(0,6))}</span>
+             <span class="cc-placed">#${oppP.placedRank}</span>
+             <span class="result-chip ${oppCorrect ? 'correct' : 'wrong'}">${oppChip}</span>
+           </div>`
+        : `<div class="cc-row">
+             <span class="cc-label">Opp</span>
+             <span class="cc-placed cc-no-opp">—</span>
+           </div>`;
 
       return `
-        <div class="country-row ${rowClass}">
-          ${myCellHtml}
-          <div class="country-center">
-            <img src="${flagPath}" alt="${escHtml(name)}" class="country-flag"
-                 loading="lazy" onerror="this.src='flags/UN.png'">
-            <span class="country-name">${escHtml(name)}</span>
-            ${miniWinHtml}
+        <div class="cc-card ${cardClass}">
+          <div class="cc-card-inner">
+            <div class="cc-card-header">
+              <div class="cc-country">
+                <img src="${flagPath}" alt="${escHtml(name)}" class="cc-flag"
+                     loading="lazy" onerror="this.src='flags/UN.png'">
+                <span class="cc-name">${escHtml(name)}</span>
+              </div>
+              ${valueHtml}
+            </div>
+            <hr class="cc-divider">
+            <div class="cc-correct-rank">Correct: ${myRange}</div>
+            <div class="cc-body">
+              <div class="cc-row">
+                <span class="cc-label">You</span>
+                <span class="cc-placed">#${myP.placedRank}</span>
+                <span class="result-chip ${myCorrect ? 'correct' : 'wrong'}">${myChip}</span>
+              </div>
+              ${oppRowHtml}
+            </div>
+            ${miniWinHtml ? `<div class="cc-footer">${miniWinHtml}</div>` : ''}
           </div>
-          ${oppCellHtml}
-          ${mobileCellsHtml}
         </div>
       `;
     }).join('');
 
     return `
-      <div class="breakdown-section">
-        <h3>Placement Breakdown</h3>
-        ${headerHtml}
-        ${rowsHtml}
+      <div class="breakdown-section" id="breakdownSection">
+        <h3>Head-to-Head</h3>
+        <div class="cc-wrap" id="ccWrap">
+          <div class="cc-track" id="ccTrack">${cardsHtml}</div>
+        </div>
+        <div class="cc-nav">
+          <button class="cc-btn" id="ccPrev" aria-label="Previous slide">&#8249;</button>
+          <div class="cc-dots" id="ccDots"></div>
+          <button class="cc-btn" id="ccNext" aria-label="Next slide">&#8250;</button>
+        </div>
       </div>
     `;
   }
@@ -973,6 +1029,88 @@
         ${rowsHtml}
       </div>
     `;
+  }
+
+  function initCarousel() {
+    const wrap   = document.getElementById('ccWrap');
+    const track  = document.getElementById('ccTrack');
+    const dotsEl = document.getElementById('ccDots');
+    const prevBtn = document.getElementById('ccPrev');
+    const nextBtn = document.getElementById('ccNext');
+    if (!wrap || !track || !dotsEl) return;
+
+    const cards = Array.from(track.children);
+    let currentIndex = 0;
+    let autoTimer    = null;
+
+    function cpv()          { return window.innerWidth > 600 ? 2 : 1; }
+    function totalSlides()  { return Math.ceil(cards.length / cpv()); }
+    function currentSlide() { return Math.floor(currentIndex / cpv()); }
+
+    function layout() {
+      const w = wrap.clientWidth / cpv();
+      cards.forEach(c => { c.style.width = w + 'px'; c.style.flex = `0 0 ${w}px`; });
+    }
+
+    function applyTransform() {
+      const w = wrap.clientWidth / cpv();
+      track.style.transform = `translateX(${-currentIndex * w}px)`;
+    }
+
+    function updateDots(active) {
+      Array.from(dotsEl.children).forEach((d, i) => d.classList.toggle('active', i === active));
+      if (prevBtn) prevBtn.disabled = active === 0;
+      if (nextBtn) nextBtn.disabled = active === totalSlides() - 1;
+    }
+
+    function go(slideIdx, manual) {
+      const max = totalSlides() - 1;
+      slideIdx = Math.max(0, Math.min(slideIdx, max));
+      currentIndex = slideIdx * cpv();
+      applyTransform();
+      updateDots(slideIdx);
+      if (manual) {
+        clearInterval(autoTimer);
+        // Resume auto-scroll after 8 s of user inactivity
+        autoTimer = setTimeout(() => startAuto(), 8000);
+      }
+    }
+
+    function buildDots() {
+      dotsEl.innerHTML = '';
+      const n = totalSlides();
+      for (let i = 0; i < n; i++) {
+        const d = document.createElement('button');
+        d.className = 'cc-dot' + (i === 0 ? ' active' : '');
+        d.setAttribute('aria-label', `Slide ${i + 1} of ${n}`);
+        d.addEventListener('click', () => go(i, true));
+        dotsEl.appendChild(d);
+      }
+    }
+
+    function startAuto() {
+      clearInterval(autoTimer);
+      autoTimer = setInterval(() => {
+        go((currentSlide() + 1) % totalSlides(), false);
+      }, 3000);
+    }
+
+    prevBtn?.addEventListener('click', () => go(currentSlide() - 1, true));
+    nextBtn?.addEventListener('click', () => go(currentSlide() + 1, true));
+
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        layout();
+        buildDots();
+        go(Math.min(currentSlide(), totalSlides() - 1), false);
+      }, 150);
+    });
+
+    layout();
+    buildDots();
+    startAuto();
   }
 
   function showNotReady(message) {
