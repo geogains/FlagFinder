@@ -50,10 +50,11 @@ let gameState = {
   isProcessing: false, // Prevent multiple clicks during transition
   isGameOver: false, // Prevent multiple endGame calls
   countries: [], // Will be loaded from category file
-  recentCountries: [], // Track recently used countries to avoid repetition (non-daily only)
-  dailySequence: [], // Pre-generated seeded shuffle for daily challenge
+  pairsPool: [], // All unique unordered pairs, shuffled (normal VS mode)
+  pairsIndex: 0, // Current position in the pairs pool
+  dailySequence: [], // Pre-generated seeded pair list for daily challenge
   dailySequenceIndex: 0, // Current position in the daily sequence
-  duelSequence: [], // Pre-generated seeded shuffle for duel mode
+  duelSequence: [], // Pre-generated seeded pair list for duel mode
   duelSequenceIndex: 0, // Current position in the duel sequence
   roundResults: [], // Per-round placement objects for duel mode submission
   currentRound: null // { country1, country2 } for the round currently on screen
@@ -99,9 +100,9 @@ gameState.countries = data.map(country => {
     // For duel mode, pre-generate the seeded pair sequence now.
     if (window._duelSeed != null) {
       const rng = makeSeededRNG(window._duelSeed);
-      gameState.duelSequence = seededShuffle([...gameState.countries], rng);
+      gameState.duelSequence = seededShuffle(buildPairsPool(gameState.countries), rng);
       gameState.duelSequenceIndex = 0;
-      console.log('⚔️ Duel VS sequence — seed:', window._duelSeed, 'first 4:', gameState.duelSequence.slice(0, 4).map(c => c.name));
+      console.log(`⚔️ Duel VS pairs — seed: ${window._duelSeed}, pool size: ${gameState.duelSequence.length}, first 4:`, gameState.duelSequence.slice(0, 4).map(([a, b]) => `${a.name} vs ${b.name}`));
     }
 
     // For daily challenge, pre-generate the full deterministic matchup sequence now.
@@ -110,9 +111,9 @@ gameState.countries = data.map(country => {
       const dateInt = today.getUTCFullYear() * 10000 + (today.getUTCMonth() + 1) * 100 + today.getUTCDate();
       const seed = getDailyGameSeed(dateInt, 'vs', categoryKey);
       const rng = makeSeededRNG(seed);
-      gameState.dailySequence = seededShuffle([...gameState.countries], rng);
+      gameState.dailySequence = seededShuffle(buildPairsPool(gameState.countries), rng);
       gameState.dailySequenceIndex = 0;
-      console.log('🎯 Daily VS sequence — seed:', seed, 'first 4:', gameState.dailySequence.slice(0, 4).map(c => c.name));
+      console.log(`🎯 Daily VS pairs — seed: ${seed}, pool size: ${gameState.dailySequence.length}, first 4:`, gameState.dailySequence.slice(0, 4).map(([a, b]) => `${a.name} vs ${b.name}`));
 
       // Block replay: redirect to hub if user already completed today's VS challenge.
       const completionStatus = await hasCompletedTodaysChallenge();
@@ -121,6 +122,14 @@ gameState.countries = data.map(country => {
         window.location.href = 'daily-challenge.html';
         return;
       }
+    }
+
+    // For normal VS mode, build and shuffle the full pairs pool up-front.
+    if (window._duelSeed == null && !isDailyChallenge) {
+      gameState.pairsPool = buildPairsPool(gameState.countries);
+      fisherYatesShuffle(gameState.pairsPool);
+      gameState.pairsIndex = 0;
+      console.log(`🎲 Normal VS pairs pool — size: ${gameState.pairsPool.length}, first 4:`, gameState.pairsPool.slice(0, 4).map(([a, b]) => `${a.name} vs ${b.name}`));
     }
 
     // Initialize game
@@ -269,43 +278,55 @@ function loadNewRound() {
   console.log('Round loaded:', country1.name, 'vs', country2.name);
 }
 
+// Build every unique unordered pair from the country list, skipping same-value ties.
+// Returns an array of [countryA, countryB] tuples.
+// N countries → up to N*(N-1)/2 pairs. Falls back to all pairs if all values are identical.
+function buildPairsPool(countries) {
+  if (countries.length < 2) return [];
+  const pairs = [];
+  for (let i = 0; i < countries.length; i++) {
+    for (let j = i + 1; j < countries.length; j++) {
+      if (countries[i].value !== countries[j].value) {
+        pairs.push([countries[i], countries[j]]);
+      }
+    }
+  }
+  if (pairs.length === 0) {
+    // Edge case: all countries share the same value — include everything
+    for (let i = 0; i < countries.length; i++) {
+      for (let j = i + 1; j < countries.length; j++) {
+        pairs.push([countries[i], countries[j]]);
+      }
+    }
+  }
+  return pairs;
+}
+
+// In-place Fisher-Yates shuffle using Math.random (for normal VS mode).
+function fisherYatesShuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
 // Return the next deterministic pair from the daily sequence.
-// Advances the index by 2 per round (wraps at end of sequence).
-// If country1 and country2 share the same value, scans forward to find a non-tied partner.
+// seq is now a pre-shuffled array of [countryA, countryB] pairs, so no adjacent-pair problem.
 function getTwoDailyCountries() {
   const seq = gameState.dailySequence;
-  const len = seq.length;
-  const idx = gameState.dailySequenceIndex % len;
-
-  const country1 = seq[idx];
-
-  // Find a country2 with a different value, searching forward from idx+1
-  let country2 = seq[(idx + 1) % len];
-  let offset = 2;
-  while (country2.value === country1.value && offset < len) {
-    country2 = seq[(idx + offset) % len];
-    offset++;
-  }
-
-  // Advance by 2 for the next round regardless of how far we scanned
-  gameState.dailySequenceIndex = idx + 2;
-
+  const idx = gameState.dailySequenceIndex % seq.length;
+  const [country1, country2] = seq[idx];
+  gameState.dailySequenceIndex = idx + 1;
   return [country1, country2];
 }
 
-// Return the next deterministic pair from the duel sequence (mirrors getTwoDailyCountries).
+// Return the next deterministic pair from the duel sequence.
+// Identical structure to daily — both players share the same seeded pair list.
 function getTwoDuelCountries() {
   const seq = gameState.duelSequence;
-  const len = seq.length;
-  const idx = gameState.duelSequenceIndex % len;
-  const country1 = seq[idx];
-  let country2 = seq[(idx + 1) % len];
-  let offset = 2;
-  while (country2.value === country1.value && offset < len) {
-    country2 = seq[(idx + offset) % len];
-    offset++;
-  }
-  gameState.duelSequenceIndex = idx + 2;
+  const idx = gameState.duelSequenceIndex % seq.length;
+  const [country1, country2] = seq[idx];
+  gameState.duelSequenceIndex = idx + 1;
   return [country1, country2];
 }
 
@@ -319,52 +340,14 @@ function getTwoRandomCountries() {
   if (isDailyChallenge) {
     return getTwoDailyCountries();
   }
-  const available = [...gameState.countries];
-  
-  // Track recently used countries (keep last 20 to avoid repetition in small sessions)
-  if (!gameState.recentCountries) {
-    gameState.recentCountries = [];
+  // Serve from the pre-built pairs pool. When exhausted, reshuffle for a new cycle.
+  const pool = gameState.pairsPool;
+  if (gameState.pairsIndex >= pool.length) {
+    fisherYatesShuffle(pool);
+    gameState.pairsIndex = 0;
+    console.log(`VS pair pool exhausted (${pool.length} pairs) — reshuffled for new cycle`);
   }
-  
-  // Filter out recently used countries if we have enough alternatives
-  let filtered = available.filter(c => !gameState.recentCountries.includes(c.name));
-  
-  // If we filtered out too many, just use all countries
-  if (filtered.length < 10) {
-    filtered = available;
-  }
-  
-  // Shuffle array using Fisher-Yates
-  for (let i = filtered.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
-  }
-  
- // Get first two countries with DIFFERENT values (no ties)
-let country1 = filtered[0];
-let country2 = null;
-
-// Find a second country with a different value than country1
-for (let i = 1; i < filtered.length; i++) {
-  if (filtered[i].value !== country1.value) {
-    country2 = filtered[i];
-    break;
-  }
-}
-
-// Fallback: if all remaining have same value, just use the second one
-if (!country2) {
-  country2 = filtered[1];
-}
-  
-  // Add to recent countries list
-  gameState.recentCountries.push(country1.name, country2.name);
-  
-  // Keep only last 20 countries (about 10 rounds)
-  if (gameState.recentCountries.length > 20) {
-    gameState.recentCountries = gameState.recentCountries.slice(-20);
-  }
-  
+  const [country1, country2] = pool[gameState.pairsIndex++];
   return [country1, country2];
 }
 
