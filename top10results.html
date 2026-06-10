@@ -1089,7 +1089,6 @@ Can you beat my score? Play at geo-ranks.com/top10.html?mode=${categoryKey}`;
         }
       }
       if (!session?.user) {
-        document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
         document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
         maybeShowPremiumModal();
       }

@@ -945,10 +945,6 @@ document.addEventListener('DOMContentLoaded', function() {
     return name.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   }
 
-  function flagSrc(country_code) {
-    return country_code ? `flags/${country_code}.png` : 'flags/user.png';
-  }
-
   // ── Row builder ────────────────────────────────────────────────────────────
   function buildRow(entry, globalIndex, animate = false) {
     const user = entry.users || {};
@@ -959,7 +955,9 @@ document.addEventListener('DOMContentLoaded', function() {
       globalIndex === 2 ? '<span class="medal">🥉</span>' :
       `#${globalIndex + 1}`;
 
-    const flag = `<img src="${flagSrc(user.country_code)}" class="lb-flag" alt="" onerror="this.src='flags/user.png'" loading="lazy" />`;
+    const flag = user.country_code
+      ? `<img src="flags/${user.country_code}.png" class="lb-flag" alt="${user.country_code}" loading="lazy" />`
+      : '';
 
     const row = document.createElement('tr');
     if (animate) row.classList.add('row-append');
@@ -1344,7 +1342,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const prompt = document.getElementById('guestSignInPrompt');
         if (prompt) prompt.classList.add('visible');
       }
-      if (!session?.user) document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
     })
     .catch(err => {
       console.error('Premium check failed:', err);

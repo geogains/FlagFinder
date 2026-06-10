@@ -245,6 +245,8 @@
       border-radius: 12px;
       cursor: pointer;
       transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
     }
     
     .btn-primary {
@@ -987,6 +989,86 @@
 
     .gdx-empty { text-align: center; padding: 24px 0; color: #9ca3af; font-size: 0.85rem; grid-column: 1 / -1; }
 
+    /* ── Signed-out hero & section CTAs ──────────────────────────── */
+    .so-hero {
+      display: none;
+      text-align: center;
+      padding: 8px 0 32px;
+      margin-bottom: 28px;
+      border-bottom: 1.5px solid rgba(102,126,234,0.1);
+    }
+    .so-hero h2 {
+      font-size: 1.55rem; font-weight: 800; color: #0d315a;
+      margin: 0 0 12px; line-height: 1.25;
+    }
+    .so-hero p {
+      font-size: 0.92rem; color: #6b7280;
+      line-height: 1.6; margin: 0 0 22px;
+    }
+    .so-hero-btns {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 10px;
+    }
+    @media (min-width: 400px) { .so-hero-btns { flex-direction: row; justify-content: center; } }
+
+    .so-section-cta {
+      margin-top: 18px;
+      padding: 16px 20px;
+      background: rgba(102,126,234,0.05);
+      border: 1.5px solid rgba(102,126,234,0.15);
+      border-radius: 14px;
+      text-align: center;
+    }
+    .so-section-cta p {
+      font-size: 0.88rem; color: #6b7280;
+      margin: 0 0 12px;
+    }
+
+    /* ── Signed-out benefits card ────────────────────────────────── */
+    .so-benefits-card {
+      display: none;
+      background: linear-gradient(135deg, rgba(102,126,234,0.07) 0%, rgba(118,75,162,0.07) 100%);
+      border: 1.5px solid rgba(102,126,234,0.2);
+      border-radius: 18px;
+      padding: 24px 28px 20px;
+      margin-bottom: 28px;
+    }
+    .so-benefits-card h3 {
+      font-size: 1.0rem; font-weight: 800; color: #0d315a;
+      margin: 0 0 16px; letter-spacing: -0.01em;
+    }
+    .so-benefits-list {
+      list-style: none; padding: 0; margin: 0 0 20px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px;
+    }
+    .so-benefits-list li {
+      font-size: 0.86rem; color: #374151;
+      padding-left: 20px; position: relative; line-height: 1.4;
+    }
+    .so-benefits-list li::before {
+      content: '✓'; position: absolute; left: 0;
+      color: #667eea; font-weight: 700;
+    }
+    @media (max-width: 480px) {
+      .so-benefits-card { padding: 20px 18px 16px; }
+      .so-benefits-list { grid-template-columns: 1fr; }
+    }
+
+    /* ── Signed-out final CTA ────────────────────────────────────── */
+    .so-final-cta {
+      display: none;
+      text-align: center;
+      padding: 32px 24px;
+      margin-top: 8px;
+      background: linear-gradient(135deg, rgba(102,126,234,0.07) 0%, rgba(118,75,162,0.07) 100%);
+      border: 1.5px solid rgba(102,126,234,0.2);
+      border-radius: 18px;
+    }
+    .so-final-cta h3 {
+      font-size: 1.1rem; font-weight: 800; color: #0d315a;
+      margin: 0 0 18px; line-height: 1.3;
+    }
+
     /* ── GeoDex detail modal ──────────────────────────────────────── */
     .gdx-modal-bd {
       position: fixed; inset: 0; z-index: 9500;
@@ -1122,6 +1204,26 @@
 <div class="account-container">
   <h1 class="page-title">👤 <span class="page-title-text">Account Settings</span></h1>
 
+  <!-- Signed-out hero (shown only when no session) -->
+  <div id="signedOutHero" class="so-hero">
+    <h2>Create your free GeoRanks profile</h2>
+    <p>Track your progress across 40 categories, unlock badges, complete your GeoDex, and compete on leaderboards — completely free.</p>
+  </div>
+
+  <!-- Benefits card (signed-out only) -->
+  <div id="soBenefitsCard" class="so-benefits-card">
+    <h3>What you'll unlock with an account</h3>
+    <ul class="so-benefits-list">
+      <li>Save your scores</li>
+      <li>Track your daily streak</li>
+      <li>Participate in the Daily Challenge</li>
+      <li>Complete your GeoDex</li>
+      <li>Unlock and equip badges</li>
+      <li>Compete on leaderboards</li>
+      <li>Build your player profile</li>
+    </ul>
+  </div>
+
   <!-- Profile Section -->
   <div class="profile-section">
     <div class="avatar-container">
@@ -1229,11 +1331,18 @@
     <div id="achLoading" style="text-align:center;padding:20px 0;color:#9ca3af;font-size:0.85rem;">
       Loading badges…
     </div>
+
+    <!-- Shown for signed-out users -->
+    <div class="so-section-cta" id="badgeSignedOutCta" style="display:none">
+      <p>Create a free account to unlock and equip badges.</p>
+      <a href="auth.html" class="btn btn-primary btn-small">Create Free Account</a>
+    </div>
   </div>
 
   <!-- GeoDex — Category Completion Tracker -->
   <div class="form-section" id="geodex">
     <h3>📖 GeoDex</h3>
+    <p id="soGeoDexCopy" style="display:none; font-size:0.88rem; color:#6b7280; margin: -8px 0 18px; line-height:1.5;">Track your progress across 40 categories and unlock 100+ achievements.</p>
 
     <!-- Progress summary -->
     <div class="gdx-summary">
@@ -1256,6 +1365,12 @@
     <div class="gdx-grid" id="gdxList">
       <div class="gdx-empty">Loading GeoDex…</div>
     </div>
+  </div>
+
+  <!-- Final CTA (signed-out only) -->
+  <div id="soFinalCta" class="so-final-cta">
+    <h3>Ready to start your GeoRanks journey?</h3>
+    <a href="auth.html" class="btn btn-primary">Create your free account</a>
   </div>
 
   <!-- Upgrade Button -->
@@ -1375,11 +1490,50 @@ document.addEventListener('DOMContentLoaded', function() {
   import { allCountries }                            from './js/countries-list.js';
   import { evaluateAchievements }                    from './js/achievements.js';
 
+  function renderSignedOut() {
+    const $ = id => document.getElementById(id);
+
+    // Show conversion-focused signed-out elements
+    $('signedOutHero').style.display   = 'block';
+    $('soBenefitsCard').style.display  = 'block';
+    $('soFinalCta').style.display      = 'block';
+    $('soGeoDexCopy').style.display    = 'block';
+
+    // Hide normal account shell: avatar section, quick-nav, info card
+    const profileSection = document.querySelector('.profile-section');
+    if (profileSection) profileSection.style.display = 'none';
+    const quickNav = $('accountQuickNav');
+    if (quickNav) quickNav.style.display = 'none';
+    const infoCard = $('accountInfo');
+    if (infoCard) infoCard.style.display = 'none';
+
+    // Hide edit-only form sections (username, email, flag) but NOT badges/geodex
+    document.querySelectorAll('.form-section').forEach(el => {
+      if (el.id !== 'badges' && el.id !== 'geodex') el.style.display = 'none';
+    });
+
+    // In badges section: hide equip-UI (slots, labels, hint, count, view-profile btn)
+    const badgesSection = $('badges');
+    if (badgesSection) {
+      badgesSection.querySelectorAll(
+        '.ach-sub-label, .badge-slot-row, .badge-hint, #bcCount, #viewProfileBtn'
+      ).forEach(el => el.style.display = 'none');
+    }
+
+    // Hide signed-in-only action buttons
+    const logoutBtn = $('logoutBtn');
+    if (logoutBtn) logoutBtn.style.display = 'none';
+    const upgradeBtn = document.querySelector('.upgrade-btn');
+    if (upgradeBtn) upgradeBtn.style.display = 'none';
+    const manageBtn = $('manageSubscriptionBtn');
+    if (manageBtn) manageBtn.style.display = 'none';
+  }
+
   (async () => {
     const { data: { session } } = await getSessionSafe(5000);
 
     if (!session || !session.user) {
-      window.location.href = 'auth.html';
+      renderSignedOut();
       return;
     }
 
@@ -2516,6 +2670,9 @@ document.addEventListener('DOMContentLoaded', function() {
       'founding_explorer','platinum_georanks_legend','platinum_geodex_completionist',
     ]);
     if (progressable.has(ach.achievement_key)) {
+      if (!_session) {
+        return `<div class="bc-req-item bc-req-pending" id="_bcReqProgress">Sign in to see your progress</div>`;
+      }
       return `<div class="bc-req-item bc-req-pending" id="_bcReqProgress">⬜ &thinsp;Loading…</div>`;
     }
     return '';
@@ -2843,7 +3000,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
   (async () => {
     const { data: { session } } = await getSessionSafe(5000);
-    if (!session?.user) return;
+    if (!session?.user) {
+      // Signed-out preview: show all badges as locked
+      document.getElementById('achLoading').style.display = 'none';
+      document.getElementById('badgeSignedOutCta').style.display = 'block';
+      const { data: allAchs } = await supabase.from('achievements').select('*').eq('is_active', true).order('sort_order');
+      renderBadgeCollection([], allAchs || [], []);
+      return;
+    }
     _session = session;
 
     await evaluateAchievements(supabase, session);
@@ -3080,7 +3244,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
   (async () => {
     const { data: { session } } = await getSessionSafe(5000);
-    if (!session?.user) return;
+    if (!session?.user) {
+      // Signed-out preview: all categories shown as unplayed
+      document.getElementById('gdxTabs').addEventListener('click', e => {
+        const tab = e.target.closest('.gdx-tab');
+        if (!tab) return;
+        _filter = tab.dataset.filter;
+        document.querySelectorAll('.gdx-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        renderGeoDex();
+      });
+      renderGeoDex();
+      return;
+    }
     const uid = session.user.id;
 
     // Fetch all category progress in parallel.

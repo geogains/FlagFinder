@@ -205,7 +205,6 @@
   // Non-blocking: menu button management — runs after capabilities resolve, never blocks game start
   getUserCapabilities().then(caps => {
     if (!caps.isAuthenticated) {
-      document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
       document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
       return;
     }

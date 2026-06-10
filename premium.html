@@ -878,7 +878,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const { data: { session } } = await supabase.auth.getSession();
 
   if (!session?.user) {
-    document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
     document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
     const pricingContainer = document.getElementById('pricingContainer');
     if (pricingContainer) pricingContainer.style.visibility = 'visible';

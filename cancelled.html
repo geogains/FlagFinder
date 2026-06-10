@@ -318,7 +318,6 @@
 
     // Hide Account if user not logged in
     if (!session || !session.user) {
-      document.querySelectorAll('.menu-btn-account').forEach(btn => btn.remove());
       document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
     }
 
