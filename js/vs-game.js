@@ -100,7 +100,10 @@ gameState.countries = data.map(country => {
     // For duel mode, pre-generate the seeded pair sequence now.
     if (window._duelSeed != null) {
       const rng = makeSeededRNG(window._duelSeed);
-      gameState.duelSequence = seededShuffle(buildPairsPool(gameState.countries), rng);
+      // seededShuffle advances rng first, then the map uses the same rng for orientation —
+      // both players run identical operations in identical order, so sync is preserved.
+      gameState.duelSequence = seededShuffle(buildPairsPool(gameState.countries), rng)
+        .map(([a, b]) => rng() < 0.5 ? [a, b] : [b, a]);
       gameState.duelSequenceIndex = 0;
       console.log(`⚔️ Duel VS pairs — seed: ${window._duelSeed}, pool size: ${gameState.duelSequence.length}, first 4:`, gameState.duelSequence.slice(0, 4).map(([a, b]) => `${a.name} vs ${b.name}`));
     }
@@ -111,7 +114,8 @@ gameState.countries = data.map(country => {
       const dateInt = today.getUTCFullYear() * 10000 + (today.getUTCMonth() + 1) * 100 + today.getUTCDate();
       const seed = getDailyGameSeed(dateInt, 'vs', categoryKey);
       const rng = makeSeededRNG(seed);
-      gameState.dailySequence = seededShuffle(buildPairsPool(gameState.countries), rng);
+      gameState.dailySequence = seededShuffle(buildPairsPool(gameState.countries), rng)
+        .map(([a, b]) => rng() < 0.5 ? [a, b] : [b, a]);
       gameState.dailySequenceIndex = 0;
       console.log(`🎯 Daily VS pairs — seed: ${seed}, pool size: ${gameState.dailySequence.length}, first 4:`, gameState.dailySequence.slice(0, 4).map(([a, b]) => `${a.name} vs ${b.name}`));
 
@@ -128,6 +132,7 @@ gameState.countries = data.map(country => {
     if (window._duelSeed == null && !isDailyChallenge) {
       gameState.pairsPool = buildPairsPool(gameState.countries);
       fisherYatesShuffle(gameState.pairsPool);
+      gameState.pairsPool = gameState.pairsPool.map(([a, b]) => Math.random() < 0.5 ? [a, b] : [b, a]);
       gameState.pairsIndex = 0;
       console.log(`🎲 Normal VS pairs pool — size: ${gameState.pairsPool.length}, first 4:`, gameState.pairsPool.slice(0, 4).map(([a, b]) => `${a.name} vs ${b.name}`));
     }
