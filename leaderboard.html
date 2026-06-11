@@ -661,6 +661,39 @@
     }
     .btn-find-me:hover { box-shadow: 0 7px 20px rgba(255,111,97,0.45); }
 
+    /* ── Pagination ── */
+    .lb-pagination {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn-page-nav {
+      background: white;
+      color: #0d315a;
+      border: 2px solid rgba(102, 126, 234, 0.15);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      min-width: 100px;
+      max-width: 120px;
+    }
+    .btn-page-nav:hover:not(:disabled) {
+      background: rgba(102, 126, 234, 0.08);
+      border-color: rgba(102, 126, 234, 0.3);
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+    }
+
+    .lb-page-indicator {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #0d315a;
+      min-width: 72px;
+      text-align: center;
+    }
+
   </style>
 
   <!-- Privacy-friendly analytics by Plausible -->
@@ -757,6 +790,13 @@
   <!-- Action buttons: Find My Score -->
   <div class="leaderboard-actions" id="leaderboardActions">
     <button class="lb-action-btn btn-find-me" id="findMyRankBtn" style="display:none;">Find My Score</button>
+  </div>
+
+  <!-- Pagination controls -->
+  <div class="lb-pagination" id="lbPagination" style="display:none;">
+    <button class="lb-action-btn btn-page-nav" id="lbPrevBtn" disabled>← Prev</button>
+    <span class="lb-page-indicator" id="lbPageIndicator">Page 1</span>
+    <button class="lb-action-btn btn-page-nav" id="lbNextBtn">Next →</button>
   </div>
 
   <a href="index.html" class="back-home">Return Home</a>
@@ -910,6 +950,10 @@ document.addEventListener('DOMContentLoaded', function() {
   const categorySearchWrapper  = document.getElementById("categorySearchWrapper");
   const dailyChallengeTitle    = document.getElementById("dailyChallengeTitle");
   const findMyRankBtn          = document.getElementById("findMyRankBtn");
+  const lbPagination           = document.getElementById("lbPagination");
+  const lbPrevBtn              = document.getElementById("lbPrevBtn");
+  const lbNextBtn              = document.getElementById("lbNextBtn");
+  const lbPageIndicator        = document.getElementById("lbPageIndicator");
 
   const PAGE_SIZE = 20;
 
@@ -917,6 +961,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let currentDate      = null;
   let currentCategory  = null;
   let currentOffset    = 0;
+  let currentPage      = 0;
   let totalCount       = 0;
   let loggedInUserId   = null;
   let loggedInUsername = null;
@@ -986,10 +1031,12 @@ document.addEventListener('DOMContentLoaded', function() {
   // ── Reset state on each fresh load ────────────────────────────────────────
   function resetState() {
     currentOffset    = 0;
+    currentPage      = 0;
     totalCount       = 0;
     userHighlightRow = null;
     _dailyCategoryId = null;
     _dailyDate       = null;
+    lbPagination.style.display = 'none';
   }
 
   // ── Find My Score button ────────────────────────────────────────────────────
@@ -1070,18 +1117,19 @@ document.addEventListener('DOMContentLoaded', function() {
     dailyChallengeTitle.textContent =
       `${modeNames[dailyChallenge.mode]} - ${displayNameMap[dailyChallenge.category] || formatCategoryName(dailyChallenge.category)}`;
 
-    const { data: scores, error } = await supabase
+    const { data: scores, count, error } = await supabase
       .from("daily_challenge_scores")
-      .select('score, user_id, users!fk_user(id, username, avatar_url, is_premium, country_code)')
+      .select('score, user_id, users!fk_user(id, username, avatar_url, is_premium, country_code)', { count: 'exact' })
       .eq("category_id", categoryId)
       .eq("played_date", date)
       .order("score", { ascending: false })
-      .limit(PAGE_SIZE);
+      .range(0, PAGE_SIZE - 1);
 
     if (error) {
       leaderboardBody.innerHTML = '<tr><td colspan="4">❌ Error loading scores</td></tr>';
       return;
     }
+    totalCount = count || 0;
     renderFirstPage(scores || []);
   }
 
@@ -1212,18 +1260,98 @@ document.addEventListener('DOMContentLoaded', function() {
     }));
   }
 
-  // ── Render helpers ─────────────────────────────────────────────────────────
-  function renderFirstPage(scores) {
-    leaderboardBody.innerHTML = '';
+  // ── Pagination controls ────────────────────────────────────────────────────
+  function updatePaginationControls() {
+    const show = totalCount > PAGE_SIZE;
+    lbPagination.style.display    = show ? 'flex' : 'none';
+    lbPageIndicator.textContent   = `Page ${currentPage + 1}`;
+    lbPrevBtn.disabled            = currentPage === 0;
+    lbNextBtn.disabled            = (currentPage + 1) * PAGE_SIZE >= totalCount;
+  }
+
+  const lbContainer = document.querySelector('.leaderboard-container');
+  lbPrevBtn.addEventListener('click', () => {
+    if (currentPage > 0) loadPageForCurrentMode(currentPage - 1).then(() =>
+      lbContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  });
+  lbNextBtn.addEventListener('click', () => {
+    if ((currentPage + 1) * PAGE_SIZE < totalCount) loadPageForCurrentMode(currentPage + 1).then(() =>
+      lbContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  });
+
+  // ── Per-mode page fetchers ─────────────────────────────────────────────────
+  async function fetchClassicPage(page) {
+    const { data } = await supabase.from('category_scores')
+      .select('score, user_id, users!inner(id, username, avatar_url, is_premium, country_code)')
+      .eq('category_id', _classicCategoryId)
+      .order('score', { ascending: false })
+      .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+    return data || [];
+  }
+
+  async function fetchTop10Page(page) {
+    const { data } = await supabase.from('top10_best_scores')
+      .select('score, user_id, users!fk_user(id, username, avatar_url, is_premium, country_code)')
+      .eq('category_id', _top10CategoryId)
+      .order('score', { ascending: false })
+      .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+    return data || [];
+  }
+
+  async function fetchVSPage(page) {
+    const { data } = await supabase.from('vs_leaderboard_scores')
+      .select('user_id, score, correct_count, accuracy, rank, username, avatar_url, is_premium, country_code')
+      .eq('category_id', _vsCategoryId)
+      .order('score', { ascending: false })
+      .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+    return data || [];
+  }
+
+  async function fetchDailyPage(page) {
+    const { data } = await supabase.from('daily_challenge_scores')
+      .select('score, user_id, users!fk_user(id, username, avatar_url, is_premium, country_code)')
+      .eq('category_id', _dailyCategoryId)
+      .eq('played_date', _dailyDate)
+      .order('score', { ascending: false })
+      .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+    return data || [];
+  }
+
+  // ── Unified page loader ────────────────────────────────────────────────────
+  async function loadPageForCurrentMode(page) {
+    leaderboardBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
     userHighlightRow = null;
 
+    let scores = [];
+    if      (currentMode === 'daily-challenge') scores = await fetchDailyPage(page);
+    else if (currentMode === 'classic')         scores = await fetchClassicPage(page);
+    else if (currentMode === 'top10')           scores = await fetchTop10Page(page);
+    else if (currentMode === 'vs')              scores = normalizeVsRows(await fetchVSPage(page));
+
+    currentPage = page;
+    currentOffset = page * PAGE_SIZE + scores.length; // keep compatible with append helpers
+    renderPage(scores, page);
+    updatePaginationControls();
+  }
+
+  // ── Render a single page of results ───────────────────────────────────────
+  function renderPage(scores, page) {
+    leaderboardBody.innerHTML = '';
     if (!scores.length) {
       leaderboardBody.innerHTML = '<tr><td colspan="4">👤 No scores yet for this category</td></tr>';
       return;
     }
+    const offset = page * PAGE_SIZE;
+    scores.forEach((entry, i) => leaderboardBody.appendChild(buildRow(entry, offset + i)));
+  }
 
-    scores.forEach((entry, i) => leaderboardBody.appendChild(buildRow(entry, i)));
+  // ── Render helpers ─────────────────────────────────────────────────────────
+  function renderFirstPage(scores) {
+    currentPage   = 0;
     currentOffset = scores.length;
+    userHighlightRow = null;
+    renderPage(scores, 0);
+    updatePaginationControls();
   }
 
   function appendRows(scores) {
@@ -1240,34 +1368,63 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // ── Find My Score (Classic / Top10 / VS) ───────────────────────────────────
+  // Counts entries ranked above the user to determine their page, then navigates there.
   async function jumpToMyRank() {
     if (!loggedInUserId) return;
 
-    while (currentOffset < totalCount) {
-      const prevOffset = currentOffset;
-      await appendNextPage();
-
-      if (userHighlightRow) {
-        setTimeout(() => {
-          userHighlightRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 100);
-        return;
-      }
-
-      if (currentOffset === prevOffset) break;
+    let table, categoryFilter, categoryId;
+    if (currentMode === 'classic') {
+      table = 'category_scores'; categoryId = _classicCategoryId;
+      categoryFilter = q => q.eq('category_id', categoryId);
+    } else if (currentMode === 'top10') {
+      table = 'top10_best_scores'; categoryId = _top10CategoryId;
+      categoryFilter = q => q.eq('category_id', categoryId);
+    } else if (currentMode === 'vs') {
+      table = 'vs_leaderboard_scores'; categoryId = _vsCategoryId;
+      categoryFilter = q => q.eq('category_id', categoryId);
+    } else {
+      return;
     }
 
-    alert(`You haven't played this category yet!`);
+    if (!categoryId) return;
+
+    // Get user's own best score in this context
+    const { data: myRow, error: myErr } = await categoryFilter(
+      supabase.from(table).select('score').eq('user_id', loggedInUserId)
+    ).order('score', { ascending: false }).limit(1).single();
+
+    if (myErr || !myRow) {
+      alert(`You haven't played this category yet!`);
+      return;
+    }
+
+    // Count how many entries beat the user's score (= 0-indexed rank position)
+    const { count: aboveCount } = await categoryFilter(
+      supabase.from(table).select('score', { count: 'exact', head: true })
+    ).gt('score', myRow.score);
+
+    const myRank     = aboveCount ?? 0;
+    const targetPage = Math.floor(myRank / PAGE_SIZE);
+
+    await loadPageForCurrentMode(targetPage);
+
+    setTimeout(() => {
+      if (userHighlightRow) {
+        userHighlightRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        alert(`You haven't played this category yet!`);
+      }
+    }, 100);
   }
 
   // ── Find My Score (Daily Challenge) ────────────────────────────────────────
   async function jumpToMyRankDaily() {
     if (!loggedInUserId || !_dailyCategoryId || !_dailyDate) return;
 
-    // Fetch ALL daily scores for this date/category so we can find the user anywhere
+    // Fetch all daily scores to locate the user's position, then navigate to their page
     const { data: allScores } = await supabase
       .from('daily_challenge_scores')
-      .select('score, user_id, users!fk_user(id, username, avatar_url, is_premium, country_code)')
+      .select('user_id')
       .eq('category_id', _dailyCategoryId)
       .eq('played_date', _dailyDate)
       .order('score', { ascending: false });
@@ -1277,11 +1434,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const userIndex = allScores.findIndex(e => e.user_id === loggedInUserId);
     if (userIndex === -1) { alert(`You haven't played today's challenge yet!`); return; }
 
-    // Re-render all rows so the user's row is definitely in the DOM
-    leaderboardBody.innerHTML = '';
-    userHighlightRow = null;
-    allScores.forEach((entry, i) => leaderboardBody.appendChild(buildRow(entry, i)));
-    currentOffset = allScores.length;
+    const targetPage = Math.floor(userIndex / PAGE_SIZE);
+    await loadPageForCurrentMode(targetPage);
 
     setTimeout(() => {
       if (userHighlightRow) {
