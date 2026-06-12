@@ -495,13 +495,13 @@
             <div class="qm-mode-desc">Type the top 10 countries in 2 minutes</div>
           </div>
         </div>
-        <div class="qm-mode-card disabled">
+        <button class="qm-mode-card active" id="qmVsBtn">
           <span class="qm-mode-icon">🆚</span>
           <div>
-            <div class="qm-mode-name">Versus <span class="coming-soon-tag">Coming soon</span></div>
-            <div class="qm-mode-desc">Pick the higher-ranked country each round</div>
+            <div class="qm-mode-name">Versus</div>
+            <div class="qm-mode-desc">Go round-for-round in live elimination mode.</div>
           </div>
-        </div>
+        </button>
       </div>
     `;
 
@@ -511,6 +511,10 @@
 
     card.querySelector('#qmClassicBtn').addEventListener('click', () => {
       window.location.href = 'quickmatch.html?mode=classic';
+    });
+
+    card.querySelector('#qmVsBtn').addEventListener('click', () => {
+      window.location.href = 'quickmatch.html?mode=vs';
     });
   }
 

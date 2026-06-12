@@ -643,17 +643,23 @@
   }
 
   function storeAndNavigate(id, seed, startedAt, category) {
-    console.log('[QM] storeAndNavigate — id:', id, 'category:', category);
+    console.log('[QM] storeAndNavigate — id:', id, 'category:', category, 'mode:', modeParam);
     sessionStorage.setItem('duelMatch', JSON.stringify({
       matchId:   id,
       seed:      Number(seed),
       startedAt: startedAt,
-      duelMode:  'classic'
+      duelMode:  modeParam
     }));
 
     const cfg = categoriesConfig[category] || {};
     document.getElementById('revealCategory').textContent = `${cfg.emoji || '🌍'} ${cfg.title || category}`;
     runRevealCountdown(startedAt, category);
+  }
+
+  function gamePageForMode(category) {
+    const enc = encodeURIComponent(category);
+    if (modeParam === 'vs') return `duelgame-vs.html?mode=${enc}`;
+    return `duelgame.html?mode=${enc}`;
   }
 
   function runRevealCountdown(startedAtISO, category) {
@@ -667,7 +673,7 @@
     const tick = () => {
       const remaining = Math.ceil((startMs - Date.now()) / 1000);
       if (remaining <= 0) {
-        window.location.href = `duelgame.html?mode=${encodeURIComponent(category)}`;
+        window.location.href = gamePageForMode(category);
         return;
       }
       numEl.textContent = remaining;
