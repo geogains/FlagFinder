@@ -246,11 +246,10 @@
 </script>
 
 <script type="module">
-  import { supabase }         from './js/supabase-client.js';
-  import { categoriesConfig } from './js/categories-config.js';
+  import { supabase }          from './js/supabase-client.js';
+  import { categoriesConfig }  from './js/categories-config.js';
   import { createDuelChannel } from './js/duel-channel.js';
 
-  // ── Free categories available in Quick Match Phase 1 ─────────────────────
   // Must match v_free_cats[] in submit_qm_category_pick migration RPC.
   const FREE_QM_CATS = [
     'landmass','population','gdp','altitude','forest','olympic',
@@ -258,16 +257,17 @@
   ];
 
   const LOBBY_CAT_COUNT  = 6;
-  const PICK_TIMEOUT_MS  = 15_000;  // 15 seconds to pick
-  const POLL_INTERVAL_MS = 2_000;   // queue / match polling cadence
+  const PICK_TIMEOUT_MS  = 15_000;
+  const QUEUE_POLL_MS    = 500;   // poll_quick_match_queue — lightweight, fast
+  const MATCH_POLL_MS    = 2_000; // pollMatch during category lobby
 
   const urlParams  = new URLSearchParams(window.location.search);
   const matchParam = urlParams.get('match');
   const modeParam  = urlParams.get('mode') || 'classic';
 
-  const overlay   = document.getElementById('pageLoadingOverlay');
-  const main      = document.getElementById('mainContent');
-  const card      = document.getElementById('qmCard');
+  const overlay = document.getElementById('pageLoadingOverlay');
+  const main    = document.getElementById('mainContent');
+  const card    = document.getElementById('qmCard');
 
   // ── Auth guard ────────────────────────────────────────────────────────────
   const { data: { session } } = await supabase.auth.getSession();
@@ -286,6 +286,7 @@
   let pickDeadline = null;
 
   // ── Entry point ───────────────────────────────────────────────────────────
+  console.log('[QM] entry — matchId from URL:', matchId);
   if (matchId) {
     await enterLobby(matchId);
   } else {
@@ -298,65 +299,111 @@
   // ================================================================
   // SEARCH FLOW
   // ================================================================
-  async function startSearch() {
+
+  // retries counts how many times enterLobby has bounced us back here
+  // after finding a terminal match.  Cap at 3 to prevent infinite
+  // recursion if the DB is in a bad state.
+  async function startSearch(retries = 0) {
+    console.log(`[QM] startSearch — attempt ${retries + 1}`);
+
+    if (retries >= 3) {
+      console.warn('[QM] startSearch — retry cap reached');
+      showError('Could not start a new match. Please return to Duel and try again.');
+      return;
+    }
+
     const { data, error } = await supabase.rpc('join_quick_match', { p_mode: modeParam });
 
     if (error || !data) {
+      console.error('[QM] startSearch — RPC error:', error?.message);
       showError('Could not join matchmaking. Please check your connection and try again.');
       return;
     }
 
+    console.log('[QM] startSearch — result:', data.status, data.match_id ?? '');
     queueId = data.queue_id;
 
     if (data.status === 'matched' && data.match_id) {
       matchId = data.match_id;
-      await enterLobby(matchId, { fromSearch: true });
+      await enterLobby(matchId, { fromSearch: true, retries });
       return;
     }
 
-    // Waiting — show searching UI and poll
+    // Waiting — show searching UI and start polling
     showSearching();
   }
 
   function showSearching() {
+    console.log('[QM] showSearching');
     card.innerHTML = `
       <div class="searching-section">
         <div class="pulse-ring"><span>⚡</span></div>
-        <h2>Searching for opponent…</h2>
-        <p>Classic Quick Match · Free categories</p>
+        <h2>Searching for an opponent…</h2>
+        <p>This usually only takes a few seconds.</p>
         <button class="btn-cancel" id="cancelBtn">Cancel</button>
       </div>
     `;
     card.querySelector('#cancelBtn').addEventListener('click', cancelSearch);
 
     clearInterval(pollTimer);
-    pollTimer = setInterval(pollQueue, POLL_INTERVAL_MS);
+    pollTimer = setInterval(pollQueue, QUEUE_POLL_MS);
   }
 
+  function showFoundMessage() {
+    console.log('[QM] showFoundMessage');
+    card.innerHTML = `
+      <div class="searching-section">
+        <div class="pulse-ring"><span>✅</span></div>
+        <h2>Opponent found!</h2>
+        <p>Preparing category selection…</p>
+      </div>
+    `;
+  }
+
+  // pollQueue calls poll_quick_match_queue on each tick.
+  //
+  // join_quick_match is called ONCE per search attempt.  While waiting,
+  // the client polls its own queue row via this dedicated RPC.
+  //
+  // Race condition (both users get 'waiting' simultaneously) is resolved
+  // server-side: poll_quick_match_queue attempts matching under the same
+  // pg_advisory_xact_lock used by join_quick_match.  When one user's
+  // poll acquires the lock it finds the other's committed waiting row
+  // and pairs them — no repeated join_quick_match calls needed.
   async function pollQueue() {
-    if (!queueId) return;
+    if (!queueId) {
+      console.warn('[QM] pollQueue — no queueId, skipping');
+      return;
+    }
 
-    const { data: entry } = await supabase
-      .from('quick_match_queue')
-      .select('status, match_id')
-      .eq('id', queueId)
-      .single();
+    console.log('[QM] pollQueue — polling queue entry:', queueId);
+    const { data, error } = await supabase.rpc('poll_quick_match_queue', { p_queue_id: queueId });
 
-    if (!entry) return;
+    if (error || !data) {
+      console.warn('[QM] pollQueue — RPC error (will retry next tick):', error?.message);
+      return;
+    }
 
-    if (entry.status === 'matched' && entry.match_id) {
+    console.log('[QM] pollQueue — status:', data.status, data.match_id ?? '');
+
+    if (data.status === 'matched' && data.match_id) {
       clearInterval(pollTimer);
-      matchId = entry.match_id;
-      // Update URL so refresh lands in the lobby
+      matchId = data.match_id;
       history.replaceState(null, '', `quickmatch.html?match=${matchId}`);
+      console.log('[QM] pollQueue — entering lobby:', matchId);
+      showFoundMessage();
       await enterLobby(matchId);
       return;
     }
 
-    if (entry.status === 'expired' || entry.status === 'cancelled') {
+    if (data.status === 'cancelled' || data.status === 'expired' || data.status === 'not_found') {
       clearInterval(pollTimer);
+      console.log('[QM] pollQueue — search ended:', data.status);
       showError('Search expired. No opponent was found.');
+      return;
     }
+
+    // status === 'waiting' — keep polling
   }
 
   async function cancelSearch() {
@@ -370,8 +417,9 @@
   // ================================================================
   // LOBBY FLOW
   // ================================================================
-  async function enterLobby(id, { fromSearch = false } = {}) {
-    // Fetch match to confirm state and get deadline
+  async function enterLobby(id, { fromSearch = false, retries = 0 } = {}) {
+    console.log('[QM] enterLobby — id:', id, 'fromSearch:', fromSearch, 'retries:', retries);
+
     const { data: match, error } = await supabase
       .from('h2h_matches')
       .select('id, status, category, seed, started_at, player1_id, player2_id, category_deadline, match_type')
@@ -379,29 +427,32 @@
       .single();
 
     if (error || !match) {
+      console.error('[QM] enterLobby — fetch error:', error?.message);
       showError('Could not load match. The link may be invalid.');
       return;
     }
+
+    console.log('[QM] enterLobby — match status:', match.status, 'type:', match.match_type);
 
     if (match.match_type !== 'quick') {
       showError('This is not a Quick Match.');
       return;
     }
 
-    // Already active — category was selected, go to game
     if (match.status === 'active' && match.category && match.started_at) {
+      console.log('[QM] enterLobby — already active, navigating to game');
       storeAndNavigate(match.id, match.seed, match.started_at, match.category);
       return;
     }
 
     if (match.status === 'abandoned' || match.status === 'finished') {
       if (fromSearch) {
-        // Stale matched queue entry pointed to a terminal match — start fresh.
-        // The RPC fix (Step 2 now checks match status) should prevent this in
-        // normal operation; this branch is a belt-and-suspenders fallback.
-        matchId  = null;
-        queueId  = null;
-        await startSearch();
+        // RPC Step 2 should prevent this — this branch is a safety net.
+        // Use retries counter so we can't loop forever.
+        console.warn('[QM] enterLobby — stale terminal match (', match.status, '), re-searching');
+        matchId = null;
+        queueId = null;
+        await startSearch(retries + 1);
         return;
       }
       window.location.href = `duelresults.html?match=${id}`;
@@ -409,6 +460,7 @@
     }
 
     if (match.status !== 'category_select') {
+      console.warn('[QM] enterLobby — unexpected status:', match.status);
       showError('Unexpected match state. Please return to the Duel page.');
       return;
     }
@@ -418,14 +470,15 @@
       return;
     }
 
-    pickDeadline = match.category_deadline ? new Date(match.category_deadline).getTime() : Date.now() + PICK_TIMEOUT_MS;
+    pickDeadline = match.category_deadline
+      ? new Date(match.category_deadline).getTime()
+      : Date.now() + PICK_TIMEOUT_MS;
 
+    console.log('[QM] enterLobby — rendering lobby, deadline:', match.category_deadline);
     renderLobby(id, match);
   }
 
   function getLobbyCategories(id) {
-    // Derive 6 category keys deterministically from match UUID so both
-    // players see identical options without a DB column for it.
     const hex = id.replace(/-/g, '').slice(0, 8);
     let state = parseInt(hex, 16) >>> 0;
 
@@ -443,6 +496,7 @@
   }
 
   function renderLobby(id, match) {
+    console.log('[QM] renderLobby — id:', id);
     const cats = getLobbyCategories(id);
 
     card.innerHTML = `
@@ -480,21 +534,18 @@
       grid.appendChild(btn);
     });
 
-    // Start countdown timer
     startPickTimer(cats);
 
-    // Subscribe to duel channel for game:start signal
     duelChannel = createDuelChannel(supabase, id, currentUserId, {
-      onBothReady:        () => {}, // no-op — quick match doesn't use start_duel_match
+      onBothReady:        () => {},
       onGameStart:        handleGameStart,
       onOpponentFinished: () => {}
     }, {
       participantIds: [match.player1_id, match.player2_id]
     });
 
-    // Start polling match state (fallback / category reveal detection)
     clearInterval(pollTimer);
-    pollTimer = setInterval(() => pollMatch(id), POLL_INTERVAL_MS);
+    pollTimer = setInterval(() => pollMatch(id), MATCH_POLL_MS);
   }
 
   function startPickTimer(cats) {
@@ -502,11 +553,11 @@
     if (!timerEl) return;
 
     const tick = () => {
-      if (!card.querySelector('#timerNum')) return; // navigated away
+      if (!card.querySelector('#timerNum')) return;
       const remaining = Math.ceil((pickDeadline - Date.now()) / 1000);
       if (remaining <= 0) {
-        // Auto-pick: use first available category
         if (!myPick) {
+          console.log('[QM] auto-pick:', cats[0]);
           submitPick(cats[0]);
         }
         return;
@@ -519,21 +570,20 @@
   }
 
   async function submitPick(key) {
-    if (myPick) return; // already picked
+    if (myPick) return;
     myPick = key;
+    console.log('[QM] submitPick — key:', key);
 
-    // Disable all buttons
     card.querySelectorAll('.qm-cat-btn').forEach(btn => {
       btn.disabled = true;
       btn.classList.toggle('selected', btn.dataset.key === key);
     });
 
-    // Show my pick area
-    const cfg = categoriesConfig[key];
+    const cfg      = categoriesConfig[key];
     const pickArea  = card.querySelector('#myPickArea');
     const pickBadge = card.querySelector('#myPickBadge');
     if (pickArea && pickBadge) {
-      pickBadge.innerHTML = `${cfg.emoji} ${cfg.title}`;
+      pickBadge.innerHTML    = `${cfg.emoji} ${cfg.title}`;
       pickArea.style.display = 'block';
     }
 
@@ -543,16 +593,15 @@
     });
 
     if (error || !result) {
-      // RPC failed — keep polling, the match state will sort itself out
-      console.error('submit_qm_category_pick error:', error?.message);
+      console.error('[QM] submitPick — RPC error:', error?.message);
       return;
     }
 
+    console.log('[QM] submitPick — result status:', result.status);
+
     if (result.status === 'active') {
-      // I was the 2nd picker — finalize immediately
       handleMatchActive(result.category, result.seed, result.started_at);
     }
-    // If 'category_select': still waiting for opponent, continue polling
   }
 
   async function pollMatch(id) {
@@ -564,28 +613,27 @@
 
     if (!match) return;
 
+    console.log('[QM] pollMatch — status:', match.status);
+
     if (match.status === 'active' && match.category && match.started_at) {
       handleMatchActive(match.category, match.seed, match.started_at);
     } else if (match.status === 'abandoned') {
       clearInterval(pollTimer);
       clearTimeout(pickTimer);
+      console.warn('[QM] pollMatch — match abandoned');
       showError('Match was cancelled. Both players may not have selected a category in time.');
     }
   }
 
   function handleGameStart({ started_at }) {
-    // Received via duel channel broadcast from the 2nd picker
     if (!matchId) return;
-    // Read the authoritative category from the DB via the next poll tick,
-    // OR if we already have it from submitPick response, this is a no-op.
-    // The poll loop calls pollMatch which will call handleMatchActive with full data.
-    // Nothing extra needed here — the poll is the authoritative path.
   }
 
   let activeFired = false;
   function handleMatchActive(category, seed, startedAt) {
     if (activeFired) return;
     activeFired = true;
+    console.log('[QM] handleMatchActive — category:', category, 'startedAt:', startedAt);
 
     clearInterval(pollTimer);
     clearTimeout(pickTimer);
@@ -595,6 +643,7 @@
   }
 
   function storeAndNavigate(id, seed, startedAt, category) {
+    console.log('[QM] storeAndNavigate — id:', id, 'category:', category);
     sessionStorage.setItem('duelMatch', JSON.stringify({
       matchId:   id,
       seed:      Number(seed),
@@ -602,23 +651,21 @@
       duelMode:  'classic'
     }));
 
-    // Show reveal overlay then count down from started_at + 5s
     const cfg = categoriesConfig[category] || {};
     document.getElementById('revealCategory').textContent = `${cfg.emoji || '🌍'} ${cfg.title || category}`;
     runRevealCountdown(startedAt, category);
   }
 
   function runRevealCountdown(startedAtISO, category) {
-    const overlay  = document.getElementById('countdownOverlay');
-    const numEl    = document.getElementById('revealNumber');
-    const startMs  = new Date(startedAtISO).getTime();
-    const targetMs = startMs; // navigate at started_at
+    const revealOverlay = document.getElementById('countdownOverlay');
+    const numEl         = document.getElementById('revealNumber');
+    const startMs       = new Date(startedAtISO).getTime();
 
-    overlay.style.display = 'flex';
-    main.style.display    = 'none';
+    revealOverlay.style.display = 'flex';
+    main.style.display          = 'none';
 
     const tick = () => {
-      const remaining = Math.ceil((targetMs - Date.now()) / 1000);
+      const remaining = Math.ceil((startMs - Date.now()) / 1000);
       if (remaining <= 0) {
         window.location.href = `duelgame.html?mode=${encodeURIComponent(category)}`;
         return;
@@ -627,7 +674,7 @@
       numEl.style.animation = 'none';
       numEl.offsetHeight;
       numEl.style.animation = '';
-      setTimeout(tick, Math.min(500, Math.max(50, remaining * 1000 - (Date.now() - targetMs + remaining * 1000))));
+      setTimeout(tick, Math.min(500, Math.max(50, startMs - Date.now())));
     };
     tick();
   }
@@ -636,6 +683,7 @@
   // ERROR STATE
   // ================================================================
   function showError(msg) {
+    console.warn('[QM] showError:', msg);
     clearInterval(pollTimer);
     clearTimeout(pickTimer);
     duelChannel?.destroy();
