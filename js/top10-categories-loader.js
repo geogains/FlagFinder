@@ -463,17 +463,17 @@ export async function loadTop10CategoryData(categoryKey) {
       top10 = top10.filter(country => country[config.valueField] > 0);
     }
     
-    const countries = top10.map(country => {
+    const countries = top10.map((country, index) => {
       let value = country[config.valueField];
-      
+
       // Convert population to millions if needed
       if (config.convertToMillions) {
         value = parseFloat((value / 1000000).toFixed(2));
       }
-      
+
       return {
         name: country.name,
-        rank: country[config.rankField],
+        rank: index + 1, // sequential slot (1-10); tied ranks in source data would collide on the same slot
         code: country.code,
         flag: `flags/${country.code}.png`,
         value: value,

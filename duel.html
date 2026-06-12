@@ -244,6 +244,73 @@
     .expired-card h2 { font-size: 1.6rem; color: #0d315a; margin: 1rem 0 0.5rem; }
     .expired-card p { color: #6b7280; margin-bottom: 1.5rem; }
 
+    /* ── Duel landing page ── */
+    .landing-header {
+      text-align: center; margin-bottom: 1.75rem;
+    }
+    .landing-header h1 { font-size: 2rem; font-weight: 700; color: #0d315a; }
+    .landing-header p  { color: #6b7280; font-size: 0.95rem; margin-top: 0.4rem; }
+
+    /* Two equal primary CTA cards */
+    .landing-cta-grid {
+      display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 0.5rem;
+    }
+    .landing-cta-card {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1.2rem 1.25rem; border-radius: 16px;
+      border: 2px solid #e5e7eb; background: #f9fafb;
+      cursor: pointer; font-family: 'Poppins', sans-serif;
+      text-align: left; width: 100%;
+      transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+    }
+    .landing-cta-card:hover { border-color: #38bdf8; background: #f0fffe; transform: translateY(-1px); }
+    .landing-cta-icon { font-size: 2rem; flex-shrink: 0; line-height: 1; }
+    .landing-cta-body { display: flex; flex-direction: column; gap: 3px; }
+    .landing-cta-title { font-size: 1rem; font-weight: 700; color: #0d315a; }
+    .landing-cta-desc  { font-size: 0.8rem; color: #6b7280; line-height: 1.4; }
+
+    /* Quick Match mode cards (revealed after clicking Quick Match CTA) */
+    .qm-mode-header {
+      display: flex; align-items: center; gap: 0.5rem;
+      margin-bottom: 0.75rem; margin-top: 0.25rem;
+    }
+    .qm-mode-header-back {
+      background: none; border: none; cursor: pointer; font-size: 1rem;
+      color: #6b7280; padding: 0; font-family: 'Poppins', sans-serif;
+      font-weight: 600; display: flex; align-items: center; gap: 0.3rem;
+      transition: color 0.15s ease;
+    }
+    .qm-mode-header-back:hover { color: #0d315a; }
+    .qm-mode-header-title {
+      font-size: 1rem; font-weight: 700; color: #0d315a;
+    }
+    .qm-mode-cards {
+      display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1rem;
+    }
+    .qm-mode-card {
+      display: flex; align-items: center; gap: 0.9rem;
+      padding: 0.9rem 1rem; border-radius: 14px;
+      border: 2px solid #e5e7eb; background: #f9fafb;
+      transition: all 0.15s ease; text-align: left; width: 100%;
+      font-family: 'Poppins', sans-serif; cursor: pointer;
+    }
+    .qm-mode-card.active {
+      border-color: #0d315a; background: #e0f2fe; cursor: pointer;
+    }
+    .qm-mode-card.active:hover { opacity: 0.9; transform: translateY(-1px); }
+    .qm-mode-card.disabled { opacity: 0.42; cursor: not-allowed; }
+    .qm-mode-icon { font-size: 1.6rem; flex-shrink: 0; }
+    .qm-mode-name {
+      font-size: 0.95rem; font-weight: 700; color: #0d315a;
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .qm-mode-desc { font-size: 0.78rem; color: #6b7280; margin-top: 2px; line-height: 1.3; }
+    .coming-soon-tag {
+      font-size: 0.6rem; font-weight: 700; padding: 1px 6px;
+      background: #f3f4f6; color: #9ca3af; border-radius: 10px;
+      text-transform: uppercase; letter-spacing: 0.04em; vertical-align: middle;
+    }
+
     @media (max-width: 480px) {
       .category-grid { grid-template-columns: 1fr; max-height: 280px; }
       .duel-card { padding: 1.75rem 1.25rem; }
@@ -351,16 +418,95 @@
   }
   currentUser = session.user;
 
-  // ── Route: waiting room vs. category picker ─────────────────────
+  // ── Route: waiting room vs. landing page ─────────────────────────
   if (matchIdParam) {
     await loadWaitingRoom(matchIdParam);
   } else {
     const caps = await getUserCapabilities();
-    showCategoryPicker(caps);
+    showDuelLanding(caps);
   }
 
   overlay.style.display = 'none';
   mainContent.style.display = 'block';
+
+  // ================================================================
+  // DUEL LANDING (default view — two equal CTAs)
+  // ================================================================
+  function showDuelLanding(caps) {
+    card.innerHTML = `
+      <div class="landing-header">
+        <h1>⚔️ Duel</h1>
+        <p>Challenge someone head-to-head in a geography ranking battle</p>
+      </div>
+      <div class="landing-cta-grid">
+        <button class="landing-cta-card" id="quickMatchCta">
+          <span class="landing-cta-icon">⚡</span>
+          <div class="landing-cta-body">
+            <div class="landing-cta-title">Play Quick Match</div>
+            <div class="landing-cta-desc">Find an online opponent and play a live 1v1 match.</div>
+          </div>
+        </button>
+        <button class="landing-cta-card" id="inviteFriendCta">
+          <span class="landing-cta-icon">📨</span>
+          <div class="landing-cta-body">
+            <div class="landing-cta-title">Invite a Friend</div>
+            <div class="landing-cta-desc">Create a private challenge link to share via WhatsApp, Instagram, or messages.</div>
+          </div>
+        </button>
+      </div>
+    `;
+
+    card.querySelector('#quickMatchCta').addEventListener('click', () => {
+      showQuickMatchModePicker(caps);
+    });
+
+    card.querySelector('#inviteFriendCta').addEventListener('click', () => {
+      showCategoryPicker(caps);
+    });
+  }
+
+  // ================================================================
+  // QUICK MATCH MODE PICKER (revealed after clicking Quick Match CTA)
+  // ================================================================
+  function showQuickMatchModePicker(caps) {
+    card.innerHTML = `
+      <div class="qm-mode-header">
+        <button class="qm-mode-header-back" id="qmBackBtn">← Back</button>
+        <span class="qm-mode-header-title">⚡ Quick Match</span>
+      </div>
+      <div class="qm-mode-cards">
+        <button class="qm-mode-card active" id="qmClassicBtn">
+          <span class="qm-mode-icon">⚔️</span>
+          <div>
+            <div class="qm-mode-name">Classic</div>
+            <div class="qm-mode-desc">Rank 10 countries · matched with a random opponent instantly</div>
+          </div>
+        </button>
+        <div class="qm-mode-card disabled">
+          <span class="qm-mode-icon">📋</span>
+          <div>
+            <div class="qm-mode-name">Top 10 <span class="coming-soon-tag">Coming soon</span></div>
+            <div class="qm-mode-desc">Type the top 10 countries in 2 minutes</div>
+          </div>
+        </div>
+        <div class="qm-mode-card disabled">
+          <span class="qm-mode-icon">🆚</span>
+          <div>
+            <div class="qm-mode-name">Versus <span class="coming-soon-tag">Coming soon</span></div>
+            <div class="qm-mode-desc">Pick the higher-ranked country each round</div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    card.querySelector('#qmBackBtn').addEventListener('click', () => {
+      showDuelLanding(caps);
+    });
+
+    card.querySelector('#qmClassicBtn').addEventListener('click', () => {
+      window.location.href = 'quickmatch.html?mode=classic';
+    });
+  }
 
   // ================================================================
   // CATEGORY PICKER (no ?match= param)
@@ -392,6 +538,9 @@
       : freeCats[0];
 
     card.innerHTML = `
+      <div class="qm-mode-header">
+        <button class="qm-mode-header-back" id="backToLandingBtn">← Back</button>
+      </div>
       <div class="duel-header">
         <h1>⚔️ Duel a Friend</h1>
         <p>Pick a category, share the link, and race your friend head-to-head</p>
@@ -399,6 +548,10 @@
       <div class="category-grid" id="categoryGrid"></div>
       <button class="btn-create" id="nextBtn">Next: Choose Mode →</button>
     `;
+
+    card.querySelector('#backToLandingBtn').addEventListener('click', () => {
+      showDuelLanding(caps);
+    });
 
     const grid = card.querySelector('#categoryGrid');
 

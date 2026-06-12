@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quick Match | GeoRanks</title>
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+
+  <!-- Plausible -->
+  <script async src="https://plausible.io/js/pa-tUa77bKcZgPbREKVwm36y.js"></script>
+  <script>
+    window.plausible = window.plausible || function () { (plausible.q = plausible.q || []).push(arguments); };
+    plausible.init = plausible.init || function (i) { plausible.o = i || {}; };
+    plausible.init();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/page.css" />
+
+  <style>
+    body { padding-top: 80px; }
+
+    #pageLoadingOverlay {
+      position: fixed; inset: 0;
+      background: linear-gradient(135deg, #b4f3e9 0%, #38bdf8 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 10000; color: #0d315a;
+    }
+    #pageLoadingOverlay h2 { font-size: 1.4rem; margin-bottom: 1rem; }
+    .spinner {
+      width: 50px; height: 50px;
+      border: 5px solid rgba(255,255,255,0.3); border-top-color: #0d315a;
+      border-radius: 50%; animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .qm-container {
+      max-width: 520px; margin: 2rem auto; padding: 0 1rem;
+    }
+    .qm-card {
+      background: white; border-radius: 24px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+      padding: 2.5rem 2rem;
+      animation: fadeInUp 0.4s ease;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Searching state ── */
+    .searching-section { text-align: center; padding: 1rem 0; }
+    .searching-section h2 { font-size: 1.5rem; font-weight: 700; color: #0d315a; margin-bottom: 0.4rem; }
+    .searching-section p  { color: #6b7280; font-size: 0.95rem; margin-bottom: 2rem; }
+
+    .pulse-ring {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: rgba(56,189,248,0.2);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.5rem;
+      animation: pulseExpand 1.8s ease-out infinite;
+    }
+    .pulse-ring span { font-size: 2.2rem; }
+    @keyframes pulseExpand {
+      0%   { transform: scale(0.9); opacity: 0.6; }
+      60%  { transform: scale(1.12); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.6; }
+    }
+
+    .btn-cancel {
+      padding: 0.75rem 2rem; background: #f3f4f6; color: #374151;
+      border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 600;
+      cursor: pointer; font-family: 'Poppins', sans-serif;
+      transition: background 0.15s ease;
+    }
+    .btn-cancel:hover { background: #e5e7eb; }
+
+    /* ── Lobby state ── */
+    .lobby-header { text-align: center; margin-bottom: 1.25rem; }
+    .lobby-header h2 { font-size: 1.4rem; font-weight: 700; color: #0d315a; margin-bottom: 0.3rem; }
+    .lobby-header p  { color: #6b7280; font-size: 0.88rem; }
+
+    .lobby-matched-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      border: 2px solid #34d399; border-radius: 20px;
+      padding: 0.35rem 1rem; font-size: 0.82rem; font-weight: 700;
+      color: #065f46; margin-bottom: 1.25rem;
+    }
+
+    /* Countdown ring */
+    .timer-ring-wrap {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0.5rem; margin-bottom: 1.25rem;
+    }
+    .timer-label { font-size: 0.8rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; }
+    .timer-number {
+      font-size: 1.5rem; font-weight: 700; color: #0d315a;
+      font-family: 'Rubik', sans-serif;
+      min-width: 2ch; text-align: center;
+    }
+    .timer-number.urgent { color: #dc2626; }
+
+    /* Category grid */
+    .cat-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 0.65rem; margin-bottom: 1.5rem;
+    }
+    .qm-cat-btn {
+      display: flex; align-items: center; gap: 0.55rem;
+      padding: 0.75rem 0.9rem; border: 2px solid #e5e7eb;
+      border-radius: 14px; background: #f9fafb;
+      cursor: pointer; font-family: 'Poppins', sans-serif;
+      font-size: 0.83rem; font-weight: 500; color: #374151;
+      transition: all 0.15s ease; text-align: left; width: 100%;
+    }
+    .qm-cat-btn:hover:not(:disabled) { border-color: #38bdf8; background: #f0fffe; }
+    .qm-cat-btn.selected {
+      border-color: #0d315a; background: #e0f2fe; color: #0d315a; font-weight: 700;
+    }
+    .qm-cat-btn:disabled { opacity: 0.45; cursor: default; }
+    .qm-cat-emoji { font-size: 1.3rem; flex-shrink: 0; }
+
+    /* My pick display */
+    .my-pick-section { text-align: center; margin-bottom: 1.5rem; }
+    .my-pick-label {
+      font-size: 0.75rem; font-weight: 700; color: #6b7280;
+      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem;
+    }
+    .my-pick-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+      border: 2px solid #38bdf8; border-radius: 20px;
+      padding: 0.5rem 1.2rem; font-weight: 700; color: #0d315a;
+      font-size: 1rem;
+    }
+
+    .waiting-opp {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0.6rem; color: #6b7280; font-size: 0.88rem; margin-bottom: 1rem;
+    }
+    .mini-spinner {
+      width: 18px; height: 18px;
+      border: 3px solid rgba(0,0,0,0.1); border-top-color: #6b7280;
+      border-radius: 50%; animation: spin 1s linear infinite; flex-shrink: 0;
+    }
+
+    /* ── Countdown/reveal overlay ── */
+    .countdown-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      background: linear-gradient(135deg, #b4f3e9 0%, #38bdf8 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: #0d315a; text-align: center; padding: 2rem;
+    }
+    .reveal-label {
+      font-size: 0.85rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: rgba(13,49,90,0.6); margin-bottom: 0.75rem;
+    }
+    .reveal-category {
+      font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem;
+    }
+    .reveal-countdown {
+      font-size: 5rem; font-weight: 700; line-height: 1;
+      animation: countPop 0.5s ease;
+    }
+    .reveal-countdown-label {
+      font-size: 1rem; font-weight: 600; margin-top: 0.75rem; opacity: 0.7;
+    }
+    @keyframes countPop {
+      0%   { transform: scale(1.4); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* ── Error state ── */
+    .error-section { text-align: center; padding: 1rem 0; }
+    .error-section h2 { font-size: 1.4rem; color: #0d315a; margin: 1rem 0 0.5rem; }
+    .error-section p  { color: #6b7280; margin-bottom: 1.5rem; }
+    .btn-primary {
+      display: inline-block; padding: 0.85rem 2rem;
+      background: #0d315a; color: white; border: none; border-radius: 12px;
+      font-size: 0.95rem; font-weight: 700; cursor: pointer;
+      font-family: 'Poppins', sans-serif; text-decoration: none;
+      transition: opacity 0.15s ease;
+    }
+    .btn-primary:hover { opacity: 0.88; }
+
+    @media (max-width: 480px) {
+      .qm-card { padding: 1.75rem 1.25rem; }
+      .cat-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="pageLoadingOverlay">
+  <h2>⚡ Quick Match</h2>
+  <div class="spinner"></div>
+</div>
+
+<!-- Header -->
+<header class="home-glass-header">
+  <div class="logo-header">
+    <a href="index.html" class="logo-link">
+      <img src="assets/logo2.png" alt="GeoRanks Logo" />
+    </a>
+  </div>
+  <div class="hamburger-menu">
+    <div class="menu-icon" id="menuToggle">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</header>
+
+<div class="menu-overlay" id="menuOverlay"></div>
+<script src="/js/nav-menu-init.js"></script>
+
+<!-- Category reveal + countdown overlay -->
+<div class="countdown-overlay" id="countdownOverlay" style="display:none;">
+  <div class="reveal-label">Category Selected</div>
+  <div class="reveal-category" id="revealCategory"></div>
+  <div class="reveal-countdown" id="revealNumber">3</div>
+  <div class="reveal-countdown-label">Get ready to rank!</div>
+</div>
+
+<div class="qm-container" id="mainContent" style="display:none;">
+  <div class="qm-card" id="qmCard">
+    <!-- populated by JS -->
+  </div>
+</div>
+
+<footer class="home-footer"><div class="footer-socials"></div></footer>
+
+<script>
+  document.getElementById('menuToggle').addEventListener('click', () => {
+    document.getElementById('menuOverlay').classList.add('active');
+  });
+  document.getElementById('closeMenu')?.addEventListener('click', () => {
+    document.getElementById('menuOverlay').classList.remove('active');
+  });
+  document.getElementById('menuOverlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('menuOverlay'))
+      document.getElementById('menuOverlay').classList.remove('active');
+  });
+</script>
+
+<script type="module">
+  import { supabase }         from './js/supabase-client.js';
+  import { categoriesConfig } from './js/categories-config.js';
+  import { createDuelChannel } from './js/duel-channel.js';
+
+  // ── Free categories available in Quick Match Phase 1 ─────────────────────
+  // Must match v_free_cats[] in submit_qm_category_pick migration RPC.
+  const FREE_QM_CATS = [
+    'landmass','population','gdp','altitude','forest','olympic',
+    'passport','beer','worldcup','worldcupgoals','worldcupappearances','worldcupwins'
+  ];
+
+  const LOBBY_CAT_COUNT  = 6;
+  const PICK_TIMEOUT_MS  = 15_000;  // 15 seconds to pick
+  const POLL_INTERVAL_MS = 2_000;   // queue / match polling cadence
+
+  const urlParams  = new URLSearchParams(window.location.search);
+  const matchParam = urlParams.get('match');
+  const modeParam  = urlParams.get('mode') || 'classic';
+
+  const overlay   = document.getElementById('pageLoadingOverlay');
+  const main      = document.getElementById('mainContent');
+  const card      = document.getElementById('qmCard');
+
+  // ── Auth guard ────────────────────────────────────────────────────────────
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) {
+    window.location.href = 'auth.html?next=' + encodeURIComponent(window.location.href);
+    throw new Error('auth required');
+  }
+  const currentUserId = session.user.id;
+
+  let pollTimer    = null;
+  let pickTimer    = null;
+  let duelChannel  = null;
+  let queueId      = null;
+  let matchId      = matchParam;
+  let myPick       = null;
+  let pickDeadline = null;
+
+  // ── Entry point ───────────────────────────────────────────────────────────
+  if (matchId) {
+    await enterLobby(matchId);
+  } else {
+    await startSearch();
+  }
+
+  overlay.style.display = 'none';
+  main.style.display    = 'block';
+
+  // ================================================================
+  // SEARCH FLOW
+  // ================================================================
+  async function startSearch() {
+    const { data, error } = await supabase.rpc('join_quick_match', { p_mode: modeParam });
+
+    if (error || !data) {
+      showError('Could not join matchmaking. Please check your connection and try again.');
+      return;
+    }
+
+    queueId = data.queue_id;
+
+    if (data.status === 'matched' && data.match_id) {
+      matchId = data.match_id;
+      await enterLobby(matchId);
+      return;
+    }
+
+    // Waiting — show searching UI and poll
+    showSearching();
+  }
+
+  function showSearching() {
+    card.innerHTML = `
+      <div class="searching-section">
+        <div class="pulse-ring"><span>⚡</span></div>
+        <h2>Searching for opponent…</h2>
+        <p>Classic Quick Match · Free categories</p>
+        <button class="btn-cancel" id="cancelBtn">Cancel</button>
+      </div>
+    `;
+    card.querySelector('#cancelBtn').addEventListener('click', cancelSearch);
+
+    clearInterval(pollTimer);
+    pollTimer = setInterval(pollQueue, POLL_INTERVAL_MS);
+  }
+
+  async function pollQueue() {
+    if (!queueId) return;
+
+    const { data: entry } = await supabase
+      .from('quick_match_queue')
+      .select('status, match_id')
+      .eq('id', queueId)
+      .single();
+
+    if (!entry) return;
+
+    if (entry.status === 'matched' && entry.match_id) {
+      clearInterval(pollTimer);
+      matchId = entry.match_id;
+      // Update URL so refresh lands in the lobby
+      history.replaceState(null, '', `quickmatch.html?match=${matchId}`);
+      await enterLobby(matchId);
+      return;
+    }
+
+    if (entry.status === 'expired' || entry.status === 'cancelled') {
+      clearInterval(pollTimer);
+      showError('Search expired. No opponent was found.');
+    }
+  }
+
+  async function cancelSearch() {
+    clearInterval(pollTimer);
+    if (queueId) {
+      await supabase.rpc('cancel_quick_match', { p_queue_id: queueId });
+    }
+    window.location.href = 'duel.html';
+  }
+
+  // ================================================================
+  // LOBBY FLOW
+  // ================================================================
+  async function enterLobby(id) {
+    // Fetch match to confirm state and get deadline
+    const { data: match, error } = await supabase
+      .from('h2h_matches')
+      .select('id, status, category, seed, started_at, player1_id, player2_id, category_deadline, match_type')
+      .eq('id', id)
+      .single();
+
+    if (error || !match) {
+      showError('Could not load match. The link may be invalid.');
+      return;
+    }
+
+    if (match.match_type !== 'quick') {
+      showError('This is not a Quick Match.');
+      return;
+    }
+
+    // Already active — category was selected, go to game
+    if (match.status === 'active' && match.category && match.started_at) {
+      storeAndNavigate(match.id, match.seed, match.started_at, match.category);
+      return;
+    }
+
+    if (match.status === 'abandoned' || match.status === 'finished') {
+      window.location.href = `duelresults.html?match=${id}`;
+      return;
+    }
+
+    if (match.status !== 'category_select') {
+      showError('Unexpected match state. Please return to the Duel page.');
+      return;
+    }
+
+    if (match.player1_id !== currentUserId && match.player2_id !== currentUserId) {
+      showError('You are not a participant in this match.');
+      return;
+    }
+
+    pickDeadline = match.category_deadline ? new Date(match.category_deadline).getTime() : Date.now() + PICK_TIMEOUT_MS;
+
+    renderLobby(id, match);
+  }
+
+  function getLobbyCategories(id) {
+    // Derive 6 category keys deterministically from match UUID so both
+    // players see identical options without a DB column for it.
+    const hex = id.replace(/-/g, '').slice(0, 8);
+    let state = parseInt(hex, 16) >>> 0;
+
+    function nextRand() {
+      state = ((state * 1664525) + 1013904223) >>> 0;
+      return state / 0xFFFFFFFF;
+    }
+
+    const arr = [...FREE_QM_CATS];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(nextRand() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr.slice(0, LOBBY_CAT_COUNT);
+  }
+
+  function renderLobby(id, match) {
+    const cats = getLobbyCategories(id);
+
+    card.innerHTML = `
+      <div class="lobby-header">
+        <h2>⚡ Choose a Category</h2>
+        <p>Pick your favourite — if you both pick the same, that's the category.<br>Otherwise one is chosen at random.</p>
+      </div>
+      <div class="lobby-matched-badge">✅ Opponent found!</div>
+      <div class="timer-ring-wrap">
+        <span class="timer-label">Choosing in</span>
+        <span class="timer-number" id="timerNum">15</span>
+        <span class="timer-label">seconds</span>
+      </div>
+      <div class="cat-grid" id="catGrid"></div>
+      <div id="myPickArea" style="display:none;">
+        <div class="my-pick-section">
+          <div class="my-pick-label">Your pick</div>
+          <div class="my-pick-badge" id="myPickBadge"></div>
+        </div>
+        <div class="waiting-opp">
+          <div class="mini-spinner"></div>
+          Waiting for opponent…
+        </div>
+      </div>
+    `;
+
+    const grid = card.querySelector('#catGrid');
+    cats.forEach(key => {
+      const cfg = categoriesConfig[key];
+      const btn = document.createElement('button');
+      btn.className   = 'qm-cat-btn';
+      btn.dataset.key = key;
+      btn.innerHTML   = `<span class="qm-cat-emoji">${cfg.emoji}</span><span>${cfg.title}</span>`;
+      btn.addEventListener('click', () => submitPick(key));
+      grid.appendChild(btn);
+    });
+
+    // Start countdown timer
+    startPickTimer(cats);
+
+    // Subscribe to duel channel for game:start signal
+    duelChannel = createDuelChannel(supabase, id, currentUserId, {
+      onBothReady:        () => {}, // no-op — quick match doesn't use start_duel_match
+      onGameStart:        handleGameStart,
+      onOpponentFinished: () => {}
+    }, {
+      participantIds: [match.player1_id, match.player2_id]
+    });
+
+    // Start polling match state (fallback / category reveal detection)
+    clearInterval(pollTimer);
+    pollTimer = setInterval(() => pollMatch(id), POLL_INTERVAL_MS);
+  }
+
+  function startPickTimer(cats) {
+    const timerEl = card.querySelector('#timerNum');
+    if (!timerEl) return;
+
+    const tick = () => {
+      if (!card.querySelector('#timerNum')) return; // navigated away
+      const remaining = Math.ceil((pickDeadline - Date.now()) / 1000);
+      if (remaining <= 0) {
+        // Auto-pick: use first available category
+        if (!myPick) {
+          submitPick(cats[0]);
+        }
+        return;
+      }
+      timerEl.textContent = remaining;
+      if (remaining <= 5) timerEl.classList.add('urgent');
+      pickTimer = setTimeout(tick, 200);
+    };
+    pickTimer = setTimeout(tick, 0);
+  }
+
+  async function submitPick(key) {
+    if (myPick) return; // already picked
+    myPick = key;
+
+    // Disable all buttons
+    card.querySelectorAll('.qm-cat-btn').forEach(btn => {
+      btn.disabled = true;
+      btn.classList.toggle('selected', btn.dataset.key === key);
+    });
+
+    // Show my pick area
+    const cfg = categoriesConfig[key];
+    const pickArea  = card.querySelector('#myPickArea');
+    const pickBadge = card.querySelector('#myPickBadge');
+    if (pickArea && pickBadge) {
+      pickBadge.innerHTML = `${cfg.emoji} ${cfg.title}`;
+      pickArea.style.display = 'block';
+    }
+
+    const { data: result, error } = await supabase.rpc('submit_qm_category_pick', {
+      p_match_id: matchId,
+      p_category: key
+    });
+
+    if (error || !result) {
+      // RPC failed — keep polling, the match state will sort itself out
+      console.error('submit_qm_category_pick error:', error?.message);
+      return;
+    }
+
+    if (result.status === 'active') {
+      // I was the 2nd picker — finalize immediately
+      handleMatchActive(result.category, result.seed, result.started_at);
+    }
+    // If 'category_select': still waiting for opponent, continue polling
+  }
+
+  async function pollMatch(id) {
+    const { data: match } = await supabase
+      .from('h2h_matches')
+      .select('status, category, seed, started_at')
+      .eq('id', id)
+      .single();
+
+    if (!match) return;
+
+    if (match.status === 'active' && match.category && match.started_at) {
+      handleMatchActive(match.category, match.seed, match.started_at);
+    } else if (match.status === 'abandoned') {
+      clearInterval(pollTimer);
+      clearTimeout(pickTimer);
+      showError('Match was cancelled. Both players may not have selected a category in time.');
+    }
+  }
+
+  function handleGameStart({ started_at }) {
+    // Received via duel channel broadcast from the 2nd picker
+    if (!matchId) return;
+    // Read the authoritative category from the DB via the next poll tick,
+    // OR if we already have it from submitPick response, this is a no-op.
+    // The poll loop calls pollMatch which will call handleMatchActive with full data.
+    // Nothing extra needed here — the poll is the authoritative path.
+  }
+
+  let activeFired = false;
+  function handleMatchActive(category, seed, startedAt) {
+    if (activeFired) return;
+    activeFired = true;
+
+    clearInterval(pollTimer);
+    clearTimeout(pickTimer);
+    duelChannel?.destroy();
+
+    storeAndNavigate(matchId, seed, startedAt, category);
+  }
+
+  function storeAndNavigate(id, seed, startedAt, category) {
+    sessionStorage.setItem('duelMatch', JSON.stringify({
+      matchId:   id,
+      seed:      Number(seed),
+      startedAt: startedAt,
+      duelMode:  'classic'
+    }));
+
+    // Show reveal overlay then count down from started_at + 5s
+    const cfg = categoriesConfig[category] || {};
+    document.getElementById('revealCategory').textContent = `${cfg.emoji || '🌍'} ${cfg.title || category}`;
+    runRevealCountdown(startedAt, category);
+  }
+
+  function runRevealCountdown(startedAtISO, category) {
+    const overlay  = document.getElementById('countdownOverlay');
+    const numEl    = document.getElementById('revealNumber');
+    const startMs  = new Date(startedAtISO).getTime();
+    const targetMs = startMs; // navigate at started_at
+
+    overlay.style.display = 'flex';
+    main.style.display    = 'none';
+
+    const tick = () => {
+      const remaining = Math.ceil((targetMs - Date.now()) / 1000);
+      if (remaining <= 0) {
+        window.location.href = `duelgame.html?mode=${encodeURIComponent(category)}`;
+        return;
+      }
+      numEl.textContent = remaining;
+      numEl.style.animation = 'none';
+      numEl.offsetHeight;
+      numEl.style.animation = '';
+      setTimeout(tick, Math.min(500, Math.max(50, remaining * 1000 - (Date.now() - targetMs + remaining * 1000))));
+    };
+    tick();
+  }
+
+  // ================================================================
+  // ERROR STATE
+  // ================================================================
+  function showError(msg) {
+    clearInterval(pollTimer);
+    clearTimeout(pickTimer);
+    duelChannel?.destroy();
+
+    card.innerHTML = `
+      <div class="error-section">
+        <div style="font-size:3rem;">⚡</div>
+        <h2>Quick Match</h2>
+        <p>${msg}</p>
+        <a href="duel.html" class="btn-primary">Return to Duel</a>
+      </div>
+    `;
+    overlay.style.display = 'none';
+    main.style.display    = 'block';
+  }
+</script>
+
+<script type="module">
+  import { getUserCapabilities } from './js/permissions.js';
+  const caps = await getUserCapabilities();
+  if (!caps.isAuthenticated) {
+    document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
+  } else if (caps.canAccessPremiumCategories) {
+    document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.remove());
+  } else {
+    document.querySelectorAll('.upgrade-access-btn').forEach(btn => btn.style.display = 'block');
+  }
+</script>
+<script type="module" src="js/identity-gate.js"></script>
+</body>
+</html>

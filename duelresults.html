@@ -936,12 +936,17 @@
     const correctOrderHtml = duelMode === 'classic' ? buildCorrectOrderHtml(myResult) : '';
 
     // ── Action buttons ──
-    const rematchQuery = `category=${encodeURIComponent(match.category)}` +
-      (duelMode && duelMode !== 'classic' ? `&duel_mode=${encodeURIComponent(duelMode)}` : '');
-    const rematchUrl = `duel.html?${rematchQuery}`;
+    let primaryActionHtml;
+    if (match.match_type === 'quick') {
+      primaryActionHtml = `<a href="quickmatch.html?mode=classic" class="action-btn primary">⚡ Play Again</a>`;
+    } else {
+      const rematchQuery = `category=${encodeURIComponent(match.category)}` +
+        (duelMode && duelMode !== 'classic' ? `&duel_mode=${encodeURIComponent(duelMode)}` : '');
+      primaryActionHtml = `<a href="duel.html?${rematchQuery}" class="action-btn primary">⚔️ Rematch</a>`;
+    }
     const actionsHtml = `
       <div class="actions-row">
-        <a href="${rematchUrl}" class="action-btn primary">⚔️ Rematch</a>
+        ${primaryActionHtml}
         <a href="index.html"      class="action-btn secondary">🏠 Return Home</a>
         <a href="leaderboard.html" class="action-btn secondary">🏆 Leaderboard</a>
       </div>
