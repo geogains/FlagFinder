@@ -389,7 +389,7 @@
     if (data.status === 'matched' && data.match_id) {
       clearInterval(pollTimer);
       matchId = data.match_id;
-      history.replaceState(null, '', `quickmatch.html?match=${matchId}`);
+      history.replaceState(null, '', `quickmatch.html?mode=${modeParam}&match=${matchId}`);
       console.log('[QM] pollQueue — entering lobby:', matchId);
       showFoundMessage();
       await enterLobby(matchId);
