@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Duel Results | GeoRanks</title>
-  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <link rel="icon" href="assets/favicon1.png" type="image/png">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
@@ -938,7 +938,7 @@
     // ── Action buttons ──
     let primaryActionHtml;
     if (match.match_type === 'quick') {
-      primaryActionHtml = `<a href="quickmatch.html?mode=classic" class="action-btn primary">⚡ Play Again</a>`;
+      primaryActionHtml = `<a href="duel.html?qm=1" class="action-btn primary">⚡ Play Again</a>`;
     } else {
       const rematchQuery = `category=${encodeURIComponent(match.category)}` +
         (duelMode && duelMode !== 'classic' ? `&duel_mode=${encodeURIComponent(duelMode)}` : '');

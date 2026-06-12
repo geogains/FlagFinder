@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Quick Match | GeoRanks</title>
-  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <link rel="icon" href="assets/favicon1.png" type="image/png">
 
   <!-- Plausible -->
   <script async src="https://plausible.io/js/pa-tUa77bKcZgPbREKVwm36y.js"></script>
@@ -310,7 +310,7 @@
 
     if (data.status === 'matched' && data.match_id) {
       matchId = data.match_id;
-      await enterLobby(matchId);
+      await enterLobby(matchId, { fromSearch: true });
       return;
     }
 
@@ -370,7 +370,7 @@
   // ================================================================
   // LOBBY FLOW
   // ================================================================
-  async function enterLobby(id) {
+  async function enterLobby(id, { fromSearch = false } = {}) {
     // Fetch match to confirm state and get deadline
     const { data: match, error } = await supabase
       .from('h2h_matches')
@@ -395,6 +395,15 @@
     }
 
     if (match.status === 'abandoned' || match.status === 'finished') {
+      if (fromSearch) {
+        // Stale matched queue entry pointed to a terminal match — start fresh.
+        // The RPC fix (Step 2 now checks match status) should prevent this in
+        // normal operation; this branch is a belt-and-suspenders fallback.
+        matchId  = null;
+        queueId  = null;
+        await startSearch();
+        return;
+      }
       window.location.href = `duelresults.html?match=${id}`;
       return;
     }

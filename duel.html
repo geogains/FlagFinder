@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Duel a Friend | GeoRanks</title>
-  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <link rel="icon" href="assets/favicon1.png" type="image/png">
 
   <!-- Primary Meta Tags -->
   <meta name="title" content="GeoRanks - Challenge a Friend">
@@ -423,7 +423,13 @@
     await loadWaitingRoom(matchIdParam);
   } else {
     const caps = await getUserCapabilities();
-    showDuelLanding(caps);
+    // ?qm=1 is used by the "Play Again" button on the results page to
+    // land directly on the Quick Match mode picker rather than the root landing.
+    if (urlParams.get('qm') === '1') {
+      showQuickMatchModePicker(caps);
+    } else {
+      showDuelLanding(caps);
+    }
   }
 
   overlay.style.display = 'none';

@@ -145,13 +145,17 @@ BEGIN
    WHERE status = 'waiting'
      AND expires_at < now();
 
-  -- Step 2: check if caller is already matched from a previous call
-  SELECT id, match_id
+  -- Step 2: check if caller is already matched from a previous call,
+  -- but ONLY if the referenced match is still in progress.
+  -- Finished/abandoned matches must not block a new matchmaking attempt.
+  SELECT q.id, q.match_id
     INTO v_queue_id, v_match_id
-    FROM public.quick_match_queue
-   WHERE user_id  = v_caller
-     AND status   = 'matched'
-   ORDER BY created_at DESC
+    FROM public.quick_match_queue q
+    JOIN public.h2h_matches m ON m.id = q.match_id
+   WHERE q.user_id  = v_caller
+     AND q.status   = 'matched'
+     AND m.status  IN ('category_select', 'active')
+   ORDER BY q.created_at DESC
    LIMIT 1;
 
   IF v_match_id IS NOT NULL THEN
