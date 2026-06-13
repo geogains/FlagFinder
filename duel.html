@@ -488,13 +488,13 @@
             <div class="qm-mode-desc">Rank 10 countries · matched with a random opponent instantly</div>
           </div>
         </button>
-        <div class="qm-mode-card disabled">
+        <button class="qm-mode-card active" id="qmTop10Btn">
           <span class="qm-mode-icon">📋</span>
           <div>
-            <div class="qm-mode-name">Top 10 <span class="coming-soon-tag">Coming soon</span></div>
-            <div class="qm-mode-desc">Type the top 10 countries in 2 minutes</div>
+            <div class="qm-mode-name">Top 10</div>
+            <div class="qm-mode-desc">Type the top 10 countries in 2 minutes.</div>
           </div>
-        </div>
+        </button>
         <button class="qm-mode-card active" id="qmVsBtn">
           <span class="qm-mode-icon">🆚</span>
           <div>
@@ -511,6 +511,10 @@
 
     card.querySelector('#qmClassicBtn').addEventListener('click', () => {
       window.location.href = 'quickmatch.html?mode=classic';
+    });
+
+    card.querySelector('#qmTop10Btn').addEventListener('click', () => {
+      window.location.href = 'quickmatch.html?mode=top10';
     });
 
     card.querySelector('#qmVsBtn').addEventListener('click', () => {

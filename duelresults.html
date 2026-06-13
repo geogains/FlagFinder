@@ -782,8 +782,14 @@
   }
 
   if (match.status !== 'finished' && match.status !== 'abandoned') {
-    // Timed out waiting — show "not ready yet" state with home link
-    showNotReady('Results aren\'t ready yet. Both players need to finish first.');
+    if (isTimeout) {
+      showNotReady(
+        'Your session timed out before results were saved. Start a new match to play again.',
+        { playAgain: true }
+      );
+    } else {
+      showNotReady('Results aren\'t ready yet. Both players need to finish first.');
+    }
     return;
   }
 
@@ -1502,14 +1508,17 @@
     startAuto();
   }
 
-  function showNotReady(message) {
-    _log('showNotReady called', { message });
+  function showNotReady(message, { playAgain = false } = {}) {
+    _log('showNotReady called', { message, playAgain });
+    const actionHtml = playAgain
+      ? `<a href="duel.html?qm=1" class="retry-btn" style="text-decoration:none;display:inline-block;">Play Again</a>`
+      : `<button class="retry-btn" onclick="window.location.reload()">Retry</button>`;
     card.innerHTML = `
       <div class="not-ready-card">
         <div style="font-size:3rem;margin-bottom:1rem;">⏳</div>
         <h2>Results Not Ready</h2>
         <p>${escHtml(message)}</p>
-        <button class="retry-btn" onclick="window.location.reload()">Retry</button>
+        ${actionHtml}
         &nbsp;
         <a href="index.html" style="color:#0d315a;font-weight:600;">Go Home</a>
       </div>
