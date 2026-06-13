@@ -265,6 +265,12 @@
   const matchParam = urlParams.get('match');
   const modeParam  = urlParams.get('mode') || 'classic';
 
+  const MODE_LABELS = {
+    classic: '⚔️ Classic Quick Match',
+    vs:      '🆚 Versus Quick Match',
+    top10:   '📋 Top 10 Quick Match'
+  };
+
   const overlay = document.getElementById('pageLoadingOverlay');
   const main    = document.getElementById('mainContent');
   const card    = document.getElementById('qmCard');
@@ -335,11 +341,12 @@
 
   function showSearching() {
     console.log('[QM] showSearching');
+    const modeLabel = MODE_LABELS[modeParam] || '⚡ Quick Match';
     card.innerHTML = `
       <div class="searching-section">
         <div class="pulse-ring"><span>⚡</span></div>
-        <h2>Searching for an opponent…</h2>
-        <p>This usually only takes a few seconds.</p>
+        <h2>${modeLabel}</h2>
+        <p>Searching for an opponent… This usually only takes a few seconds.</p>
         <button class="btn-cancel" id="cancelBtn">Cancel</button>
       </div>
     `;
@@ -440,8 +447,22 @@
     }
 
     if (match.status === 'active' && match.category && match.started_at) {
-      console.log('[QM] enterLobby — already active, navigating to game');
-      storeAndNavigate(match.id, match.seed, match.started_at, match.category);
+      const GAME_WINDOW_MS = 10 * 60 * 1000;
+      const startMs = new Date(match.started_at).getTime();
+      if (Date.now() < startMs + GAME_WINDOW_MS) {
+        console.log('[QM] enterLobby — already active, navigating to game');
+        storeAndNavigate(match.id, match.seed, match.started_at, match.category);
+        return;
+      }
+      // Active but past the game window — stale match, do not resume.
+      console.warn('[QM] enterLobby — stale active match, will not resume', id);
+      if (fromSearch) {
+        matchId = null;
+        queueId = null;
+        await startSearch(retries + 1);
+        return;
+      }
+      window.location.href = `duelresults.html?match=${id}`;
       return;
     }
 
@@ -658,7 +679,8 @@
 
   function gamePageForMode(category) {
     const enc = encodeURIComponent(category);
-    if (modeParam === 'vs') return `duelgame-vs.html?mode=${enc}`;
+    if (modeParam === 'vs')    return `duelgame-vs.html?mode=${enc}`;
+    if (modeParam === 'top10') return `duelgame-top10.html?mode=${enc}`;
     return `duelgame.html?mode=${enc}`;
   }
 
