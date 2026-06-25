@@ -1122,6 +1122,7 @@ document.addEventListener('DOMContentLoaded', function() {
       .select('score, user_id, users!fk_user(id, username, avatar_url, is_premium, country_code)', { count: 'exact' })
       .eq("category_id", categoryId)
       .eq("played_date", date)
+      .eq("completed", true)
       .order("score", { ascending: false })
       .range(0, PAGE_SIZE - 1);
 
@@ -1312,6 +1313,7 @@ document.addEventListener('DOMContentLoaded', function() {
       .select('score, user_id, users!fk_user(id, username, avatar_url, is_premium, country_code)')
       .eq('category_id', _dailyCategoryId)
       .eq('played_date', _dailyDate)
+      .eq('completed', true)
       .order('score', { ascending: false })
       .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
     return data || [];
@@ -1427,6 +1429,7 @@ document.addEventListener('DOMContentLoaded', function() {
       .select('user_id')
       .eq('category_id', _dailyCategoryId)
       .eq('played_date', _dailyDate)
+      .eq('completed', true)
       .order('score', { ascending: false });
 
     if (!allScores?.length) { alert(`No scores for this daily challenge yet!`); return; }
