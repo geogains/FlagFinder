@@ -31,8 +31,11 @@ export function getSessionSafe(timeoutMs = 5000) {
 }
 
 // Syncs the browser's IANA timezone to users.timezone when it differs from the stored value.
-// localStorage dedup skips the DB read entirely when the userId:timezone pair is already
-// known to be in sync — so the common path makes zero extra network requests.
+// Always reads the current DB value first — there is no localStorage shortcut here, because
+// a cached "already synced" flag would prevent this device from ever noticing that some other
+// device (e.g. a different login session) changed the stored timezone in the meantime. The
+// read is a single cheap PK lookup, and the write only fires on an actual mismatch, so this
+// stays self-healing without creating unnecessary writes.
 // Fire-and-forget: errors are swallowed so this never affects page initialisation.
 ;(async () => {
   try {
@@ -42,9 +45,7 @@ export function getSessionSafe(timeoutMs = 5000) {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.user) return;
 
-    const userId     = session.user.id;
-    const dedupeKey  = 'georanks_tz_synced';
-    if (localStorage.getItem(dedupeKey) === `${userId}:${tz}`) return;
+    const userId = session.user.id;
 
     const { data: profile, error: readError } = await supabase
       .from('users')
@@ -53,19 +54,12 @@ export function getSessionSafe(timeoutMs = 5000) {
       .single();
 
     if (readError) return;
-    if (profile?.timezone === tz) {
-      localStorage.setItem(dedupeKey, `${userId}:${tz}`);
-      return;
-    }
+    if (profile?.timezone === tz) return;
 
-    const { error: writeError } = await supabase
+    await supabase
       .from('users')
       .update({ timezone: tz })
       .eq('id', userId);
-
-    if (!writeError) {
-      localStorage.setItem(dedupeKey, `${userId}:${tz}`);
-    }
   } catch (_) {
     // never propagate — this must not affect any page's own initialisation
   }
