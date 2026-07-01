@@ -13,6 +13,51 @@
 (function () {
   'use strict';
 
+  // ── Challenge notification bell ────────────────────────────────────────────
+  // Inject the bell element into the header on every page that has
+  // header.home-glass-header.  The async count lookup lives in
+  // js/challenge-bell.js (loaded as a module below) so this synchronous
+  // script never blocks on auth or network.
+  (function injectChallengeBell() {
+    var style = document.createElement('style');
+    style.textContent =
+      '.challenge-bell{' +
+        'display:none;flex-direction:row;align-items:center;' +
+        'position:relative;text-decoration:none;' +
+        'padding:5px 9px;border-radius:10px;' +
+        'background:rgba(255,255,255,0.08);' +
+        'font-size:1.05rem;line-height:1;cursor:pointer;' +
+        'transition:background 0.15s;' +
+      '}' +
+      '.challenge-bell:hover{background:rgba(255,255,255,0.16);}' +
+      '.challenge-bell-count{' +
+        'position:absolute;top:-5px;right:-5px;' +
+        'background:#ef4444;color:#fff;' +
+        'font-size:0.6rem;font-weight:700;' +
+        'min-width:16px;height:16px;border-radius:8px;' +
+        'display:flex;align-items:center;justify-content:center;' +
+        'padding:0 3px;pointer-events:none;' +
+      '}';
+    document.head.appendChild(style);
+
+    var header = document.querySelector('header.home-glass-header');
+    if (!header || document.getElementById('challengeBell')) return;
+
+    var bell = document.createElement('a');
+    bell.id        = 'challengeBell';
+    bell.className = 'challenge-bell';
+    bell.href      = '/duel.html#challenges';
+    bell.setAttribute('aria-label', 'Pending challenges');
+    bell.innerHTML = '🔔<span id="challengeBellCount" class="challenge-bell-count"></span>';
+    // Insert before the last child (the menu-icon / hamburger wrapper)
+    header.insertBefore(bell, header.lastElementChild);
+
+    var s = document.createElement('script');
+    s.type = 'module';
+    s.src  = '/js/challenge-bell.js';
+    document.head.appendChild(s);
+  })();
+
   // ── Current-page detection ──────────────────────────────────────────────
   // Uses the full path (not just last segment) so /u/index.html is not
   // confused with /index.html. Strips leading slash, trailing slash, .html.

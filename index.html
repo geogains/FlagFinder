@@ -880,6 +880,25 @@
         padding: 26px 26px 22px;
       }
     }
+
+    /* ── Pending-challenge banner ─────────────────────────────────────── */
+    .challenge-pending-banner {
+      display: none; /* flex when shown by challenge-bell.js */
+      align-items: center;
+      justify-content: center;
+      background: rgba(102, 126, 234, 0.12);
+      border-bottom: 1px solid rgba(102, 126, 234, 0.18);
+      padding: 10px 20px;
+      text-align: center;
+    }
+    .challenge-banner-link {
+      color: rgba(255, 255, 255, 0.88);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+    }
+    .challenge-banner-link:hover { color: #fff; text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -900,6 +919,13 @@
 <!-- ========== HAMBURGER MENU ========== -->
 <div class="menu-overlay" id="menuOverlay"></div>
 <script src="/js/nav-menu-init.js"></script>
+
+<!-- Pending challenge banner — shown by js/challenge-bell.js when count > 0 -->
+<div id="challengePendingBanner" class="challenge-pending-banner">
+  <a href="/duel.html#challenges" class="challenge-banner-link">
+    ⚔️ You have <span id="bannerChallengeCount"></span> — <strong>View Challenges →</strong>
+  </a>
+</div>
 
 <!-- ========== HERO SECTION ========== -->
 <section class="hero-section">

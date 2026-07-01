@@ -435,6 +435,61 @@
     #premiumModal .pm-close:hover {
       background: rgba(0,0,0,0.55);
     }
+
+    /* ── Challenge Sent modal ─────────────────────────────────────── */
+    #challengeSentBackdrop {
+      position: fixed; inset: 0; z-index: 9900;
+      background: rgba(13, 49, 90, 0.55);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 1.25rem;
+      animation: csBackdropIn 0.25s ease;
+    }
+    @keyframes csBackdropIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    #challengeSentBackdrop.hidden { display: none; }
+    #challengeSentModal {
+      background: white; border-radius: 22px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+      padding: 2rem 1.75rem 1.5rem;
+      max-width: 420px; width: 100%;
+      text-align: center;
+      animation: csModalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes csModalIn {
+      from { opacity: 0; transform: scale(0.88) translateY(16px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .cs-icon { font-size: 3rem; margin-bottom: 0.5rem; line-height: 1; }
+    .cs-title {
+      font-size: 1.45rem; font-weight: 800; color: #0d315a;
+      margin: 0 0 0.6rem; font-family: 'Rubik', sans-serif;
+    }
+    .cs-body {
+      font-size: 0.92rem; color: #374151; line-height: 1.55;
+      margin: 0 0 0.75rem;
+    }
+    .cs-helper {
+      font-size: 0.78rem; color: #9ca3af; margin: 0 0 1.25rem; line-height: 1.4;
+    }
+    .cs-actions { display: flex; gap: 10px; }
+    .cs-btn {
+      flex: 1; padding: 11px 10px; border: none; border-radius: 12px;
+      font-family: 'Poppins', sans-serif; font-size: 0.88rem; font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .cs-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.13); }
+    .cs-btn-primary { background: linear-gradient(135deg, #ff9770, #ff6f61); color: white; }
+    .cs-btn-secondary { background: #e5e7eb; color: #374151; }
+    @media (max-width: 480px) {
+      #challengeSentModal { padding: 1.5rem 1.25rem 1.25rem; }
+      .cs-title { font-size: 1.25rem; }
+      .cs-actions { flex-direction: column; }
+    }
   </style>
 
   <!-- Privacy-friendly analytics by Plausible -->
@@ -641,15 +696,15 @@
       document.getElementById('tryModesTitle').textContent = `🎮 Try other ${categoryName} game modes`;
       
       document.getElementById('classicModeBtn').onclick = () => {
-        window.location.href = `game.html?mode=${categoryKey}`;
+        window.location.href = `game?mode=${categoryKey}`;
       };
       
       document.getElementById('top10ModeBtn').onclick = () => {
-        window.location.href = `top10.html?mode=${categoryKey}`;
+        window.location.href = `top10?mode=${categoryKey}`;
       };
 
       document.getElementById('playAgainBtn').onclick = () => {
-        window.location.href = `vs.html?mode=${categoryKey}`;
+        window.location.href = `vs?mode=${categoryKey}`;
       };
 
       document.getElementById('shareBtn').onclick = shareResults;
@@ -665,7 +720,7 @@
 Score: ${finalScore} | ${finalCorrect}/${finalTotal} correct (${finalAccuracy}%)
 Lives: ${livesDisplay}
 
-Can you beat my score? Play at geo-ranks.com/vs.html?mode=${categoryKey}`;
+Can you beat my score? Play at geo-ranks.com/vs?mode=${categoryKey}`;
 
       if (navigator.share) {
         navigator.share({
@@ -852,6 +907,120 @@ Can you beat my score? Play at geo-ranks.com/vs.html?mode=${categoryKey}`;
     });
   </script>
   </div> <!-- end #mainContent -->
+
+  <!-- Challenge Sent modal — outside #mainContent so it is never affected by the page fade-in opacity -->
+  <div id="challengeSentBackdrop" class="hidden" role="dialog" aria-modal="true" aria-labelledby="csTitleEl">
+    <div id="challengeSentModal">
+      <div class="cs-icon">⚔️</div>
+      <h2 class="cs-title" id="csTitleEl">Challenge Sent!</h2>
+      <p class="cs-body" id="csBodyEl">Your opponent has been notified of your challenge.<br><br>🏆 Your score has now been locked in.<br><br>They have 24 hours to beat it before the challenge expires. Good luck!</p>
+      <p class="cs-helper">Send your opponent a reminder so they don't miss your challenge. Copy the message below and share it via WhatsApp, Instagram, Messages, Discord or anywhere else.</p>
+      <div class="cs-actions">
+        <button class="cs-btn cs-btn-primary" id="csCopyBtn">Send Reminder</button>
+        <button class="cs-btn cs-btn-secondary" id="csViewScoreBtn">View Score</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Challenge Sent modal logic -->
+  <script type="module">
+    import { supabase }         from './js/supabase-client.js';
+    import { categoriesConfig } from './js/categories-config.js';
+
+    const _params = new URLSearchParams(window.location.search);
+
+    // Primary: URL params. Secondary: sessionStorage payload written before the redirect.
+    // The secondary path handles Vercel cleanUrls (cleanUrls:true strips query strings
+    // from .html→clean-URL 308 redirects in some routing configurations).
+    let _matchId       = _params.get('match');
+    let _fromChallenge = _params.get('challengeSent') === '1' && !!_matchId;
+    let _catKeyUrl     = _params.get('category') || '';
+    let _usedPayload   = false;
+
+    if (!_fromChallenge) {
+      try {
+        const _raw = sessionStorage.getItem('challengeSentPayload');
+        if (_raw) {
+          const _p = JSON.parse(_raw);
+          if (_p?.duelMode === 'vs' && _p?.matchId &&
+              Date.now() - (_p.createdAt || 0) < 10 * 60 * 1000) {
+            _matchId       = _p.matchId;
+            _catKeyUrl     = _p.category || '';
+            _fromChallenge = true;
+            _usedPayload   = true;
+          }
+        }
+      } catch (_) {}
+    }
+
+    const _seenKey = _matchId ? `cs_seen_${_matchId}` : null;
+    const _shouldShow = _fromChallenge && !!_matchId && !sessionStorage.getItem(_seenKey);
+
+    if (_shouldShow) {
+      sessionStorage.setItem(_seenKey, '1');
+      if (_usedPayload) sessionStorage.removeItem('challengeSentPayload');
+
+      const backdrop = document.getElementById('challengeSentBackdrop');
+      const bodyEl   = document.getElementById('csBodyEl');
+      const copyBtn  = document.getElementById('csCopyBtn');
+      const closeBtn = document.getElementById('csViewScoreBtn');
+
+      const _catCfg   = categoriesConfig[_catKeyUrl] || {};
+      const _catLabel = (_catCfg.emoji ? _catCfg.emoji + ' ' : '') + (_catCfg.title || _catKeyUrl || '');
+      const _deepLink = `${window.location.origin}/duel?challenge=${_matchId}`;
+
+      const _buildMsg = () => [
+        `⚔️ I just challenged you to a GeoRanks VS duel!`,
+        ``,
+        _catLabel ? `Category:\n${_catLabel}` : '',
+        ``,
+        `I've already locked in my score.`,
+        ``,
+        `You have 24 hours to beat it.`,
+        ``,
+        `Play here:\n${_deepLink}`
+      ].filter(l => l !== null).join('\n');
+
+      function _escHtml(s) {
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      }
+
+      function _updateBody(name) {
+        bodyEl.innerHTML = `${_escHtml(name)} has been notified of your challenge.<br><br>🏆 Your score has now been locked in.<br><br>They have 24 hours to beat it before the challenge expires. Good luck!`;
+      }
+
+      backdrop.classList.remove('hidden');
+
+      (async () => {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user) {
+            const { data: challenges } = await supabase.rpc('get_my_direct_challenges');
+            const ch = (challenges || []).find(c => c.match_id === _matchId);
+            if (ch?.opponent_username) _updateBody(ch.opponent_username);
+          }
+        } catch (_) { /* keep placeholder */ }
+      })();
+
+      copyBtn.addEventListener('click', async () => {
+        const msg = _buildMsg();
+        try {
+          await navigator.clipboard.writeText(msg);
+        } catch (_) {
+          const ta = document.createElement('textarea');
+          ta.value = msg; ta.style.cssText = 'position:fixed;opacity:0';
+          document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+        const prev = copyBtn.textContent;
+        copyBtn.textContent = '✓ Reminder Copied!';
+        setTimeout(() => { copyBtn.textContent = prev; }, 2000);
+      });
+
+      closeBtn.addEventListener('click', () => backdrop.classList.add('hidden'));
+      backdrop.addEventListener('click', (e) => { if (e.target === backdrop) backdrop.classList.add('hidden'); });
+    }
+  </script>
 
   <!-- Premium Upsell Backdrop -->
   <div id="premiumBackdrop" onclick="document.getElementById('premiumModal').classList.remove('visible'); document.getElementById('premiumBackdrop').classList.remove('visible');"></div>

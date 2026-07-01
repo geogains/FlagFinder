@@ -708,7 +708,7 @@
   _log('auth check end', { authenticated: !!session?.user });
   if (!session?.user) {
     _log('not authenticated — redirecting to auth.html');
-    window.location.href = 'auth.html?next=' + encodeURIComponent(window.location.href);
+    window.location.href = 'auth?next=' + encodeURIComponent(window.location.href);
     return;
   }
   const currentUserId = session.user.id;
@@ -942,21 +942,28 @@
     const correctOrderHtml = duelMode === 'classic' ? buildCorrectOrderHtml(myResult) : '';
 
     // ── Action buttons ──
-    let primaryActionHtml;
+    let actionsInnerHtml;
     if (match.match_type === 'quick') {
-      primaryActionHtml = `<a href="duel.html?qm=1" class="action-btn primary">⚡ Play Again</a>`;
+      actionsInnerHtml = `
+        <a href="duel?qm=1" class="action-btn primary">⚡ Play Again</a>
+        <a href="index.html"      class="action-btn secondary">🏠 Return Home</a>
+        <a href="leaderboard.html" class="action-btn secondary">🏆 Leaderboard</a>`;
+    } else if (match.match_type === 'direct') {
+      const rematchQuery = `category=${encodeURIComponent(match.category)}` +
+        (duelMode && duelMode !== 'classic' ? `&duel_mode=${encodeURIComponent(duelMode)}` : '');
+      actionsInnerHtml = `
+        <a href="duel.html#challenges" class="action-btn primary">⬅ Back to Challenges</a>
+        <a href="duel?${rematchQuery}" class="action-btn secondary">⚔️ Rematch</a>
+        <a href="leaderboard.html"         class="action-btn secondary">🏆 Leaderboard</a>`;
     } else {
       const rematchQuery = `category=${encodeURIComponent(match.category)}` +
         (duelMode && duelMode !== 'classic' ? `&duel_mode=${encodeURIComponent(duelMode)}` : '');
-      primaryActionHtml = `<a href="duel.html?${rematchQuery}" class="action-btn primary">⚔️ Rematch</a>`;
-    }
-    const actionsHtml = `
-      <div class="actions-row">
-        ${primaryActionHtml}
+      actionsInnerHtml = `
+        <a href="duel?${rematchQuery}" class="action-btn primary">⚔️ Rematch</a>
         <a href="index.html"      class="action-btn secondary">🏠 Return Home</a>
-        <a href="leaderboard.html" class="action-btn secondary">🏆 Leaderboard</a>
-      </div>
-    `;
+        <a href="leaderboard.html" class="action-btn secondary">🏆 Leaderboard</a>`;
+    }
+    const actionsHtml = `<div class="actions-row">${actionsInnerHtml}</div>`;
 
     card.innerHTML = bannerHtml + scoreSummaryHtml + categoryHtml + timeoutHtml + breakdownHtml + correctOrderHtml + actionsHtml;
 
@@ -1511,7 +1518,7 @@
   function showNotReady(message, { playAgain = false } = {}) {
     _log('showNotReady called', { message, playAgain });
     const actionHtml = playAgain
-      ? `<a href="duel.html?qm=1" class="retry-btn" style="text-decoration:none;display:inline-block;">Play Again</a>`
+      ? `<a href="duel?qm=1" class="retry-btn" style="text-decoration:none;display:inline-block;">Play Again</a>`
       : `<button class="retry-btn" onclick="window.location.reload()">Retry</button>`;
     card.innerHTML = `
       <div class="not-ready-card">

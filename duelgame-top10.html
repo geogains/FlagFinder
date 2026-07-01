@@ -346,16 +346,19 @@
 <script type="module">
   import { supabase }          from './js/supabase-client.js';
   import { CATEGORY_ID_MAP }   from './js/top10-categories-loader.js';
+  import { categoriesConfig }  from './js/categories-config.js';
   import { createDuelChannel } from './js/duel-channel.js';
   import { evaluateAchievements } from './js/achievements.js';
 
   // ── Auth guard ───────────────────────────────────────────────────────────
+  console.debug('[duelgame-top10] A: awaiting session');
   const { data: { session } } = await supabase.auth.getSession();
   if (!session?.user) {
-    window.location.href = 'auth.html?next=' + encodeURIComponent(window.location.href);
+    window.location.href = 'auth?next=' + encodeURIComponent(window.location.href);
     throw new Error('auth required');
   }
   const currentUserId = session.user.id;
+  console.debug('[duelgame-top10] B: session ok, userId:', currentUserId);
 
   // ── Validate sessionStorage ──────────────────────────────────────────────
   let duelMatch;
@@ -369,38 +372,51 @@
     throw new Error('invalid duelMatch in sessionStorage');
   }
 
+  let isAsyncChallenger = duelMatch.isDirectChallenge === true && duelMatch.isChallenger === true;
+  let isDirectChallenge = duelMatch.isDirectChallenge === true;
+  console.debug('[duelgame-top10] C: duelMatch parsed, isAsyncChallenger:', isAsyncChallenger, 'matchId:', duelMatch.matchId, 'seed:', duelMatch.seed, 'category:', duelMatch.category);
+
   // ── Check match timeout ──────────────────────────────────────────────────
   const GAME_DURATION_MS = (2 * 60 + 30) * 1000; // 2m30s: game runs 2 min; 30s buffer for page-load/init latency
   const startedAt = new Date(duelMatch.startedAt).getTime();
   const timeLeft  = (startedAt + GAME_DURATION_MS) - Date.now();
 
+  const timeoutDest = isAsyncChallenger
+    ? 'duel.html#challenges'
+    : `duelresults?match=${duelMatch.matchId}&timeout=1`;
+
   if (timeLeft <= 0) {
-    window.location.href = `duelresults.html?match=${duelMatch.matchId}&timeout=1`;
+    window.location.href = timeoutDest;
     throw new Error('match already timed out');
   }
 
   const timeoutHandle = setTimeout(() => {
-    window.location.href = `duelresults.html?match=${duelMatch.matchId}&timeout=1`;
+    window.location.href = timeoutDest;
   }, timeLeft);
 
   // ── Category from URL ────────────────────────────────────────────────────
-  const mode = new URLSearchParams(window.location.search).get('mode') || 'population';
+  let mode = new URLSearchParams(window.location.search).get('mode') || 'population';
 
   let gameParticipants = null;
 
   // ── Stage 3B fast-path ───────────────────────────────────────────────────
   if (duelMatch.completed === true) {
     clearTimeout(timeoutHandle);
-    window.location.href = `duelresults.html?match=${duelMatch.matchId}`;
+    if (isDirectChallenge) {
+      window.location.href = 'duel.html#challenges';
+    } else {
+      window.location.href = `duelresults?match=${duelMatch.matchId}`;
+    }
     throw new Error('session already completed');
   }
 
   // ── DB validation ────────────────────────────────────────────────────────
+  console.debug('[duelgame-top10] D: starting DB validation fetch. URL mode:', mode);
   {
     const [matchFetch, resultFetch] = await Promise.all([
       supabase
         .from('h2h_matches')
-        .select('id, category, status, player1_id, player2_id, duel_mode')
+        .select('id, category, status, player1_id, player2_id, duel_mode, match_type')
         .eq('id', duelMatch.matchId)
         .single(),
       supabase
@@ -411,6 +427,7 @@
         .maybeSingle()
     ]);
 
+    console.debug('[duelgame-top10] E: DB fetch done. matchFetch error:', matchFetch.error?.message, 'status:', matchFetch.data?.status, 'category:', matchFetch.data?.category, 'duel_mode:', matchFetch.data?.duel_mode);
     if (matchFetch.error || !matchFetch.data) {
       clearTimeout(timeoutHandle);
       sessionStorage.removeItem('duelMatch');
@@ -422,7 +439,11 @@
 
     if (resultFetch.data) {
       clearTimeout(timeoutHandle);
-      window.location.href = `duelresults.html?match=${duelMatch.matchId}`;
+      if (liveMatch.match_type === 'direct') {
+        window.location.href = 'duel.html#challenges';
+      } else {
+        window.location.href = `duelresults?match=${duelMatch.matchId}`;
+      }
       throw new Error('result already submitted');
     }
 
@@ -433,48 +454,69 @@
       throw new Error('not a participant in this match');
     }
 
-    if (liveMatch.status !== 'active') {
+    if (liveMatch.status === 'challenger_playing' || liveMatch.status === 'direct_pending') {
+      if (!isAsyncChallenger
+          || liveMatch.match_type !== 'direct'
+          || liveMatch.player1_id !== currentUserId) {
+        clearTimeout(timeoutHandle);
+        sessionStorage.removeItem('duelMatch');
+        window.location.href = 'duel.html#challenges';
+        throw new Error('not authorized to play during challenger_playing/direct_pending');
+      }
+    } else if (liveMatch.status !== 'active') {
       clearTimeout(timeoutHandle);
-      window.location.href = `duelresults.html?match=${duelMatch.matchId}`;
+      window.location.href = `duelresults?match=${duelMatch.matchId}`;
       throw new Error(`match status is ${liveMatch.status}, expected active`);
     }
+
+    // DB is authoritative — set isDirectChallenge from match_type
+    isDirectChallenge = liveMatch.match_type === 'direct';
 
     // If this is not a Top10 match, redirect to the correct game page
     if (liveMatch.duel_mode === 'classic') {
       clearTimeout(timeoutHandle);
-      window.location.href = `duelgame.html?mode=${encodeURIComponent(liveMatch.category)}`;
+      window.location.href = `duelgame?mode=${encodeURIComponent(liveMatch.category)}`;
       throw new Error('duel_mode is classic — redirecting to classic page');
     }
     if (liveMatch.duel_mode === 'vs') {
       clearTimeout(timeoutHandle);
-      window.location.href = `duelgame-vs.html?mode=${encodeURIComponent(liveMatch.category)}`;
+      window.location.href = `duelgame-vs?mode=${encodeURIComponent(liveMatch.category)}`;
       throw new Error('duel_mode is vs — redirecting to vs page');
     }
 
+    // DB category is authoritative. Adopt it silently if URL mode was missing or wrong.
     if (liveMatch.category !== mode) {
-      clearTimeout(timeoutHandle);
-      window.location.href = `duelgame-top10.html?mode=${encodeURIComponent(liveMatch.category)}`;
-      throw new Error(`category mismatch — URL:${mode} DB:${liveMatch.category}`);
+      console.debug('[duelgame-top10] mode corrected from', mode, '→', liveMatch.category);
+      mode = liveMatch.category;
     }
 
-    gameParticipants = [liveMatch.player1_id, liveMatch.player2_id];
+    if (!isAsyncChallenger && !isDirectChallenge) {
+      gameParticipants = [liveMatch.player1_id, liveMatch.player2_id];
+    }
+    console.debug('[duelgame-top10] F: DB validation passed');
   }
 
   // ── Opponent badge ───────────────────────────────────────────────────────
   const badge = document.getElementById('opponentBadge');
+  if (isAsyncChallenger) {
+    badge.textContent = '📬 Your opponent will be notified when you finish';
+    badge.classList.remove('pulsing');
+  }
 
-  // ── Duel channel ─────────────────────────────────────────────────────────
+  // ── Duel channel — skipped for Direct Challenges (no live opponent) ───────
   let opponentFinishedDuringGame = false;
-  const duelChannel = createDuelChannel(supabase, duelMatch.matchId, currentUserId, {
-    onBothReady:        () => {},
-    onGameStart:        () => {},
-    onOpponentFinished: () => {
-      opponentFinishedDuringGame = true;
-      badge.textContent = '✅ Opponent finished!';
-      badge.classList.remove('pulsing');
-      badge.classList.add('done');
-    }
-  }, { participantIds: gameParticipants });
+  const duelChannel = (isAsyncChallenger || isDirectChallenge)
+    ? { emitFinished: () => {}, destroy: () => {} }
+    : createDuelChannel(supabase, duelMatch.matchId, currentUserId, {
+        onBothReady:        () => {},
+        onGameStart:        () => {},
+        onOpponentFinished: () => {
+          opponentFinishedDuringGame = true;
+          badge.textContent = '✅ Opponent finished!';
+          badge.classList.remove('pulsing');
+          badge.classList.add('done');
+        }
+      }, { participantIds: gameParticipants });
 
   // ── Waiting-for-opponent helpers ─────────────────────────────────────────
   let waitPollInterval = null;
@@ -483,7 +525,7 @@
 
   function goToResults() {
     clearInterval(waitPollInterval);
-    window.location.href = `duelresults.html?match=${duelMatch.matchId}`;
+    window.location.href = `duelresults?match=${duelMatch.matchId}`;
   }
   window.goToResults = goToResults;
 
@@ -506,7 +548,7 @@
 
       if (results && results.length >= 2) {
         clearInterval(waitPollInterval);
-        window.location.href = `duelresults.html?match=${duelMatch.matchId}`;
+        window.location.href = `duelresults?match=${duelMatch.matchId}`;
         return;
       }
 
@@ -573,6 +615,50 @@
     duelChannel.emitFinished(rpcResult.score, rpcResult.max_score);
     duelChannel.destroy();
 
+    if (isDirectChallenge) {
+      // Both challenger and challenged player go to the normal Top10 results page.
+      const correct = placements.filter(p => p.wasCorrect).length;
+      const elapsed = duelMatch.startedAt
+        ? Math.round(Date.now() - new Date(duelMatch.startedAt).getTime())
+        : 0;
+      const resultsData = {
+        score:           rpcResult.score,
+        maxScore:        rpcResult.max_score,
+        correct:         correct,
+        timeUsed:        elapsed,
+        lives:           0,
+        categoryName:    categoriesConfig[mode]?.title || mode,
+        categoryKey:     mode,
+        playableCount:   rpcResult.max_score,
+        resultsTable:    [],
+        incorrectGuesses: []
+      };
+      localStorage.setItem('top10Results', JSON.stringify(resultsData));
+      const qp = new URLSearchParams({
+        category: mode,
+        score:    rpcResult.score,
+        correct:  correct,
+        time:     elapsed,
+        lives:    0,
+        playable: rpcResult.max_score,
+        from:     'challenge'
+      });
+      // Signal the results page to show the "Challenge Sent!" modal for the challenger only.
+      if (isAsyncChallenger) {
+        qp.set('challengeSent', '1');
+        qp.set('match', duelMatch.matchId);
+        try {
+          sessionStorage.setItem('challengeSentPayload', JSON.stringify({
+            matchId: duelMatch.matchId, category: mode, duelMode: 'top10', createdAt: Date.now()
+          }));
+        } catch (_) {}
+      }
+      console.log('[challenge-submit] isAsyncChallenger:', isAsyncChallenger, 'redirectURL:', `top10results?${qp.toString()}`);
+      window.location.href = `top10results?${qp.toString()}`;
+      return;
+    }
+
+    // Quick Match / Private Duel: hide submit overlay, show waiting screen
     document.getElementById('submitOverlay').classList.remove('visible');
     await startWaitingForOpponent();
   };
@@ -582,7 +668,9 @@
   window._duelSeed = Number(duelMatch.seed);
 
   // ── Import and start Top10 game engine ───────────────────────────────────
+  console.debug('[duelgame-top10] G: importing top10-game.js, mode:', mode, 'seed:', window._duelSeed);
   const { startTop10Game } = await import('./js/top10-game.js');
+  console.debug('[duelgame-top10] H: engine imported, revealing game');
 
   // Reveal game
   document.getElementById('authLoadingOverlay').style.display = 'none';

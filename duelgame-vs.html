@@ -349,7 +349,7 @@
   // ── Auth guard ───────────────────────────────────────────────────────────
   const { data: { session } } = await supabase.auth.getSession();
   if (!session?.user) {
-    window.location.href = 'auth.html?next=' + encodeURIComponent(window.location.href);
+    window.location.href = 'auth?next=' + encodeURIComponent(window.location.href);
     throw new Error('auth required');
   }
   const currentUserId = session.user.id;
@@ -366,18 +366,25 @@
     throw new Error('invalid duelMatch in sessionStorage');
   }
 
+  const isAsyncChallenger = duelMatch.isDirectChallenge === true && duelMatch.isChallenger === true;
+  let isDirectChallenge  = duelMatch.isDirectChallenge === true;
+
   // ── Check match timeout ──────────────────────────────────────────────────
   const GAME_DURATION_MS = 5 * 60 * 1000;
   const startedAt = new Date(duelMatch.startedAt).getTime();
   const timeLeft  = (startedAt + GAME_DURATION_MS) - Date.now();
 
+  const timeoutDest = isAsyncChallenger
+    ? 'duel.html#challenges'
+    : `duelresults?match=${duelMatch.matchId}&timeout=1`;
+
   if (timeLeft <= 0) {
-    window.location.href = `duelresults.html?match=${duelMatch.matchId}&timeout=1`;
+    window.location.href = timeoutDest;
     throw new Error('match already timed out');
   }
 
   const timeoutHandle = setTimeout(() => {
-    window.location.href = `duelresults.html?match=${duelMatch.matchId}&timeout=1`;
+    window.location.href = timeoutDest;
   }, timeLeft);
 
   // ── Category from URL ────────────────────────────────────────────────────
@@ -388,7 +395,7 @@
   // ── Stage 3B fast-path ───────────────────────────────────────────────────
   if (duelMatch.completed === true) {
     clearTimeout(timeoutHandle);
-    window.location.href = `duelresults.html?match=${duelMatch.matchId}`;
+    window.location.href = `duelresults?match=${duelMatch.matchId}`;
     throw new Error('session already completed');
   }
 
@@ -397,7 +404,7 @@
     const [matchFetch, resultFetch] = await Promise.all([
       supabase
         .from('h2h_matches')
-        .select('id, category, status, player1_id, player2_id, duel_mode')
+        .select('id, category, status, player1_id, player2_id, duel_mode, match_type')
         .eq('id', duelMatch.matchId)
         .single(),
       supabase
@@ -419,7 +426,7 @@
 
     if (resultFetch.data) {
       clearTimeout(timeoutHandle);
-      window.location.href = `duelresults.html?match=${duelMatch.matchId}`;
+      window.location.href = `duelresults?match=${duelMatch.matchId}`;
       throw new Error('result already submitted');
     }
 
@@ -430,48 +437,68 @@
       throw new Error('not a participant in this match');
     }
 
-    if (liveMatch.status !== 'active') {
+    if (liveMatch.status === 'challenger_playing' || liveMatch.status === 'direct_pending') {
+      if (!isAsyncChallenger
+          || liveMatch.match_type !== 'direct'
+          || liveMatch.player1_id !== currentUserId) {
+        clearTimeout(timeoutHandle);
+        sessionStorage.removeItem('duelMatch');
+        window.location.href = 'duel.html#challenges';
+        throw new Error('not authorized to play during challenger_playing/direct_pending');
+      }
+    } else if (liveMatch.status !== 'active') {
       clearTimeout(timeoutHandle);
-      window.location.href = `duelresults.html?match=${duelMatch.matchId}`;
+      window.location.href = `duelresults?match=${duelMatch.matchId}`;
       throw new Error(`match status is ${liveMatch.status}, expected active`);
     }
 
     // If this is not a VS match, redirect to the correct game page
     if (liveMatch.duel_mode === 'classic') {
       clearTimeout(timeoutHandle);
-      window.location.href = `duelgame.html?mode=${encodeURIComponent(liveMatch.category)}`;
+      window.location.href = `duelgame?mode=${encodeURIComponent(liveMatch.category)}`;
       throw new Error('duel_mode is classic — redirecting to classic page');
     }
     if (liveMatch.duel_mode === 'top10') {
       clearTimeout(timeoutHandle);
-      window.location.href = `duelgame-top10.html?mode=${encodeURIComponent(liveMatch.category)}`;
+      window.location.href = `duelgame-top10?mode=${encodeURIComponent(liveMatch.category)}`;
       throw new Error('duel_mode is top10 — redirecting to top10 page');
     }
 
     if (liveMatch.category !== mode) {
       clearTimeout(timeoutHandle);
-      window.location.href = `duelgame-vs.html?mode=${encodeURIComponent(liveMatch.category)}`;
+      window.location.href = `duelgame-vs?mode=${encodeURIComponent(liveMatch.category)}`;
       throw new Error(`category mismatch — URL:${mode} DB:${liveMatch.category}`);
     }
 
-    gameParticipants = [liveMatch.player1_id, liveMatch.player2_id];
+    // DB is authoritative — override from match_type
+    isDirectChallenge = liveMatch.match_type === 'direct';
+
+    if (!isAsyncChallenger) {
+      gameParticipants = [liveMatch.player1_id, liveMatch.player2_id];
+    }
   }
 
   // ── Opponent badge ───────────────────────────────────────────────────────
   const badge = document.getElementById('opponentBadge');
+  if (isAsyncChallenger) {
+    badge.textContent = '📬 Your opponent will be notified when you finish';
+    badge.classList.remove('pulsing');
+  }
 
-  // ── Duel channel ─────────────────────────────────────────────────────────
+  // ── Duel channel — skipped for async challenger (no live opponent yet) ───
   let opponentFinishedDuringGame = false;
-  const duelChannel = createDuelChannel(supabase, duelMatch.matchId, currentUserId, {
-    onBothReady:        () => {},
-    onGameStart:        () => {},
-    onOpponentFinished: () => {
-      opponentFinishedDuringGame = true;
-      badge.textContent = '✅ Opponent finished!';
-      badge.classList.remove('pulsing');
-      badge.classList.add('done');
-    }
-  }, { participantIds: gameParticipants });
+  const duelChannel = isAsyncChallenger
+    ? { emitFinished: () => {}, destroy: () => {} }
+    : createDuelChannel(supabase, duelMatch.matchId, currentUserId, {
+        onBothReady:        () => {},
+        onGameStart:        () => {},
+        onOpponentFinished: () => {
+          opponentFinishedDuringGame = true;
+          badge.textContent = '✅ Opponent finished!';
+          badge.classList.remove('pulsing');
+          badge.classList.add('done');
+        }
+      }, { participantIds: gameParticipants });
 
   // ── Waiting-for-opponent helpers ─────────────────────────────────────────
   let waitPollInterval = null;
@@ -480,7 +507,7 @@
 
   function goToResults() {
     clearInterval(waitPollInterval);
-    window.location.href = `duelresults.html?match=${duelMatch.matchId}`;
+    window.location.href = `duelresults?match=${duelMatch.matchId}`;
   }
   window.goToResults = goToResults;
 
@@ -503,7 +530,7 @@
 
       if (results && results.length >= 2) {
         clearInterval(waitPollInterval);
-        window.location.href = `duelresults.html?match=${duelMatch.matchId}`;
+        window.location.href = `duelresults?match=${duelMatch.matchId}`;
         return;
       }
 
@@ -569,6 +596,35 @@
 
     duelChannel.emitFinished(rpcResult.score, rpcResult.max_score);
     duelChannel.destroy();
+
+    if (isDirectChallenge) {
+      const correct    = placements.filter(p => p.wasCorrect).length;
+      const total      = placements.length;
+      const incorrect  = total - correct;
+      const accuracy   = total > 0 ? Math.round(correct / total * 100) : 0;
+      const lives      = Math.max(0, 3 - incorrect);
+      const timePlayed = Math.min(120, Math.round((Date.now() - new Date(duelMatch.startedAt).getTime()) / 1000));
+
+      localStorage.setItem('vsResults', JSON.stringify({
+        score: rpcResult.score, correct, total, accuracy, timePlayed, lives, categoryKey: mode
+      }));
+
+      const qp = new URLSearchParams({
+        category: mode, score: rpcResult.score, correct, total,
+        accuracy, time: timePlayed, lives, from: 'challenge'
+      });
+      if (isAsyncChallenger) {
+        qp.set('challengeSent', '1');
+        qp.set('match', duelMatch.matchId);
+        try {
+          sessionStorage.setItem('challengeSentPayload', JSON.stringify({
+            matchId: duelMatch.matchId, category: mode, duelMode: 'vs', createdAt: Date.now()
+          }));
+        } catch (_) {}
+      }
+      window.location.href = `vsresults?${qp.toString()}`;
+      return;
+    }
 
     document.getElementById('submitOverlay').classList.remove('visible');
     await startWaitingForOpponent();

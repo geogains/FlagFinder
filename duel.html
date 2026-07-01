@@ -52,6 +52,7 @@
     /* ── Main card ── */
     .duel-container {
       max-width: 560px; margin: 2rem auto; padding: 0 1rem;
+      transition: max-width 0.3s ease;
     }
     .duel-card {
       background: white; border-radius: 24px;
@@ -74,48 +75,64 @@
       color: #6b7280; font-size: 0.95rem; margin-top: 0.4rem;
     }
 
-    /* ── Category grid ── */
-    .category-grid {
-      display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;
-      max-height: 360px; overflow-y: auto; margin-bottom: 1.5rem;
-      padding-right: 4px;
+    /* ── Category picker shell — constrained height with scrollable body ── */
+    .duel-card--picker {
+      padding: 0;
+      display: flex; flex-direction: column;
+      max-height: min(82vh, 600px);
     }
-    .cat-btn {
-      display: flex; align-items: center; gap: 0.6rem;
-      padding: 0.75rem 1rem; border: 2px solid #e5e7eb;
-      border-radius: 12px; background: #f9fafb;
-      cursor: pointer; font-family: 'Poppins', sans-serif;
-      font-size: 0.85rem; font-weight: 500; color: #374151;
-      transition: all 0.15s ease; text-align: left;
-    }
-    .cat-btn:hover { border-color: #38bdf8; background: #f0fffe; }
-    .cat-btn.selected {
-      border-color: #0d315a; background: #e0f2fe; color: #0d315a; font-weight: 700;
-    }
-    .cat-btn.locked {
-      opacity: 0.42;
-      cursor: not-allowed;
-    }
-    .cat-btn.locked:hover {
-      border-color: #e5e7eb;
-      background: #f9fafb;
-    }
-    .cat-lock {
-      margin-left: auto;
-      font-size: 0.72rem;
+    .cp-header {
+      display: grid; grid-template-columns: auto 1fr auto;
+      align-items: center; gap: 0.75rem;
+      padding: 1rem 1.5rem 0.9rem;
+      border-bottom: 1px solid rgba(0,0,0,0.07);
       flex-shrink: 0;
     }
+    .cp-back-btn {
+      background: none; border: none; font-family: 'Poppins', sans-serif;
+      font-size: 0.85rem; font-weight: 600; color: #6b7280;
+      cursor: pointer; padding: 0.3rem 0;
+      transition: color 0.15s; white-space: nowrap;
+    }
+    .cp-back-btn:hover { color: #0d315a; }
+    .cp-title { font-size: 1rem; font-weight: 700; color: #0d315a; margin: 0; text-align: center; }
+    .cp-body {
+      flex: 1; overflow-y: auto; padding: 1rem 1.5rem;
+      overscroll-behavior: contain;
+    }
+    .cp-footer {
+      padding: 0.75rem 1.5rem 1rem;
+      border-top: 1px solid rgba(0,0,0,0.07);
+      flex-shrink: 0; background: white;
+      border-radius: 0 0 24px 24px;
+    }
+
+    /* ── Category picker (Step 1) — two-column rectangular buttons ── */
+    .category-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 0.6rem; margin-bottom: 0;
+    }
+    .cat-btn {
+      display: flex; align-items: center; gap: 0.55rem;
+      padding: 0.7rem 0.85rem;
+      border: 2px solid #e5e7eb; border-radius: 10px;
+      background: #f9fafb;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.82rem; font-weight: 600; color: #374151;
+      cursor: pointer; text-align: left;
+      transition: all 0.15s ease;
+    }
+    .cat-btn:hover { border-color: #38bdf8; background: #f0fffe; }
+    .cat-btn.selected { background: #e0f2fe; border-color: #0d315a; color: #0d315a; }
+    .cat-btn.locked { opacity: 0.5; cursor: not-allowed; }
     .cat-separator {
       grid-column: 1 / -1;
-      padding: 0.3rem 0.4rem;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: #6b7280;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
+      font-size: 0.65rem; font-weight: 700;
+      letter-spacing: 0.07em; text-transform: uppercase;
+      color: #9ca3af; margin: 0.4rem 0 0.1rem;
     }
-    .cat-separator.locked { color: #d1d5db; }
-    .cat-emoji { font-size: 1.3rem; flex-shrink: 0; }
+    .cat-emoji { font-size: 1rem; }
+    .cat-lock { font-size: 0.7rem; margin-left: auto; }
 
     /* ── Mode selector ── */
     .mode-grid {
@@ -312,8 +329,178 @@
     }
 
     @media (max-width: 480px) {
-      .category-grid { grid-template-columns: 1fr; max-height: 280px; }
-      .duel-card { padding: 1.75rem 1.25rem; }
+      .duel-card:not(.duel-card--picker) { padding: 1.75rem 1.25rem; }
+    }
+
+    /* ── Duel Hub card ─────────────────────────────────────────── */
+    .duel-hub-card {
+      margin-top: 1.25rem;
+    }
+
+    .hub-header {
+      margin-bottom: 1.25rem;
+    }
+    .hub-header h2 {
+      font-size: 1.25rem; font-weight: 700; color: #0d315a; margin: 0;
+    }
+
+    .hub-subsection { margin-bottom: 1.5rem; }
+    .hub-subsection:last-child { margin-bottom: 0; }
+
+    .hub-subsection-title {
+      font-size: 0.78rem; font-weight: 700; color: #9ca3af;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      margin-bottom: 0.6rem;
+    }
+
+    /* ── Player search (mirrors leaderboard.html) ───────────────── */
+    .player-search-wrapper {
+      position: relative;
+    }
+    .player-search-bar {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 16px;
+      background: rgba(255,255,255,0.9);
+      border: 2px solid rgba(102,126,234,0.15);
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+    .player-search-bar:focus-within {
+      border-color: rgba(102,126,234,0.4);
+      box-shadow: 0 4px 18px rgba(102,126,234,0.12);
+    }
+    .player-search-icon { font-size: 1rem; flex-shrink: 0; opacity: 0.45; line-height: 1; }
+    .player-search-bar input {
+      flex: 1; border: none; background: transparent;
+      font-size: 0.95rem; font-family: 'Poppins', sans-serif;
+      color: #0d315a; outline: none; min-width: 0;
+    }
+    .player-search-bar input::placeholder { color: #9caabb; }
+    .player-search-dropdown {
+      position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+      background: white; border-radius: 14px;
+      box-shadow: 0 8px 36px rgba(0,0,0,0.14);
+      z-index: 10000; overflow: hidden; display: none;
+    }
+    .player-search-dropdown.active { display: block; }
+    .player-result-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 16px; cursor: pointer;
+      transition: background 0.15s ease;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      text-decoration: none; color: inherit;
+    }
+    .player-result-item:last-child { border-bottom: none; }
+    .player-result-item:hover { background: rgba(102,126,234,0.07); }
+    .player-result-item.ps-active { background: rgba(102,126,234,0.12); }
+    .player-result-avatar {
+      width: 36px; height: 36px; border-radius: 50%; object-fit: cover;
+      flex-shrink: 0; border: 2px solid rgba(102,126,234,0.12);
+    }
+    .player-result-name { flex: 1; font-size: 0.92rem; font-weight: 600; color: #0d315a; }
+    .player-result-hint { font-size: 0.76rem; color: #9caabb; }
+    .player-search-no-results,
+    .player-search-loading {
+      padding: 14px 16px; text-align: center; color: #8899aa; font-size: 0.9rem;
+    }
+
+    /* ── Challenge cards (mirrors account.html) ─────────────────── */
+    .challenge-card {
+      background: white; border: 1.5px solid rgba(102,126,234,0.1);
+      border-radius: 14px; padding: 14px 16px; margin-bottom: 10px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .challenge-card:last-child { margin-bottom: 0; }
+    .challenge-header {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; gap: 10px;
+    }
+    .challenge-category {
+      font-size: 0.95rem; font-weight: 700; color: #0d315a; flex: 1; min-width: 0;
+    }
+    .ch-badge {
+      font-size: 0.60rem; font-weight: 800; letter-spacing: 0.07em;
+      text-transform: uppercase; padding: 3px 9px; border-radius: 20px;
+      white-space: nowrap; flex-shrink: 0; margin-top: 2px;
+    }
+    .ch-badge-incoming { background: rgba(102,126,234,0.12); color: #5a67d8; }
+    .ch-badge-myturn   { background: rgba(16,185,129,0.12);  color: #059669; }
+    .ch-badge-waiting  { background: rgba(245,158,11,0.12);  color: #d97706; }
+    .ch-badge-playnow  { background: rgba(255,111,97,0.12);  color: #ff6f61; }
+    .ch-badge-finished { background: rgba(107,114,128,0.08); color: #6b7280; }
+    .ch-badge-declined { background: rgba(239,68,68,0.10);   color: #dc2626; }
+    .ch-badge-expired  { background: rgba(107,114,128,0.07); color: #9ca3af; }
+    .challenge-meta { display: flex; flex-direction: column; gap: 3px; }
+    .ch-opponent { font-size: 0.85rem; font-weight: 600; color: #374151; }
+    .ch-mode {
+      font-size: 0.74rem; font-weight: 700; color: #9ca3af;
+      text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .ch-status-line { font-size: 0.82rem; color: #6b7280; margin-top: 1px; }
+    .ch-countdown {
+      font-size: 0.80rem; font-weight: 700; color: #9ca3af;
+      font-variant-numeric: tabular-nums;
+    }
+    .ch-countdown.urgent { color: #ef4444; }
+    .ch-score-row {
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .ch-score-mine { font-size: 1.0rem; font-weight: 800; color: #0d315a; }
+    .ch-score-opp  { font-size: 0.85rem; font-weight: 600; color: #9ca3af; }
+    .ch-result { font-size: 0.80rem; font-weight: 800; }
+    .ch-result-win  { color: #059669; }
+    .ch-result-loss { color: #dc2626; }
+    .ch-result-tie  { color: #d97706; }
+    .challenge-actions { display: flex; flex-direction: column; gap: 4px; }
+    .ch-btn-row { display: flex; gap: 8px; }
+    .ch-btn {
+      flex: 1; padding: 9px 14px; border: none; border-radius: 10px;
+      font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s;
+    }
+    .ch-btn:hover:not(:disabled) {
+      transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+    .ch-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none !important; }
+    .ch-btn-accept { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+    .ch-btn-decline {
+      background: rgba(239,68,68,0.07); color: #dc2626;
+      border: 1.5px solid rgba(239,68,68,0.18);
+    }
+    .ch-btn-play { background: linear-gradient(135deg, #ff9770, #ff6f61); color: white; }
+    .ch-btn-view { background: rgba(99,102,241,0.07); color: #4f46e5; border: 1.5px solid rgba(99,102,241,0.2); }
+    .ch-empty {
+      text-align: center; color: #9ca3af; font-size: 0.88rem; padding: 18px 0; margin: 0;
+    }
+
+    /* ── History section ─────────────────────────────────────────── */
+    .history-divider {
+      display: flex; align-items: center; gap: 10px;
+      margin: 14px 0 10px; color: #9ca3af; font-size: 0.72rem;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .history-divider::before, .history-divider::after {
+      content: ''; flex: 1; height: 1px; background: #e5e7eb;
+    }
+    .history-toggle-btn {
+      width: 100%; margin-top: 10px; padding: 8px;
+      background: none; border: 1.5px solid #e5e7eb; border-radius: 10px;
+      font-family: 'Poppins', sans-serif; font-size: 0.80rem; font-weight: 600;
+      color: #6b7280; cursor: pointer; transition: all 0.15s ease;
+    }
+    .history-toggle-btn:hover { border-color: #9ca3af; color: #374151; }
+
+    /* Deep-link highlight: pulses the targeted challenge card */
+    @keyframes csCardHighlight {
+      0%   { box-shadow: 0 0 0 0   rgba(102,126,234,0.0); outline: 2px solid rgba(102,126,234,0.0); }
+      20%  { box-shadow: 0 0 24px 0 rgba(102,126,234,0.28); outline: 2px solid rgba(102,126,234,0.8); outline-offset: 3px; }
+      65%  { box-shadow: 0 0 10px 0 rgba(102,126,234,0.1); outline: 2px solid rgba(102,126,234,0.3); outline-offset: 1px; }
+      100% { box-shadow: 0 0 0 0   rgba(102,126,234,0.0); outline: 2px solid rgba(102,126,234,0.0); }
+    }
+    .challenge-card.cs-highlight {
+      animation: csCardHighlight 2.2s ease-out forwards;
     }
   </style>
 </head>
@@ -353,6 +540,34 @@
 <div class="duel-container" id="mainContent" style="display:none;">
   <div class="duel-card" id="duelCard">
     <!-- Content injected by JS -->
+  </div>
+  <!-- Duel Hub card (hidden in waiting room mode) -->
+  <div class="duel-card duel-hub-card" id="duelHubCard" style="display:none;">
+    <div class="hub-header">
+      <h2>⚔️ Challenges</h2>
+    </div>
+
+    <!-- Player Search -->
+    <div class="hub-subsection">
+      <div class="hub-subsection-title">Find a Player</div>
+      <div class="player-search-wrapper">
+        <div class="player-search-bar">
+          <span class="player-search-icon">🔍</span>
+          <input type="text" id="playerSearchInput"
+                 placeholder="Search by username…"
+                 autocomplete="off" autocorrect="off" spellcheck="false">
+        </div>
+        <div class="player-search-dropdown" id="playerSearchDropdown"></div>
+      </div>
+    </div>
+
+    <!-- Challenges list -->
+    <div class="hub-subsection" id="hubChallengesSection">
+      <div class="hub-subsection-title">Your Challenges</div>
+      <div id="challengesList">
+        <p class="ch-empty">Loading…</p>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -406,14 +621,15 @@
   let isPlayer1     = false;
   let matchData     = null;
 
-  const overlay   = document.getElementById('pageLoadingOverlay');
+  const overlay     = document.getElementById('pageLoadingOverlay');
   const mainContent = document.getElementById('mainContent');
-  const card      = document.getElementById('duelCard');
+  const card        = document.getElementById('duelCard');
+  const hubCard     = document.getElementById('duelHubCard');
 
   // ── Auth guard ──────────────────────────────────────────────────
   const { data: { session } } = await supabase.auth.getSession();
   if (!session?.user) {
-    window.location.href = 'auth.html?next=' + encodeURIComponent(window.location.href);
+    window.location.href = 'auth?next=' + encodeURIComponent(window.location.href);
     throw new Error('auth required');
   }
   currentUser = session.user;
@@ -435,10 +651,18 @@
   overlay.style.display = 'none';
   mainContent.style.display = 'block';
 
+  // Handle #challenges scroll on initial landing (not in sub-flows or waiting room)
+  if (!matchIdParam && urlParams.get('qm') !== '1') {
+    if (window.location.hash === '#challenges') {
+      requestAnimationFrame(() => hubCard?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    }
+  }
+
   // ================================================================
   // DUEL LANDING (default view — two equal CTAs)
   // ================================================================
   function showDuelLanding(caps) {
+    if (hubCard) hubCard.style.display = 'block';
     card.innerHTML = `
       <div class="landing-header">
         <h1>⚔️ Duel</h1>
@@ -475,6 +699,7 @@
   // QUICK MATCH MODE PICKER (revealed after clicking Quick Match CTA)
   // ================================================================
   function showQuickMatchModePicker(caps) {
+    if (hubCard) hubCard.style.display = 'none';
     card.innerHTML = `
       <div class="qm-mode-header">
         <button class="qm-mode-header-back" id="qmBackBtn">← Back</button>
@@ -510,36 +735,33 @@
     });
 
     card.querySelector('#qmClassicBtn').addEventListener('click', () => {
-      window.location.href = 'quickmatch.html?mode=classic';
+      window.location.href = 'quickmatch?mode=classic';
     });
 
     card.querySelector('#qmTop10Btn').addEventListener('click', () => {
-      window.location.href = 'quickmatch.html?mode=top10';
+      window.location.href = 'quickmatch?mode=top10';
     });
 
     card.querySelector('#qmVsBtn').addEventListener('click', () => {
-      window.location.href = 'quickmatch.html?mode=vs';
+      window.location.href = 'quickmatch?mode=vs';
     });
   }
 
   // ================================================================
-  // CATEGORY PICKER (no ?match= param)
+  // CATEGORY PICKER (no ?match= param) — Step 1 of challenge flow
   // ================================================================
   function showCategoryPicker(caps) {
     const allKeys = Object.keys(categoriesConfig).filter(k =>
       !['rainfall', 'hightemp', 'precipitation'].includes(k)
     );
 
-    // Separate by tier — authoritative source is categoriesConfig[k].tier
     const freeCats    = allKeys.filter(k => categoriesConfig[k].tier === 'free');
     const lightCats   = allKeys.filter(k => categoriesConfig[k].tier === 'light');
     const premiumCats = allKeys.filter(k => categoriesConfig[k].tier === 'premium');
 
-    // Host entitlement from permissions.js — no duplicated category arrays
     const canHostLight   = caps.canAccessLightCategories;
     const canHostPremium = caps.canAccessPremiumCategories;
 
-    // Pre-select from ?category= param (rematch links), validating host entitlement
     const preselect     = new URLSearchParams(window.location.search).get('category');
     const preselectTier = preselect ? (categoriesConfig[preselect]?.tier ?? null) : null;
     const preselectOk   = !!preselectTier && (
@@ -551,27 +773,34 @@
       ? preselect
       : freeCats[0];
 
+    card.classList.add('duel-card--picker');
+    if (hubCard) hubCard.style.display = 'none';
+
     card.innerHTML = `
-      <div class="qm-mode-header">
-        <button class="qm-mode-header-back" id="backToLandingBtn">← Back</button>
+      <div class="cp-header">
+        <button class="cp-back-btn" id="backToLandingBtn">← Back</button>
+        <h2 class="cp-title">⚔️ Duel a Friend</h2>
+        <div></div>
       </div>
-      <div class="duel-header">
-        <h1>⚔️ Duel a Friend</h1>
-        <p>Pick a category, share the link, and race your friend head-to-head</p>
+      <div class="cp-body">
+        <p style="color:#6b7280;font-size:0.88rem;margin:0 0 1rem;">Pick a category, share the link, and race your friend head-to-head</p>
+        <div class="category-grid" id="categoryGrid"></div>
       </div>
-      <div class="category-grid" id="categoryGrid"></div>
-      <button class="btn-create" id="nextBtn">Next: Choose Mode →</button>
+      <div class="cp-footer">
+        <button class="btn-create" id="nextBtn">Next: Choose Mode →</button>
+      </div>
     `;
 
     card.querySelector('#backToLandingBtn').addEventListener('click', () => {
+      card.classList.remove('duel-card--picker');
       showDuelLanding(caps);
     });
 
     const grid = card.querySelector('#categoryGrid');
 
-    function addSeparator(label, isLocked) {
+    function addSeparator(label) {
       const sep = document.createElement('div');
-      sep.className = 'cat-separator' + (isLocked ? ' locked' : '');
+      sep.className = 'cat-separator';
       sep.textContent = label;
       grid.appendChild(sep);
     }
@@ -580,18 +809,18 @@
       keys.forEach(key => {
         const cfg = categoriesConfig[key];
         const btn = document.createElement('button');
+        btn.type = 'button';
         btn.dataset.key = key;
-
-        if (isLocked) {
-          btn.className = 'cat-btn locked';
-          btn.disabled = true;
-          btn.innerHTML = `<span class="cat-emoji">${cfg.emoji}</span><span>${cfg.title}</span><span class="cat-lock">🔒</span>`;
-        } else {
-          btn.className = 'cat-btn' + (key === selectedCategory ? ' selected' : '');
-          btn.innerHTML = `<span class="cat-emoji">${cfg.emoji}</span><span>${cfg.title}</span>`;
+        btn.className = 'cat-btn' +
+          (isLocked ? ' locked' : '') +
+          (!isLocked && key === selectedCategory ? ' selected' : '');
+        if (isLocked) btn.disabled = true;
+        btn.innerHTML = `<span class="cat-emoji">${cfg.emoji}</span>${cfg.title}` +
+          (isLocked ? '<span class="cat-lock">🔒</span>' : '');
+        if (!isLocked) {
           btn.addEventListener('click', () => {
             selectedCategory = key;
-            grid.querySelectorAll('.cat-btn:not(.locked)').forEach(b =>
+            grid.querySelectorAll('.cat-btn').forEach(b =>
               b.classList.toggle('selected', b.dataset.key === key)
             );
           });
@@ -600,26 +829,22 @@
       });
     }
 
-    // Free section — always unlocked for any authenticated user
+    // Free section
+    addSeparator('Free Categories');
     buildSection(freeCats, false);
 
     // Light section — rendered only when light categories exist (future)
     if (lightCats.length > 0) {
-      addSeparator(
-        canHostLight ? '✨ Light Categories' : '🔒 Light — Upgrade to Host',
-        !canHostLight
-      );
+      addSeparator(canHostLight ? '✨ Light Categories' : '🔒 Light — Upgrade to Host');
       buildSection(lightCats, !canHostLight);
     }
 
     // Premium section
-    addSeparator(
-      canHostPremium ? '⭐ Premium Categories' : '🔒 Premium — Upgrade to Host',
-      !canHostPremium
-    );
+    addSeparator(canHostPremium ? '⭐ Premium Categories' : '🔒 Premium — Upgrade to Host');
     buildSection(premiumCats, !canHostPremium);
 
     card.querySelector('#nextBtn').addEventListener('click', () => {
+      card.classList.remove('duel-card--picker');
       showModePicker(selectedCategory, caps);
     });
   }
@@ -709,7 +934,7 @@
         return;
       }
 
-      window.location.href = `duel.html?match=${match.id}`;
+      window.location.href = `duel?match=${match.id}`;
     });
   }
 
@@ -743,7 +968,7 @@
 
     // Match already finished
     if (match.status === 'finished' || match.status === 'abandoned') {
-      window.location.href = `duelresults.html?match=${matchId}`;
+      window.location.href = `duelresults?match=${matchId}`;
       return;
     }
 
@@ -789,7 +1014,7 @@
 
   function renderWaitingRoom(matchId) {
     const cfg = categoriesConfig[matchData.category];
-    const inviteUrl = `${window.location.origin}/duel.html?match=${matchId}`;
+    const inviteUrl = `${window.location.origin}/duel?match=${matchId}`;
     const isWaiting = matchData.status === 'waiting' || matchData.player2_id === null;
     const modeLabelMap = { classic: '⚔️ Classic', vs: '🆚 VS Mode', top10: '📋 Top 10' };
     const modeLabel = modeLabelMap[matchData.duel_mode] || '⚔️ Classic';
@@ -864,9 +1089,9 @@
 
   function gamePageUrl(category, duelMode) {
     const enc = encodeURIComponent(category);
-    if (duelMode === 'vs')    return `duelgame-vs.html?mode=${enc}`;
-    if (duelMode === 'top10') return `duelgame-top10.html?mode=${enc}`;
-    return `duelgame.html?mode=${enc}`;
+    if (duelMode === 'vs')    return `duelgame-vs?mode=${enc}`;
+    if (duelMode === 'top10') return `duelgame-top10?mode=${enc}`;
+    return `duelgame?mode=${enc}`;
   }
 
   function runCountdownThenNavigate(startedAtISO, category, duelMode) {
@@ -932,5 +1157,412 @@
 </script>
 
 <script type="module" src="js/identity-gate.js"></script>
+
+<!-- Duel Hub: challenge list + player search -->
+<script type="module">
+  import { supabase }         from './js/supabase-client.js';
+  import { categoriesConfig } from './js/categories-config.js';
+  import { initPlayerSearch } from './js/player-search.js';
+
+  // ── Constants (must be declared before invocation below) ────────
+  const MODE_LABELS = { classic: 'Classic', vs: 'VS Mode', top10: 'Top 10' };
+  const _DUEL_DURATION_MS = { classic: 5*60*1000, vs: 5*60*1000, top10: (2*60+30)*1000 };
+  const _cdIntervals = [];
+
+  function _clearCountdowns() {
+    _cdIntervals.forEach(clearInterval);
+    _cdIntervals.length = 0;
+  }
+
+  function _startCountdowns() {
+    _clearCountdowns();
+    const list = document.getElementById('challengesList');
+    if (!list) return;
+    list.querySelectorAll('[data-countdown]').forEach(el => {
+      function tick() {
+        const msLeft = new Date(el.dataset.countdown).getTime() - Date.now();
+        if (msLeft <= 0) { el.textContent = 'Expired'; return; }
+        const h = Math.floor(msLeft / 3600000);
+        const m = Math.floor((msLeft % 3600000) / 60000);
+        const s = Math.floor((msLeft % 60000) / 1000);
+        el.textContent = h > 0 ? `Expires in ${h}h ${m}m`
+                       : m > 0 ? `Expires in ${m}m ${s}s`
+                       :         `Expires in ${s}s`;
+        el.classList.toggle('urgent', msLeft < 120000);
+      }
+      tick();
+      _cdIntervals.push(setInterval(tick, 1000));
+    });
+  }
+
+  function _gamePageFor(mode) {
+    return mode === 'vs' ? 'duelgame-vs' : mode === 'top10' ? 'duelgame-top10' : 'duelgame';
+  }
+
+  // Returns true if an active/pending challenge is past its expiry window.
+  // The DB cleanup cron may not have run yet, so we check timestamps here
+  // to avoid showing stale action buttons.
+  function _isEffectivelyExpired(ch) {
+    const now = Date.now();
+    if (ch.match_status === 'challenger_playing') {
+      return !!(ch.timeout_at && new Date(ch.timeout_at).getTime() <= now);
+    }
+    if (ch.match_status === 'direct_pending') {
+      return !!(ch.invite_expires_at && new Date(ch.invite_expires_at).getTime() <= now);
+    }
+    if (ch.match_status === 'active') {
+      return !!(ch.timeout_at && new Date(ch.timeout_at).getTime() <= now);
+    }
+    return false;
+  }
+
+  // ── Challenge card renderer ──────────────────────────────────────
+  function _renderChallengeCard(ch) {
+    const cat      = categoriesConfig[ch.category] || {};
+    const catLabel = (cat.emoji ? cat.emoji + ' ' : '') + (cat.title || ch.category);
+    const mode     = MODE_LABELS[ch.duel_mode] || ch.duel_mode;
+    const isChlgr  = ch.my_role === 'challenger';
+    const opp      = ch.opponent_username || 'Unknown Player';
+
+    let badgeClass, badgeText, metaHtml, actionsHtml = '';
+
+    // Defensive: treat any active/pending challenge past its expiry timestamp
+    // as expired, even if the DB hasn't been cleaned up yet.
+    if (_isEffectivelyExpired(ch)) {
+      badgeClass = 'ch-badge-expired';
+      badgeText  = 'EXPIRED';
+      const note = (isChlgr && ch.my_score != null)
+        ? 'Challenge expired before opponent accepted. Your score was saved.'
+        : 'This challenge expired.';
+      metaHtml = `
+        <p class="ch-opponent">${isChlgr ? 'To' : 'From'}: <strong>${opp}</strong></p>
+        <p class="ch-mode">${mode}</p>
+        <p class="ch-status-line">${note}</p>`;
+      // no actionsHtml — expired challenges show no buttons
+    } else if (ch.match_status === 'challenger_playing') {
+      const timeoutLabel = ch.timeout_at
+        ? `<span class="ch-countdown" data-countdown="${ch.timeout_at}"></span>` : '';
+      badgeClass  = 'ch-badge-playnow';
+      badgeText   = 'IN PROGRESS';
+      metaHtml    = `
+        <p class="ch-opponent">To: <strong>${opp}</strong></p>
+        <p class="ch-mode">${mode}</p>${timeoutLabel}`;
+      actionsHtml = `
+        <div class="ch-btn-row">
+          <button type="button" class="ch-btn ch-btn-play"
+            data-action="resume-challenger"
+            data-match-id="${ch.match_id}" data-seed="${ch.seed}"
+            data-mode="${ch.duel_mode}" data-category="${ch.category}"
+            data-started-at="${ch.started_at || ''}">Continue</button>
+        </div>`;
+
+    } else if (ch.match_status === 'direct_pending') {
+      if (isChlgr) {
+        badgeClass = 'ch-badge-waiting';
+        badgeText  = 'WAITING';
+        metaHtml   = `
+          <p class="ch-opponent">To: <strong>${opp}</strong></p>
+          <p class="ch-mode">${mode}</p>
+          <p class="ch-countdown" data-countdown="${ch.invite_expires_at}"></p>
+          <p class="ch-status-line">Awaiting ${opp} to accept…</p>`;
+      } else {
+        badgeClass  = 'ch-badge-incoming';
+        badgeText   = 'INCOMING CHALLENGE';
+        metaHtml    = `
+          <p class="ch-opponent">From: <strong>${opp}</strong></p>
+          <p class="ch-mode">${mode}</p>
+          <p class="ch-countdown" data-countdown="${ch.invite_expires_at}"></p>`;
+        actionsHtml = `
+          <div class="ch-btn-row">
+            <button type="button" class="ch-btn ch-btn-accept"
+              data-action="accept"
+              data-match-id="${ch.match_id}" data-mode="${ch.duel_mode}">Accept &amp; Play</button>
+            <button type="button" class="ch-btn ch-btn-decline"
+              data-action="decline"
+              data-match-id="${ch.match_id}">Decline</button>
+          </div>`;
+      }
+
+    } else if (ch.match_status === 'active') {
+      badgeClass  = 'ch-badge-myturn';
+      badgeText   = 'YOUR TURN';
+      const timeoutLabel = ch.timeout_at
+        ? `<span class="ch-countdown" data-countdown="${ch.timeout_at}"></span>` : '';
+      metaHtml    = `
+        <p class="ch-opponent">vs <strong>${opp}</strong></p>
+        <p class="ch-mode">${mode}</p>${timeoutLabel}`;
+      actionsHtml = `
+        <div class="ch-btn-row">
+          <button type="button" class="ch-btn ch-btn-play"
+            data-action="play-challenged"
+            data-match-id="${ch.match_id}" data-mode="${ch.duel_mode}">Play Now</button>
+        </div>`;
+
+    } else if (ch.match_status === 'finished') {
+      badgeClass = 'ch-badge-finished';
+      badgeText  = 'FINISHED';
+      const myScore  = ch.my_score         ?? '—';
+      const myMax    = ch.my_max_score      ?? '—';
+      const oppScore = ch.opponent_score    ?? '—';
+      const oppMax   = ch.opponent_max_score ?? '—';
+      let resultHtml = '';
+      if (ch.my_score != null && ch.opponent_score != null) {
+        const [cls, txt] = ch.my_score > ch.opponent_score ? ['ch-result-win', 'Won']
+                         : ch.my_score < ch.opponent_score ? ['ch-result-loss', 'Lost']
+                         : ['ch-result-tie', 'Tied'];
+        resultHtml = `<span class="ch-result ${cls}">${txt}</span>`;
+      }
+      metaHtml = `
+        <p class="ch-opponent">vs <strong>${opp}</strong></p>
+        <p class="ch-mode">${mode}</p>
+        <div class="ch-score-row">
+          <span class="ch-score-mine">You: ${myScore}/${myMax}</span>
+          <span class="ch-score-opp">Opp: ${oppScore}/${oppMax}</span>
+          ${resultHtml}
+        </div>`;
+      actionsHtml = `<button type="button" class="ch-btn ch-btn-view"
+        data-action="view-result" data-match-id="${ch.match_id}">View Full Result</button>`;
+
+    } else if (ch.match_status === 'abandoned') {
+      const reason = ch.direct_abandon_reason;
+      if (reason === 'declined') {
+        badgeClass = 'ch-badge-declined';
+        badgeText  = 'DECLINED';
+        const who = isChlgr ? `${opp} declined.` : 'You declined.';
+        metaHtml = `
+          <p class="ch-opponent">${isChlgr ? 'To' : 'From'}: <strong>${opp}</strong></p>
+          <p class="ch-mode">${mode}</p>
+          <p class="ch-status-line">${who}</p>`;
+      } else if (reason === 'expired') {
+        badgeClass = 'ch-badge-expired';
+        badgeText  = 'EXPIRED';
+        const note = (isChlgr && ch.my_score != null)
+          ? 'Challenge expired before opponent accepted. Your score was saved.'
+          : 'This challenge expired.';
+        metaHtml = `
+          <p class="ch-opponent">${isChlgr ? 'To' : 'From'}: <strong>${opp}</strong></p>
+          <p class="ch-mode">${mode}</p>
+          <p class="ch-status-line">${note}</p>`;
+        // No action button on expired cards — result access only via completed history
+      } else {
+        badgeClass = 'ch-badge-expired';
+        badgeText  = 'ABANDONED';
+        metaHtml = `
+          <p class="ch-opponent">vs <strong>${opp}</strong></p>
+          <p class="ch-mode">${mode}</p>`;
+      }
+    } else {
+      return null;
+    }
+
+    const card = document.createElement('div');
+    card.className = 'challenge-card';
+    card.dataset.challengeCard = ch.match_id;  // for deep-link scrolling
+    card.innerHTML = `
+      <div class="challenge-header">
+        <span class="challenge-category">${catLabel}</span>
+        <span class="ch-badge ${badgeClass}">${badgeText}</span>
+      </div>
+      <div class="challenge-meta">${metaHtml}</div>
+      ${actionsHtml ? `<div class="challenge-actions">${actionsHtml}</div>` : ''}`;
+
+    card.querySelectorAll('[data-action]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const { action, matchId, mode: btnMode, seed, category, startedAt } = btn.dataset;
+        if (action === 'accept')                _acceptChallenge(matchId, btnMode, btn);
+        else if (action === 'decline')          _declineChallenge(matchId, btn);
+        else if (action === 'play-challenged')  _playChallenged(matchId, btnMode, btn);
+        else if (action === 'play-challenger')  _playChallengerTurn(matchId, btnMode, category, seed, btn);
+        else if (action === 'resume-challenger') _resumeChallengerTurn(matchId, btnMode, category, seed, startedAt, btn);
+        else if (action === 'view-result')      window.location.href = `duelresults?match=${matchId}`;
+      });
+    });
+
+    return card;
+  }
+
+  // ── Challenge loader with active / history split ─────────────────
+  // highlightMatchId: if set, scrolls to and pulses that card after render
+  async function loadDirectChallenges(highlightMatchId = null) {
+    const list = document.getElementById('challengesList');
+    if (!list) return;
+
+    const { data, error } = await supabase.rpc('get_my_direct_challenges');
+    if (error) {
+      list.innerHTML = '<p class="ch-empty">Could not load challenges.</p>';
+      return;
+    }
+
+    _clearCountdowns();
+
+    if (!data || data.length === 0) {
+      list.innerHTML = '<p class="ch-empty">No challenges yet. Search for a player above to challenge them!</p>';
+      _startCountdowns();
+      return;
+    }
+
+    const ACTIVE_STATUSES = new Set(['challenger_playing', 'direct_pending', 'active']);
+    // A challenge is active only if its status is active AND it hasn't expired.
+    const active  = data.filter(ch =>  ACTIVE_STATUSES.has(ch.match_status) && !_isEffectivelyExpired(ch));
+    const history = data.filter(ch => !ACTIVE_STATUSES.has(ch.match_status) ||  _isEffectivelyExpired(ch));
+
+    list.innerHTML = '';
+
+    for (const ch of active) {
+      const card = _renderChallengeCard(ch);
+      if (card) list.appendChild(card);
+    }
+
+    if (history.length > 0) {
+      const HISTORY_INITIAL = 2;
+
+      const historyWrap = document.createElement('div');
+      historyWrap.className = 'history-section';
+
+      if (active.length > 0) {
+        const divider = document.createElement('div');
+        divider.className = 'history-divider';
+        divider.innerHTML = '<span>History</span>';
+        historyWrap.appendChild(divider);
+      }
+
+      const historyDomCards = history.map(ch => _renderChallengeCard(ch)).filter(Boolean);
+      const historyCards = document.createElement('div');
+      historyCards.className = 'history-cards';
+      historyWrap.appendChild(historyCards);
+
+      // If the highlight target is in history, start expanded so it's visible.
+      const targetInHistory = highlightMatchId &&
+        historyDomCards.some(c => c.dataset.challengeCard === highlightMatchId);
+      let expanded = targetInHistory;
+
+      function renderHistoryCards() {
+        while (historyCards.firstChild) historyCards.removeChild(historyCards.firstChild);
+        const toShow = expanded ? historyDomCards : historyDomCards.slice(0, HISTORY_INITIAL);
+        for (const card of toShow) historyCards.appendChild(card);
+        _startCountdowns();
+      }
+
+      renderHistoryCards();
+
+      if (historyDomCards.length > HISTORY_INITIAL) {
+        const extra = historyDomCards.length - HISTORY_INITIAL;
+        const toggleBtn = document.createElement('button');
+        toggleBtn.className = 'history-toggle-btn';
+        toggleBtn.textContent = expanded ? 'Show Less' : `Show ${extra} More`;
+        toggleBtn.addEventListener('click', () => {
+          expanded = !expanded;
+          toggleBtn.textContent = expanded ? 'Show Less' : `Show ${extra} More`;
+          renderHistoryCards();
+        });
+        historyWrap.appendChild(toggleBtn);
+      }
+
+      list.appendChild(historyWrap);
+    }
+
+    _startCountdowns();
+
+    // Deep-link: scroll to and pulse the targeted challenge card.
+    if (highlightMatchId) {
+      setTimeout(() => {
+        const target = list.querySelector(`[data-challenge-card="${highlightMatchId}"]`);
+        if (!target) return;  // graceful fallback — challenge may be completed/deleted
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        target.classList.add('cs-highlight');
+      }, 350);
+    }
+  }
+
+  // ── Action handlers ──────────────────────────────────────────────
+  async function _acceptChallenge(matchId, duelMode, btn) {
+    btn.disabled = true; btn.textContent = 'Accepting…';
+    const { data, error } = await supabase.rpc('accept_direct_challenge', { p_match_id: matchId });
+    if (error) {
+      btn.disabled = false; btn.textContent = 'Accept & Play';
+      alert('Could not accept challenge: ' + (error.message || 'unknown error'));
+      return;
+    }
+    sessionStorage.setItem('duelMatch', JSON.stringify({
+      matchId: data.match_id, seed: data.seed, startedAt: data.game_started_at,
+      isDirectChallenge: true, isChallenger: false, category: data.category
+    }));
+    window.location.href = _gamePageFor(data.duel_mode) + '?mode=' + encodeURIComponent(data.category);
+  }
+
+  async function _declineChallenge(matchId, btn) {
+    btn.disabled = true; btn.textContent = 'Declining…';
+    const { error } = await supabase.rpc('decline_direct_challenge', { p_match_id: matchId });
+    if (error) {
+      btn.disabled = false; btn.textContent = 'Decline';
+      alert('Could not decline: ' + (error.message || 'unknown error'));
+      return;
+    }
+    await loadDirectChallenges();
+  }
+
+  async function _playChallenged(matchId, duelMode, btn) {
+    btn.disabled = true; btn.textContent = 'Loading…';
+    const { data, error } = await supabase.rpc('accept_direct_challenge', { p_match_id: matchId });
+    if (error) {
+      btn.disabled = false; btn.textContent = 'Play Now';
+      alert('Could not load match: ' + (error.message || 'unknown error'));
+      return;
+    }
+    sessionStorage.setItem('duelMatch', JSON.stringify({
+      matchId: data.match_id, seed: data.seed, startedAt: data.game_started_at,
+      isDirectChallenge: true, isChallenger: false, category: data.category
+    }));
+    window.location.href = _gamePageFor(data.duel_mode) + '?mode=' + encodeURIComponent(data.category);
+  }
+
+  async function _playChallengerTurn(matchId, duelMode, category, seed, btn) {
+    console.debug('[challenger-turn] called. matchId:', matchId, 'duelMode:', duelMode, 'category:', category, 'seed:', seed);
+    btn.disabled = true; btn.textContent = 'Loading…';
+    let startedAt = null;
+    try {
+      const existing = JSON.parse(sessionStorage.getItem('duelMatch') || 'null');
+      if (existing?.matchId === matchId && existing?.isChallenger && existing?.startedAt) {
+        startedAt = existing.startedAt;
+      }
+    } catch (_) {}
+    if (startedAt) {
+      const durationMs = _DUEL_DURATION_MS[duelMode] ?? 5 * 60 * 1000;
+      if ((new Date(startedAt).getTime() + durationMs) <= Date.now()) {
+        window.location.href = 'duel.html#challenges'; return;
+      }
+    } else {
+      startedAt = new Date().toISOString();
+    }
+    sessionStorage.setItem('duelMatch', JSON.stringify({ matchId, seed, startedAt, isDirectChallenge: true, isChallenger: true, category }));
+    window.location.href = _gamePageFor(duelMode) + '?mode=' + encodeURIComponent(category);
+  }
+
+  function _resumeChallengerTurn(matchId, duelMode, category, seed, startedAt, btn) {
+    const durationMs = _DUEL_DURATION_MS[duelMode] ?? 5 * 60 * 1000;
+    if (startedAt && (new Date(startedAt).getTime() + durationMs) <= Date.now()) {
+      window.location.href = 'duel.html#challenges'; return;
+    }
+    btn.disabled = true; btn.textContent = 'Loading…';
+    sessionStorage.setItem('duelMatch', JSON.stringify({
+      matchId, seed: Number(seed), startedAt,
+      isDirectChallenge: true, isChallenger: true, category
+    }));
+    window.location.href = _gamePageFor(duelMode) + '?mode=' + encodeURIComponent(category);
+  }
+
+  // ── Init: only in landing mode, not in waiting room ──────────────
+  if (!new URLSearchParams(window.location.search).get('match')) {
+    initPlayerSearch();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      // ?challenge=<matchId> deep link — scroll to and highlight that card after load
+      const _challengeTarget = new URLSearchParams(window.location.search).get('challenge') || null;
+      await loadDirectChallenges(_challengeTarget);
+    }
+  }
+</script>
 </body>
 </html>
