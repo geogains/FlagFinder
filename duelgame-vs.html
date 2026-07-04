@@ -598,31 +598,34 @@
     duelChannel.destroy();
 
     if (isDirectChallenge) {
-      const correct    = placements.filter(p => p.wasCorrect).length;
-      const total      = placements.length;
-      const incorrect  = total - correct;
-      const accuracy   = total > 0 ? Math.round(correct / total * 100) : 0;
-      const lives      = Math.max(0, 3 - incorrect);
-      const timePlayed = Math.min(120, Math.round((Date.now() - new Date(duelMatch.startedAt).getTime()) / 1000));
-
-      localStorage.setItem('vsResults', JSON.stringify({
-        score: rpcResult.score, correct, total, accuracy, timePlayed, lives, categoryKey: mode
-      }));
-
-      const qp = new URLSearchParams({
-        category: mode, score: rpcResult.score, correct, total,
-        accuracy, time: timePlayed, lives, from: 'challenge'
-      });
       if (isAsyncChallenger) {
-        qp.set('challengeSent', '1');
-        qp.set('match', duelMatch.matchId);
+        // Challenger first turn: show own results + Challenge Sent modal
+        const correct    = placements.filter(p => p.wasCorrect).length;
+        const total      = placements.length;
+        const incorrect  = total - correct;
+        const accuracy   = total > 0 ? Math.round(correct / total * 100) : 0;
+        const lives      = Math.max(0, 3 - incorrect);
+        const timePlayed = Math.min(120, Math.round((Date.now() - new Date(duelMatch.startedAt).getTime()) / 1000));
+
+        localStorage.setItem('vsResults', JSON.stringify({
+          score: rpcResult.score, correct, total, accuracy, timePlayed, lives, categoryKey: mode
+        }));
+
+        const qp = new URLSearchParams({
+          category: mode, score: rpcResult.score, correct, total,
+          accuracy, time: timePlayed, lives, from: 'challenge',
+          challengeSent: '1', match: duelMatch.matchId
+        });
         try {
           sessionStorage.setItem('challengeSentPayload', JSON.stringify({
             matchId: duelMatch.matchId, category: mode, duelMode: 'vs', createdAt: Date.now()
           }));
         } catch (_) {}
+        window.location.href = `vsresults?${qp.toString()}`;
+      } else {
+        // Challenged player: both results now exist — go straight to head-to-head comparison
+        window.location.href = `duelresults?match=${duelMatch.matchId}`;
       }
-      window.location.href = `vsresults?${qp.toString()}`;
       return;
     }
 

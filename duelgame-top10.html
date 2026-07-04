@@ -616,45 +616,54 @@
     duelChannel.destroy();
 
     if (isDirectChallenge) {
-      // Both challenger and challenged player go to the normal Top10 results page.
-      const correct = placements.filter(p => p.wasCorrect).length;
-      const elapsed = duelMatch.startedAt
-        ? Math.round(Date.now() - new Date(duelMatch.startedAt).getTime())
-        : 0;
-      const resultsData = {
-        score:           rpcResult.score,
-        maxScore:        rpcResult.max_score,
-        correct:         correct,
-        timeUsed:        elapsed,
-        lives:           0,
-        categoryName:    categoriesConfig[mode]?.title || mode,
-        categoryKey:     mode,
-        playableCount:   rpcResult.max_score,
-        resultsTable:    [],
-        incorrectGuesses: []
-      };
-      localStorage.setItem('top10Results', JSON.stringify(resultsData));
-      const qp = new URLSearchParams({
-        category: mode,
-        score:    rpcResult.score,
-        correct:  correct,
-        time:     elapsed,
-        lives:    0,
-        playable: rpcResult.max_score,
-        from:     'challenge'
-      });
-      // Signal the results page to show the "Challenge Sent!" modal for the challenger only.
       if (isAsyncChallenger) {
-        qp.set('challengeSent', '1');
-        qp.set('match', duelMatch.matchId);
+        // Challenger first turn: show own results + Challenge Sent modal
+        const correct = placements.filter(p => p.wasCorrect).length;
+        const elapsed = duelMatch.startedAt
+          ? Math.min(120, Math.round((Date.now() - new Date(duelMatch.startedAt).getTime()) / 1000))
+          : 0;
+        const resultsData = {
+          score:            rpcResult.score,
+          maxScore:         rpcResult.max_score,
+          correct:          correct,
+          timeUsed:         elapsed,
+          lives:            0,
+          categoryName:     categoriesConfig[mode]?.title || mode,
+          categoryKey:      mode,
+          playableCount:    rpcResult.max_score,
+          resultsTable:     placements.map(p => ({
+            rank:    p.correctRank,
+            name:    p.name,
+            flag:    p.flag,
+            value:   p.value,
+            guessed: p.wasCorrect
+          })),
+          incorrectGuesses: []
+        };
+        localStorage.setItem('top10Results', JSON.stringify(resultsData));
+        const qp = new URLSearchParams({
+          category: mode,
+          score:    rpcResult.score,
+          correct:  correct,
+          time:     elapsed,
+          lives:    0,
+          playable: rpcResult.max_score,
+          from:     'challenge',
+          challengeSent: '1',
+          match:    duelMatch.matchId
+        });
         try {
           sessionStorage.setItem('challengeSentPayload', JSON.stringify({
             matchId: duelMatch.matchId, category: mode, duelMode: 'top10', createdAt: Date.now()
           }));
         } catch (_) {}
+        console.log('[challenge-submit] challenger → top10results');
+        window.location.href = `top10results?${qp.toString()}`;
+      } else {
+        // Challenged player: both results now exist — go straight to head-to-head comparison
+        console.log('[challenge-submit] challenged → duelresults');
+        window.location.href = `duelresults?match=${duelMatch.matchId}`;
       }
-      console.log('[challenge-submit] isAsyncChallenger:', isAsyncChallenger, 'redirectURL:', `top10results?${qp.toString()}`);
-      window.location.href = `top10results?${qp.toString()}`;
       return;
     }
 

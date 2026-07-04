@@ -368,6 +368,18 @@
     .cor-chip-inline.correct { background: #d1fae5; color: #065f46; }
     .cor-chip-inline.wrong   { background: #fee2e2; color: #991b1b; }
 
+    /* ── Top 10 player guess pills ── */
+    .cor-pills {
+      display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px;
+    }
+    .cor-pill {
+      display: inline-flex; align-items: center;
+      font-size: 0.68rem; font-weight: 700; padding: 2px 9px;
+      border-radius: 99px; white-space: nowrap;
+    }
+    .cor-pill-you { background: #dbeafe; color: #1e40af; }
+    .cor-pill-opp { background: #f3f4f6; color: #374151; }
+
     @media (max-width: 768px) {
       .correct-order-section { padding: 1.25rem 1rem 0; }
     }
@@ -1077,6 +1089,10 @@
     const richSource = hasRichMy ? myPlacements : oppPlacements;
     const sorted = [...richSource].sort((a, b) => (a.correctRank || 0) - (b.correctRank || 0));
 
+    // Build guess sets for player pills
+    const myGuessed  = new Set(myPlacements.filter(p => p.wasCorrect).map(p => p.name));
+    const oppGuessed = new Set(oppPlacements.filter(p => p.wasCorrect).map(p => p.name));
+
     // ── Correct Top 10 section ──
     const correctRowsHtml = sorted.map((p, i) => {
       const rank     = p.correctRank || (i + 1);
@@ -1084,6 +1100,12 @@
       const valueHtml = p.value
         ? `<span class="cor-sep">·</span><span class="cor-value">${escHtml(p.value)}</span>`
         : '';
+      const youPill  = (hasRichMy  && myGuessed.has(p.name))
+        ? `<span class="cor-pill cor-pill-you">You</span>` : '';
+      const oppPill  = (hasRichOpp && oppGuessed.has(p.name))
+        ? `<span class="cor-pill cor-pill-opp">${escHtml(oppName)}</span>` : '';
+      const pillsRow = (youPill || oppPill)
+        ? `<div class="cor-pills">${youPill}${oppPill}</div>` : '';
       return `
         <div class="correct-order-row">
           <div class="cor-rank">#${rank}</div>
@@ -1094,6 +1116,7 @@
               <span class="cor-name">${escHtml(p.name)}</span>
               ${valueHtml}
             </div>
+            ${pillsRow}
           </div>
         </div>`;
     }).join('');

@@ -666,35 +666,36 @@
     duelChannel.destroy();
 
     if (isDirectChallenge) {
-      // Both challenger and challenged player go to the normal results page.
-      // This gives them the standard score display and sharing flow.
-      const resultsData = {
-        score:        rpcResult.score,
-        maxScore:     rpcResult.max_score,
-        categoryName: config?.title || mode,
-        categoryKey:  mode,
-        resultsTable: resultsTable
-      };
-      localStorage.setItem('classicResults', JSON.stringify(resultsData));
-      const qp = new URLSearchParams({
-        category: mode,
-        score:    rpcResult.score,
-        maxScore: rpcResult.max_score,
-        from:     'challenge'
-      });
-      // Signal the results page to show the "Challenge Sent!" modal for the challenger only.
       if (isAsyncChallenger) {
-        qp.set('challengeSent', '1');
-        qp.set('match', duelMatch.matchId);
-        // sessionStorage fallback: survives cleanUrls 308 redirects that strip query strings
+        // Challenger first turn: show own results + Challenge Sent modal
+        const resultsData = {
+          score:        rpcResult.score,
+          maxScore:     rpcResult.max_score,
+          categoryName: config?.title || mode,
+          categoryKey:  mode,
+          resultsTable: resultsTable
+        };
+        localStorage.setItem('classicResults', JSON.stringify(resultsData));
+        const qp = new URLSearchParams({
+          category: mode,
+          score:    rpcResult.score,
+          maxScore: rpcResult.max_score,
+          from:     'challenge',
+          challengeSent: '1',
+          match:    duelMatch.matchId
+        });
         try {
           sessionStorage.setItem('challengeSentPayload', JSON.stringify({
             matchId: duelMatch.matchId, category: mode, duelMode: 'classic', createdAt: Date.now()
           }));
         } catch (_) {}
+        console.log('[challenge-submit] challenger → classicresults');
+        window.location.href = `classicresults?${qp.toString()}`;
+      } else {
+        // Challenged player: both results now exist — go straight to head-to-head comparison
+        console.log('[challenge-submit] challenged → duelresults');
+        window.location.href = `duelresults?match=${duelMatch.matchId}`;
       }
-      console.log('[challenge-submit] isAsyncChallenger:', isAsyncChallenger, 'redirectURL:', `classicresults?${qp.toString()}`);
-      window.location.href = `classicresults?${qp.toString()}`;
       return;
     }
 
