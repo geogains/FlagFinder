@@ -131,6 +131,96 @@
       font-size: 1.15rem;
     }
 
+    /* ── Review Your Rounds (adapted from duelresults.html's rich VS round
+       cards — self-contained here, no shared stylesheet, opponent-comparison
+       classes like vsr-i-won/vsr-opp-won deliberately not carried over).
+       Always visible below the score summary — no collapse/expand control. ── */
+    .vs-review-section { margin-top: 0.75rem; margin-bottom: 2rem; }
+    .vs-review-title {
+      font-size: 1.05rem; font-weight: 700; color: #0d315a;
+      margin: 0 0 0.25rem;
+    }
+    .vs-review-sub {
+      font-size: 0.82rem; color: #6b7280; font-weight: 500;
+      margin: 0 0 1rem;
+    }
+
+    .vsr-round {
+      display: flex; align-items: center; gap: 0.65rem;
+      border: 1.5px solid #e5e7eb; border-radius: 14px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 0.75rem;
+    }
+    .vsr-round:last-child { margin-bottom: 0; }
+    .vsr-round.vsr-round-correct   { border-color: rgba(16, 185, 129, 0.35); background: rgba(16, 185, 129, 0.05); }
+    .vsr-round.vsr-round-incorrect { border-color: rgba(239, 68, 68, 0.3);  background: rgba(239, 68, 68, 0.03); }
+
+    .vsr-num {
+      display: flex; flex-direction: column; align-items: center; gap: 0.2rem;
+      font-size: 0.7rem; font-weight: 700; color: #9ca3af;
+      min-width: 26px; flex-shrink: 0;
+    }
+    .vsr-num-icon { font-size: 0.9rem; line-height: 1; }
+
+    .vsr-body { flex: 1; min-width: 0; }
+    .vsr-matchup { display: flex; align-items: stretch; gap: 0.5rem; }
+
+    .vsr-side {
+      position: relative;
+      flex: 1; min-width: 0;
+      display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+      padding: 0.75rem 0.6rem 0.65rem;
+      border-radius: 12px;
+      border: 1.5px solid #e5e7eb;
+      background: #fff;
+    }
+    .vsr-side.vsr-correct {
+      border-color: #10b981; background: rgba(16, 185, 129, 0.08);
+    }
+    .vsr-side.vsr-wrong {
+      border-color: #ef4444; background: rgba(239, 68, 68, 0.06);
+    }
+    .vsr-pick-badge {
+      position: absolute; top: -9px; left: 8px;
+      font-size: 0.62rem; font-weight: 700; color: #1d4ed8;
+      background: #dbeafe; border-radius: 999px; padding: 1px 7px;
+      line-height: 1.4; white-space: nowrap;
+    }
+    .vsr-side-top {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; gap: 0.5rem;
+    }
+    .vsr-flag {
+      width: 56px; height: 38px;
+      object-fit: cover; border-radius: 6px;
+      flex-shrink: 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+    .vsr-cval {
+      font-size: 0.85rem; font-weight: 700; color: #3b82f6;
+      white-space: nowrap;
+    }
+    .vsr-cname {
+      font-size: 0.8rem; font-weight: 600; color: #0d315a;
+      text-align: center; line-height: 1.3;
+      overflow-wrap: break-word; word-break: break-word;
+      max-width: 100%;
+    }
+    .vsr-vs {
+      font-size: 0.68rem; font-weight: 700; color: #9ca3af;
+      align-self: center; flex-shrink: 0; padding: 0 0.15rem;
+    }
+
+    @media (max-width: 600px) {
+      .vsr-round { padding: 0.75rem 0.75rem; gap: 0.5rem; }
+      .vsr-flag { width: 48px; height: 33px; }
+      .vsr-cname { font-size: 0.74rem; }
+      .vsr-cval { font-size: 0.78rem; }
+      .vsr-side { padding: 0.65rem 0.45rem 0.55rem; gap: 0.3rem; }
+      .vsr-matchup { gap: 0.35rem; }
+      .vsr-vs { padding: 0 0.1rem; }
+    }
+
     /* Try Other Modes Section */
     .try-other-modes {
       background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
@@ -562,6 +652,9 @@
         </div>
       </div>
 
+      <!-- Round-by-round review (populated by renderRoundsReview(); stays empty/hidden for older results without round data) -->
+      <div id="vsReviewContainer"></div>
+
       <!-- Try Other Modes Section -->
       <div class="try-other-modes" id="tryOtherModes">
         <h3 id="tryModesTitle">🎮 Try other game modes</h3>
@@ -693,6 +786,8 @@
       const seconds = finalTime % 60;
       document.getElementById('finalTime').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
+      renderRoundsReview();
+
       document.getElementById('tryModesTitle').textContent = `🎮 Try other ${categoryName} game modes`;
       
       document.getElementById('classicModeBtn').onclick = () => {
@@ -708,6 +803,93 @@
       };
 
       document.getElementById('shareBtn').onclick = shareResults;
+    }
+
+    function escHtml(s) {
+      return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // Builds the always-visible "Review your rounds" panel from resultsData.rounds
+    // (persisted in js/vs-game.js's endGame(), same per-round shape the duel VS
+    // flow already sends to verify_and_save_duel_result — see
+    // duelresults.html's buildVsRoundsHtml() for the source this was adapted
+    // from). Solo context only: no opponent name/choice, no win/loss comparison,
+    // no battle score, no rematch/challenge controls, no match IDs. Static markup,
+    // no interactive/collapsible state — nothing to wire up after injecting it.
+    function renderRoundsReview() {
+      const container = document.getElementById('vsReviewContainer');
+      if (!container) return;
+
+      const rounds = resultsData?.rounds;
+
+      if (rounds === undefined) {
+        // Expected for any result saved before this feature existed, or for the
+        // URL-params-only fallback path — not a real error, stay silent and hidden.
+        return;
+      }
+
+      const isRich = Array.isArray(rounds) && rounds.length > 0 &&
+        rounds.every(r => r && r.leftCountry != null && r.rightCountry != null);
+
+      if (!isRich) {
+        console.warn('⚠️ Round-by-round data is malformed for this VS results session — hiding round review.');
+        return;
+      }
+
+      // Selection/correctness is communicated entirely through the "Picked" badge
+      // and the green (correct) / red (wrong pick) card borders — no text pills.
+      const sideHtml = (c, isCorrectSide, isPickedSide) => {
+        const country = c || {};
+        const isWrongPick = isPickedSide && !isCorrectSide;
+        const sideClass = ['vsr-side'];
+        if (isCorrectSide) sideClass.push('vsr-correct');
+        if (isWrongPick) sideClass.push('vsr-wrong');
+        return `
+          <div class="${sideClass.join(' ')}">
+            ${isPickedSide ? '<span class="vsr-pick-badge">Picked</span>' : ''}
+            <div class="vsr-side-top">
+              <img src="${escHtml(country.flag || '')}" alt="${escHtml(country.name || '')}" class="vsr-flag" loading="lazy" onerror="this.src='flags/UN.png'">
+              <span class="vsr-cval">${escHtml(country.value || '')}</span>
+            </div>
+            <div class="vsr-cname">${escHtml(country.name || '')}</div>
+          </div>`;
+      };
+
+      const roundsHtml = rounds.map((r, i) => {
+        const left    = r.leftCountry;
+        const right   = r.rightCountry;
+        const correct = r.correctCountry || {};
+        const picked  = r.playerAnswer || {};
+        const wasCorrect = r.wasCorrect === true;
+
+        const leftIsCorrect  = left.code  != null && left.code  === correct.code;
+        const rightIsCorrect = right.code != null && right.code === correct.code;
+        const leftIsPicked   = left.code  != null && left.code  === picked.code;
+        const rightIsPicked  = right.code != null && right.code === picked.code;
+
+        return `
+          <div class="vsr-round ${wasCorrect ? 'vsr-round-correct' : 'vsr-round-incorrect'}">
+            <div class="vsr-num">
+              <span class="vsr-num-index">${i + 1}</span>
+              <span class="vsr-num-icon" aria-hidden="true">${wasCorrect ? '✅' : '❌'}</span>
+            </div>
+            <div class="vsr-body">
+              <div class="vsr-matchup">
+                ${sideHtml(left, leftIsCorrect, leftIsPicked)}
+                <span class="vsr-vs">vs</span>
+                ${sideHtml(right, rightIsCorrect, rightIsPicked)}
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+
+      container.innerHTML = `
+        <div class="vs-review-section">
+          <h3 class="vs-review-title">Review your rounds</h3>
+          <p class="vs-review-sub">See every matchup and the answer you picked.</p>
+          <div class="vs-review-body">${roundsHtml}</div>
+        </div>
+      `;
     }
 
     function shareResults() {

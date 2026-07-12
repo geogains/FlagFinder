@@ -565,7 +565,12 @@ async function endGame() {
     timePlayed: timePlayed,
     lives: gameState.lives,
     categoryName: categoryConfig.title,
-    categoryKey: categoryKey
+    categoryKey: categoryKey,
+    // Round-by-round breakdown for the results page's "Review your rounds" panel.
+    // localStorage-only — deliberately not mirrored onto the redirect URL params
+    // or vsPendingSave (DB payload), same objects the duel flow already sends
+    // to verify_and_save_duel_result, just kept client-side here.
+    rounds: gameState.roundResults
   };
 
   // Save to localStorage as backup

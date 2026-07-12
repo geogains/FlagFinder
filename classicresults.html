@@ -249,6 +249,67 @@
       margin-left: 28px;
     }
 
+    /* Ranking Toggle (player answers <-> correct ranking) */
+    .ranking-toggle-wrap {
+      display: flex;
+      justify-content: center;
+      margin: 0 0 1.25rem;
+    }
+
+    .ranking-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 20px;
+      border-radius: 999px;
+      border: 2px solid rgba(102, 126, 234, 0.3);
+      background: rgba(102, 126, 234, 0.06);
+      color: #667eea;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .ranking-toggle-btn:hover {
+      background: rgba(102, 126, 234, 0.12);
+      transform: translateY(-1px);
+    }
+
+    .ranking-toggle-btn:focus-visible {
+      outline: 2px solid #667eea;
+      outline-offset: 2px;
+    }
+
+    .ranking-toggle-btn[aria-pressed="true"] {
+      background: linear-gradient(135deg, #ff9770, #ff6f61);
+      border-color: transparent;
+      color: white;
+      box-shadow: 0 4px 14px rgba(255, 111, 97, 0.3);
+    }
+
+    .ranking-toggle-btn[aria-pressed="true"]:hover {
+      box-shadow: 0 6px 18px rgba(255, 111, 97, 0.4);
+    }
+
+    .ranking-toggle-icon {
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+    }
+
+    .ranking-toggle-btn[aria-pressed="true"] .ranking-toggle-icon {
+      transform: rotate(180deg);
+    }
+
+    @media (max-width: 480px) {
+      .ranking-toggle-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 10px 16px;
+      }
+    }
+
     /* Results Table */
     .results-table {
       margin-bottom: 2rem;
@@ -730,6 +791,23 @@
         <div class="results-category" id="resultsCategory"></div>
       </div>
 
+      <div class="ranking-toggle-wrap" id="rankingToggleWrap">
+        <button
+          type="button"
+          id="rankingToggleBtn"
+          class="ranking-toggle-btn"
+          aria-pressed="false"
+          aria-label="Showing your submitted answers. Click to see the correct ranking."
+        >
+          <svg class="ranking-toggle-icon" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span id="rankingToggleLabel">See correct ranking</span>
+        </button>
+      </div>
+
+      <div class="results-table" id="resultsTable"></div>
+
       <div class="results-stats">
         <div class="stat-row">
           <span class="stat-label">Your Score:</span>
@@ -744,8 +822,6 @@
         </div>
         <div class="score-breakdown" id="scoreBreakdown"></div>
       </div>
-
-      <div class="results-table" id="resultsTable"></div>
 
       <!-- Try Other Modes Section -->
       <div class="try-other-modes" id="tryOtherModes">
@@ -826,6 +902,11 @@
     const categoryName = resultsData?.categoryName || getCategoryDisplayName(categoryKey);
     const resultsTable = resultsData?.resultsTable || [];
 
+    // Ranking toggle state — display-only, never touches score/save/achievement logic
+    let isShowingCorrectRanking = false;
+    let correctOrderTable = null; // computed once; null means "unavailable"
+    let isAnimatingRanking = false; // guards against overlapping FLIP reorder animations
+
     // Display results
     displayResults();
 
@@ -868,8 +949,11 @@
       // Update score
       document.getElementById('finalScore').textContent = `${finalScore}/${finalMaxScore}`;
 
-      // Build results table
-      buildResultsTable();
+      // Build results table (defaults to player's submitted order)
+      setupRankingToggle();
+      renderResultsTable(resultsTable, {
+        useSequentialRank: false
+      });
 
       // Build score breakdown
       buildScoreBreakdown();
@@ -906,10 +990,10 @@
       document.getElementById('shareBtn').onclick = shareResults;
     }
 
-    function buildResultsTable() {
+    function renderResultsTable(data, { useSequentialRank = false } = {}) {
       const table = document.getElementById('resultsTable');
-      
-      if (!resultsTable || resultsTable.length === 0) {
+
+      if (!data || data.length === 0) {
         table.innerHTML = '<p style="text-align: center; color: #9ca3af;">No results data available</p>';
         return;
       }
@@ -917,28 +1001,53 @@
       // Clear table
       table.innerHTML = '';
 
-      // Sort by user's placement order
-      const sortedResults = [...resultsTable].sort((a, b) => a.rank - b.rank);
+      // Player view: sort by submitted slot. Correct view: caller already hands in
+      // data pre-sorted by correctRankMin/correctRankMax — don't re-sort by rank.
+      const sortedResults = useSequentialRank
+        ? data
+        : [...data].sort((a, b) => a.rank - b.rank);
 
       sortedResults.forEach((country, idx) => {
-        const isPerfect = country.isPerfect;
-        
+        // country.isPerfect is computed once at game-end from the player's original
+        // placement (blind-ranking.js) and travels with this object through the sort —
+        // it must stay independent of display position/view.
+        const isCorrect = country.isPerfect === true;
+
         // Check if country has building/mountain/river name
         const hasExtraInfo = country.tallestBuildingName || country.highestPointName || country.riverName;
         const extraInfoName = country.tallestBuildingName || country.highestPointName || country.riverName;
         const infoType = country.tallestBuildingName ? 'Building' : (country.highestPointName ? 'Mountain' : 'River');
-        
+
+        // Rank label: player's submitted slot, or the category's true rank (range for ties)
+        const rankLabel = useSequentialRank
+          ? (country.correctRankMin === country.correctRankMax
+              ? `${country.correctRankMin}`
+              : `${country.correctRankMin}–${country.correctRankMax}`)
+          : country.rank;
+
+        // Stable per-country identity — independent of display index/order, so the
+        // same country resolves to the same key in both views (used for dropdown
+        // pairing and for matching old/new rows across the FLIP reorder animation).
+        // countryCode is preferred (already used for the flag path); the normalized
+        // name is a defensive fallback and is escaped so it's safe as both a DOM
+        // attribute value and inside querySelector attribute-selector strings.
+        const resultKey = String(country.countryCode || country.name)
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '');
+
         // Create row
         const row = document.createElement('div');
-        row.className = isPerfect ? 'table-row correct' : 'table-row';
+        row.className = isCorrect ? 'table-row correct' : 'table-row';
+        row.dataset.resultKey = resultKey;
         row.innerHTML = `
-          <span class="table-rank">#${country.rank}</span>
+          <span class="table-rank">#${rankLabel}</span>
           <img src="${country.flag}" alt="${country.name}" class="table-flag" loading="lazy">
           <span class="table-country">${country.name}</span>
           <div class="table-data-container">
-            <span class="table-data" style="color: ${isPerfect ? 'white' : '#667eea'};">${country.value}</span>
+            <span class="table-data" style="color: ${isCorrect ? 'white' : '#667eea'};">${country.value}</span>
             ${hasExtraInfo ? `
-              <button class="expand-btn" data-rank="${country.rank}" aria-label="Show details">
+              <button class="expand-btn" data-key="${resultKey}" aria-label="Show details">
                 <svg class="chevron-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
                   <path d="M3 5L7 9L11 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
@@ -946,14 +1055,14 @@
             ` : ''}
           </div>
         `;
-        
+
         table.appendChild(row);
-        
+
         // Add dropdown card if there's extra info
         if (hasExtraInfo) {
           const dropdownCard = document.createElement('div');
-          dropdownCard.className = `table-dropdown-card ${isPerfect ? 'correct' : ''}`;
-          dropdownCard.dataset.rank = country.rank;
+          dropdownCard.className = `table-dropdown-card ${isCorrect ? 'correct' : ''}`;
+          dropdownCard.dataset.key = resultKey;
           dropdownCard.innerHTML = `
             <div class="dropdown-card-inner">
               <span class="dropdown-label">${infoType}:</span>
@@ -963,30 +1072,30 @@
           table.appendChild(dropdownCard);
         }
       });
-      
+
       // Add click handlers for expand buttons
       document.querySelectorAll('.expand-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
-          const rank = btn.dataset.rank;
-          const dropdown = document.querySelector(`.table-dropdown-card[data-rank="${rank}"]`);
+          const key = btn.dataset.key;
+          const dropdown = document.querySelector(`.table-dropdown-card[data-key="${key}"]`);
           const allDropdowns = document.querySelectorAll('.table-dropdown-card');
           const allButtons = document.querySelectorAll('.expand-btn');
-          
+
           // Close all other dropdowns
           allDropdowns.forEach(d => {
-            if (d.dataset.rank !== rank) {
+            if (d.dataset.key !== key) {
               d.classList.remove('active');
             }
           });
-          
+
           // Reset all other buttons
           allButtons.forEach(b => {
-            if (b.dataset.rank !== rank) {
+            if (b.dataset.key !== key) {
               b.classList.remove('active');
             }
           });
-          
+
           // Toggle current dropdown
           if (dropdown.classList.contains('active')) {
             dropdown.classList.remove('active');
@@ -997,6 +1106,165 @@
           }
         });
       });
+    }
+
+    // Derives the category's true ranking from the same per-row correctRankMin/Max
+    // data the game engine already computed (blind-ranking.js computeBestRanks()) —
+    // no separate category data source is fetched or hardcoded here.
+    function computeCorrectOrderTable() {
+      if (!Array.isArray(resultsTable) || resultsTable.length === 0) return null;
+      const hasData = resultsTable.every(c => Number.isFinite(c.correctRankMin));
+      if (!hasData) return null;
+
+      return [...resultsTable].sort((a, b) => {
+        if (a.correctRankMin !== b.correctRankMin) return a.correctRankMin - b.correctRankMin;
+        const aMax = a.correctRankMax ?? a.correctRankMin;
+        const bMax = b.correctRankMax ?? b.correctRankMin;
+        if (aMax !== bMax) return aMax - bMax;
+        return a.rank - b.rank; // stable tiebreaker — keeps ties deterministic
+      });
+    }
+
+    const RANKING_ANIMATION_MS = 750;
+    const RANKING_ANIMATION_EASING = 'cubic-bezier(0.22, 1, 0.36, 1)';
+
+    function prefersReducedMotion() {
+      return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    }
+
+    // A dropdown left open would skew the FLIP "before" measurement (rows below it
+    // would appear lower than their true collapsed position), producing a spurious
+    // jump unrelated to the actual rank change. Collapse instantly (no transition)
+    // so the very next getBoundingClientRect() call reflects final collapsed layout.
+    function closeAllRowDropdownsInstant() {
+      document.querySelectorAll('.table-dropdown-card.active').forEach(card => {
+        card.style.transition = 'none';
+        card.classList.remove('active');
+        void card.offsetHeight; // force layout before re-enabling the transition
+        card.style.transition = '';
+      });
+      document.querySelectorAll('.expand-btn.active').forEach(btn => btn.classList.remove('active'));
+    }
+
+    // FLIP: First, Last, Invert, Play — animates each result row from its previous
+    // rendered position to its new one, keyed by stable country identity (not
+    // display index), so the player can visually track a country moving between
+    // its guessed rank and its true rank. Resolves once the view has settled.
+    function animateRankingSwitch(nextData, nextUseSequentialRank) {
+      return new Promise((resolve) => {
+        const table = document.getElementById('resultsTable');
+        closeAllRowDropdownsInstant();
+
+        if (prefersReducedMotion()) {
+          renderResultsTable(nextData, { useSequentialRank: nextUseSequentialRank });
+          resolve();
+          return;
+        }
+
+        // FIRST — capture current row positions keyed by stable country identity
+        const oldRects = new Map();
+        table.querySelectorAll('.table-row[data-result-key]').forEach((row) => {
+          oldRects.set(row.dataset.resultKey, row.getBoundingClientRect());
+        });
+
+        // Hold the container's height steady so the score box/recommendations below
+        // don't jump while rows are mid-flight.
+        const heightBefore = table.getBoundingClientRect().height;
+        table.style.minHeight = `${heightBefore}px`;
+
+        // LAST — render the target order
+        renderResultsTable(nextData, { useSequentialRank: nextUseSequentialRank });
+
+        const newRows = Array.from(table.querySelectorAll('.table-row[data-result-key]'));
+        const toAnimate = [];
+
+        // INVERT — offset each row back to where it used to be, so the reorder is
+        // visually invisible until we release it on the next frame
+        newRows.forEach((row) => {
+          const oldRect = oldRects.get(row.dataset.resultKey);
+          if (!oldRect) return;
+          const newRect = row.getBoundingClientRect();
+          const deltaX = oldRect.left - newRect.left;
+          const deltaY = oldRect.top - newRect.top;
+          if (!deltaX && !deltaY) return;
+          row.style.transition = 'none';
+          row.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+          toAnimate.push(row);
+        });
+
+        const cleanup = () => {
+          newRows.forEach((row) => {
+            row.style.transition = '';
+            row.style.transform = '';
+          });
+          table.style.minHeight = '';
+          resolve();
+        };
+
+        if (toAnimate.length === 0) {
+          cleanup();
+          return;
+        }
+
+        // PLAY — release to natural position on the next frame. A double rAF
+        // guarantees the browser paints the inverted state first, so the
+        // transition back to translate(0,0) actually animates instead of
+        // getting batched into the same frame as the initial transform.
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            toAnimate.forEach((row) => {
+              row.style.transition = `transform ${RANKING_ANIMATION_MS}ms ${RANKING_ANIMATION_EASING}`;
+              row.style.transform = '';
+            });
+          });
+        });
+
+        window.setTimeout(cleanup, RANKING_ANIMATION_MS + 50);
+      });
+    }
+
+    function setupRankingToggle() {
+      const btn = document.getElementById('rankingToggleBtn');
+      const wrap = document.getElementById('rankingToggleWrap');
+      if (!btn || !wrap) return;
+
+      correctOrderTable = computeCorrectOrderTable();
+
+      if (!correctOrderTable) {
+        console.warn('⚠️ Correct-ranking data unavailable for this results session — hiding the ranking toggle.');
+        wrap.style.display = 'none';
+        return;
+      }
+
+      btn.addEventListener('click', async () => {
+        if (isAnimatingRanking) return;
+        isAnimatingRanking = true;
+        btn.disabled = true;
+
+        try {
+          isShowingCorrectRanking = !isShowingCorrectRanking;
+          updateRankingToggleUI();
+
+          await animateRankingSwitch(
+            isShowingCorrectRanking ? correctOrderTable : resultsTable,
+            isShowingCorrectRanking
+          );
+        } finally {
+          isAnimatingRanking = false;
+          btn.disabled = false;
+        }
+      });
+    }
+
+    function updateRankingToggleUI() {
+      const btn = document.getElementById('rankingToggleBtn');
+      const label = document.getElementById('rankingToggleLabel');
+      if (!btn || !label) return;
+      btn.setAttribute('aria-pressed', String(isShowingCorrectRanking));
+      label.textContent = isShowingCorrectRanking ? 'See my answers' : 'See correct ranking';
+      btn.setAttribute('aria-label', isShowingCorrectRanking
+        ? 'Showing the correct ranking. Click to see your submitted answers.'
+        : 'Showing your submitted answers. Click to see the correct ranking.');
     }
 
     function buildScoreBreakdown() {
