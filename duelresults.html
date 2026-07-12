@@ -491,32 +491,16 @@
     }
     .vs-no-data-msg { color: #9ca3af; font-size: 0.85rem; padding: 1rem 0; text-align: center; }
 
-    /* ── VS Review All Rounds ── */
+    /* ── VS Review All Rounds — always visible, no collapse control.
+       Rich-card layout adapted from the standalone Versus Results redesign
+       (vsresults.html's renderRoundsReview()), extended for two players:
+       "You picked" / "Opponent picked" badges (either or both may appear on
+       the same card) and a compact per-round You/Opponent outcome line. ── */
     .vs-review-section { margin-top: 0.75rem; }
-    .vs-review-toggle {
-      width: 100%; display: flex; align-items: center; justify-content: space-between;
-      background: #f9fafb; border: 1.5px solid #e5e7eb; border-radius: 10px;
-      padding: 0.7rem 1rem; cursor: pointer; font-family: 'Poppins', sans-serif;
-      font-size: 0.82rem; font-weight: 700; color: #374151;
-      transition: background 0.18s; text-align: left;
-    }
-    .vs-review-toggle:hover { background: #f3f4f6; }
-    .vs-toggle-icon {
-      font-size: 0.7rem; color: #9ca3af;
-      transition: transform 0.25s; flex-shrink: 0;
-    }
-    .vs-review-toggle.open .vs-toggle-icon { transform: rotate(180deg); }
-    .vs-review-body {
-      max-height: 0; overflow: hidden;
-      transition: max-height 0.32s ease;
-      border: 1.5px solid transparent; border-top: none;
-      border-radius: 0 0 10px 10px;
-    }
-    .vs-review-body.open {
-      max-height: 480px;
-      overflow-y: auto;
-      border-color: #e5e7eb;
-    }
+    .vs-review-title { font-size: 0.95rem; font-weight: 700; color: #0d315a; margin: 0 0 0.25rem; }
+    .vs-review-sub { font-size: 0.78rem; color: #6b7280; font-weight: 500; margin: 0 0 0.85rem; }
+
+    /* Legacy fallback (old matches without rich per-round country data) — unchanged. */
     .vs-rounds-header {
       display: grid; grid-template-columns: 44px 1fr 1fr;
       padding: 0.45rem 1rem; background: #f9fafb;
@@ -536,57 +520,80 @@
 
     /* ── Rich VS round cards ── */
     .vsr-round {
-      display: flex; align-items: flex-start; gap: 0.5rem;
-      padding: 0.65rem 1rem; border-bottom: 1px solid #f3f4f6;
+      display: flex; align-items: flex-start; gap: 0.6rem;
+      border: 1.5px solid #e5e7eb; border-radius: 14px;
+      padding: 0.85rem 1rem; margin-bottom: 0.75rem;
     }
-    .vsr-round:last-child { border-bottom: none; }
-    .vsr-round.vsr-i-won   { background: rgba(16,185,129,0.04); }
-    .vsr-round.vsr-opp-won { background: rgba(239,68,68,0.025); }
+    .vsr-round:last-child { margin-bottom: 0; }
+    .vsr-round.vsr-both-correct { border-color: rgba(16, 185, 129, 0.35); background: rgba(16, 185, 129, 0.05); }
+    .vsr-round.vsr-both-wrong   { border-color: rgba(239, 68, 68, 0.3);  background: rgba(239, 68, 68, 0.03); }
 
     .vsr-num {
       font-size: 0.68rem; font-weight: 700; color: #9ca3af;
-      min-width: 20px; padding-top: 4px; flex-shrink: 0; text-align: center;
+      min-width: 22px; padding-top: 4px; flex-shrink: 0; text-align: center;
     }
     .vsr-body { flex: 1; min-width: 0; }
-    .vsr-matchup {
-      display: flex; align-items: stretch; gap: 0.3rem; margin-bottom: 0.35rem;
-    }
+    .vsr-outcome-row { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+    .vsr-outcome { font-size: 0.7rem; font-weight: 700; color: #6b7280; }
+
+    .vsr-matchup { display: flex; align-items: stretch; gap: 0.5rem; }
     .vsr-side {
-      display: flex; align-items: center; gap: 0.3rem;
-      flex: 1; padding: 0.28rem 0.4rem; border-radius: 7px;
-      border: 1.5px solid #e5e7eb; min-width: 0;
+      position: relative;
+      flex: 1; min-width: 0;
+      display: flex; flex-direction: column; align-items: center; gap: 0.35rem;
+      padding: 0.7rem 0.55rem 0.6rem;
+      border-radius: 12px;
+      border: 1.5px solid #e5e7eb;
+      background: #fff;
     }
-    .vsr-side.vsr-correct {
-      border-color: #10b981; background: rgba(16,185,129,0.07);
+    .vsr-side.vsr-correct { border-color: #10b981; background: rgba(16, 185, 129, 0.08); }
+    .vsr-side.vsr-wrong   { border-color: #ef4444; background: rgba(239, 68, 68, 0.06); }
+
+    .vsr-pick-badges { display: flex; gap: 0.3rem; flex-wrap: wrap; justify-content: center; }
+    .vsr-pick-badges:empty { display: none; }
+    .vsr-pick-badge {
+      font-size: 0.58rem; font-weight: 700; white-space: nowrap;
+      border-radius: 999px; padding: 1px 7px; line-height: 1.5;
+    }
+    .vsr-pick-badge.you { color: #1d4ed8; background: #dbeafe; }
+    .vsr-pick-badge.opp { color: #9333ea; background: #f3e8ff; }
+
+    .vsr-side-top {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; gap: 0.5rem;
     }
     .vsr-flag {
-      width: 22px; height: 15px; object-fit: cover; border-radius: 2px;
-      flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.12);
-    }
-    .vsr-cname {
-      font-size: 0.75rem; font-weight: 600; color: #0d315a;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;
+      width: 56px; height: 38px;
+      object-fit: cover; border-radius: 6px;
+      flex-shrink: 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
     }
     .vsr-cval {
-      font-size: 0.72rem; font-weight: 700; color: #3b82f6;
-      white-space: nowrap; flex-shrink: 0; margin-left: 0.2rem;
+      font-size: 0.82rem; font-weight: 700; color: #3b82f6;
+      white-space: nowrap;
+    }
+    .vsr-cname {
+      font-size: 0.78rem; font-weight: 600; color: #0d315a;
+      text-align: center; line-height: 1.3;
+      overflow-wrap: break-word; word-break: break-word;
+      max-width: 100%;
     }
     .vsr-vs {
-      font-size: 0.62rem; font-weight: 700; color: #9ca3af;
-      align-self: center; flex-shrink: 0; padding: 0 1px;
+      font-size: 0.66rem; font-weight: 700; color: #9ca3af;
+      align-self: center; flex-shrink: 0; padding: 0 0.15rem;
     }
-    .vsr-chips { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-    .vsr-chip {
-      font-size: 0.68rem; font-weight: 700; padding: 2px 6px;
-      border-radius: 5px; white-space: nowrap;
-    }
-    .vsr-chip.vsr-chip-correct { background: #d1fae5; color: #065f46; }
-    .vsr-chip.vsr-chip-wrong   { background: #fee2e2; color: #991b1b; }
 
     @media (max-width: 600px) {
       .vs-stats-grid { grid-template-columns: 1fr; }
-      .vs-review-body.open { max-height: 500px; }
-      .vsr-cname { font-size: 0.7rem; }
+      .vsr-round { padding: 0.75rem 0.75rem; gap: 0.5rem; }
+      .vsr-flag { width: 48px; height: 33px; }
+      .vsr-cname { font-size: 0.72rem; }
+      .vsr-cval  { font-size: 0.75rem; }
+      .vsr-side  { padding: 0.6rem 0.4rem 0.5rem; gap: 0.3rem; }
+      .vsr-matchup { gap: 0.35rem; }
+      .vsr-vs { padding: 0 0.1rem; }
+      .vsr-outcome { font-size: 0.64rem; }
+      .vsr-pick-badge { font-size: 0.54rem; padding: 1px 5px; }
     }
   </style>
 </head>
@@ -872,14 +879,6 @@
   // Render functions — declared at module scope so they are hoisted
   // and accessible inside the IIFE above via closure.
   // ================================================================
-
-  // Exposed on window so inline onclick in dynamically-injected HTML can reach it.
-  window.toggleVsReview = function(btn) {
-    const body = btn.nextElementSibling;
-    const isOpen = body.classList.toggle('open');
-    btn.classList.toggle('open', isOpen);
-    btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-  };
 
   function renderResults(match, myResult, oppResult, myName, oppName, catEmoji, catTitle, outcome, myUsername, oppUsername, duelMode) {
     // ── Winner banner ──
@@ -1303,48 +1302,69 @@
     let bodyHtml;
 
     if (isRich) {
-      const trunc = (s, n) => (s || '').length > n ? (s || '').slice(0, n - 1) + '…' : (s || '');
+      // Renders each side as a self-contained card (flag+value on top, name
+      // centred below) — adapted from vsresults.html's renderRoundsReview().
+      // Extended for two players: a side can carry a "You picked" badge, an
+      // "Opponent picked" badge, or both (if they chose the same country).
+      const sideHtml = (country, isCorrectSide, isMyPick, isOppPick) => {
+        const isWrongPick = (isMyPick || isOppPick) && !isCorrectSide;
+        const sideClass = ['vsr-side'];
+        if (isCorrectSide) sideClass.push('vsr-correct');
+        if (isWrongPick)   sideClass.push('vsr-wrong');
+        const badges = [
+          isMyPick  ? '<span class="vsr-pick-badge you">You picked</span>' : '',
+          isOppPick ? '<span class="vsr-pick-badge opp">Opponent picked</span>' : ''
+        ].join('');
+        return `
+          <div class="${sideClass.join(' ')}">
+            <div class="vsr-pick-badges">${badges}</div>
+            <div class="vsr-side-top">
+              <img src="${escHtml(country?.flag || '')}" alt="${escHtml(country?.name || '')}"
+                   class="vsr-flag" loading="lazy" onerror="this.src='flags/UN.png'">
+              <span class="vsr-cval">${escHtml(country?.value || '')}</span>
+            </div>
+            <div class="vsr-cname">${escHtml(country?.name || '')}</div>
+          </div>`;
+      };
 
       bodyHtml = myPlacements.map((myP, i) => {
         const oppP = oppPlacements[i];
 
-        const leftIsCorrect  = myP.leftCountry?.code  === myP.correctCountry?.code;
-        const rightIsCorrect = myP.rightCountry?.code === myP.correctCountry?.code;
+        const leftCode  = myP.leftCountry?.code;
+        const rightCode = myP.rightCountry?.code;
+        const correctCode = myP.correctCountry?.code;
+        const myPickCode  = myP.playerAnswer?.code ?? null;
+        const oppPickCode = oppP?.playerAnswer?.code ?? null;
 
+        const leftIsCorrect  = leftCode  != null && leftCode  === correctCode;
+        const rightIsCorrect = rightCode != null && rightCode === correctCode;
+
+        const leftIsMyPick   = myPickCode  != null && myPickCode  === leftCode;
+        const rightIsMyPick  = myPickCode  != null && myPickCode  === rightCode;
+        const leftIsOppPick  = oppPickCode != null && oppPickCode === leftCode;
+        const rightIsOppPick = oppPickCode != null && oppPickCode === rightCode;
+
+        // Round-level state: green only when BOTH players were correct, red only
+        // when BOTH were wrong; a split result stays neutral (default card style)
+        // — the individual side cards already carry the correct/wrong states.
         let roundClass = '';
-        if      (myP.wasCorrect  && oppP && !oppP.wasCorrect) roundClass = 'vsr-i-won';
-        else if (!myP.wasCorrect && oppP?.wasCorrect)         roundClass = 'vsr-opp-won';
-
-        const myAnswerName  = myP.playerAnswer?.name  || '?';
-        const oppAnswerName = oppP?.playerAnswer?.name || null;
-
-        const myChipTxt  = `${escHtml(trunc(myAnswerName, 13))} ${myP.wasCorrect ? '✅' : '❌'}`;
-        const oppChipTxt = oppP
-          ? `${escHtml(trunc(oppAnswerName || '?', 13))} ${oppP.wasCorrect ? '✅' : '❌'}`
-          : null;
+        if (oppP) {
+          if (myP.wasCorrect && oppP.wasCorrect) roundClass = 'vsr-both-correct';
+          else if (!myP.wasCorrect && !oppP.wasCorrect) roundClass = 'vsr-both-wrong';
+        }
 
         return `
           <div class="vsr-round ${roundClass}">
             <span class="vsr-num">${i + 1}</span>
             <div class="vsr-body">
-              <div class="vsr-matchup">
-                <div class="vsr-side${leftIsCorrect ? ' vsr-correct' : ''}">
-                  <img src="${escHtml(myP.leftCountry?.flag || '')}" alt="${escHtml(myP.leftCountry?.name || '')}"
-                       class="vsr-flag" loading="lazy" onerror="this.src='flags/UN.png'">
-                  <span class="vsr-cname">${escHtml(myP.leftCountry?.name || '')}</span>
-                  <span class="vsr-cval">${escHtml(myP.leftCountry?.value || '')}</span>
-                </div>
-                <span class="vsr-vs">vs</span>
-                <div class="vsr-side${rightIsCorrect ? ' vsr-correct' : ''}">
-                  <img src="${escHtml(myP.rightCountry?.flag || '')}" alt="${escHtml(myP.rightCountry?.name || '')}"
-                       class="vsr-flag" loading="lazy" onerror="this.src='flags/UN.png'">
-                  <span class="vsr-cname">${escHtml(myP.rightCountry?.name || '')}</span>
-                  <span class="vsr-cval">${escHtml(myP.rightCountry?.value || '')}</span>
-                </div>
+              <div class="vsr-outcome-row">
+                <span class="vsr-outcome">You ${myP.wasCorrect ? '✅' : '❌'}</span>
+                <span class="vsr-outcome">Opponent ${oppP ? (oppP.wasCorrect ? '✅' : '❌') : '—'}</span>
               </div>
-              <div class="vsr-chips">
-                <span class="vsr-chip ${myP.wasCorrect ? 'vsr-chip-correct' : 'vsr-chip-wrong'}">You: ${myChipTxt}</span>
-                ${oppP ? `<span class="vsr-chip ${oppP.wasCorrect ? 'vsr-chip-correct' : 'vsr-chip-wrong'}">Opp: ${oppChipTxt}</span>` : ''}
+              <div class="vsr-matchup">
+                ${sideHtml(myP.leftCountry,  leftIsCorrect,  leftIsMyPick,  leftIsOppPick)}
+                <span class="vsr-vs">vs</span>
+                ${sideHtml(myP.rightCountry, rightIsCorrect, rightIsMyPick, rightIsOppPick)}
               </div>
             </div>
           </div>`;
@@ -1380,10 +1400,8 @@
 
     return `
       <div class="vs-review-section">
-        <button class="vs-review-toggle" onclick="toggleVsReview(this)" aria-expanded="false">
-          <span>Review All Rounds (${total})</span>
-          <span class="vs-toggle-icon">▼</span>
-        </button>
+        <h3 class="vs-review-title">Review all rounds (${total})</h3>
+        <p class="vs-review-sub">See every matchup and both players' choices.</p>
         <div class="vs-review-body">${bodyHtml}</div>
       </div>`;
   }
