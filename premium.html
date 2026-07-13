@@ -174,6 +174,7 @@
 
     /* ── Main container (no longer needs large top offset) ── */
     .premium-container {
+      width: 100%;
       max-width: 900px;
       margin: 40px auto 80px;
       padding: 0 20px;
@@ -184,9 +185,14 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Pricing Card Container */
+    /* Pricing Card Container
+       Fluid width: fills the available column on phones/tablets (the
+       column itself already narrows via .premium-container's padding),
+       tapering to a settled 480–560px focal card on laptop/desktop.
+       % (not vw) so it always respects the parent's own side padding —
+       vw ignores ancestor padding and can overflow it. */
     .pricing-card-container {
-      max-width: 600px;
+      width: min(100%, 560px);
       margin: 0 auto;
       animation: fadeInUp 0.8s ease 0.2s both;
     }
@@ -246,7 +252,7 @@
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
       border-radius: 24px;
-      padding: 40px;
+      padding: clamp(28px, 6vw, 48px);
       box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
       position: relative;
       overflow: hidden;
@@ -412,7 +418,7 @@
 
     /* Already Premium */
     .already-premium {
-      max-width: 600px;
+      width: min(100%, 560px);
       margin: 0 auto;
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.711), rgba(255, 255, 255, 0.671));
       border: 3px solid #e5e5e5a2;
@@ -456,8 +462,7 @@
     /* Mobile Responsive */
     @media (max-width: 768px) {
       .pricing-card-main {
-        padding: 32px 24px;
-        padding-top: 100px
+        padding-top: 100px;
       }
 
       .price-current {
@@ -656,8 +661,8 @@
       <!-- Monthly Tab Content -->
       <div class="tab-content" id="monthly-content">
         <div class="price-header">
-          <div class="price-original">$4.99</div>
-          <div class="price-current">$2.99</div>
+          <div class="price-original">£2.99</div>
+          <div class="price-current">£0.99</div>
           <div class="price-period">per month</div>
         </div>
         <button class="cta-btn-top" onclick="startCheckout('monthly')">
@@ -724,10 +729,10 @@
       <!-- Yearly Tab Content -->
       <div class="tab-content active" id="yearly-content">
         <div class="price-header">
-          <div class="price-original">$49.99</div>
-          <div class="price-current">$24.99</div>
+          <div class="price-original">£24.99</div>
+          <div class="price-current">£8.99</div>
           <div class="price-period">per year</div>
-          <div class="savings-badge">MOST POPULAR - $0.50/ week</div>
+          <div class="savings-badge">BEST VALUE</div>
         </div>
         <button class="cta-btn-top" onclick="startCheckout('yearly')">
           Unlock All Categories
@@ -779,7 +784,7 @@
           <li class="benefit-item-card">
             <div class="benefit-icon-card">🏷️</div>
             <div class="benefit-text-card">
-              <h4>Save 30% vs Monthly</h4>
+              <h4>Save 24% vs Monthly</h4>
               <p>Best value option</p>
             </div>
           </li>

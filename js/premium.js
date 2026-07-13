@@ -2,8 +2,8 @@
 import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase-client.js';
 
 // ✅ Stripe Price IDs from your Dashboard
-const PRICE_MONTHLY = "price_1SXV7xB2pnEWYYPP3WmbEXAf";
-const PRICE_YEARLY  = "price_1SXV9CB2pnEWYYPPlAYocHkY";
+const PRICE_MONTHLY = "price_1TsgvjB2pnEWYYPPkGP7bf1X"; 
+const PRICE_YEARLY = "price_1TsgwMB2pnEWYYPPWxYFNiro";
 
 // ✅ Redirect to Stripe Checkout using Supabase Edge Function
 async function redirectToCheckout(priceId) {
