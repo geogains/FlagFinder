@@ -345,6 +345,7 @@
   import { CATEGORY_ID_MAP }   from './js/top10-categories-loader.js';
   import { createDuelChannel } from './js/duel-channel.js';
   import { evaluateAchievements } from './js/achievements.js';
+  import { recordActivityAndMaybeCelebrate } from './js/streak-celebration.js';
 
   // ── Auth guard ───────────────────────────────────────────────────────────
   const { data: { session } } = await supabase.auth.getSession();
@@ -569,6 +570,12 @@
       document.getElementById('errorOverlay').classList.add('visible');
       return;
     }
+
+    // Result verified and saved — safe to count towards the daily streak.
+    await recordActivityAndMaybeCelebrate(supabase, session, {
+      categoryId: CATEGORY_ID_MAP[mode] || null,
+      gameMode: 'duel_vs'
+    });
 
     // Fire-and-forget game_sessions record
     supabase.from('game_sessions').insert({

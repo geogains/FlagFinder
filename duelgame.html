@@ -278,6 +278,7 @@
   import { CATEGORY_ID_MAP }   from './js/top10-categories-loader.js';
   import { createDuelChannel } from './js/duel-channel.js';
   import { evaluateAchievements } from './js/achievements.js';
+  import { recordActivityAndMaybeCelebrate } from './js/streak-celebration.js';
 
   // ── Category question titles (mirrors game.html) ────────────────────────
   const classicTitles = {
@@ -623,6 +624,12 @@
       document.getElementById('errorOverlay').classList.add('visible');
       return;
     }
+
+    // Result verified and saved — safe to count towards the daily streak.
+    await recordActivityAndMaybeCelebrate(supabase, session, {
+      categoryId: CATEGORY_ID_MAP[mode] || null,
+      gameMode: 'duel_classic'
+    });
 
     // Append to game_sessions — fire-and-forget, non-critical.
     supabase.from('game_sessions').insert({
