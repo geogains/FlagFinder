@@ -205,7 +205,7 @@ export const CATEGORY_HINTS = {
   },
   worldcupgoals: {
     description: "Rank countries from most to fewest FIFA World Cup goals scored.",
-    detail: "Only goals scored in FIFA World Cup final tournaments count. Qualification goals and continental tournament goals do not affect the ranking.",
+    detail: "Only goals scored during World Cup tournament matches count, including penalties scored during normal time or extra time. Goals from penalty shootouts are excluded. World Cup qualification and continental tournament goals do not count.",
     example: "A country with 237 goals ranks above one with 152, which ranks above one with 0.",
     moreNotes: "Historical predecessor teams are included in their modern successor nations: West Germany in Germany, Soviet Union in Russia, Yugoslavia and Serbia & Montenegro in Serbia, Czechoslovakia in Czech Republic, Dutch East Indies in Indonesia, and Zaire in RD Congo."
   },

@@ -687,6 +687,11 @@
   import { supabase }         from './js/supabase-client.js';
   import { categoriesConfig } from './js/categories-config.js';
   import { profileUrl }       from './js/username-utils.js';
+  import { showPendingStreakCelebrationIfAny } from './js/streak-celebration.js';
+
+  // Pick up a streak celebration stashed by duelgame*.html before it
+  // navigated here — those pages defer display since they don't linger.
+  showPendingStreakCelebrationIfAny();
 
   const urlParams   = new URLSearchParams(window.location.search);
   const matchId     = urlParams.get('match');

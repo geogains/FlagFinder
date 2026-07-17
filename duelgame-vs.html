@@ -574,7 +574,8 @@
     // Result verified and saved — safe to count towards the daily streak.
     await recordActivityAndMaybeCelebrate(supabase, session, {
       categoryId: CATEGORY_ID_MAP[mode] || null,
-      gameMode: 'duel_vs'
+      gameMode: 'duel_vs',
+      deferCelebration: true
     });
 
     // Fire-and-forget game_sessions record

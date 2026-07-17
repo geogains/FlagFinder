@@ -407,12 +407,49 @@ export function showStreakCelebration(prevStreak, newStreak) {
 }
 
 // ---------------------------------------------------------------------------
-// recordActivityAndMaybeCelebrate({ categoryId, gameMode })
-// Replaces the inline record_user_activity call in each results page.
-// Returns { error } — same shape as the supabase rpc call it wraps.
+// Pending celebration handoff — for pages that navigate away (e.g. Duel)
+// before the same-page setTimeout below would get a chance to fire.
+// The RPC/dedup logic above already ran by the time this is stashed; this
+// only carries the *display* across a page navigation to wherever the
+// player actually lands and lingers.
 // ---------------------------------------------------------------------------
 
-export async function recordActivityAndMaybeCelebrate(supabase, session, { categoryId, gameMode }) {
+const PENDING_CELEBRATION_KEY = 'georanks_pending_streak_celebration';
+
+function stashPendingStreakCelebration(prevStreak, newStreak) {
+  try {
+    sessionStorage.setItem(PENDING_CELEBRATION_KEY, JSON.stringify({ prevStreak, newStreak }));
+  } catch (_) { /* private browsing / storage unavailable — celebration is non-critical */ }
+}
+
+export function showPendingStreakCelebrationIfAny() {
+  let pending;
+  try {
+    const raw = sessionStorage.getItem(PENDING_CELEBRATION_KEY);
+    if (!raw) return;
+    sessionStorage.removeItem(PENDING_CELEBRATION_KEY);
+    pending = JSON.parse(raw);
+  } catch (_) { return; }
+  if (!pending || typeof pending.newStreak !== 'number') return;
+  setTimeout(async () => {
+    await waitForPremiumModalClose();
+    showStreakCelebration(pending.prevStreak, pending.newStreak);
+  }, 1200);
+}
+
+// ---------------------------------------------------------------------------
+// recordActivityAndMaybeCelebrate({ categoryId, gameMode, deferCelebration })
+// Replaces the inline record_user_activity call in each results page.
+// Returns { error } — same shape as the supabase rpc call it wraps.
+//
+// deferCelebration: pass true from pages that navigate away shortly after
+// calling this (e.g. Duel, which waits for an opponent or redirects to
+// duelresults/classicresults) — the celebration is stashed for the next
+// page to display via showPendingStreakCelebrationIfAny() instead of being
+// shown on this page via setTimeout, which navigation would cut short.
+// ---------------------------------------------------------------------------
+
+export async function recordActivityAndMaybeCelebrate(supabase, session, { categoryId, gameMode, deferCelebration = false }) {
   // 1. Snapshot streak BEFORE the RPC — use effective value so the
   //    celebration fires correctly even after a broken-streak restart.
   const { data: beforeData } = await supabase
@@ -453,11 +490,15 @@ export async function recordActivityAndMaybeCelebrate(supabase, session, { categ
 
   if (newStreak > prevStreak && !alreadyCelebrated) {
     localStorage.setItem(flagKey, today);
-    // Delay ensures results are visible; then yield to any premium modal first
-    setTimeout(async () => {
-      await waitForPremiumModalClose();
-      showStreakCelebration(prevStreak, newStreak);
-    }, 1500);
+    if (deferCelebration) {
+      stashPendingStreakCelebration(prevStreak, newStreak);
+    } else {
+      // Delay ensures results are visible; then yield to any premium modal first
+      setTimeout(async () => {
+        await waitForPremiumModalClose();
+        showStreakCelebration(prevStreak, newStreak);
+      }, 1500);
+    }
   }
 
   return { error: null };
