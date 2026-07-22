@@ -483,7 +483,7 @@ export const categoriesConfig = {
     dataKey: "worldCupGoalsScoredData",
     valueField: "goalsScored",
     questionText: "WHICH COUNTRY HAS SCORED MORE WORLD CUP GOALS?",
-    premium: false,
+    premium: true,
     image: "worldcupgoals.jpg"
   },
 
@@ -495,7 +495,7 @@ export const categoriesConfig = {
     dataKey: "worldCupAppearancesData",
     valueField: "appearances",
     questionText: "WHICH COUNTRY HAS MORE WORLD CUP APPEARANCES?",
-    premium: false,
+    premium: true,
     image: "worldcupappearances.jpg"
   },
 
@@ -507,7 +507,7 @@ export const categoriesConfig = {
     dataKey: "worldCupWinsData",
     valueField: "wins",
     questionText: "WHICH COUNTRY HAS WON MORE WORLD CUP MATCHES?",
-    premium: false,
+    premium: true,
     image: "worldcupwins.jpg"
   }
 };

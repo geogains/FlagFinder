@@ -36,7 +36,7 @@ Before running any test:
 
 - [ ] Select a category and mode. Click **Next →**. Confirm Step 2 is shown.
 - [ ] Confirm the confirmation panel shows: User B's avatar (fetched from the profile page), User B's username, the selected category name, the selected mode.
-- [ ] Confirm the **← Back** button returns to Step 1 with the previously selected category and mode still active.
+- [ ] Confirm the **Back** button returns to Step 1 with the previously selected category and mode still active.
 - [ ] Confirm no RPC call has been made yet (check Network tab — `send_direct_challenge` should not have fired).
 
 ### 1.4 Start & Play

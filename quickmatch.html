@@ -195,7 +195,7 @@
 <body>
 
 <div id="pageLoadingOverlay">
-  <h2>⚡ Quick Match</h2>
+  <h2>Loading Lobby...</h2>
   <div class="spinner"></div>
 </div>
 
@@ -250,13 +250,6 @@
   import { categoriesConfig }  from './js/categories-config.js';
   import { createDuelChannel } from './js/duel-channel.js';
 
-  // Must match v_free_cats[] in submit_qm_category_pick migration RPC.
-  const FREE_QM_CATS = [
-    'landmass','population','gdp','altitude','forest','olympic',
-    'passport','beer','worldcup','worldcupgoals','worldcupappearances','worldcupwins'
-  ];
-
-  const LOBBY_CAT_COUNT  = 6;
   const PICK_TIMEOUT_MS  = 15_000;
   const QUEUE_POLL_MS    = 500;   // poll_quick_match_queue — lightweight, fast
   const MATCH_POLL_MS    = 2_000; // pollMatch during category lobby
@@ -266,9 +259,9 @@
   const modeParam  = urlParams.get('mode') || 'classic';
 
   const MODE_LABELS = {
-    classic: '⚔️ Classic Quick Match',
+    classic: '🌍 Classic Quick Match',
     vs:      '🆚 Versus Quick Match',
-    top10:   '📋 Top 10 Quick Match'
+    top10:   '🔟 Top 10 Quick Match'
   };
 
   const overlay = document.getElementById('pageLoadingOverlay');
@@ -429,7 +422,7 @@
 
     const { data: match, error } = await supabase
       .from('h2h_matches')
-      .select('id, status, category, seed, started_at, player1_id, player2_id, category_deadline, match_type')
+      .select('id, status, category, seed, started_at, player1_id, player2_id, category_deadline, match_type, lobby_categories')
       .eq('id', id)
       .single();
 
@@ -499,26 +492,9 @@
     renderLobby(id, match);
   }
 
-  function getLobbyCategories(id) {
-    const hex = id.replace(/-/g, '').slice(0, 8);
-    let state = parseInt(hex, 16) >>> 0;
-
-    function nextRand() {
-      state = ((state * 1664525) + 1013904223) >>> 0;
-      return state / 0xFFFFFFFF;
-    }
-
-    const arr = [...FREE_QM_CATS];
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(nextRand() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr.slice(0, LOBBY_CAT_COUNT);
-  }
-
   function renderLobby(id, match) {
-    console.log('[QM] renderLobby — id:', id);
-    const cats = getLobbyCategories(id);
+    console.log('[QM] renderLobby — id:', id, 'categories:', match.lobby_categories);
+    const cats = match.lobby_categories || [];
 
     card.innerHTML = `
       <div class="lobby-header">

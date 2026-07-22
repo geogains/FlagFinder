@@ -56,8 +56,8 @@ Deno is configured only for `supabase/functions/` — the VS Code workspace is s
 Each file in `js/categories/` exports an array of country objects. The key field varies (e.g., `population`, `gdp`, `score`) — the game engines auto-detect the metric key at runtime.
 
 ### Premium System
-- 6 free categories + daily challenge (always free)
-- 30 premium categories gated by `is_premium` flag in Supabase users table
+- 9 free categories + daily challenge (always free)
+- 33 premium categories gated by `is_premium` flag in Supabase users table
 - Stripe payments handled by `supabase/functions/create-checkout-session/` and `supabase/functions/stripe-webhook/`
 
 ### Routing

@@ -64,6 +64,9 @@
       from { opacity: 0; transform: translateY(24px); }
       to   { opacity: 1; transform: translateY(0); }
     }
+    @media (prefers-reduced-motion: reduce) {
+      .duel-card { animation: none; }
+    }
 
     .duel-header {
       text-align: center; margin-bottom: 2rem;
@@ -95,7 +98,6 @@
       transition: color 0.15s; white-space: nowrap;
     }
     .cp-back-btn:hover { color: #0d315a; }
-    .cp-title { font-size: 1rem; font-weight: 700; color: #0d315a; margin: 0; text-align: center; }
     .cp-body {
       flex: 1; overflow-y: auto; padding: 1rem 1.5rem;
       overscroll-behavior: contain;
@@ -160,7 +162,7 @@
       width: 100%; padding: 0.75rem; font-size: 0.95rem; font-weight: 600;
       background: #f3f4f6; color: #374151; border: none; border-radius: 12px;
       cursor: pointer; font-family: 'Poppins', sans-serif;
-      transition: background 0.15s ease; margin-bottom: 0.75rem;
+      transition: background 0.15s ease; margin-top: 0.75rem;
     }
     .btn-back:hover { background: #e5e7eb; }
 
@@ -298,9 +300,6 @@
       transition: color 0.15s ease;
     }
     .qm-mode-header-back:hover { color: #0d315a; }
-    .qm-mode-header-title {
-      font-size: 1rem; font-weight: 700; color: #0d315a;
-    }
     .qm-mode-cards {
       display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1rem;
     }
@@ -492,6 +491,27 @@
     }
     .history-toggle-btn:hover { border-color: #9ca3af; color: #374151; }
 
+    .history-pagination {
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; margin-top: 10px;
+    }
+    .history-page-btn {
+      padding: 6px 12px;
+      background: none; border: 1.5px solid #e5e7eb; border-radius: 8px;
+      font-family: 'Poppins', sans-serif; font-size: 0.78rem; font-weight: 600;
+      color: #6b7280; cursor: pointer; transition: all 0.15s ease;
+    }
+    .history-page-btn:hover:not(:disabled) { border-color: #9ca3af; color: #374151; }
+    .history-page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .history-page-label {
+      font-size: 0.78rem; font-weight: 600; color: #9ca3af; white-space: nowrap;
+    }
+    @media (max-width: 480px) {
+      .history-pagination { gap: 6px; }
+      .history-page-btn { padding: 6px 9px; font-size: 0.74rem; }
+      .history-page-label { font-size: 0.72rem; }
+    }
+
     /* Deep-link highlight: pulses the targeted challenge card */
     @keyframes csCardHighlight {
       0%   { box-shadow: 0 0 0 0   rgba(102,126,234,0.0); outline: 2px solid rgba(102,126,234,0.0); }
@@ -508,7 +528,7 @@
 
 <!-- Loading overlay -->
 <div id="pageLoadingOverlay">
-  <h2>⚔️ Loading…</h2>
+  <h2>Loading…</h2>
   <div class="spinner"></div>
 </div>
 
@@ -641,8 +661,12 @@
     const caps = await getUserCapabilities();
     // ?qm=1 is used by the "Play Again" button on the results page to
     // land directly on the Quick Match mode picker rather than the root landing.
+    // ?invite=1 is used by the homepage "Invite a Friend" CTA to land directly
+    // on the category picker rather than the root landing.
     if (urlParams.get('qm') === '1') {
       showQuickMatchModePicker(caps);
+    } else if (urlParams.get('invite') === '1') {
+      showCategoryPicker(caps);
     } else {
       showDuelLanding(caps);
     }
@@ -652,7 +676,7 @@
   mainContent.style.display = 'block';
 
   // Handle #challenges scroll on initial landing (not in sub-flows or waiting room)
-  if (!matchIdParam && urlParams.get('qm') !== '1') {
+  if (!matchIdParam && urlParams.get('qm') !== '1' && urlParams.get('invite') !== '1') {
     if (window.location.hash === '#challenges') {
       requestAnimationFrame(() => hubCard?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
     }
@@ -695,6 +719,19 @@
     });
   }
 
+  // Restarts the .duel-card fade-in (see @keyframes fadeInUp above) so a
+  // freshly-rendered view animates in — whether reached via a direct deep
+  // link (?qm=1 / ?invite=1) or by clicking into the flow from a page
+  // that's already loaded. Setting animation to 'none' then back to ''
+  // forces the browser to treat it as a new animation instance rather
+  // than a no-op; @media (prefers-reduced-motion: reduce) above disables
+  // the animation entirely regardless of this call.
+  function _replayCardFadeIn() {
+    card.style.animation = 'none';
+    void card.offsetWidth; // force reflow
+    card.style.animation = '';
+  }
+
   // ================================================================
   // QUICK MATCH MODE PICKER (revealed after clicking Quick Match CTA)
   // ================================================================
@@ -702,33 +739,37 @@
     if (hubCard) hubCard.style.display = 'none';
     card.innerHTML = `
       <div class="qm-mode-header">
-        <button class="qm-mode-header-back" id="qmBackBtn">← Back</button>
-        <span class="qm-mode-header-title">⚡ Quick Match</span>
+        <button class="qm-mode-header-back" id="qmBackBtn">Back</button>
+      </div>
+      <div class="duel-header">
+        <h1>Choose Game Mode</h1>
+        <p>Select a game mode and we'll find you an opponent.</p>
       </div>
       <div class="qm-mode-cards">
         <button class="qm-mode-card active" id="qmClassicBtn">
-          <span class="qm-mode-icon">⚔️</span>
+          <span class="qm-mode-icon">🌍</span>
           <div>
             <div class="qm-mode-name">Classic</div>
-            <div class="qm-mode-desc">Rank 10 countries · matched with a random opponent instantly</div>
+            <div class="qm-mode-desc">Rank 10 countries in the correct order against a random opponent.</div>
           </div>
         </button>
         <button class="qm-mode-card active" id="qmTop10Btn">
-          <span class="qm-mode-icon">📋</span>
+          <span class="qm-mode-icon">🔟</span>
           <div>
             <div class="qm-mode-name">Top 10</div>
-            <div class="qm-mode-desc">Type the top 10 countries in 2 minutes.</div>
+            <div class="qm-mode-desc">Name the top 10 countries before your opponent.</div>
           </div>
         </button>
         <button class="qm-mode-card active" id="qmVsBtn">
           <span class="qm-mode-icon">🆚</span>
           <div>
             <div class="qm-mode-name">Versus</div>
-            <div class="qm-mode-desc">Go round-for-round in live elimination mode.</div>
+            <div class="qm-mode-desc">Go head-to-head choosing the higher-ranked country.</div>
           </div>
         </button>
       </div>
     `;
+    _replayCardFadeIn();
 
     card.querySelector('#qmBackBtn').addEventListener('click', () => {
       showDuelLanding(caps);
@@ -752,7 +793,7 @@
   // ================================================================
   function showCategoryPicker(caps) {
     const allKeys = Object.keys(categoriesConfig).filter(k =>
-      !['rainfall', 'hightemp', 'precipitation'].includes(k)
+      !['rainfall', 'hightemp'].includes(k)
     );
 
     const freeCats    = allKeys.filter(k => categoriesConfig[k].tier === 'free');
@@ -778,18 +819,22 @@
 
     card.innerHTML = `
       <div class="cp-header">
-        <button class="cp-back-btn" id="backToLandingBtn">← Back</button>
-        <h2 class="cp-title">⚔️ Duel a Friend</h2>
-        <div></div>
+        <button class="cp-back-btn" id="backToLandingBtn">Back</button>
       </div>
       <div class="cp-body">
-        <p style="color:#6b7280;font-size:0.88rem;margin:0 0 1rem;">Pick a category, share the link, and race your friend head-to-head</p>
+        <div class="duel-header">
+          <h1>⚔️ Duel a Friend</h1>
+          <p>Challenge a friend to the same category and see who comes out on top.</p>
+        </div>
+        <div style="font-size:0.95rem;font-weight:700;color:#0d315a;margin:0 0 0.25rem;">Choose a Category</div>
+        <p style="color:#6b7280;font-size:0.88rem;margin:0 0 1rem;">Select one category to continue.</p>
         <div class="category-grid" id="categoryGrid"></div>
       </div>
       <div class="cp-footer">
-        <button class="btn-create" id="nextBtn">Next: Choose Mode →</button>
+        <button class="btn-create" id="nextBtn">Continue to Game Mode</button>
       </div>
     `;
+    _replayCardFadeIn();
 
     card.querySelector('#backToLandingBtn').addEventListener('click', () => {
       card.classList.remove('duel-card--picker');
@@ -862,7 +907,7 @@
     const modes = [
       {
         key: 'classic',
-        icon: '⚔️',
+        icon: '🌍',
         name: 'Classic',
         desc: 'Rank 10 countries in the correct order — place them all to win'
       },
@@ -874,7 +919,7 @@
       },
       {
         key: 'top10',
-        icon: '📋',
+        icon: '🔟',
         name: 'Top 10',
         desc: 'Type the top 10 countries — name as many as you can in 2 minutes'
       }
@@ -886,8 +931,8 @@
         <p>Category: <strong>${cfg?.emoji || ''} ${cfg?.title || category}</strong></p>
       </div>
       <div class="mode-grid" id="modeGrid"></div>
-      <button class="btn-back" id="backBtn">← Back to Categories</button>
       <button class="btn-create" id="createBtn">Create Challenge</button>
+      <button class="btn-back" id="backBtn">Back to Categories</button>
     `;
 
     const modeGrid = card.querySelector('#modeGrid');
@@ -1016,7 +1061,7 @@
     const cfg = categoriesConfig[matchData.category];
     const inviteUrl = `${window.location.origin}/duel?match=${matchId}`;
     const isWaiting = matchData.status === 'waiting' || matchData.player2_id === null;
-    const modeLabelMap = { classic: '⚔️ Classic', vs: '🆚 VS Mode', top10: '📋 Top 10' };
+    const modeLabelMap = { classic: '🌍 Classic', vs: '🆚 VS Mode', top10: '🔟 Top 10' };
     const modeLabel = modeLabelMap[matchData.duel_mode] || '⚔️ Classic';
 
     card.innerHTML = `
@@ -1416,7 +1461,8 @@
     }
 
     if (history.length > 0) {
-      const HISTORY_INITIAL = 2;
+      const HISTORY_INITIAL   = 2;
+      const HISTORY_PAGE_SIZE = 5;
 
       const historyWrap = document.createElement('div');
       historyWrap.className = 'history-section';
@@ -1433,15 +1479,69 @@
       historyCards.className = 'history-cards';
       historyWrap.appendChild(historyCards);
 
-      // If the highlight target is in history, start expanded so it's visible.
-      const targetInHistory = highlightMatchId &&
-        historyDomCards.some(c => c.dataset.challengeCard === highlightMatchId);
-      let expanded = targetInHistory;
+      const historyPagination = document.createElement('div');
+      historyPagination.className = 'history-pagination';
+      historyWrap.appendChild(historyPagination);
+
+      // If the highlight target is in history, start expanded on the page
+      // that contains it so it's visible.
+      const targetIndex = highlightMatchId
+        ? historyDomCards.findIndex(c => c.dataset.challengeCard === highlightMatchId)
+        : -1;
+      const targetInHistory = targetIndex >= 0;
+      let expanded    = targetInHistory;
+      let currentPage = targetInHistory ? Math.floor(targetIndex / HISTORY_PAGE_SIZE) + 1 : 1;
+
+      function renderHistoryPagination() {
+        historyPagination.innerHTML = '';
+        if (!expanded || historyDomCards.length <= HISTORY_PAGE_SIZE) return;
+
+        const totalPages = Math.ceil(historyDomCards.length / HISTORY_PAGE_SIZE);
+
+        const prevBtn = document.createElement('button');
+        prevBtn.type = 'button';
+        prevBtn.className = 'history-page-btn history-page-prev';
+        prevBtn.textContent = '‹ Previous';
+        prevBtn.setAttribute('aria-label', 'Previous page of duel history');
+        prevBtn.disabled = currentPage === 1;
+        prevBtn.addEventListener('click', () => {
+          if (currentPage > 1) { currentPage--; renderHistoryCards(); }
+        });
+
+        const label = document.createElement('span');
+        label.className = 'history-page-label';
+        label.textContent = `Page ${currentPage} of ${totalPages}`;
+
+        const nextBtn = document.createElement('button');
+        nextBtn.type = 'button';
+        nextBtn.className = 'history-page-btn history-page-next';
+        nextBtn.textContent = 'Next ›';
+        nextBtn.setAttribute('aria-label', 'Next page of duel history');
+        nextBtn.disabled = currentPage === totalPages;
+        nextBtn.addEventListener('click', () => {
+          if (currentPage < totalPages) { currentPage++; renderHistoryCards(); }
+        });
+
+        historyPagination.appendChild(prevBtn);
+        historyPagination.appendChild(label);
+        historyPagination.appendChild(nextBtn);
+      }
 
       function renderHistoryCards() {
         while (historyCards.firstChild) historyCards.removeChild(historyCards.firstChild);
-        const toShow = expanded ? historyDomCards : historyDomCards.slice(0, HISTORY_INITIAL);
+
+        let toShow;
+        if (!expanded) {
+          toShow = historyDomCards.slice(0, HISTORY_INITIAL);
+        } else {
+          const totalPages = Math.max(1, Math.ceil(historyDomCards.length / HISTORY_PAGE_SIZE));
+          if (currentPage > totalPages) currentPage = totalPages;
+          const start = (currentPage - 1) * HISTORY_PAGE_SIZE;
+          toShow = historyDomCards.slice(start, start + HISTORY_PAGE_SIZE);
+        }
+
         for (const card of toShow) historyCards.appendChild(card);
+        renderHistoryPagination();
         _startCountdowns();
       }
 
@@ -1454,6 +1554,7 @@
         toggleBtn.textContent = expanded ? 'Show Less' : `Show ${extra} More`;
         toggleBtn.addEventListener('click', () => {
           expanded = !expanded;
+          currentPage = 1; // collapsing/reopening always resets to page 1
           toggleBtn.textContent = expanded ? 'Show Less' : `Show ${extra} More`;
           renderHistoryCards();
         });

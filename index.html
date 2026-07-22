@@ -754,7 +754,7 @@
         flex: 1 1 0;
         margin-top: 0;
       }
-      .hero-cards-row .hero-wc-block {
+      .hero-cards-row .play-online-block {
         width: auto;
         min-width: 260px;
         max-width: 500px;
@@ -763,11 +763,10 @@
     }
 
     /* ========================================
-       WORLD CUP PROMO CARD
+       PLAY ONLINE CARD
     ======================================== */
-    .hero-wc-block {
+    .play-online-block {
       position: relative;
-      overflow: hidden;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -775,43 +774,20 @@
       width: clamp(320px, 54vw, 620px);
       min-height: 210px;
       padding: 36px 40px 32px;
-      background: #0a280f;
-      border: 1px solid rgba(255, 255, 255, 0.5);
+      background: #ffffff;
+      border: 1px solid rgba(26, 58, 92, 0.12);
       border-radius: 24px;
-      box-shadow: 0 8px 40px rgba(0, 80, 20, 0.22);
-      text-decoration: none;
+      box-shadow: 0 8px 40px rgba(13, 49, 90, 0.18);
       animation: heroBlockIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.42s both;
-      cursor: pointer;
       transition: box-shadow 0.4s ease, transform 0.3s ease;
     }
 
-    .hero-wc-block:hover {
-      box-shadow: 0 14px 56px rgba(0, 100, 30, 0.3);
+    .play-online-block:hover {
+      box-shadow: 0 14px 56px rgba(13, 49, 90, 0.28);
       transform: translateY(-2px);
     }
 
-    .hero-wc-bg {
-      position: absolute;
-      inset: 0;
-      background-size: cover;
-      background-position: center;
-      z-index: 0;
-      transform: scale(1.05);
-      transition: transform 0.6s ease;
-    }
-
-    .hero-wc-block:hover .hero-wc-bg {
-      transform: scale(1.1);
-    }
-
-    .hero-wc-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(160deg, rgba(0, 50, 15, 0.58) 0%, rgba(0, 25, 8, 0.75) 100%);
-      z-index: 1;
-    }
-
-    .hero-wc-content {
+    .play-online-content {
       position: relative;
       z-index: 2;
       display: flex;
@@ -822,62 +798,89 @@
       text-align: center;
     }
 
-    .wc-free-badge {
-      display: inline-flex;
-      align-items: center;
-      background: linear-gradient(135deg, rgba(34, 197, 94, 0.92), rgba(16, 160, 60, 0.92));
-      color: white;
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 4px 12px;
-      border-radius: 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    }
-
-    .wc-promo-title {
+    .play-online-title {
       font-size: 1.4rem;
       font-weight: 700;
-      color: white;
-      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+      color: #1a3a5c;
       font-family: 'Rubik', 'Poppins', sans-serif;
       line-height: 1.2;
       margin: 0;
     }
 
-    .wc-promo-body {
+    .play-online-subtitle {
       font-size: 0.86rem;
-      color: rgba(255, 255, 255, 0.85);
+      color: rgba(26, 58, 92, 0.78);
       line-height: 1.5;
-      margin: 0;
+      margin: 0 0 6px;
       max-width: 340px;
     }
 
-    .wc-cta-btn {
+    .play-online-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .play-online-btn-primary,
+    .play-online-btn-secondary {
       display: block;
       width: 100%;
+      box-sizing: border-box;
       text-align: center;
       padding: 14px 28px;
       border-radius: 12px;
-      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
-      color: white;
       font-weight: 600;
       font-size: 1rem;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: 0 6px 20px rgba(255, 111, 97, 0.4);
+      text-decoration: none;
       font-family: 'Poppins', sans-serif;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
     }
 
-    .hero-wc-block:hover .wc-cta-btn {
+    .play-online-btn-primary {
+      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
+      color: white;
+      border: none;
+      box-shadow: 0 6px 20px rgba(255, 111, 97, 0.4);
+    }
+
+    .play-online-btn-primary:hover {
+      transform: translateY(-2px);
       box-shadow: 0 10px 28px rgba(255, 111, 97, 0.52);
     }
 
+    .play-online-btn-secondary {
+      background: #ffffff;
+      color: #1a3a5c;
+      border: 1.5px solid #1a3a5c;
+    }
+
+    .play-online-btn-secondary:hover {
+      background: rgba(26, 58, 92, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .play-online-btn-primary:focus-visible,
+    .play-online-btn-secondary:focus-visible {
+      outline: 2px solid #1a3a5c;
+      outline-offset: 3px;
+    }
+
     @media (max-width: 480px) {
-      .hero-wc-block {
+      .play-online-block {
         width: min(92vw, 380px);
         min-height: 158px;
         padding: 26px 26px 22px;
+      }
+
+      .play-online-actions {
+        gap: 10px;
+      }
+
+      .play-online-btn-primary,
+      .play-online-btn-secondary {
+        padding: 12px 20px;
+        font-size: 0.95rem;
       }
     }
 
@@ -948,17 +951,17 @@
         </div>
       </div>
 
-      <!-- World Cup Special card -->
-      <a href="worldcup.html" class="hero-wc-block">
-        <div class="hero-wc-bg" style="background-image: url('images/categories/worldcup.jpg')"></div>
-        <div class="hero-wc-overlay"></div>
-        <div class="hero-wc-content">
-          <span class="wc-free-badge">Free to play</span>
-          <h2 class="wc-promo-title">⚽ World Cup Special</h2>
-          <p class="wc-promo-body">Explore four FIFA World Cup ranking challenges — trophies, goals, appearances, and match wins.</p>
-          <span class="wc-cta-btn">Play World Cup Categories</span>
+      <!-- Play Online card -->
+      <div class="play-online-block">
+        <div class="play-online-content">
+          <h2 class="play-online-title">Play Online</h2>
+          <p class="play-online-subtitle">Challenge players around the world.</p>
+          <div class="play-online-actions">
+            <a href="duel?qm=1" class="play-online-btn-primary">Quick Match</a>
+            <a href="duel?invite=1" class="play-online-btn-secondary">Invite a Friend</a>
+          </div>
         </div>
-      </a>
+      </div>
 
     </div>
   </div>

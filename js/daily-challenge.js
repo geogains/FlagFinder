@@ -3,47 +3,17 @@
 
 import { supabase } from './supabase-client.js';
 import { CATEGORY_ID_MAP } from './categories-config.js';
+import {
+  ALL_CATEGORIES as allCategories,
+  TOP10_VALID_CATEGORIES as top10ValidCategories,
+  VS_SMALL_DATASET,
+  VS_ELIGIBLE_CATEGORIES as vsEligibleCategories
+} from './category-compatibility.js';
 
 console.log('Daily Challenge system loaded');
 
-// All available categories
-const allCategories = [
-  'population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
-  'olympic', 'worldcup', 'passport', 'beer', 'nobelprize', 
-  'hightemp', 'rainfall', 'crimerate', 'happiness', 'cuisine','tourism', 'michelin', 'bigmac', 'lifeexpectancy',
-  // NEW CATEGORIES
-  'marriageage', 'sexratio', 'tallestbuilding', 'density', 'carexports',
-  'militarypersonel', 'rent', 'poorestgdp', 'university', 'volcano',
-  'flamingo', 'disasterrisk', 'longestriver', 'renewableenergy', 'millionaires', 'gm',
-  'f1', 'worldcupgoals', 'worldcupappearances', 'worldcupwins'
-];
-
-// Categories with at least 10 countries (valid for Top 10 mode)
-const top10ValidCategories = [
-  'population', 'gdp', 'landmass', 'altitude', 'forest', 'coastline',
-  'passport', 'beer', 'nobelprize', 'hightemp', 'rainfall',
-  'crimerate', 'happiness','tourism', 'michelin', 'bigmac', 'lifeexpectancy',
-  // NEW CATEGORIES (all have 10+ countries)
-  'marriageage', 'sexratio', 'tallestbuilding', 'density', 'carexports',
-  'militarypersonel', 'rent', 'poorestgdp', 'university', 'volcano',
-  'flamingo', 'disasterrisk', 'longestriver', 'renewableenergy', 'millionaires', 'gm',
-  'f1', 'worldcupgoals', 'worldcupappearances', 'worldcupwins'
-];
-
 // All categories valid for Classic and VS (no minimum requirement)
 const classicVsCategories = [...allCategories];
-
-// Categories excluded from VS daily challenge because their datasets are too small
-// (< 30 countries). In VS mode the full dataset is shuffled and cycled; small datasets
-// produce a visible loop within the 2-minute session (e.g. 10 countries = 5-pair loop).
-const VS_SMALL_DATASET = new Set([
-  'happiness', 'worldcup', 'carexports', 'flamingo', 'tourism',
-  'marriageage', 'longestriver', 'nobelprize', 'millionaires', 'poorestgdp',
-  'sexratio', 'university', 'renewableenergy', 'volcano', 'cuisine', 'f1'
-]);
-
-// Categories valid for VS daily challenge (≥ 30 country entries)
-const vsEligibleCategories = allCategories.filter(cat => !VS_SMALL_DATASET.has(cat));
 
 // Game modes
 const gameModes = ['classic', 'top10', 'vs'];

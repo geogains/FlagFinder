@@ -601,7 +601,7 @@
 
 <!-- Loading overlay -->
 <div id="pageLoadingOverlay">
-  <h2>⚔️ Loading results…</h2>
+  <h2>Loading results…</h2>
   <div class="spinner"></div>
 </div>
 
@@ -961,8 +961,8 @@
     let actionsInnerHtml;
     if (match.match_type === 'quick') {
       actionsInnerHtml = `
-        <a href="duel?qm=1" class="action-btn primary">⚡ Play Again</a>
-        <a href="index.html"      class="action-btn secondary">🏠 Return Home</a>
+        <a href="duel?qm=1" class="action-btn primary">Play Again</a>
+        <a href="index.html"      class="action-btn secondary">Home</a>
         <a href="leaderboard.html" class="action-btn secondary">🏆 Leaderboard</a>`;
     } else if (match.match_type === 'direct') {
       const rematchQuery = `category=${encodeURIComponent(match.category)}` +

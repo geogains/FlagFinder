@@ -238,7 +238,7 @@ const MODES = {
     gameFile: 'top10'
   },
   vs: {
-    icon: '⚔️',
+    icon: '🆚',
     name: 'VS MODE',
     description: 'Which country ranks higher? Unlimited rounds',
     gameFile: 'vs'
