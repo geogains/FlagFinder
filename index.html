@@ -1166,7 +1166,8 @@
 
 <!-- ③ Supabase auth — sign-in text, premium button, streak badge.
      Identity sourced exclusively from public.users.username via getUserCapabilities().
-     getUserCapabilities() is already called by identity-gate.js (cached) — no extra DB call. -->
+     identity-gate.js also calls getUserCapabilities() below — concurrent calls
+     dedupe onto one in-flight request, so this doesn't cause an extra DB call. -->
 <script type="module">
   import { getUserCapabilities } from './js/permissions.js';
   import { supabase }            from './js/supabase-client.js';

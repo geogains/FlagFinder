@@ -61,6 +61,10 @@ const AUTH_FREE_CAPABILITIES  = { isAuthenticated: true,  tier: 'free', username
 
 // Module-level cache — one DB read per page load.
 let _cachedPermissions = null;
+// In-flight load promise — lets concurrent callers share one request instead
+// of each firing their own getSessionSafe()/users select before the first
+// call has resolved and populated _cachedPermissions.
+let _permissionsPromise = null;
 
 // Resolve effective tier from a DB row.
 // subscription_tier is the source of truth; is_premium is the fallback
@@ -89,15 +93,36 @@ function resolveEffectiveTier(row) {
  * Authenticated + DB error:  { isAuthenticated: true,  tier: 'free', ... }  ← identity preserved
  * Authenticated + tier:      { isAuthenticated: true,  tier: 'premium', ... }
  *
- * Result is cached for the lifetime of the page.
+ * Result is cached for the lifetime of the page. Concurrent callers made
+ * before the first load resolves share the same in-flight request rather
+ * than each issuing their own getSessionSafe()/users round-trip.
  */
 export async function getUserCapabilities() {
   if (_cachedPermissions) return _cachedPermissions;
 
+  if (!_permissionsPromise) {
+    const promise = loadPermissions()
+      .then(result => {
+        // Guard against a clearPermissionsCache() that fired while this was
+        // in flight — don't let a stale resolution repopulate the cache.
+        if (_permissionsPromise === promise) _cachedPermissions = result;
+        return result;
+      })
+      .finally(() => {
+        if (_permissionsPromise === promise) _permissionsPromise = null;
+      });
+    _permissionsPromise = promise;
+  }
+
+  return _permissionsPromise;
+}
+
+// Does the actual session + profile read. Split out from getUserCapabilities()
+// so the caching/dedup logic above stays independent of the load logic here.
+async function loadPermissions() {
   const { data: { session } } = await getSessionSafe();
   if (!session?.user) {
-    _cachedPermissions = GUEST_CAPABILITIES;
-    return _cachedPermissions;
+    return GUEST_CAPABILITIES;
   }
 
   const { data: profile, error } = await supabase
@@ -109,14 +134,12 @@ export async function getUserCapabilities() {
   if (error || !profile) {
     console.warn('[permissions] profile fetch failed — defaulting to free', error?.message);
     // isAuthenticated: true — the session is valid; we just couldn't read the tier.
-    _cachedPermissions = AUTH_FREE_CAPABILITIES;
-    return _cachedPermissions;
+    return AUTH_FREE_CAPABILITIES;
   }
 
   const tier = resolveEffectiveTier(profile);
   const capabilities = TIER_CAPABILITIES[tier] ?? TIER_CAPABILITIES.free;
-  _cachedPermissions = { isAuthenticated: true, tier, username: profile.username ?? null, ...capabilities };
-  return _cachedPermissions;
+  return { isAuthenticated: true, tier, username: profile.username ?? null, ...capabilities };
 }
 
 /**
@@ -164,4 +187,5 @@ export async function canAccessFeature(featureName) {
  */
 export function clearPermissionsCache() {
   _cachedPermissions = null;
+  _permissionsPromise = null;
 }

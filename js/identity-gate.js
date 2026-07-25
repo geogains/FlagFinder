@@ -7,8 +7,9 @@
 // here afterward.
 //
 // Guests (not logged in) pass through — other auth guards handle those.
-// getUserCapabilities() is already cached per page load, so on pages that
-// call it themselves this check adds zero extra DB round-trips.
+// getUserCapabilities() dedupes concurrent callers onto one in-flight request,
+// so on pages that also call it themselves this check adds no extra DB round-trip
+// even when both calls happen before the first one resolves.
 
 import { getUserCapabilities } from './permissions.js';
 
