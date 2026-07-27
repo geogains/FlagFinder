@@ -177,6 +177,38 @@
     }
     .ach-label.has-badges { color: #9ca3af; }
 
+    /* ── First Believer — isolated honorary tile ─────────────────────
+       Rendered only when get_public_first_believer_badge(p_user_id) returns
+       a badge for the profile being viewed. Not part of the equipped-badge
+       slots above, not counted anywhere, not shown for any other profile. */
+    .fb-badge-card {
+      display: flex; align-items: center; gap: 12px;
+      max-width: 360px; margin: 0 auto 20px;
+      padding: 10px 16px;
+      border: 1.5px solid rgba(184,154,84,0.35);
+      border-radius: 16px;
+      background: linear-gradient(165deg, rgba(255,253,248,0.92) 0%, rgba(246,241,228,0.8) 100%);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+      text-align: left;
+    }
+    .fb-badge-emblem { flex: 0 0 auto; width: 44px; height: 44px; }
+    .fb-badge-emblem svg { width: 100%; height: 100%; }
+    .fb-badge-text { min-width: 0; }
+    .fb-badge-pill {
+      display: inline-block;
+      font-size: 0.62rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: #8a7440; background: rgba(184,154,84,0.15);
+      border: 1px solid rgba(184,154,84,0.35);
+      border-radius: 999px; padding: 2px 7px;
+      margin-bottom: 3px;
+    }
+    .fb-badge-title { font-size: 0.9rem; font-weight: 800; color: #0d315a; margin: 0 0 2px; }
+    .fb-badge-desc   { font-size: 0.74rem; color: #6b7280; margin: 0; line-height: 1.35; }
+    @media (max-width: 480px) {
+      .fb-badge-card { flex-direction: column; text-align: center; }
+    }
+
 
     /* Challenge button — active state */
     .challenge-btn-real {
@@ -726,6 +758,7 @@
   import { supabase }        from '../js/supabase-client.js';
   import { CATEGORY_ID_MAP } from '../js/top10-categories-loader.js';
   import { BADGE_META }      from '../js/achievement-celebration.js';
+  import { FIRST_BELIEVER_EMBLEM_SVG } from '../js/first-believer.js';
 
   const ID_TO_KEY = {};
   for (const [key, id] of Object.entries(CATEGORY_ID_MAP)) {
@@ -852,6 +885,21 @@
     showError('Player not found', `"${escHtml(username)}" hasn't joined GeoRanks yet.`);
     throw new Error('user not found');
   }
+
+  // First Believer — entirely independent of every other query on this page.
+  // Uses the narrow public-safe summary RPC (title/description only, never
+  // the private message) with the *viewed* profile's id, exactly like the
+  // equipped-badges query above scopes by user.id rather than the viewer's
+  // session. Resolves to null for every profile without a genuine grant, so
+  // this renders nothing for anyone except an authorised recipient/tester.
+  // Not part of the Promise.all below — it never blocks or reorders the rest
+  // of the profile load.
+  supabase.rpc('get_public_first_believer_badge', { p_user_id: user.id })
+    .then(({ data, error }) => {
+      if (error || !data) return;
+      renderFirstBelieverBadge(data);
+    })
+    .catch(() => { /* migration not applied yet, or network failure — no-op */ });
 
   // Stats (gamesPlayed, streaks, achCount) are now read from the public cache
   // columns on public.users — no separate protected-table queries needed.
@@ -1003,6 +1051,28 @@
     });
     const achLabel = document.querySelector('.ach-label');
     if (achLabel) { achLabel.className = 'ach-label has-badges'; achLabel.textContent = 'Badges'; }
+  }
+
+  // ── First Believer — isolated honorary tile ─────────────────────
+  // Not part of the equipped-badge slots above and not counted in any
+  // stat. Called only when get_public_first_believer_badge() returned a
+  // badge for this profile; every other profile never calls this at all.
+  function renderFirstBelieverBadge(badge) {
+    if (document.getElementById('fbBadgeCard')) return; // idempotent guard
+    const anchor = document.querySelector('.achievement-area');
+    if (!anchor) return;
+
+    const card = document.createElement('div');
+    card.id = 'fbBadgeCard';
+    card.className = 'fb-badge-card';
+    card.innerHTML = `
+      <div class="fb-badge-emblem">${FIRST_BELIEVER_EMBLEM_SVG}</div>
+      <div class="fb-badge-text">
+        <span class="fb-badge-pill">Honorary Badge</span>
+        <h3 class="fb-badge-title">${escHtml(badge.title)}</h3>
+        <p class="fb-badge-desc">${escHtml(badge.description)}</p>
+      </div>`;
+    anchor.insertAdjacentElement('afterend', card);
   }
 
   // ── Render strengths ──────────────────────────────────────────────

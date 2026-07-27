@@ -1,6 +1,8 @@
 // js/streak-celebration.js
 // Streak celebration modal — shown after record_user_activity when streak increases.
 
+import { waitForOverlayClose } from './modal-sequencing.js';
+
 // ---------------------------------------------------------------------------
 // Confetti
 // ---------------------------------------------------------------------------
@@ -440,13 +442,27 @@ export function showPendingStreakCelebrationIfAny() {
 // ---------------------------------------------------------------------------
 // recordActivityAndMaybeCelebrate({ categoryId, gameMode, deferCelebration })
 // Replaces the inline record_user_activity call in each results page.
-// Returns { error } — same shape as the supabase rpc call it wraps.
+// Returns { error, celebrationSettled }.
+//
+// celebrationSettled is a promise that resolves once the streak-modal
+// lifecycle for this call has fully settled:
+//   - resolves immediately if no celebration was due today (no streak
+//     increase, already celebrated today, or deferred to another page),
+//   - otherwise resolves only after showStreakCelebration() has actually
+//     mounted (past its internal 1500ms schedule + any premium-modal wait)
+//     AND been dismissed.
+// This exists so other code (e.g. the First Believer reveal) can wait for
+// "the normal streak celebration has genuinely finished" without racing the
+// scheduling delay — awaiting this promise is the deterministic replacement
+// for guessing a fixed timeout.
 //
 // deferCelebration: pass true from pages that navigate away shortly after
 // calling this (e.g. Duel, which waits for an opponent or redirects to
 // duelresults/classicresults) — the celebration is stashed for the next
 // page to display via showPendingStreakCelebrationIfAny() instead of being
-// shown on this page via setTimeout, which navigation would cut short.
+// shown on this page via setTimeout, which navigation would cut short. In
+// this case celebrationSettled resolves immediately, since nothing will be
+// shown on the current page.
 // ---------------------------------------------------------------------------
 
 export async function recordActivityAndMaybeCelebrate(supabase, session, { categoryId, gameMode, deferCelebration = false }) {
@@ -471,7 +487,7 @@ export async function recordActivityAndMaybeCelebrate(supabase, session, { categ
   });
   if (error) {
     console.error('⚠️ Streak update failed:', error);
-    return { error };
+    return { error, celebrationSettled: Promise.resolve() };
   }
   console.log('🔥 Streak updated.');
 
@@ -488,18 +504,27 @@ export async function recordActivityAndMaybeCelebrate(supabase, session, { categ
   const flagKey = `georanks_streak_celebrated:${session.user.id}`;
   const alreadyCelebrated = localStorage.getItem(flagKey) === today;
 
+  let celebrationSettled = Promise.resolve();
+
   if (newStreak > prevStreak && !alreadyCelebrated) {
     localStorage.setItem(flagKey, today);
     if (deferCelebration) {
       stashPendingStreakCelebration(prevStreak, newStreak);
+      // Nothing will be shown on this page — settled immediately.
     } else {
-      // Delay ensures results are visible; then yield to any premium modal first
-      setTimeout(async () => {
-        await waitForPremiumModalClose();
-        showStreakCelebration(prevStreak, newStreak);
-      }, 1500);
+      // Delay ensures results are visible; then yield to any premium modal
+      // first. celebrationSettled resolves only once the modal has actually
+      // mounted (past this same delay) and been dismissed.
+      celebrationSettled = new Promise(resolve => {
+        setTimeout(async () => {
+          await waitForPremiumModalClose();
+          showStreakCelebration(prevStreak, newStreak);
+          await waitForOverlayClose('streakCelebrationOverlay');
+          resolve();
+        }, 1500);
+      });
     }
   }
 
-  return { error: null };
+  return { error: null, celebrationSettled };
 }

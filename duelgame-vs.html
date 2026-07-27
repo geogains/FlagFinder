@@ -346,6 +346,7 @@
   import { createDuelChannel } from './js/duel-channel.js';
   import { evaluateAchievements } from './js/achievements.js';
   import { recordActivityAndMaybeCelebrate } from './js/streak-celebration.js';
+  import { maybeShowFirstBelieverReveal } from './js/first-believer.js';
 
   // ── Auth guard ───────────────────────────────────────────────────────────
   const { data: { session } } = await supabase.auth.getSession();
@@ -572,7 +573,7 @@
     }
 
     // Result verified and saved — safe to count towards the daily streak.
-    await recordActivityAndMaybeCelebrate(supabase, session, {
+    const { celebrationSettled } = await recordActivityAndMaybeCelebrate(supabase, session, {
       categoryId: CATEGORY_ID_MAP[mode] || null,
       gameMode: 'duel_vs',
       deferCelebration: true
@@ -591,7 +592,10 @@
     }).then(({ error }) => {
       if (error) console.warn('⚠️ game_sessions (duel-vs) insert failed:', error.message);
     });
-    evaluateAchievements(supabase, session);
+    // First Believer: grant check only on this page — see duelgame.html for
+    // why the reveal itself is skipped here (deferred streak celebration).
+    const firstBelieverSettled = maybeShowFirstBelieverReveal(supabase, session, { celebrationSettled, skipReveal: true });
+    firstBelieverSettled.then(() => evaluateAchievements(supabase, session));
 
     // Stage 3B: mark session completed
     try {

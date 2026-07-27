@@ -940,6 +940,7 @@ Can you beat my score? Play at geo-ranks.com/vs?mode=${categoryKey}`;
     import { supabase } from './js/supabase-client.js';
     import { recordActivityAndMaybeCelebrate } from './js/streak-celebration.js';
     import { evaluateAchievements } from './js/achievements.js';
+    import { maybeShowFirstBelieverReveal } from './js/first-believer.js';
 
     // Block navigation while save is in flight
     const _hasSave = !!localStorage.getItem('vsPendingSave');
@@ -1014,7 +1015,7 @@ Can you beat my score? Play at geo-ranks.com/vs?mode=${categoryKey}`;
         else console.log('✅ VS daily challenge score saved.');
       }
       if (allSucceeded) {
-        await recordActivityAndMaybeCelebrate(supabase, session, {
+        const { celebrationSettled } = await recordActivityAndMaybeCelebrate(supabase, session, {
           categoryId: record.categoryId,
           gameMode: record.isDailyChallenge ? 'daily_challenge' : 'vs'
         });
@@ -1031,7 +1032,11 @@ Can you beat my score? Play at geo-ranks.com/vs?mode=${categoryKey}`;
         }).then(({ error }) => {
           if (error) console.warn('⚠️ game_sessions (vs) insert failed:', error.message);
         });
-        evaluateAchievements(supabase, session);
+        // First Believer: waits for the normal streak celebration to settle,
+        // then reveals if (and only if) a pending grant exists. No-op for
+        // everyone else. See js/first-believer.js.
+        const firstBelieverSettled = maybeShowFirstBelieverReveal(supabase, session, { celebrationSettled });
+        firstBelieverSettled.then(() => evaluateAchievements(supabase, session));
         localStorage.removeItem('vsPendingSave');
       }
     })();

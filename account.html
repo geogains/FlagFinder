@@ -668,6 +668,42 @@
       box-shadow: 0 1px 4px rgba(16,185,129,0.45);
     }
 
+    /* ── First Believer — isolated honorary tile ─────────────────────
+       Extends .bc-section's card chrome; not part of BADGE_CATALOG or
+       the platinum count. Only ever rendered for an account that holds
+       a genuine grant (see js/first-believer.js). */
+    .bc-fb-section {
+      border-color: rgba(184,154,84,0.35);
+      background: linear-gradient(165deg, rgba(255,253,248,0.9) 0%, rgba(246,241,228,0.75) 100%);
+    }
+    .bc-fb-card {
+      display: flex; align-items: center; gap: 14px;
+      padding: 10px 16px 16px;
+    }
+    .bc-fb-emblem { flex: 0 0 auto; width: 52px; height: 52px; }
+    .bc-fb-emblem svg { width: 100%; height: 100%; }
+    .bc-fb-text { min-width: 0; }
+    .bc-fb-pill {
+      display: inline-block;
+      font-size: 0.65rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: #8a7440; background: rgba(184,154,84,0.15);
+      border: 1px solid rgba(184,154,84,0.35);
+      border-radius: 999px; padding: 2px 8px;
+      margin-bottom: 4px;
+    }
+    .bc-fb-title {
+      font-size: 0.95rem; font-weight: 800; color: #0d315a;
+      margin: 0 0 2px;
+    }
+    .bc-fb-desc {
+      font-size: 0.78rem; color: #6b7280; margin: 0;
+      line-height: 1.4;
+    }
+    @media (max-width: 480px) {
+      .bc-fb-card { flex-direction: column; text-align: center; }
+    }
+
     /* Modal */
     .bc-modal-backdrop {
       position: fixed; inset: 0; z-index: 9000;
@@ -2596,6 +2632,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <script type="module">
   import { supabase, getSessionSafe } from './js/supabase-client.js';
   import { evaluateAchievements, BADGE_META } from './js/achievements.js';
+  import { FIRST_BELIEVER_EMBLEM_SVG } from './js/first-believer.js';
 
   function escHtml(s) {
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -2852,6 +2889,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const wrap = document.createElement('div');
       const isSpecialist = section.key === 'specialist';
       wrap.className = `bc-section${isSpecialist ? ' bc-collapsed' : ''}`;
+      wrap.dataset.section = section.key; // lookup anchor for the First Believer tile below
 
       const hdr = document.createElement('button');
       hdr.className = 'bc-section-header';
@@ -2923,6 +2961,39 @@ document.addEventListener('DOMContentLoaded', function() {
 
       container.appendChild(wrap);
     });
+
+    renderFirstBelieverTile();
+  }
+
+  // ── First Believer — isolated honorary tile ─────────────────────
+  // Not part of SECTIONS/BADGE_CATALOG and not counted in bcCount or any
+  // section's earned/total. Populated from _firstBelieverBadge (set by the
+  // independent get_public_first_believer_badge fetch below) — renders
+  // nothing until/unless that fetch returns a badge for this account.
+  // Idempotent: safe to call multiple times (e.g. every renderBadgeCollection
+  // re-render, and again whenever the fetch resolves after the first render).
+  function renderFirstBelieverTile() {
+    const existing = document.getElementById('bcFirstBelieverSection');
+    if (existing) existing.remove();
+    if (!_firstBelieverBadge) return;
+
+    const container = document.getElementById('bcSections');
+    const platinumWrap = container?.querySelector('[data-section="platinum"]');
+    if (!platinumWrap) return; // platinum section not rendered (yet) — next call will retry
+
+    const section = document.createElement('div');
+    section.id = 'bcFirstBelieverSection';
+    section.className = 'bc-section bc-fb-section';
+    section.innerHTML = `
+      <div class="bc-fb-card">
+        <div class="bc-fb-emblem">${FIRST_BELIEVER_EMBLEM_SVG}</div>
+        <div class="bc-fb-text">
+          <span class="bc-fb-pill">Special Recognition</span>
+          <h4 class="bc-fb-title">${escHtml(_firstBelieverBadge.title)}</h4>
+          <p class="bc-fb-desc">${escHtml(_firstBelieverBadge.description)}</p>
+        </div>
+      </div>`;
+    platinumWrap.insertAdjacentElement('afterend', section);
   }
 
   // ── Badge modal ────────────────────────────────────────────────
@@ -3474,6 +3545,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let _session       = null;
   let _unlockedKeys  = new Set(); // synced each render; read by loadBadgeProgress
   let _equippedBadges = []; // synced each render; read by openCollectionPicker
+  let _firstBelieverBadge = null; // set by the independent fetch below; see renderFirstBelieverTile
 
   async function refreshAchievements() {
     if (!_session) return;
@@ -3498,6 +3570,20 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
     _session = session;
+
+    // First Believer — entirely independent of the achievement pipeline above.
+    // Uses the same public-safe summary RPC the public profile page uses,
+    // called with the signed-in user's own id. Resolves to null (renders
+    // nothing) for every account except an authorised recipient/tester.
+    // Not awaited here — it races the achievement load and re-renders the
+    // tile itself whenever it resolves, so it never delays the normal grid.
+    supabase.rpc('get_public_first_believer_badge', { p_user_id: session.user.id })
+      .then(({ data, error }) => {
+        if (error || !data) return;
+        _firstBelieverBadge = data;
+        renderFirstBelieverTile();
+      })
+      .catch(() => { /* migration not applied yet, or network failure — no-op */ });
 
     await evaluateAchievements(supabase, session);
 

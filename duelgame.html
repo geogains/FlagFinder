@@ -279,6 +279,7 @@
   import { createDuelChannel } from './js/duel-channel.js';
   import { evaluateAchievements } from './js/achievements.js';
   import { recordActivityAndMaybeCelebrate } from './js/streak-celebration.js';
+  import { maybeShowFirstBelieverReveal } from './js/first-believer.js';
 
   // ── Category question titles (mirrors game.html) ────────────────────────
   const classicTitles = {
@@ -626,7 +627,7 @@
     }
 
     // Result verified and saved — safe to count towards the daily streak.
-    await recordActivityAndMaybeCelebrate(supabase, session, {
+    const { celebrationSettled } = await recordActivityAndMaybeCelebrate(supabase, session, {
       categoryId: CATEGORY_ID_MAP[mode] || null,
       gameMode: 'duel_classic',
       deferCelebration: true
@@ -645,7 +646,12 @@
     }).then(({ error }) => {
       if (error) console.warn('⚠️ game_sessions (duel) insert failed:', error.message);
     });
-    evaluateAchievements(supabase, session);
+    // First Believer: grant check only on this page — the streak celebration
+    // itself is deferred to duelresults.html, so the reveal is skipped here
+    // and will be offered the next time this function runs on a page that
+    // isn't deferred. See js/first-believer.js.
+    const firstBelieverSettled = maybeShowFirstBelieverReveal(supabase, session, { celebrationSettled, skipReveal: true });
+    firstBelieverSettled.then(() => evaluateAchievements(supabase, session));
 
     // Stage 3B: mark session completed — replay prevention for refresh/back navigation.
     // Wrapped in try/catch: private browsing throws QuotaExceededError on setItem,
