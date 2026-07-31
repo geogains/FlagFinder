@@ -2,14 +2,18 @@
 // Populates the challenge notification bell injected by nav-menu-init.js.
 // Called once per page load; never throws — auth failures are silently ignored.
 import { supabase } from '/js/supabase-client.js';
+import { getUserCapabilities } from '/js/permissions.js';
 
 (async () => {
   const bell = document.getElementById('challengeBell');
   if (!bell) return;
 
   try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user) return;
+    // Awaiting the shared getUserCapabilities() call (deduped since Phase 1)
+    // sequences this request after critical identity resolution instead of
+    // racing it with a separate getSession() call at the same moment.
+    const caps = await getUserCapabilities();
+    if (!caps.isAuthenticated) return;
 
     const { data, error } = await supabase.rpc('get_pending_challenge_count');
     if (error || !data) return;

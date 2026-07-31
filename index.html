@@ -1251,6 +1251,7 @@
 <!-- ⑤ Daily challenge high score stat + reset countdown -->
 <script type="module">
   import { supabase } from './js/supabase-client.js';
+  import { getUserCapabilities } from './js/permissions.js';
   import { getTodaysDailyChallenge, getUTCResetCountdown } from './js/daily-challenge.js';
   import { CATEGORY_ID_MAP } from './js/top10-categories-loader.js';
 
@@ -1274,6 +1275,11 @@
   // Network failures are caught and the stat stays hidden, same as before.
   ;(async () => {
     try {
+      // This data is public and doesn't depend on the viewer's identity —
+      // the await is purely to sequence this request after the critical
+      // getUserCapabilities() read instead of racing it at page load.
+      await getUserCapabilities();
+
       const todayChallenge = getTodaysDailyChallenge();
       if (!todayChallenge) return;
 
@@ -1321,5 +1327,6 @@
 </script>
 
 <script type="module" src="js/identity-gate.js"></script>
+<script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>

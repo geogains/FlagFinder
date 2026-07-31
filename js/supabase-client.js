@@ -30,6 +30,18 @@ export function getSessionSafe(timeoutMs = 5000) {
   return Promise.race([supabase.auth.getSession(), timeout]);
 }
 
+// Runs fn once the browser is idle, falling back to a macrotask where
+// requestIdleCallback isn't available (e.g. Safari). Used below so importing
+// this module never itself fires a network request during the critical
+// startup path — every page pays for this client's construction only.
+function scheduleIdle(fn) {
+  if (typeof requestIdleCallback === 'function') {
+    requestIdleCallback(fn, { timeout: 2000 });
+  } else {
+    setTimeout(fn, 0);
+  }
+}
+
 // Syncs the browser's IANA timezone to users.timezone when it differs from the stored value.
 // Always reads the current DB value first — there is no localStorage shortcut here, because
 // a cached "already synced" flag would prevent this device from ever noticing that some other
@@ -37,30 +49,34 @@ export function getSessionSafe(timeoutMs = 5000) {
 // read is a single cheap PK lookup, and the write only fires on an actual mismatch, so this
 // stays self-healing without creating unnecessary writes.
 // Fire-and-forget: errors are swallowed so this never affects page initialisation.
-;(async () => {
-  try {
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (!tz) return;
+// Deferred via scheduleIdle() — still automatic on every page, just no longer
+// competing with critical auth/permissions requests at the moment of import.
+scheduleIdle(() => {
+  (async () => {
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (!tz) return;
 
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user) return;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return;
 
-    const userId = session.user.id;
+      const userId = session.user.id;
 
-    const { data: profile, error: readError } = await supabase
-      .from('users')
-      .select('timezone')
-      .eq('id', userId)
-      .single();
+      const { data: profile, error: readError } = await supabase
+        .from('users')
+        .select('timezone')
+        .eq('id', userId)
+        .single();
 
-    if (readError) return;
-    if (profile?.timezone === tz) return;
+      if (readError) return;
+      if (profile?.timezone === tz) return;
 
-    await supabase
-      .from('users')
-      .update({ timezone: tz })
-      .eq('id', userId);
-  } catch (_) {
-    // never propagate — this must not affect any page's own initialisation
-  }
-})();
+      await supabase
+        .from('users')
+        .update({ timezone: tz })
+        .eq('id', userId);
+    } catch (_) {
+      // never propagate — this must not affect any page's own initialisation
+    }
+  })();
+});
