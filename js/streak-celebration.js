@@ -440,6 +440,48 @@ export function showPendingStreakCelebrationIfAny() {
 }
 
 // ---------------------------------------------------------------------------
+// maybeCelebrateStreak(session, prevStreak, newStreak, { deferCelebration })
+// The dedup + display decision extracted out of recordActivityAndMaybeCelebrate
+// below, so any caller that already has a before/after streak pair — not just
+// callers that went through record_user_activity themselves — can trigger the
+// exact same celebration/dedup behavior. (Used by the guest-claim flow, whose
+// prev/new streak come back directly from the claim_guest_daily_attempt RPC
+// instead of from a client-side record_user_activity call.)
+//
+// Returns celebrationSettled — see the doc comment on
+// recordActivityAndMaybeCelebrate below for its exact resolution semantics.
+// ---------------------------------------------------------------------------
+
+export function maybeCelebrateStreak(session, prevStreak, newStreak, { deferCelebration = false } = {}) {
+  // Dedup guard — one celebration per user per UTC day
+  const today = new Date().toISOString().split('T')[0];
+  const flagKey = `georanks_streak_celebrated:${session.user.id}`;
+  const alreadyCelebrated = localStorage.getItem(flagKey) === today;
+
+  if (newStreak > prevStreak && !alreadyCelebrated) {
+    localStorage.setItem(flagKey, today);
+    if (deferCelebration) {
+      stashPendingStreakCelebration(prevStreak, newStreak);
+      // Nothing will be shown on this page — settled immediately.
+      return Promise.resolve();
+    }
+    // Delay ensures results are visible; then yield to any premium modal
+    // first. celebrationSettled resolves only once the modal has actually
+    // mounted (past this same delay) and been dismissed.
+    return new Promise(resolve => {
+      setTimeout(async () => {
+        await waitForPremiumModalClose();
+        showStreakCelebration(prevStreak, newStreak);
+        await waitForOverlayClose('streakCelebrationOverlay');
+        resolve();
+      }, 1500);
+    });
+  }
+
+  return Promise.resolve();
+}
+
+// ---------------------------------------------------------------------------
 // recordActivityAndMaybeCelebrate({ categoryId, gameMode, deferCelebration })
 // Replaces the inline record_user_activity call in each results page.
 // Returns { error, celebrationSettled }.
@@ -499,32 +541,8 @@ export async function recordActivityAndMaybeCelebrate(supabase, session, { categ
     .maybeSingle();
   const newStreak = afterData?.current_streak ?? 0;
 
-  // 4. Dedup guard — one celebration per user per UTC day
-  const today = new Date().toISOString().split('T')[0];
-  const flagKey = `georanks_streak_celebrated:${session.user.id}`;
-  const alreadyCelebrated = localStorage.getItem(flagKey) === today;
-
-  let celebrationSettled = Promise.resolve();
-
-  if (newStreak > prevStreak && !alreadyCelebrated) {
-    localStorage.setItem(flagKey, today);
-    if (deferCelebration) {
-      stashPendingStreakCelebration(prevStreak, newStreak);
-      // Nothing will be shown on this page — settled immediately.
-    } else {
-      // Delay ensures results are visible; then yield to any premium modal
-      // first. celebrationSettled resolves only once the modal has actually
-      // mounted (past this same delay) and been dismissed.
-      celebrationSettled = new Promise(resolve => {
-        setTimeout(async () => {
-          await waitForPremiumModalClose();
-          showStreakCelebration(prevStreak, newStreak);
-          await waitForOverlayClose('streakCelebrationOverlay');
-          resolve();
-        }, 1500);
-      });
-    }
-  }
+  // 4. Dedup + display — shared with the guest-claim flow, see above.
+  const celebrationSettled = maybeCelebrateStreak(session, prevStreak, newStreak, { deferCelebration });
 
   return { error: null, celebrationSettled };
 }

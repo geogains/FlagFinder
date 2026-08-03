@@ -1141,6 +1141,65 @@ Can you beat my score? Play at geo-ranks.com/top10?mode=${categoryKey}`;
     if (_hasSave) window._pendingSave.finally(_unlockNav);
   </script>
 
+  <!-- Guest Daily Challenge — attempt recording + claim resolution -->
+  <script type="module">
+    import { supabase } from './js/supabase-client.js';
+    import {
+      submitGuestDailyAttempt,
+      resolvePendingGuestClaim,
+      estimateLeaderboardPosition,
+      showGuestResultsPrompt,
+      getPendingGuestClaim
+    } from './js/guest-daily-challenge.js';
+
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session?.user) {
+        if (getPendingGuestClaim()) {
+          await resolvePendingGuestClaim(supabase, session);
+        }
+        return;
+      }
+
+      const raw = localStorage.getItem('top10PendingSave');
+      if (!raw) return;
+      let record;
+      try { record = JSON.parse(raw); } catch { return; }
+      if (!record.categoryKey || !record.categoryId || record.score == null || !record.isDailyChallenge) return;
+      const urlParams = new URLSearchParams(window.location.search);
+      if (record.categoryKey !== urlParams.get('category')) return;
+
+      const _pc = Number(record.playableCount ?? 10);
+      const safePlayableCount = Number.isFinite(_pc) && _pc > 0 ? _pc : 10;
+      const playedDate = new Date().toISOString().split('T')[0];
+
+      const { data, error } = await submitGuestDailyAttempt(supabase, {
+        gameMode: 'top10',
+        categoryId: record.categoryId,
+        playedDate,
+        score: record.score,
+        correctCount: record.correctGuesses,
+        wrongCount: record.incorrectGuessCount,
+        timeTaken: record.timeElapsed,
+        timeRemaining: record.timeRemaining,
+        playableCount: safePlayableCount
+      });
+      if (error) { console.warn('⚠️ Guest attempt not recorded:', error); return; }
+      if (data?.status === 'already_claimed') return;
+
+      window.plausible?.('daily_challenge_guest_completed');
+
+      const rank = await estimateLeaderboardPosition(supabase, {
+        categoryId: record.categoryId,
+        playedDate,
+        score: record.score
+      });
+
+      showGuestResultsPrompt({ score: record.score, rank });
+    })();
+  </script>
+
   <!-- Account/Premium Button Removal -->
   <script type="module">
     import { supabase } from './js/supabase-client.js';

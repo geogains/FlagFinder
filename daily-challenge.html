@@ -300,96 +300,6 @@
       color: #991b1b;
     }
     
-    /* Auth Modal */
-    .auth-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(8px);
-      z-index: 10000;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .auth-modal.active {
-      display: flex;
-    }
-    
-    .auth-window {
-      background: white;
-      padding: 48px 40px;
-      border-radius: 24px;
-      max-width: 480px;
-      width: 90%;
-      text-align: center;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    }
-    
-    .auth-window h2 {
-      font-size: 2.2rem;
-      font-weight: 700;
-      color: #0d315a;
-      margin-bottom: 16px;
-    }
-    
-    .lock {
-      font-size: 2.5rem;
-      display: block;
-      margin-bottom: 16px;
-    }
-    
-    .auth-window p {
-      font-size: 1.1rem;
-      color: #4b5563;
-      margin-bottom: 12px;
-      line-height: 1.6;
-    }
-    
-    .auth-window p:last-of-type {
-      font-size: 0.95rem;
-      color: #9ca3af;
-      margin-bottom: 32px;
-    }
-    
-    .auth-btn {
-      width: 100%;
-      padding: 14px 28px;
-      border: none;
-      border-radius: 12px;
-      font-size: 1.05rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      font-family: 'Poppins', sans-serif;
-      margin-bottom: 12px;
-    }
-
-    .auth-btn.login {
-      background: linear-gradient(135deg, #ff9770 0%, #ff6f61 100%);
-      color: white;
-      box-shadow: 0 6px 20px rgba(255, 111, 97, 0.4);
-    }
-
-    .auth-btn.login:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 28px rgba(255, 111, 97, 0.52);
-    }
-
-    .auth-btn.cancel {
-      background: rgba(13, 49, 90, 0.08);
-      color: #0d315a;
-      border: 2px solid rgba(13, 49, 90, 0.15);
-    }
-
-    .auth-btn.cancel:hover {
-      background: rgba(13, 49, 90, 0.12);
-      transform: translateY(-2px);
-    }
-    
     /* Mobile Responsive */
     /* ── Category hint block ── */
     .challenge-hint {
@@ -483,14 +393,6 @@
       .challenge-hint {
         padding: 16px 18px;
       }
-
-      .auth-window {
-        padding: 40px 28px;
-      }
-
-      .auth-window h2 {
-        font-size: 1.8rem;
-      }
     }
   </style>
 
@@ -502,18 +404,6 @@
   </script>
 </head>
 <body>
-
-<!-- ========== AUTH MODAL ========== -->
-<div id="authModal" class="auth-modal">
-  <div class="auth-window">
-    <span class="lock">🔒</span>
-    <h2>Login Required</h2>
-    <p>Create a free account to play the Daily Challenge!</p>
-    <p>Signed in users can also compete on the leaderboard and track progress.</p>
-    <button id="goLoginBtn" class="auth-btn login">Sign In / Sign Up</button>
-    <button id="cancelLoginBtn" class="auth-btn cancel">Cancel</button>
-  </div>
-</div>
 
 <!-- ========== HEADER ========== -->
 <header class="home-glass-header">
@@ -753,25 +643,10 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('challengeHint').style.display = 'none';
       }
 
-      // Set up play button — auth gate moves here, only fires on click
+      // Set up play button — no auth gate. Guests play the full challenge;
+      // account creation is offered on the results page after they finish
+      // (see js/guest-daily-challenge.js).
       playButton.onclick = () => {
-        if (!status.loggedIn) {
-          // Not logged in — show login required modal
-          const authModal = document.getElementById('authModal');
-          authModal.classList.add('active');
-
-          document.getElementById('goLoginBtn').onclick = () => {
-            window.location.href = 'auth.html';
-          };
-
-          document.getElementById('cancelLoginBtn').onclick = () => {
-            authModal.classList.remove('active');
-          };
-
-          return;
-        }
-
-        // Logged in — proceed to game
         let gameFile;
         if (challenge.mode === 'classic') {
           gameFile = 'game';
@@ -788,6 +663,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // Show challenge card
       loadingState.style.display = 'none';
       challengeCard.style.display = 'block';
+      window.plausible?.('daily_challenge_viewed');
 
     } catch (error) {
       console.error('Error initializing daily challenge:', error);

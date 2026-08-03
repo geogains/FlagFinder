@@ -1444,6 +1444,63 @@ Can you beat my score? Play at geo-ranks.com/game?mode=${categoryKey}`;
     if (_hasSave) window._pendingSave.finally(_unlockNav);
   </script>
 
+  <!-- Guest Daily Challenge — attempt recording + claim resolution -->
+  <script type="module">
+    import { supabase } from './js/supabase-client.js';
+    import {
+      submitGuestDailyAttempt,
+      resolvePendingGuestClaim,
+      estimateLeaderboardPosition,
+      showGuestResultsPrompt,
+      getPendingGuestClaim
+    } from './js/guest-daily-challenge.js';
+
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session?.user) {
+        // Resolve any guest attempt recorded earlier on this device, now that
+        // an account is available (covers: signed in on another tab, returned
+        // later already logged in, redirected back from auth.html).
+        if (getPendingGuestClaim()) {
+          await resolvePendingGuestClaim(supabase, session);
+        }
+        return;
+      }
+
+      // No session: if this page is showing a completed guest Daily Challenge
+      // game, record the attempt and offer to save it.
+      const raw = localStorage.getItem('classicPendingSave');
+      if (!raw) return;
+      let record;
+      try { record = JSON.parse(raw); } catch { return; }
+      if (!record.categoryParam || !record.categoryId || record.totalScore == null || !record.isDailyChallenge) return;
+      const urlParams = new URLSearchParams(window.location.search);
+      if (record.categoryParam !== urlParams.get('category')) return;
+
+      const playedDate = new Date().toISOString().split('T')[0];
+      const { data, error } = await submitGuestDailyAttempt(supabase, {
+        gameMode: 'classic',
+        categoryId: record.categoryId,
+        playedDate,
+        score: record.totalScore,
+        maxScore: 100
+      });
+      if (error) { console.warn('⚠️ Guest attempt not recorded:', error); return; }
+      if (data?.status === 'already_claimed') return; // nothing left to offer
+
+      window.plausible?.('daily_challenge_guest_completed');
+
+      const rank = await estimateLeaderboardPosition(supabase, {
+        categoryId: record.categoryId,
+        playedDate,
+        score: record.totalScore
+      });
+
+      showGuestResultsPrompt({ score: record.totalScore, maxScore: 100, rank });
+    })();
+  </script>
+
   <!-- Account/Premium Button Removal -->
   <script type="module">
     import { supabase } from './js/supabase-client.js';

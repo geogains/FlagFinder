@@ -503,6 +503,15 @@
     signUpToggle.classList.add("active");
     signInToggle.classList.remove("active");
   });
+
+  // Preselect a tab when arriving from the Daily Challenge guest-results
+  // prompt (auth.html?mode=signup|signin&next=...).
+  const _authModeParam = new URLSearchParams(window.location.search).get("mode");
+  if (_authModeParam === "signup") {
+    signUpToggle.click();
+  } else if (_authModeParam === "signin") {
+    signInToggle.click();
+  }
 </script>
 
 <script>
@@ -531,9 +540,22 @@ document.querySelectorAll('.toggle-password').forEach(button => {
 
 <script type="module">
   import { supabase } from './js/supabase-client.js';
+  import { resolvePendingGuestClaim, getPendingGuestClaim } from './js/guest-daily-challenge.js';
 
   const signInForm = document.getElementById('signInForm');
   const signUpForm = document.getElementById('signUpForm');
+
+  // Return destination after auth (e.g. the guest results page that sent the
+  // visitor here to claim their score). Only a bare relative path is ever
+  // honored — anything absolute or protocol-relative is rejected so this
+  // can't be turned into an open redirect.
+  function getSafeNextParam() {
+    const raw = new URLSearchParams(window.location.search).get('next');
+    if (!raw) return null;
+    if (!raw.startsWith('/') || raw.startsWith('//') || raw.includes('://')) return null;
+    return raw;
+  }
+  const safeNext = getSafeNextParam();
 
   // ===== SIGN IN HANDLER =====
   if (signInForm) {
@@ -550,14 +572,18 @@ document.querySelectorAll('.toggle-password').forEach(button => {
       window.plausible?.('login_started');
 
       try {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
         if (error) {
           alert("❌ " + error.message);
           submitBtn.disabled = false;
           submitBtn.textContent = 'Continue';
         } else {
-          window.location.href = "index.html";
+          // Attach any guest Daily Challenge attempt waiting on this device
+          // before navigating away — resolvePendingGuestClaim() is a no-op
+          // if there's nothing pending.
+          await resolvePendingGuestClaim(supabase, data.session);
+          window.location.href = safeNext || "index.html";
         }
       } catch (err) {
         alert("❌ An unexpected error occurred");
@@ -622,10 +648,15 @@ document.querySelectorAll('.toggle-password').forEach(button => {
           email,
           password,
           options: {
-            data: { 
-              username: username 
+            data: {
+              username: username
             },
-            emailRedirectTo: window.location.origin + '/index.html'
+            // Preserve the return destination (e.g. back to a guest Daily
+            // Challenge results page) through the confirmation email link.
+            // The account isn't signed in yet at that point either way —
+            // the pending guest claim itself resolves later, at whatever
+            // normal sign-in follows (see resolvePendingGuestClaim above).
+            emailRedirectTo: window.location.origin + (safeNext || '/index.html')
           }
         });
 
@@ -649,7 +680,10 @@ document.querySelectorAll('.toggle-password').forEach(button => {
         }
 
         // Success
-        alert("✅ Account created! Please check your email to confirm.");
+        const hasPendingClaim = !!getPendingGuestClaim();
+        alert(hasPendingClaim
+          ? "✅ Account created! Please check your email to confirm, then come back and sign in to claim your Daily Challenge score."
+          : "✅ Account created! Please check your email to confirm.");
         submitBtn.textContent = 'Check your email';
         // Keep button disabled
 
