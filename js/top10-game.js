@@ -268,21 +268,15 @@ async function initGame() {
   
   // Check if user is logged in
   const { data: { session } } = await supabase.auth.getSession();
-  
-  // Only require sign-in for Daily Challenge mode
-  if (isDailyChallenge && !session) {
-    // Show sign-in modal for Daily Challenge without auth
-    const modal = document.getElementById('signInRequiredModal');
-    const categoryDisplay = document.getElementById('signInCategoryName');
-    if (categoryDisplay) {
-      categoryDisplay.textContent = currentCategory.title;
-    }
-    if (modal) {
-      modal.style.display = 'flex';
-    }
-    return;
-  }
-  
+
+  // Daily Challenge no longer requires sign-in to play — guests play the
+  // full challenge and are offered account creation on the results page
+  // (see js/guest-daily-challenge.js). Category/premium-tier access for a
+  // legitimate daily entry is already validated before this script even
+  // runs, by the Premium Validation Guard in top10.html (isValidDailyChallenge()
+  // + getUserCapabilities()) — this function only needs to branch on
+  // whether there's a session to resume/persist against, not gate access.
+
   // If logged in and Daily Challenge, check if already completed
   if (isDailyChallenge && session) {
     const completedGameData = await checkIfCompleted();
