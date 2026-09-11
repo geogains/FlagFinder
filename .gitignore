@@ -3,3 +3,8 @@ recovery-codes.txt
 supabase/backup_pre_phase1_20260605.sql
 .vercel
 .env*.local
+
+# Local / archived side projects
+battle-royale/
+geo-auth/
+georanks-stripe/
