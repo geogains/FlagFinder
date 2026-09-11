@@ -1,5 +1,5 @@
 // ✅ Import shared Supabase client
-import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase-client.js';
+import { supabase, SUPABASE_URL } from './supabase-client.js';
 
 // ✅ Stripe Price IDs from your Dashboard
 const PRICE_MONTHLY = "price_1TsgvjB2pnEWYYPPkGP7bf1X"; 
@@ -16,17 +16,18 @@ async function redirectToCheckout(priceId) {
 
   try {
     const functionUrl = `${SUPABASE_URL}/functions/v1/create-checkout-session`;
-    
+
+    // The GeoRanks user is derived server-side from this session token —
+    // the function never trusts a client-supplied userId (mirrors the
+    // create-portal-session caller below in account.html).
     const response = await fetch(functionUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+        "Authorization": `Bearer ${session.access_token}`
       },
       body: JSON.stringify({
-        priceId: priceId,
-        userId: session.user.id,
-        userEmail: session.user.email
+        priceId: priceId
       }),
     });
 

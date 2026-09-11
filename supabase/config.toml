@@ -5,8 +5,11 @@
 # -------------------------
 # create-checkout-session
 # -------------------------
+# verify_jwt = true: this function requires a real authenticated Supabase
+# user (see supabaseClient.auth.getUser() in index.ts, which resolves the
+# GeoRanks user id — never trust a client-supplied userId).
 [functions.create-checkout-session]
-verify_jwt = false
+verify_jwt = true
 import_map = "./functions/create-checkout-session/deno.json"
 entrypoint = "./functions/create-checkout-session/index.ts"
 
@@ -21,7 +24,9 @@ entrypoint = "./functions/stripe-webhook/index.ts"
 # -------------------------
 # create-portal-session
 # -------------------------
+# verify_jwt = true: gateway defense-in-depth alongside the existing
+# supabaseClient.auth.getUser() check already in index.ts.
 [functions.create-portal-session]
-verify_jwt = false
+verify_jwt = true
 import_map = "./functions/create-portal-session/deno.json"
 entrypoint = "./functions/create-portal-session/index.ts"

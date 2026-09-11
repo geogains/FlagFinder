@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment Cancelled — GeoRanks</title>
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/game-modes.css" />
+  <link rel="stylesheet" href="css/home.css" />
+
+  <style>
+    .cancel-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .cancel-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      padding: 3rem 2rem;
+      text-align: center;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .cancel-icon {
+      font-size: 5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .cancel-card h1 {
+      font-size: 2.5rem;
+      color: #dc3545;
+      margin-bottom: 1rem;
+    }
+
+    .cancel-card p {
+      font-size: 1.2rem;
+      color: #555;
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+
+    .btn-home {
+      display: inline-block;
+      padding: 1rem 2.5rem;
+      background: linear-gradient(90deg, #0d315a, #1a4d8f);
+      color: white;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      margin: 0.5rem;
+    }
+
+    .btn-home:hover {
+      background: linear-gradient(90deg, #1a4d8f, #0d315a);
+      transform: scale(1.05);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(90deg, #6c757d, #5a6268);
+    }
+
+    .btn-secondary:hover {
+      background: linear-gradient(90deg, #5a6268, #6c757d);
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- Glass Header -->
+<header class="home-glass-header">
+  <div class="logo-header">
+    <a href="index.html" class="logo-link">
+      <img src="assets/logo.png" alt="GeoRanks Logo" />
+    </a>
+  </div>
+</header>
+
+<!-- Cancel Content -->
+<main class="cancel-wrapper">
+  <div class="cancel-card">
+    <div class="cancel-icon">❌</div>
+    <h1>Payment Cancelled</h1>
+    <p>
+      Your payment was cancelled. No charges have been made to your account.
+    </p>
+    <p>
+      If you experienced any issues or have questions, please don't hesitate to contact our support team.
+    </p>
+
+    <div>
+      <a href="pricing.html" class="btn-home">💳 Try Again</a>
+      <a href="index.html" class="btn-home btn-secondary">🏠 Back to Home</a>
+    </div>
+  </div>
+</main>
+
+</body>
+</html>
