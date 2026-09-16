@@ -419,8 +419,8 @@ function showBadgeSlide(ach, remainingQueue, onDone) {
       <h2 class="ac-title">${escHtml(meta.label)}</h2>
       ${tier ? `<p class="ac-badge-tier">${escHtml(tier)}</p>` : ''}
       <p class="ac-desc">Badge added to your collection</p>
-      <button class="ac-btn" id="acViewAllBtn">View All Achievements</button>
-      <button class="ac-btn-ghost" id="acContinueBtn">Continue</button>
+      <button class="ac-btn" id="acContinueBtn">Continue</button>
+      <button class="ac-btn-ghost" id="acViewAllBtn">View All Achievements</button>
     </div>`;
 
   bd.appendChild(modal);
