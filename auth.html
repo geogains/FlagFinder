@@ -207,6 +207,22 @@
       font-size: 1rem;
     }
 
+    input.field-invalid {
+      border-color: #dc2626;
+    }
+
+    .field-error {
+      display: none;
+      color: #dc2626;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin: -0.75rem 0 1rem;
+    }
+
+    .field-error.visible {
+      display: block;
+    }
+
     button.submit-btn {
       width: 100%;
       padding: 0.75rem;
@@ -427,7 +443,8 @@
 
       <form id="signUpForm">
   <h2>Create Account</h2>
-  <input type="text" placeholder="Username" required />
+  <input type="text" id="signUpUsername" placeholder="Username" required />
+  <span id="signUpUsernameError" class="field-error"></span>
   <input type="email" placeholder="Email" required />
   
   <div class="password-wrapper">
@@ -543,9 +560,40 @@ document.querySelectorAll('.toggle-password').forEach(button => {
 <script type="module">
   import { supabase } from './js/supabase-client.js';
   import { resolvePendingGuestClaim, getPendingGuestClaim } from './js/guest-daily-challenge.js';
+  import { validateLocally } from './js/username-utils.js';
 
   const signInForm = document.getElementById('signInForm');
   const signUpForm = document.getElementById('signUpForm');
+  const signUpUsernameInput = document.getElementById('signUpUsername');
+  const signUpUsernameError = document.getElementById('signUpUsernameError');
+
+  // Mirrors the users_username_check DB constraint (letters, digits,
+  // underscores only). validateLocally() also covers length/reserved
+  // rules, but only a disallowed character gets this exact copy —
+  // other failures keep their own message.
+  const USERNAME_ALLOWED_CHARS_RE = /^[a-zA-Z0-9_]*$/;
+
+  function getUsernameError(value) {
+    if (!value) return '';
+    const { ok, msg } = validateLocally(value);
+    if (ok) return '';
+    if (!USERNAME_ALLOWED_CHARS_RE.test(value)) {
+      return 'Username can only contain letters, numbers and underscores.';
+    }
+    return msg;
+  }
+
+  function showUsernameError(msg) {
+    signUpUsernameError.textContent = msg;
+    signUpUsernameError.classList.toggle('visible', !!msg);
+    signUpUsernameInput.classList.toggle('field-invalid', !!msg);
+  }
+
+  if (signUpUsernameInput) {
+    signUpUsernameInput.addEventListener('input', () => {
+      showUsernameError(getUsernameError(signUpUsernameInput.value.trim()));
+    });
+  }
 
   // Return destination after auth (e.g. the guest results page that sent the
   // visitor here to claim their score). Only a bare relative path is ever
@@ -601,7 +649,7 @@ document.querySelectorAll('.toggle-password').forEach(button => {
       e.preventDefault();
       
       const submitBtn = signUpForm.querySelector('button[type="submit"]');
-      const username = signUpForm.querySelector('input[type="text"]').value.trim();
+      const username = signUpUsernameInput.value.trim();
       const email = signUpForm.querySelector('input[type="email"]').value.trim();
       const password = document.getElementById('signUpPassword').value;
 
@@ -611,10 +659,12 @@ document.querySelectorAll('.toggle-password').forEach(button => {
         return;
       }
 
-      if (username.length < 3) {
-        alert("❌ Username must be at least 3 characters");
+      const usernameErrorMsg = getUsernameError(username);
+      if (usernameErrorMsg) {
+        showUsernameError(usernameErrorMsg);
         return;
       }
+      showUsernameError('');
 
       submitBtn.disabled = true;
       submitBtn.textContent = 'Creating account...';
