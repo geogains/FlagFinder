@@ -58,6 +58,28 @@
       padding: 0 1rem;
     }
 
+    .duel-results-fallback {
+      text-align: center;
+      padding: 2.5rem 1.5rem;
+    }
+    .duel-results-fallback-emoji {
+      font-size: 3rem;
+      margin-bottom: 0.75rem;
+    }
+    .duel-results-fallback-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #0d315a;
+      margin: 0 0 0.75rem;
+    }
+    .duel-results-fallback-text {
+      font-size: 0.95rem;
+      color: #6b7280;
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
     .results-card {
       background: white;
       border-radius: 24px;
@@ -629,7 +651,16 @@
 <div id="mainContent">
   <div class="results-container">
     <div class="results-card" id="resultsCard">
-      <!-- populated by JS -->
+      <!-- Static fallback: replaced by JS via card.innerHTML once match data loads.
+           Gives a crawler (or a user before JS finishes) real context for this page. -->
+      <div class="duel-results-fallback">
+        <div class="duel-results-fallback-emoji">⚔️</div>
+        <h1 class="duel-results-fallback-title">Duel Result</h1>
+        <p class="duel-results-fallback-text">
+          This is a GeoRanks head-to-head duel result page. Once your match loads, it shows how you and your
+          opponent each ranked the same countries, your final scores, and who won the round.
+        </p>
+      </div>
     </div>
   </div>
 </div>

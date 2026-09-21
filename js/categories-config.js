@@ -10,6 +10,7 @@ export const categoriesConfig = {
     dataKey: "landmassData",
     valueField: "landmass",
     questionText: "WHICH COUNTRY HAS THE LARGEST LANDMASS?",
+    description: "Rank countries by total land area, from the largest nations on Earth down to the smallest.",
     premium: false,
     image: "landmass.jpg"
   },
@@ -22,6 +23,7 @@ export const categoriesConfig = {
     dataKey: "populationData",
     valueField: "population",
     questionText: "WHICH COUNTRY HAS THE LARGEST POPULATION?",
+    description: "Rank countries by total population, from the world's most populous nations to smaller states.",
     convertToMillions: true,
     premium: false,
     image: "population.jpg"
@@ -35,6 +37,7 @@ export const categoriesConfig = {
     dataKey: "gdpData",
     valueField: "gdp",
     questionText: "WHICH COUNTRY HAS THE HIGHEST GDP PER CAPITA?",
+    description: "Rank countries by the size of their economy per person, using GDP per capita.",
     premium: false,
     image: "gdp.jpg"
   },
@@ -47,6 +50,7 @@ export const categoriesConfig = {
     dataKey: "altitudeData",
     valueField: "altitude",
     questionText: "WHICH COUNTRY HAS THE HIGHEST ALTITUDE?",
+    description: "Rank countries by the elevation of their highest peak above sea level.",
     premium: false,
     image: "altitude.jpg"
   },
@@ -59,6 +63,7 @@ export const categoriesConfig = {
     dataKey: "forestData",
     valueField: "forest",
     questionText: "WHICH COUNTRY HAS MORE HECTARES OF FOREST COVERAGE?",
+    description: "Rank countries by how much of their land area is covered in forest.",
     premium: false,
     image: "forest.jpg"
   },
@@ -71,6 +76,7 @@ export const categoriesConfig = {
     dataKey: "olympicData",
     valueField: "olympic",
     questionText: "WHICH COUNTRY HAS THE MOST OLYMPIC MEDALS?",
+    description: "Rank countries by total all-time Olympic medals, combining Summer and Winter Games.",
     premium: false,
     image: "olympic.jpg"
   },
@@ -83,6 +89,7 @@ export const categoriesConfig = {
     dataKey: "passportData",
     valueField: "passportstrength",
     questionText: "WHICH COUNTRY HAS THE MOST POWERFUL PASSPORT?",
+    description: "Rank countries by passport strength — how many destinations their citizens can enter visa-free.",
     premium: false,
     image: "passport.jpg"
   },
@@ -95,6 +102,7 @@ export const categoriesConfig = {
     dataKey: "beerData",
     valueField: "beer",
     questionText: "WHICH COUNTRY CONSUMES MORE BEER PER CAPITA?",
+    description: "Rank countries by average annual beer consumption per person.",
     premium: false,
     image: "beer.jpg"
   },
@@ -109,6 +117,7 @@ export const categoriesConfig = {
     dataKey: "bigmacData",
     valueField: "bigMacPrice",
     questionText: "WHICH COUNTRY HAS A MORE EXPENSIVE BIG MAC?",
+    description: "Rank countries by the price of a Big Mac, converted to USD.",
     premium: true,
     image: "bigmac.jpg"
   },
@@ -121,6 +130,7 @@ export const categoriesConfig = {
     dataKey: "carexportsData",
     valueField: "carExportsUsdB",
     questionText: "WHICH COUNTRY EXPORTS MORE CARS?",
+    description: "Rank countries by the total value of automobiles they export each year.",
     premium: true,
     image: "carexports.jpg"
   },
@@ -133,6 +143,7 @@ export const categoriesConfig = {
     dataKey: "coastlineData",
     valueField: "coastline",
     questionText: "WHICH COUNTRY HAS THE LONGEST COASTLINE?",
+    description: "Rank countries by total coastline length, including islands, inlets and fjords.",
     premium: true,
     image: "coastline.jpg"
   },
@@ -145,6 +156,7 @@ export const categoriesConfig = {
     dataKey: "crimerateData",
     valueField: "crimerate",
     questionText: "WHICH COUNTRY HAS A HIGHER CRIME RATE?",
+    description: "Rank countries by crime index score, combining reported crime and perceived safety.",
     premium: true,
     image: "crimerate.jpg"
   },
@@ -157,6 +169,7 @@ export const categoriesConfig = {
     dataKey: "cuisineData",
     valueField: "cuisine",
     questionText: "WHICH COUNTRY HAS A HIGHER CUISINE RATING?",
+    description: "Rank countries by global cuisine influence and international popularity.",
     premium: true,
     image: "cuisine.jpg"
   },
@@ -169,6 +182,7 @@ export const categoriesConfig = {
     dataKey: "densityData",
     valueField: "density",
     questionText: "WHICH COUNTRY HAS HIGHER POPULATION DENSITY?",
+    description: "Rank countries by population density — how many people live per square kilometre.",
     premium: true,
     image: "density.jpg"
   },
@@ -181,6 +195,7 @@ export const categoriesConfig = {
     dataKey: "disasterRiskData",
     valueField: "disasterrisk",
     questionText: "WHICH COUNTRY HAS HIGHER NATURAL DISASTER RISK?",
+    description: "Rank countries by natural disaster risk index, combining hazard exposure and vulnerability.",
     premium: true,
     image: "disasterrisk.jpg"
   },
@@ -193,6 +208,7 @@ export const categoriesConfig = {
     dataKey: "flamingoData",
     valueField: "flamingos",
     questionText: "WHICH COUNTRY HAS MORE FLAMINGOS?",
+    description: "Rank countries by the size of their wild flamingo population.",
     premium: true,
     image: "flamingo.jpg"
   },
@@ -205,6 +221,7 @@ export const categoriesConfig = {
     dataKey: "chessGMData",
     valueField: "grandmasters",
     questionText: "WHICH COUNTRY HAS MORE CHESS GRANDMASTERS?",
+    description: "Rank countries by the number of FIDE-titled chess grandmasters they've produced.",
     premium: true,
     image: "gm.jpg"
   },
@@ -217,6 +234,7 @@ export const categoriesConfig = {
     dataKey: "happinessData",
     valueField: "happiness",
     questionText: "WHICH COUNTRY HAS A HIGHER HAPPINESS INDEX?",
+    description: "Rank countries by World Happiness Report score, based on wellbeing and quality of life.",
     premium: true,
     image: "happiness.jpg"
   },
@@ -229,6 +247,7 @@ export const categoriesConfig = {
     dataKey: "lifeexpectancyData",
     valueField: "lifeExpectancy",
     questionText: "WHICH COUNTRY HAS HIGHER LIFE EXPECTANCY?",
+    description: "Rank countries by average life expectancy at birth.",
     premium: true,
     image: "lifeexpectancy.jpg"
   },
@@ -241,6 +260,7 @@ export const categoriesConfig = {
     dataKey: "longestriverData",
     valueField: "longestriver",
     questionText: "WHICH COUNTRY HAS A LONGER RIVER?",
+    description: "Rank countries by the length of their longest river.",
     premium: true,
     image: "longestriver.jpg"
   },
@@ -253,6 +273,7 @@ export const categoriesConfig = {
     dataKey: "marriageageData",
     valueField: "marriageAge",
     questionText: "WHICH COUNTRY HAS A HIGHER MARRIAGE AGE?",
+    description: "Rank countries by the average age at first marriage.",
     premium: true,
     image: "marriageage.jpg"
   },
@@ -265,6 +286,7 @@ export const categoriesConfig = {
     dataKey: "michelinData",
     valueField: "michelinTotal",
     questionText: "WHICH COUNTRY HAS MORE MICHELIN STARRED RESTAURANTS?",
+    description: "Rank countries by the number of Michelin-starred restaurants they're home to.",
     premium: true,
     image: "michelin.jpg"
   },
@@ -277,6 +299,7 @@ export const categoriesConfig = {
     dataKey: "militaryPersonnelData",
     valueField: "personnel",
     questionText: "WHICH COUNTRY HAS MORE MILITARY PERSONNEL?",
+    description: "Rank countries by the number of active-duty military personnel.",
     premium: true,
     image: "militarypersonel.jpg"
   },
@@ -289,6 +312,7 @@ export const categoriesConfig = {
     dataKey: "millionaireData",
     valueField: "millionaires",
     questionText: "WHICH COUNTRY HAS MORE MILLIONAIRES?",
+    description: "Rank countries by the total number of USD millionaires.",
     premium: true,
     image: "millionaires.jpg"
   },
@@ -301,6 +325,7 @@ export const categoriesConfig = {
     dataKey: "nobelprizeData",
     valueField: "nobelprize",
     questionText: "WHICH COUNTRY HAS WON MORE NOBEL PRIZES?",
+    description: "Rank countries by the total number of Nobel Prizes won across all categories.",
     premium: true,
     image: "nobelprize.jpg"
   },
@@ -313,6 +338,7 @@ export const categoriesConfig = {
     dataKey: "poorestgdpData",
     valueField: "gdpPerCapita",
     questionText: "WHICH COUNTRY HAS LOWER GDP PER CAPITA?",
+    description: "Rank countries from lowest to highest GDP per capita — the inverse of the standard GDP ranking.",
     premium: true,
     image: "poorestgdp.jpg"
   },
@@ -325,6 +351,7 @@ export const categoriesConfig = {
     dataKey: "precipitationData",
     valueField: "rainfall",
     questionText: "WHICH COUNTRY HAS MORE ANNUAL RAINFALL?",
+    description: "Rank countries by average annual rainfall.",
     premium: true,
     image: "precipitation.jpg"
   },
@@ -338,6 +365,7 @@ export const categoriesConfig = {
     dataKey: "precipitationData",
     valueField: "rainfall",
     questionText: "WHICH COUNTRY HAS MORE ANNUAL RAINFALL?",
+    description: "Rank countries by average annual rainfall.",
     premium: true,
     image: "rainfall.jpg"
   },
@@ -350,6 +378,7 @@ export const categoriesConfig = {
     dataKey: "renewableShareData",
     valueField: "sharepercent",
     questionText: "WHICH COUNTRY HAS A HIGHER % OF RENEWABLE ENERGY USAGES?",
+    description: "Rank countries by the share of their electricity generated from renewable sources.",
     premium: true,
     image: "renewableenergy.jpg"
   },
@@ -362,6 +391,7 @@ export const categoriesConfig = {
     dataKey: "rentData",
     valueField: "rentUsd",
     questionText: "WHICH COUNTRY HAS HIGHER CAPTAL CITY RENT PRICES?",
+    description: "Rank countries by average city-centre rent prices, converted to USD.",
     premium: true,
     image: "rent.jpg"
   },
@@ -374,6 +404,7 @@ export const categoriesConfig = {
     dataKey: "sexratioData",
     valueField: "sexRatio",
     questionText: "WHICH COUNTRY HAS A MORE MALES PER 100 FEMALES?",
+    description: "Rank countries by male-to-female ratio, measured as males per 100 females.",
     premium: true,
     image: "sexratio.jpg"
   },
@@ -386,6 +417,7 @@ export const categoriesConfig = {
     dataKey: "tallestbuildingData",
     valueField: "height",
     questionText: "WHICH COUNTRY HAS THE TALLEST BUILDING?",
+    description: "Rank countries by the height of their tallest building.",
     premium: true,
     image: "tallestbuilding.jpg"
   },
@@ -398,6 +430,7 @@ export const categoriesConfig = {
     dataKey: "temperatureData",
     valueField: "temperature",
     questionText: "WHICH COUNTRY HAS A HIGHER AVERAGE TEMPERATURE?",
+    description: "Rank countries by average annual temperature.",
     premium: true,
     image: "hightemp.jpg"  // image file is named hightemp.jpg
   },
@@ -411,6 +444,7 @@ export const categoriesConfig = {
     dataKey: "temperatureData",
     valueField: "temperature",
     questionText: "WHICH COUNTRY HAS A HIGHER AVERAGE TEMPERATURE?",
+    description: "Rank countries by average annual temperature.",
     premium: true,
     image: "hightemp.jpg"
   },
@@ -423,6 +457,7 @@ export const categoriesConfig = {
     dataKey: "tourismData",
     valueField: "touristArrivals",
     questionText: "WHICH COUNTRY RECEIVED MORE TOURISTS IN 2025?",
+    description: "Rank countries by the number of international tourist arrivals per year.",
     premium: true,
     image: "tourism.jpg"
   },
@@ -435,6 +470,7 @@ export const categoriesConfig = {
     dataKey: "universityData",
     valueField: "university",
     questionText: "WHICH COUNTRY HAS MORE UNIVERSITIES?",
+    description: "Rank countries by the number of universities appearing in global league tables.",
     premium: true,
     image: "university.jpg"
   },
@@ -447,6 +483,7 @@ export const categoriesConfig = {
     dataKey: "volcanoData",
     valueField: "volcanos",
     questionText: "WHICH COUNTRY HAS MORE VOLCANOES?",
+    description: "Rank countries by the number of active volcanoes within their borders.",
     premium: true,
     image: "volcano.jpg"
   },
@@ -459,6 +496,7 @@ export const categoriesConfig = {
     dataKey: "worldcupData",
     valueField: "worldcup",
     questionText: "WHICH COUNTRY HAS THE MOST WORLD CUP TROPHIES?",
+    description: "Rank countries by total FIFA World Cup titles won.",
     premium: false,
     image: "worldcup.jpg"
   },
@@ -471,6 +509,7 @@ export const categoriesConfig = {
     dataKey: "f1Data",
     valueField: "f1",
     questionText: "WHICH COUNTRY HAS MORE FORMULA 1 WORLD DRIVERS' CHAMPIONSHIPS?",
+    description: "Rank countries by Formula 1 World Drivers' Championship titles won by their drivers.",
     premium: true,
     image: "f1.jpg"
   },
@@ -483,6 +522,7 @@ export const categoriesConfig = {
     dataKey: "worldCupGoalsScoredData",
     valueField: "goalsScored",
     questionText: "WHICH COUNTRY HAS SCORED MORE WORLD CUP GOALS?",
+    description: "Rank countries by total goals scored across all FIFA World Cup tournaments.",
     premium: true,
     image: "worldcupgoals.jpg"
   },
@@ -495,6 +535,7 @@ export const categoriesConfig = {
     dataKey: "worldCupAppearancesData",
     valueField: "appearances",
     questionText: "WHICH COUNTRY HAS MORE WORLD CUP APPEARANCES?",
+    description: "Rank countries by the number of FIFA World Cup final-tournament appearances.",
     premium: true,
     image: "worldcupappearances.jpg"
   },
@@ -507,6 +548,7 @@ export const categoriesConfig = {
     dataKey: "worldCupWinsData",
     valueField: "wins",
     questionText: "WHICH COUNTRY HAS WON MORE WORLD CUP MATCHES?",
+    description: "Rank countries by total individual match wins at FIFA World Cup tournaments.",
     premium: true,
     image: "worldcupwins.jpg"
   }

@@ -8,8 +8,9 @@
      crossorigin="anonymous"></script>
   <link rel="icon" href="assets/favicon1.png" type="image/png">
 
-  <!-- Google AdSense site ownership verification (verification only —
-       no ad loader, no ad units, no Auto Ads enabled). -->
+  <!-- Google AdSense site ownership verification meta tag. Note: the adsbygoogle.js
+       loader above IS present on this page — this meta tag is verification only,
+       it does not itself load or control ads. No manual ad units are defined here. -->
   <meta name="google-adsense-account" content="ca-pub-7565817787395849">
 
   <!-- ========================================
@@ -908,6 +909,47 @@
       letter-spacing: 0.01em;
     }
     .challenge-banner-link:hover { color: #fff; text-decoration: underline; }
+
+    /* ========================================
+       HOMEPAGE INTRO / PUBLISHER CONTENT
+    ======================================== */
+    .home-intro-section {
+      max-width: 900px;
+      margin: 0 auto 40px;
+      padding: 0 20px;
+    }
+    .home-intro-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 20px;
+      padding: 32px 36px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    .home-intro-title {
+      font-size: clamp(1.3rem, 3vw, 1.7rem);
+      font-weight: 800;
+      color: #0d315a;
+      margin: 0 0 14px;
+      text-align: center;
+    }
+    .home-intro-text {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: #374151;
+      margin: 0 0 14px;
+    }
+    .home-intro-text:last-child { margin-bottom: 0; }
+    .home-intro-text a {
+      color: #ff6f61;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .home-intro-text a:hover { text-decoration: underline; }
+    @media (max-width: 640px) {
+      .home-intro-card { padding: 24px 20px; }
+      .home-intro-text { font-size: 0.95rem; }
+    }
   </style>
 </head>
 <body>
@@ -970,6 +1012,22 @@
       </div>
 
     </div>
+  </div>
+</section>
+
+<!-- ========== HOMEPAGE INTRO / PUBLISHER CONTENT ========== -->
+<section class="home-intro-section">
+  <div class="home-intro-card">
+    <h2 class="home-intro-title">Test your geography knowledge</h2>
+    <p class="home-intro-text">
+      GeoRanks is a geography ranking game that turns real-world data into a daily brain workout. Compare and rank countries by population, land area, economy, climate, sport, and dozens of other categories — every round teaches you something new about the world.
+    </p>
+    <p class="home-intro-text">
+      Play three ways: rank ten countries in Classic mode, race the clock to name a category's Top 10, or go head-to-head in VS mode guessing which country ranks higher. Every day brings a new Daily Challenge shared by every player worldwide, or jump into any of the 36 categories to practice at your own pace.
+    </p>
+    <p class="home-intro-text">
+      New here? <a href="how-to-play.html">Learn how GeoRanks works</a>, or read more <a href="about.html">About GeoRanks</a>.
+    </p>
   </div>
 </section>
 

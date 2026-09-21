@@ -58,6 +58,35 @@
     document.head.appendChild(s);
   })();
 
+  // ── Legal links styling (Privacy/Terms row appended to every menu) ─────────
+  // .menu-panel is left as plain block flow (see css/page.css) so existing
+  // nav buttons and the Daily Challenge card keep their exact original
+  // sizing — nothing here forces the panel into flex. The legal row simply
+  // follows the last menu item in normal document flow, with a divider and
+  // generous top margin for clear visual separation as a secondary/footer
+  // section. On short screens it's reached by the panel's existing scroll
+  // (overflow-y: scroll), not pinned flush to the viewport bottom.
+  (function injectLegalMenuStyles() {
+    var style = document.createElement('style');
+    style.textContent =
+      '.menu-legal-divider{' +
+        'width:100%;height:1px;' +
+        'background:rgba(255,255,255,0.15);' +
+        'margin:28px 0 10px;' +
+      '}' +
+      '.menu-legal-row{' +
+        'display:flex;justify-content:center;gap:18px;' +
+        'padding:2px 0 6px;' +
+      '}' +
+      '.menu-legal-link{' +
+        'background:none;border:none;color:rgba(255,255,255,0.6);' +
+        'font-size:0.8rem;font-weight:500;cursor:pointer;' +
+        'text-decoration:none;padding:4px 6px;' +
+      '}' +
+      '.menu-legal-link:hover{color:rgba(255,255,255,0.95);text-decoration:underline;}';
+    document.head.appendChild(style);
+  })();
+
   // ── Current-page detection ──────────────────────────────────────────────
   // Uses the full path (not just last segment) so /u/index.html is not
   // confused with /index.html. Strips leading slash, trailing slash, .html.
@@ -121,6 +150,19 @@
       html: '<button class="menu-btn upgrade-access-btn" onclick="window.plausible?.(' +
             '\'premium_clicked_navbar\'); window.location.href=\'/premium.html\'" style="display:none;">' +
             '🔓 Unlock All Categories</button>',
+    },
+    // Legal — secondary section, visually separated from primary navigation.
+    // Site-wide via this one shared menu so Privacy/Terms are reachable from
+    // every page instead of only the homepage footer.
+    {
+      id: null,
+      html: [
+        '<div class="menu-legal-divider"></div>',
+        '<div class="menu-legal-row">',
+        '  <a class="menu-legal-link" href="/privacy.html">Privacy Policy</a>',
+        '  <a class="menu-legal-link" href="/terms.html">Terms of Service</a>',
+        '</div>',
+      ].join('\n    '),
     },
   ];
 

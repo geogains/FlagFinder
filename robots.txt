@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Disallow: /auth
+Disallow: /reset-password
+Disallow: /claim-username
+Disallow: /account
+Disallow: /premium
+Disallow: /success
+Disallow: /cancelled
+Disallow: /quickmatch
+Disallow: /duel$
+Disallow: /upload
+Disallow: /stats
+
+Sitemap: https://geo-ranks.com/sitemap.xml
