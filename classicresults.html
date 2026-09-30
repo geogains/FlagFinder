@@ -4,8 +4,46 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Results | GeoRanks</title>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7565817787395849"
-     crossorigin="anonymous"></script>
+  <script>
+    // Gate: redirect to /categories before rendering or loading AdSense if
+    // there's no usable completed-game record in localStorage. A score of 0
+    // is still valid — what matters is a real, non-empty resultsTable, not
+    // the score value. Must run before anything else on the page (including
+    // the AdSense loader just below), so it's the very first thing in <head>.
+    // Mirrors the check the results-rendering module script relies on further
+    // down the page.
+    (function () {
+      function hasUsableResults() {
+        try {
+          var raw = localStorage.getItem('classicResults');
+          if (!raw) return false;
+          var data = JSON.parse(raw);
+          return !!data && Array.isArray(data.resultsTable) && data.resultsTable.length > 0 &&
+            data.resultsTable.every(function (r) { return r && typeof r === 'object'; });
+        } catch (e) {
+          return false;
+        }
+      }
+      window.__hasUsableResults = hasUsableResults();
+      if (!window.__hasUsableResults) {
+        window.location.replace('/categories');
+      }
+    })();
+  </script>
+  <script>
+    // AdSense loader — only injected once the guard above confirms a usable
+    // results record, so it never loads on a redirecting visit. Same
+    // publisher ID as before; injected exactly once, so no duplicate loads.
+    if (window.__hasUsableResults) {
+      (function () {
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7565817787395849';
+        s.crossOrigin = 'anonymous';
+        document.head.appendChild(s);
+      })();
+    }
+  </script>
   <link rel="icon" href="assets/favicon1.png" type="image/png">
   
   <!-- ========================================
@@ -864,6 +902,14 @@
   <script type="module">
     import soundManager from './js/sound-manager.js';
     import { categoriesConfig } from './js/categories-config.js';
+
+    // Defensive backstop: the <head> guard above already redirects (and skips
+    // loading AdSense) when there's no usable results record. This just makes
+    // sure this deferred module script can't render anything in the unlikely
+    // case it still executes during the redirect.
+    if (!window.__hasUsableResults) {
+      throw new Error('GeoRanks: no usable results record — redirecting to /categories');
+    }
 
     // Initialize sounds
     const SOUND_MAP = {

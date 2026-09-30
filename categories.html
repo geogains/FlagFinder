@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>All Categories - GeoRanks</title>
+  <meta name="description" content="Browse all GeoRanks categories — rank countries by population, GDP, landmass, Olympic medals and dozens more, from free to Premium." />
+  <link rel="canonical" href="https://www.geo-ranks.com/categories" />
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7565817787395849"
      crossorigin="anonymous"></script>
   <link rel="icon" href="assets/favicon1.png" type="image/png">
@@ -715,7 +717,159 @@
 
 <!-- ========== CATEGORIES SECTION ========== -->
 <div class="categories-flow">
-  <div class="categories-grid-new" id="categoriesGrid"></div>
+  <div class="categories-grid-new" id="categoriesGrid"><!-- SSR:CATEGORIES:START -->
+      <!-- Static fallback content — do not hand-edit. Regenerate with:
+               node scripts/generate-categories-html.mjs
+             after changing js/categories-config.js. JavaScript replaces this
+             content immediately on load (see renderCategories() below); it exists
+             so search engines and no-JS visitors see a real category directory. -->
+      
+        <div class="category-item">
+          <div class="category-card-new" data-category="beer">
+            <img class="category-bg" src="images/categories/beer.jpg" alt="" loading="lazy">
+            <div class="category-overlay"></div>
+            
+            <div class="category-content">
+              <div class="category-emoji">🍺</div>
+              <div class="category-name">Beer Consumption</div>
+              <div class="category-desc">Rank countries by average annual beer consumption per person.</div>
+            </div>
+          </div>
+        </div>
+        <div class="category-item">
+          <div class="category-card-new" data-category="forest">
+            <img class="category-bg" src="images/categories/forest.jpg" alt="" loading="lazy">
+            <div class="category-overlay"></div>
+            
+            <div class="category-content">
+              <div class="category-emoji">🌲</div>
+              <div class="category-name">Forest Coverage</div>
+              <div class="category-desc">Rank countries by how much of their land area is covered in forest.</div>
+            </div>
+          </div>
+        </div>
+        <div class="category-item">
+          <div class="category-card-new" data-category="gdp">
+            <img class="category-bg" src="images/categories/gdp.jpg" alt="" loading="lazy">
+            <div class="category-overlay"></div>
+            
+            <div class="category-content">
+              <div class="category-emoji">💰</div>
+              <div class="category-name">GDP per Capita</div>
+              <div class="category-desc">Rank countries by the size of their economy per person, using GDP per capita.</div>
+            </div>
+          </div>
+        </div>
+        <div class="category-item">
+          <div class="category-card-new" data-category="altitude">
+            <img class="category-bg" src="images/categories/altitude.jpg" alt="" loading="lazy">
+            <div class="category-overlay"></div>
+            
+            <div class="category-content">
+              <div class="category-emoji">⛰️</div>
+              <div class="category-name">Highest Altitude</div>
+              <div class="category-desc">Rank countries by the elevation of their highest peak above sea level.</div>
+            </div>
+          </div>
+        </div>
+        <div class="category-item">
+          <div class="category-card-new" data-category="landmass">
+            <img class="category-bg" src="images/categories/landmass.jpg" alt="" loading="lazy">
+            <div class="category-overlay"></div>
+            
+            <div class="category-content">
+              <div class="category-emoji">🗺️</div>
+              <div class="category-name">Landmass</div>
+              <div class="category-desc">Rank countries by total land area, from the largest nations on Earth down to the smallest.</div>
+            </div>
+          </div>
+        </div>
+        <div class="category-item">
+          <div class="category-card-new" data-category="olympic">
+            <img class="category-bg" src="images/categories/olympic.jpg" alt="" loading="lazy">
+            <div class="category-overlay"></div>
+            
+            <div class="category-content">
+              <div class="category-emoji">🏅</div>
+              <div class="category-name">Olympic Medals</div>
+              <div class="category-desc">Rank countries by total all-time Olympic medals, combining Summer and Winter Games.</div>
+            </div>
+          </div>
+        </div>
+        <div class="category-item">
+          <div class="category-card-new" data-category="passport">
+            <img class="category-bg" src="images/categories/passport.jpg" alt="" loading="lazy">
+            <div class="category-overlay"></div>
+            
+            <div class="category-content">
+              <div class="category-emoji">🛂</div>
+              <div class="category-name">Passport Power</div>
+              <div class="category-desc">Rank countries by passport strength — how many destinations their citizens can enter visa-free.</div>
+            </div>
+          </div>
+        </div>
+        <div class="category-item">
+          <div class="category-card-new" data-category="population">
+            <img class="category-bg" src="images/categories/population.jpg" alt="" loading="lazy">
+            <div class="category-overlay"></div>
+            
+            <div class="category-content">
+              <div class="category-emoji">👥</div>
+              <div class="category-name">Population</div>
+              <div class="category-desc">Rank countries by total population, from the world's most populous nations to smaller states.</div>
+            </div>
+          </div>
+        </div>
+        <div class="category-item">
+          <div class="category-card-new" data-category="worldcup">
+            <img class="category-bg" src="images/categories/worldcup.jpg" alt="" loading="lazy">
+            <div class="category-overlay"></div>
+            
+            <div class="category-content">
+              <div class="category-emoji">⚽</div>
+              <div class="category-name">World Cup Trophies</div>
+              <div class="category-desc">Rank countries by total FIFA World Cup titles won.</div>
+            </div>
+          </div>
+        </div>
+        <div class="category-item">
+          <div class="category-card-new locked" data-category="bigmac">
+            <img class="category-bg" src="images/categories/bigmac.jpg" alt="" loading="lazy">
+            <div class="category-overlay"></div>
+            <div class="lock-badge">Premium</div>
+            <div class="category-content">
+              <div class="category-emoji">🍔</div>
+              <div class="category-name">BigMac Price</div>
+              <div class="category-desc">Rank countries by the price of a Big Mac, converted to USD.</div>
+            </div>
+          </div>
+        </div>
+        <div class="category-item">
+          <div class="category-card-new locked" data-category="carexports">
+            <img class="category-bg" src="images/categories/carexports.jpg" alt="" loading="lazy">
+            <div class="category-overlay"></div>
+            <div class="lock-badge">Premium</div>
+            <div class="category-content">
+              <div class="category-emoji">🚗</div>
+              <div class="category-name">Car Exports</div>
+              <div class="category-desc">Rank countries by the total value of automobiles they export each year.</div>
+            </div>
+          </div>
+        </div>
+        <div class="category-item">
+          <div class="category-card-new locked" data-category="crimerate">
+            <img class="category-bg" src="images/categories/crimerate.jpg" alt="" loading="lazy">
+            <div class="category-overlay"></div>
+            <div class="lock-badge">Premium</div>
+            <div class="category-content">
+              <div class="category-emoji">🚨</div>
+              <div class="category-name">Crime Rate</div>
+              <div class="category-desc">Rank countries by crime index score, combining reported crime and perceived safety.</div>
+            </div>
+          </div>
+        </div>
+      
+      <!-- SSR:CATEGORIES:END --></div>
   
   <!-- ========== PAGINATION ========== -->
   <div class="pagination-controls">
@@ -765,6 +919,21 @@
       </a>
     </div>
     <p>© 2026 GeoRanks</p>
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <span>•</span>
+      <a href="how-to-play.html">How to Play</a>
+      <span>•</span>
+      <a href="about.html">About</a>
+      <span>•</span>
+      <a href="daily-challenge.html">Daily Challenge</a>
+      <span>•</span>
+      <a href="contact.html">Contact</a>
+      <span>•</span>
+      <a href="privacy.html">Privacy Policy</a>
+      <span>•</span>
+      <a href="terms.html">Terms of Service</a>
+    </div>
   </div>
 </footer>
 
@@ -803,23 +972,9 @@
 <script type="module">
   import { openModeSelector as originalOpenModeSelector } from './js/mode-selector.js';
   import { categoriesConfig } from './js/categories-config.js';
+  import { getSortedCategories } from './js/categories-list.js';
 
-  const ALIAS_KEYS = new Set(['hightemp', 'rainfall']);
-
-  const allCategoriesData = Object.entries(categoriesConfig)
-    .filter(([key]) => !ALIAS_KEYS.has(key))
-    .map(([key, cfg]) => ({
-      category: key,
-      display: cfg.title,
-      emoji: cfg.emoji,
-      tier: cfg.tier,
-      image: cfg.image,
-      description: cfg.description || ''
-    }))
-    .sort((a, b) => {
-      if (a.tier !== b.tier) return a.tier === 'free' ? -1 : 1;
-      return a.display.localeCompare(b.display);
-    });
+  const allCategoriesData = getSortedCategories(categoriesConfig);
 
   let userIsPremium = false;
   let currentPage = 1;

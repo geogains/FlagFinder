@@ -49,8 +49,14 @@ Deno is configured only for `supabase/functions/` — the VS Code workspace is s
 ### Key Files
 - `js/supabase-client.js` — Supabase client init + `requireAuth()` guard for protected routes
 - `js/categories-config.js` — Central config for all 36 categories (title, emoji, unit, data file, question text)
+- `js/categories-list.js` — Shared filter/sort of `categoriesConfig`, used by both `categories.html` and `scripts/generate-categories-html.mjs`
 - `js/mode-selector.js` — Modal for choosing game mode; handles category background images
 - `js/categories/[category].js` — Per-category country data arrays (180+ countries each)
+
+After editing `js/categories-config.js`, run `node scripts/generate-categories-html.mjs` to
+regenerate the static (no-JS / search-engine) category cards embedded in `categories.html`.
+Nothing runs this automatically — there's no build step (see above) — so it's a manual step
+before committing. See `MASTER_GUIDE_ADDING_CATEGORIES.md` (FILE 8) for details.
 
 ### Category Data Format
 Each file in `js/categories/` exports an array of country objects. The key field varies (e.g., `population`, `gdp`, `score`) — the game engines auto-detect the metric key at runtime.

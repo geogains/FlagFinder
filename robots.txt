@@ -9,7 +9,6 @@ Disallow: /success
 Disallow: /cancelled
 Disallow: /quickmatch
 Disallow: /duel$
-Disallow: /upload
 Disallow: /stats
 
-Sitemap: https://geo-ranks.com/sitemap.xml
+Sitemap: https://www.geo-ranks.com/sitemap.xml

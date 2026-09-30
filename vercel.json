@@ -3,6 +3,10 @@
   "rewrites": [
     { "source": "/u/:username", "destination": "/u" }
   ],
+  "redirects": [
+    { "source": "/worldcup", "destination": "/categories", "permanent": true },
+    { "source": "/worldcup.html", "destination": "/categories", "permanent": true }
+  ],
   "headers": [
     {
       "source": "/images/categories/(.*)",

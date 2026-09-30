@@ -484,48 +484,32 @@ const bgMap = {
 
 **Location:** `categories.html`
 
-#### Change 8A: Add Category Card to Grid
-**Find:** The categories grid section (after last category card)
+**This section is out of date — categories.html no longer has a hand-maintained grid or a
+separate search array.** Since the September 2026 crawlability fix, `categories.html`'s card
+grid and search dropdown are both generated at runtime from `categoriesConfig` in
+`js/categories-config.js` (via the shared helper `js/categories-list.js`). Adding a category
+to `categoriesConfig` (Phase 3 / FILE 3 above) is what makes it appear in the grid, search and
+pagination — there is no separate card markup or search array to hand-edit in this file.
 
-**Add BEFORE closing `</div>` of categories-grid:**
-```html
-<div class="category-card" data-premium="[true/false]" data-category="[slug]" data-display="[Display Name]" data-emoji="[EMOJI]"
-     style="background-image:url('images/categories/[slug].jpg');">
-  <div class="category-info">
-    <span class="emoji">[EMOJI]</span>
-    <h3>[Display Name]</h3>
-  </div>
-</div>
+#### Change 8A: Regenerate the static (no-JS) category cards
+
+`categories.html` also embeds a static, server-delivered copy of the **first page** of
+categories (between `<!-- SSR:CATEGORIES:START -->` / `<!-- SSR:CATEGORIES:END -->` markers
+inside `#categoriesGrid`), so search engines and JavaScript-disabled visitors see a readable
+category directory instead of an empty grid. JavaScript fully replaces this content on load —
+it's a fallback, not a second live copy — but it's generated, not hand-written, so it only
+stays in sync if you regenerate it.
+
+**After adding, removing, renaming or reordering any category in `categoriesConfig`, run:**
+```bash
+node scripts/generate-categories-html.mjs
 ```
-
-**Example:**
-```html
-<div class="category-card" data-premium="true" data-category="tourism" data-display="Tourist Visits" data-emoji="✈️"
-     style="background-image:url('images/categories/tourism.jpg');">
-  <div class="category-info">
-    <span class="emoji">✈️</span>
-    <h3>Tourist Visits</h3>
-  </div>
-</div>
-```
-
----
-
-#### Change 8B: Add to Search Array
-**Find:** (around line 369-386)
-```javascript
-const allCategories = [
-  { name: "Altitude", slug: "altitude" },
-  { name: "Beer Consumption", slug: "beer" },
-  // ... other categories (alphabetically sorted)
-  { name: "World Cup Trophies", slug: "worldcup" }
-];
-```
-
-**Add in ALPHABETICAL ORDER:**
-```javascript
-{ name: "[Display Name]", slug: "[slug]" }
-```
+This reads `categoriesConfig` directly and rewrites the static cards in `categories.html` to
+match (same 12-item page-1 slice, same free-then-alphabetical sort as the live page). It's
+safe to run repeatedly — it produces byte-identical output when nothing relevant changed.
+There is no build step or git hook that runs this automatically (this project has no build
+system — see `CLAUDE.md`), so it must be run manually before committing a `categoriesConfig`
+change, and its diff should be committed alongside it.
 
 ---
 

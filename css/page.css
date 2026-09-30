@@ -465,9 +465,11 @@ body.menu-open {
 
  .footer-links {
       display: flex;
+      flex-wrap: wrap;
       justify-content: center;
       align-items: center;
       gap: 10px;
+      row-gap: 6px;
       margin-top: 15px;
     }
 
